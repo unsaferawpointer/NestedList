@@ -17,10 +17,10 @@ extension UTType {
 
 struct NestedListDocument {
 
-	var text: String
+	var nodes: [Node<Item>]
 
-	init(text: String = "Hello, world!") {
-		self.text = text
+	init(nodes: [Node<Item>] = []) {
+		self.nodes = nodes
 	}
 }
 
@@ -32,16 +32,37 @@ extension NestedListDocument: FileDocument {
 	}
 
 	init(configuration: ReadConfiguration) throws {
-		guard let data = configuration.file.regularFileContents,
-			  let string = String(data: data, encoding: .utf8)
+		guard
+			let data = configuration.file.regularFileContents,
+			let string = String(data: data, encoding: .utf8)
 		else {
 			throw CocoaError(.fileReadCorruptFile)
 		}
-		text = string
+		self.nodes = TextParser(configuration: .default).parse(from: string)
 	}
 
 	func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+		let text = nodes.map {
+			BasicFormatter().format($0)
+		}.joined(separator: "\n")
 		let data = text.data(using: .utf8)!
 		return .init(regularFileWithContents: data)
+	}
+}
+
+extension NestedListDocument {
+
+	mutating func insert(to target: UUID?) {
+
+		let item = Item(text: "New Item")
+		let node = Node<Item>(value: item)
+
+		guard let target else {
+			nodes.append(node)
+			return
+		}
+		for i in 0..<nodes.count {
+			nodes[i].insert(node, to: target)
+		}
 	}
 }
