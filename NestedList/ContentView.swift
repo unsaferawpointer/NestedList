@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct ContentView: View {
-    @Binding var document: NestedListDocument
-
-    var body: some View {
-        TextEditor(text: $document.text)
-    }
+	@Binding var document: NestedListDocument
+	
+	var body: some View {
+		TextEditor(text: $document.text)
+	}
 }
 
 #Preview {
-    ContentView(document: .constant(NestedListDocument()))
+	ContentView(document: .constant(NestedListDocument()))
 }
