@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4CF92CE62CE8AD2000135033 /* TextParsing in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92CE52CE8AD2000135033 /* TextParsing */; };
+		4CF92CE92CE8CD3800135033 /* Hierarchy in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92CE82CE8CD3800135033 /* Hierarchy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +70,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CF92CE92CE8CD3800135033 /* Hierarchy in Frameworks */,
 				4CF92CE62CE8AD2000135033 /* TextParsing in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -131,6 +133,7 @@
 			name = macOS;
 			packageProductDependencies = (
 				4CF92CE52CE8AD2000135033 /* TextParsing */,
+				4CF92CE82CE8CD3800135033 /* Hierarchy */,
 			);
 			productName = macOS;
 			productReference = 4CF92C4A2CE8A94D00135033 /* macOS.app */;
@@ -216,6 +219,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				4CF92CE42CE8AD2000135033 /* XCLocalSwiftPackageReference "../TextParsing" */,
+				4CF92CE72CE8CD3800135033 /* XCLocalSwiftPackageReference "../Hierarchy" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4CF92C4B2CE8A94D00135033 /* Products */;
@@ -579,12 +583,20 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../TextParsing;
 		};
+		4CF92CE72CE8CD3800135033 /* XCLocalSwiftPackageReference "../Hierarchy" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../Hierarchy;
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		4CF92CE52CE8AD2000135033 /* TextParsing */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TextParsing;
+		};
+		4CF92CE82CE8CD3800135033 /* Hierarchy */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Hierarchy;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
