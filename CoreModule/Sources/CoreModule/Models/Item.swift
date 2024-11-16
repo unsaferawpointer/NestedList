@@ -7,19 +7,19 @@
 
 import Foundation
 
-struct Item {
+public struct Item {
 
-	var uuid: UUID
+	public var uuid: UUID
 
-	var isDone: Bool
+	public var isDone: Bool
 
-	var text: String
+	public var text: String
 }
 
 // MARK: - Identifiable
 extension Item: Identifiable {
 
-	var id: UUID {
+	public var id: UUID {
 		uuid
 	}
 }

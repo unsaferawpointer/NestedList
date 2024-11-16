@@ -9,13 +9,19 @@ import Cocoa
 import Hierarchy
 import DesignSystem
 
-protocol UnitView {
+protocol UnitViewOutput {
+	func viewDidLoad()
+}
+
+protocol UnitView: AnyObject {
 	func display(_ snapshot: Snapshot<ItemModel>)
 }
 
 class ViewController: NSViewController {
 
 	var adapter: ListAdapter<ItemModel>?
+
+	var output: UnitViewOutput?
 
 	// MARK: - UI-Properties
 
@@ -42,66 +48,30 @@ class ViewController: NSViewController {
 		return view
 	}()
 
+	// MARK: - Initialization
+
+	init(configure: (ViewController) -> Void) {
+		super.init(nibName: nil, bundle: nil)
+		configure(self)
+		self.adapter = ListAdapter<ItemModel>(tableView: table)
+	}
+
+	@available(*, unavailable, message: "Use init(storage:)")
+	required init?(coder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
+	}
+
 	// MARK: - View life-cycle
 
 	override func loadView() {
 		self.view = NSView()
 		configureUserInterface()
 		configureConstraints()
-		adapter = ListAdapter<ItemModel>(tableView: table)
 	}
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		let new = Snapshot<ItemModel>.init(
-			[
-				.init(
-					value: .init(
-						id: .init(),
-						value: .init(
-							isOn: true,
-							text: "New Item"
-						),
-						configuration: .init(textColor: .labelColor)
-					)
-					, children:
-						[
-							.init(
-								value: .init(
-									id: .init(),
-									value: .init(
-										isOn: true,
-										text: "New Item"
-									),
-									configuration: .init(textColor: .labelColor)
-								)
-							),
-							.init(
-								value: .init(
-									id: .init(),
-									value: .init(
-										isOn: true,
-										text: "New Item"
-									),
-									configuration: .init(textColor: .labelColor)
-								)
-							),
-							.init(
-								value: .init(
-									id: .init(),
-									value: .init(
-										isOn: true,
-										text: "New Item"
-									),
-									configuration: .init(textColor: .labelColor)
-								)
-							)
-						]
-				)
-			]
-		)
-
-		adapter?.apply(new)
+		output?.viewDidLoad()
 	}
 
 	override func viewWillAppear() {
@@ -114,14 +84,7 @@ class ViewController: NSViewController {
 extension ViewController: UnitView {
 
 	func display(_ snapshot: Snapshot<ItemModel>) {
-
-		let new = Snapshot<ItemModel>.init(
-			[
-				.init(value: .init(id: .init(), value: .init(isOn: true, text: "New Item"), configuration: .init(textColor: .labelColor)))
-			]
-		)
-
-		adapter?.apply(new)
+		adapter?.apply(snapshot)
 	}
 }
 

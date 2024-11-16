@@ -9,12 +9,12 @@ import Foundation
 import Hierarchy
 
 protocol ParserProtocol {
-	func parse(from text: String) -> [Node<Parser.Line>]
+	func parse(from text: String) -> [Node<Item>]
 }
 
 public final class Parser {
 
-	typealias Model = Line
+	typealias Model = Item
 }
 
 // MARK: - ParserProtocol
@@ -52,7 +52,8 @@ extension Parser: ParserProtocol {
 
 		for line in lines {
 
-			let node = Node<Model>(value: line)
+			let item = Item(uuid: .init(), isDone: false, text: line.text)
+			let node = Node<Model>(value: item)
 
 			if line.indent == 0 {
 				result.append(node)

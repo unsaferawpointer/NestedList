@@ -34,6 +34,13 @@ public struct Snapshot<Model: Identifiable> {
 
 	/// Initialize empty snapshot
 	public init() { }
+
+	init(root: [ID], storage: [ID: [ID]], cache: [ID: Model], identifiers: Set<ID>) {
+		self.root = root
+		self.storage = storage
+		self.cache = cache
+		self.identifiers = identifiers
+	}
 }
 
 // MARK: - Public interface
@@ -71,6 +78,19 @@ public extension Snapshot {
 
 	func model(with id: ID) -> Model {
 		return cache[unsafe: id]
+	}
+
+	func map<T>(_ transform: (Model) -> T) -> Snapshot<T> where T.ID == ID {
+		var newCache = [ID: T]()
+		for (id, model) in cache {
+			newCache[id] = transform(model)
+		}
+		return Snapshot<T>(
+			root: root,
+			storage: storage,
+			cache: newCache,
+			identifiers: identifiers
+		)
 	}
 }
 
