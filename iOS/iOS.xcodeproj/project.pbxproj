@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4CF92CE32CE8AD0A00135033 /* TextParsing in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92CE22CE8AD0A00135033 /* TextParsing */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		4CF92C9B2CE8A97400135033 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -65,6 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CF92CE32CE8AD0A00135033 /* TextParsing in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +130,7 @@
 			);
 			name = iOS;
 			packageProductDependencies = (
+				4CF92CE22CE8AD0A00135033 /* TextParsing */,
 			);
 			productName = iOS;
 			productReference = 4CF92C852CE8A97300135033 /* iOS.app */;
@@ -208,6 +214,9 @@
 			);
 			mainGroup = 4CF92C7C2CE8A97300135033;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				4CF92CE12CE8AD0A00135033 /* XCLocalSwiftPackageReference "../TextParsing" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4CF92C862CE8A97300135033 /* Products */;
 			projectDirPath = "";
@@ -569,6 +578,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		4CF92CE12CE8AD0A00135033 /* XCLocalSwiftPackageReference "../TextParsing" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../TextParsing;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4CF92CE22CE8AD0A00135033 /* TextParsing */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TextParsing;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4CF92C7D2CE8A97300135033 /* Project object */;
 }
