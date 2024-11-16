@@ -21,14 +21,14 @@ public struct Snapshot<Model: Identifiable> {
 
 	private(set) var cache: [ID: Model] = [:]
 
-	private(set) var identifiers: Set<ID> = .init()
+	public private(set) var identifiers: Set<ID> = .init()
 
 	// MARK: - Initialization
 
 	public init(_ base: [Node<Model>]) {
 		self.root = base.map(\.id)
 		base.forEach { node in
-			normalize(base: node, parent: nil)
+			normalize(base: node)
 		}
 	}
 
@@ -77,14 +77,14 @@ public extension Snapshot {
 // MARK: - Helpers
 private extension Snapshot {
 
-	mutating func normalize(base: Node<Model>, parent: ID?) {
+	mutating func normalize(base: Node<Model>) {
 
 		identifiers.insert(base.id)
 		storage[base.id] = base.children.map(\.id)
 		cache[base.id] = base.value
 
 		for child in base.children {
-			normalize(base: child, parent: base.id)
+			normalize(base: child)
 		}
 	}
 }

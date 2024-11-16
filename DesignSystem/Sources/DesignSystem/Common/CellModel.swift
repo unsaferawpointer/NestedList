@@ -17,7 +17,7 @@ public protocol CellModel: Identifiable {
 
 	var value: Value { get }
 
-	var action: (Value) -> Void { get }
+	var action: ((Value) -> Void)? { get }
 }
 
 // MARK: - Identifiable

@@ -6,9 +6,16 @@
 //
 
 import Cocoa
+import Hierarchy
 import DesignSystem
 
+protocol UnitView {
+	func display(_ snapshot: Snapshot<ItemModel>)
+}
+
 class ViewController: NSViewController {
+
+	var adapter: ListAdapter<ItemModel>?
 
 	// MARK: - UI-Properties
 
@@ -41,11 +48,80 @@ class ViewController: NSViewController {
 		self.view = NSView()
 		configureUserInterface()
 		configureConstraints()
+		adapter = ListAdapter<ItemModel>(tableView: table)
+	}
+
+	override func viewDidLoad() {
+		super.viewDidLoad()
+		let new = Snapshot<ItemModel>.init(
+			[
+				.init(
+					value: .init(
+						id: .init(),
+						value: .init(
+							isOn: true,
+							text: "New Item"
+						),
+						configuration: .init(textColor: .labelColor)
+					)
+					, children:
+						[
+							.init(
+								value: .init(
+									id: .init(),
+									value: .init(
+										isOn: true,
+										text: "New Item"
+									),
+									configuration: .init(textColor: .labelColor)
+								)
+							),
+							.init(
+								value: .init(
+									id: .init(),
+									value: .init(
+										isOn: true,
+										text: "New Item"
+									),
+									configuration: .init(textColor: .labelColor)
+								)
+							),
+							.init(
+								value: .init(
+									id: .init(),
+									value: .init(
+										isOn: true,
+										text: "New Item"
+									),
+									configuration: .init(textColor: .labelColor)
+								)
+							)
+						]
+				)
+			]
+		)
+
+		adapter?.apply(new)
 	}
 
 	override func viewWillAppear() {
 		super.viewWillAppear()
 		table.sizeLastColumnToFit()
+	}
+}
+
+// MARK: - UnitView
+extension ViewController: UnitView {
+
+	func display(_ snapshot: Snapshot<ItemModel>) {
+
+		let new = Snapshot<ItemModel>.init(
+			[
+				.init(value: .init(id: .init(), value: .init(isOn: true, text: "New Item"), configuration: .init(textColor: .labelColor)))
+			]
+		)
+
+		adapter?.apply(new)
 	}
 }
 

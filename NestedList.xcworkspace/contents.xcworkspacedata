@@ -5,10 +5,10 @@
       location = "group:CoreModule">
    </FileRef>
    <FileRef
-      location = "group:DesignSystem">
+      location = "group:Hierarchy">
    </FileRef>
    <FileRef
-      location = "group:Hierarchy">
+      location = "group:DesignSystem">
    </FileRef>
    <FileRef
       location = "group:iOS/iOS.xcodeproj">

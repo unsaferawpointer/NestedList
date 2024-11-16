@@ -26,8 +26,12 @@ public final class ListAdapter<Model: CellModel>: NSObject, NSOutlineViewDataSou
 
 	// MARK: - Initialization
 
-	init(tableView: NSOutlineView) {
+	public init(tableView: NSOutlineView) {
 		self.tableView = tableView
+		super.init()
+
+		tableView.dataSource = self
+		tableView.delegate = self
 	}
 
 	// MARK: - NSOutlineViewDataSource
@@ -75,11 +79,25 @@ public final class ListAdapter<Model: CellModel>: NSObject, NSOutlineViewDataSou
 }
 
 // MARK: - Public interface
-extension ListAdapter {
+public extension ListAdapter {
 
 	@MainActor
 	func apply(_ snapshot: Snapshot<Model>) {
+
+		let old = self.snapshot
+
 		self.snapshot = snapshot
+
+		let deleted = old.identifiers.subtracting(snapshot.identifiers)
+		let inserted = snapshot.identifiers.subtracting(old.identifiers)
+
+		for id in deleted {
+			cache[id] = nil
+		}
+		for id in inserted {
+			cache[id] = Item(id: id)
+		}
+
 		tableView?.reloadData()
 	}
 }
