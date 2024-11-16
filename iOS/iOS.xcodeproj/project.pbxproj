@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		4CF92CE32CE8AD0A00135033 /* TextParsing in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92CE22CE8AD0A00135033 /* TextParsing */; };
 		4CF92CEC2CE8CD4300135033 /* Hierarchy in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92CEB2CE8CD4300135033 /* Hierarchy */; };
+		4CF92D112CE8D6DA00135033 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92D102CE8D6DA00135033 /* DesignSystem */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +71,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CF92D112CE8D6DA00135033 /* DesignSystem in Frameworks */,
 				4CF92CEC2CE8CD4300135033 /* Hierarchy in Frameworks */,
 				4CF92CE32CE8AD0A00135033 /* TextParsing in Frameworks */,
 			);
@@ -134,6 +136,7 @@
 			packageProductDependencies = (
 				4CF92CE22CE8AD0A00135033 /* TextParsing */,
 				4CF92CEB2CE8CD4300135033 /* Hierarchy */,
+				4CF92D102CE8D6DA00135033 /* DesignSystem */,
 			);
 			productName = iOS;
 			productReference = 4CF92C852CE8A97300135033 /* iOS.app */;
@@ -220,6 +223,7 @@
 			packageReferences = (
 				4CF92CE12CE8AD0A00135033 /* XCLocalSwiftPackageReference "../TextParsing" */,
 				4CF92CEA2CE8CD4300135033 /* XCLocalSwiftPackageReference "../Hierarchy" */,
+				4CF92D0F2CE8D6DA00135033 /* XCLocalSwiftPackageReference "../DesignSystem" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4CF92C862CE8A97300135033 /* Products */;
@@ -592,6 +596,10 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../Hierarchy;
 		};
+		4CF92D0F2CE8D6DA00135033 /* XCLocalSwiftPackageReference "../DesignSystem" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../DesignSystem;
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -602,6 +610,10 @@
 		4CF92CEB2CE8CD4300135033 /* Hierarchy */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Hierarchy;
+		};
+		4CF92D102CE8D6DA00135033 /* DesignSystem */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DesignSystem;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

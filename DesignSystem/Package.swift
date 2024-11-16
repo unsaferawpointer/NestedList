@@ -4,22 +4,23 @@
 import PackageDescription
 
 let package = Package(
-	name: "Hierarchy",
+	name: "DesignSystem",
 	platforms: [.macOS(.v10_15), .iOS(.v13)],
 	products: [
 		// Products define the executables and libraries a package produces, making them visible to other packages.
 		.library(
-			name: "Hierarchy",
-			targets: ["Hierarchy"]),
+			name: "DesignSystem",
+			targets: ["DesignSystem"]),
 	],
 	targets: [
 		// Targets are the basic building blocks of a package, defining a module or a test suite.
 		// Targets can depend on other targets in this package and products from dependencies.
 		.target(
-			name: "Hierarchy"),
+			name: "DesignSystem"),
 		.testTarget(
-			name: "HierarchyTests",
-			dependencies: ["Hierarchy"]
+			name: "DesignSystemTests",
+			dependencies: ["DesignSystem"]
 		),
-	]
+	],
+	swiftLanguageModes: [.v5]
 )

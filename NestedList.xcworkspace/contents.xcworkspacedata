@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:DesignSystem">
+   </FileRef>
+   <FileRef
       location = "group:Hierarchy">
    </FileRef>
    <FileRef
