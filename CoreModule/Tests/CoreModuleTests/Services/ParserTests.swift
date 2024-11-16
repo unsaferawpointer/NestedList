@@ -6,7 +6,7 @@
 //
 
 import Testing
-@testable import TextParsing
+@testable import CoreModule
 
 struct ParserTests {
 

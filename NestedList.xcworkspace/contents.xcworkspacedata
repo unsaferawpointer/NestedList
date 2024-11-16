@@ -2,13 +2,13 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:CoreModule">
+   </FileRef>
+   <FileRef
       location = "group:DesignSystem">
    </FileRef>
    <FileRef
       location = "group:Hierarchy">
-   </FileRef>
-   <FileRef
-      location = "group:TextParsing">
    </FileRef>
    <FileRef
       location = "group:iOS/iOS.xcodeproj">

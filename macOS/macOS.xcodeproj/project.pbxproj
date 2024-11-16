@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4CF92CE62CE8AD2000135033 /* TextParsing in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92CE52CE8AD2000135033 /* TextParsing */; };
 		4CF92CE92CE8CD3800135033 /* Hierarchy in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92CE82CE8CD3800135033 /* Hierarchy */; };
 		4CF92CF62CE8CD9600135033 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4CF92CEE2CE8CD9600135033 /* Assets.xcassets */; };
 		4CF92CF82CE8CD9600135033 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4CF92CF32CE8CD9600135033 /* Main.storyboard */; };
 		4CF92CF92CE8CD9600135033 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CF92CED2CE8CD9600135033 /* AppDelegate.swift */; };
 		4CF92CFA2CE8CD9600135033 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CF92CEF2CE8CD9600135033 /* Document.swift */; };
 		4CF92D0E2CE8D6CE00135033 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92D0D2CE8D6CE00135033 /* DesignSystem */; };
+		4CF92D142CE8DDD100135033 /* CoreModule in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92D132CE8DDD100135033 /* CoreModule */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,8 +69,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4CF92D0E2CE8D6CE00135033 /* DesignSystem in Frameworks */,
+				4CF92D142CE8DDD100135033 /* CoreModule in Frameworks */,
 				4CF92CE92CE8CD3800135033 /* Hierarchy in Frameworks */,
-				4CF92CE62CE8AD2000135033 /* TextParsing in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,9 +145,9 @@
 			);
 			name = macOS;
 			packageProductDependencies = (
-				4CF92CE52CE8AD2000135033 /* TextParsing */,
 				4CF92CE82CE8CD3800135033 /* Hierarchy */,
 				4CF92D0D2CE8D6CE00135033 /* DesignSystem */,
+				4CF92D132CE8DDD100135033 /* CoreModule */,
 			);
 			productName = macOS;
 			productReference = 4CF92C4A2CE8A94D00135033 /* macOS.app */;
@@ -232,9 +232,9 @@
 			mainGroup = 4CF92C412CE8A94D00135033;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				4CF92CE42CE8AD2000135033 /* XCLocalSwiftPackageReference "../TextParsing" */,
 				4CF92CE72CE8CD3800135033 /* XCLocalSwiftPackageReference "../Hierarchy" */,
 				4CF92D0C2CE8D6CE00135033 /* XCLocalSwiftPackageReference "../DesignSystem" */,
+				4CF92D122CE8DDD100135033 /* XCLocalSwiftPackageReference "../CoreModule" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4CF92C4B2CE8A94D00135033 /* Products */;
@@ -609,10 +609,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		4CF92CE42CE8AD2000135033 /* XCLocalSwiftPackageReference "../TextParsing" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../TextParsing;
-		};
 		4CF92CE72CE8CD3800135033 /* XCLocalSwiftPackageReference "../Hierarchy" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../Hierarchy;
@@ -621,13 +617,13 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../DesignSystem;
 		};
+		4CF92D122CE8DDD100135033 /* XCLocalSwiftPackageReference "../CoreModule" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../CoreModule;
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		4CF92CE52CE8AD2000135033 /* TextParsing */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = TextParsing;
-		};
 		4CF92CE82CE8CD3800135033 /* Hierarchy */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Hierarchy;
@@ -635,6 +631,10 @@
 		4CF92D0D2CE8D6CE00135033 /* DesignSystem */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = DesignSystem;
+		};
+		4CF92D132CE8DDD100135033 /* CoreModule */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CoreModule;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
