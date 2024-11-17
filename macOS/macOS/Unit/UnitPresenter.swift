@@ -45,6 +45,7 @@ extension UnitPresenter: UnitViewOutput {
 
 	func viewDidLoad() {
 		interactor?.fetchData()
+		view?.expand(nil)
 	}
 }
 

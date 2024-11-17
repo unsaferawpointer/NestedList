@@ -13,7 +13,7 @@ protocol UnitViewOutput {
 	func viewDidLoad()
 }
 
-protocol UnitView: AnyObject {
+protocol UnitView: AnyObject, ListSupportable {
 	func display(_ snapshot: Snapshot<ItemModel>)
 }
 
@@ -87,6 +87,14 @@ extension ViewController: UnitView {
 
 	func display(_ snapshot: Snapshot<ItemModel>) {
 		adapter?.apply(snapshot)
+	}
+}
+
+// MARK: - ListSupportable
+extension ViewController: ListSupportable {
+
+	func expand(_ ids: [UUID]?) {
+		adapter?.expand(ids)
 	}
 }
 

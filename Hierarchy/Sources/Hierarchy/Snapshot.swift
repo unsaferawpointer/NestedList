@@ -13,9 +13,9 @@ public struct Snapshot<Model: Identifiable> {
 
 	// MARK: - Hierarchy
 
-	private(set) var root: [ID] = []
+	public private(set) var root: [ID] = []
 
-	private(set) var storage: [ID: [ID]] = [:]
+	public private(set) var storage: [ID: [ID]] = [:]
 
 	// MARK: - Cache
 

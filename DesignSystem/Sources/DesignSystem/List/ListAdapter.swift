@@ -20,6 +20,8 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 	weak var tableView: NSOutlineView?
 
+	private var animator = ListAnimator<Model>()
+
 	public weak var dropDelegate: (any DropDelegate<ID>)?
 
 	// MARK: - Data
@@ -149,6 +151,9 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		guard !isLocal(from: info) else {
 			let ids = getIdentifiers(from: info)
 			dropDelegate.move(ids, to: destination)
+			if let id = destination.id, let targetItem = cache[id] {
+				tableView?.expandItem(targetItem, expandChildren: false)
+			}
 			return true
 		}
 
@@ -193,16 +198,23 @@ private extension ListAdapter {
 // MARK: - Public interface
 public extension ListAdapter {
 
-	@MainActor
-	func apply(_ snapshot: Snapshot<Model>) {
+	func apply(_ new: Snapshot<Model>) {
 
-		let old = self.snapshot
+		let old = snapshot
 
-		self.snapshot = snapshot
+		let intersection = old.identifiers.intersection(new.identifiers)
 
-		let deleted = old.identifiers.subtracting(snapshot.identifiers)
-		let inserted = snapshot.identifiers.subtracting(old.identifiers)
+		for id in intersection {
+			let item = cache[unsafe: id]
+			let model = new.model(with: id)
+			guard let row = tableView?.row(forItem: item), row != -1 else {
+				continue
+			}
+			configureRow(with: model, at: row)
+		}
 
+		tableView?.beginUpdates()
+		let (deleted, inserted) = animator.calculate(old: snapshot, new: new)
 		for id in deleted {
 			cache[id] = nil
 			selection.remove(id)
@@ -211,8 +223,52 @@ public extension ListAdapter {
 			cache[id] = Item(id: id)
 		}
 
-		tableView?.reloadData()
+		self.snapshot = new
+		animator.calculate(old: old, new: new) { [weak self] animation in
+			guard let self else {
+				return
+			}
+			switch animation {
+			case .remove(let offset, let parent):
+				let item = cache[optional: parent]
+				let rows = IndexSet(integer: offset)
+				tableView?.removeItems(
+					at: rows,
+					inParent: item,
+					withAnimation: [.effectFade, .effectGap]
+				)
+			case .insert(let offset, let parent):
+				let destination = cache[optional: parent]
+				let rows = IndexSet(integer: offset)
+				tableView?.insertItems(
+					at: rows,
+					inParent: destination,
+					withAnimation: [.effectFade, .effectGap]
+				)
+			case .reload(let id):
+				guard let item = cache[optional: id] else {
+					return
+				}
+				tableView?.reloadItem(item)
+			}
+		}
+		tableView?.endUpdates()
 		validateSelection()
+	}
+
+	func expand(_ ids: [ID]?) {
+
+		guard let ids else {
+			tableView?.animator().expandItem(nil, expandChildren: true)
+			return
+		}
+
+		NSAnimationContext.runAnimationGroup { context in
+			let items = ids.compactMap { cache[$0] }
+			for item in items {
+				tableView?.animator().expandItem(item)
+			}
+		}
 	}
 }
 
@@ -260,7 +316,6 @@ extension ListAdapter {
 
 extension ListAdapter {
 
-	@MainActor
 	func makeCellIfNeeded<T: CellModel>(for model: T, in table: NSTableView) -> NSView? {
 
 		typealias Cell = T.Cell
@@ -275,6 +330,19 @@ extension ListAdapter {
 		view?.model = model
 		view?.action = model.action
 		return view
+	}
+
+	func configureRow<T: CellModel>(with model: T, at row: Int) {
+
+		typealias Cell = T.Cell
+
+		guard let tableView else {
+			return
+		}
+
+		let cell = tableView.view(atColumn: 0, row: row, makeIfNecessary: false) as? Cell
+		cell?.model = model
+
 	}
 }
 

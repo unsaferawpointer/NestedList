@@ -61,6 +61,11 @@
 			path = Unit;
 			sourceTree = "<group>";
 		};
+		4CF92D222CEA291200135033 /* Common */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Common;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,6 +119,7 @@
 		4CF92CF52CE8CD9600135033 /* macOS */ = {
 			isa = PBXGroup;
 			children = (
+				4CF92D222CEA291200135033 /* Common */,
 				4CF92CFC2CE8CD9C00135033 /* Unit */,
 				4CF92CED2CE8CD9600135033 /* AppDelegate.swift */,
 				4CF92CEE2CE8CD9600135033 /* Assets.xcassets */,
@@ -142,6 +148,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				4CF92CFC2CE8CD9C00135033 /* Unit */,
+				4CF92D222CEA291200135033 /* Common */,
 			);
 			name = macOS;
 			packageProductDependencies = (
