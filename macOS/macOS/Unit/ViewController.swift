@@ -34,7 +34,7 @@ class ViewController: NSViewController {
 		view.borderType = .noBorder
 		view.hasHorizontalScroller = false
 		view.autohidesScrollers = true
-		view.hasVerticalScroller = true
+		view.hasVerticalScroller = false
 		view.automaticallyAdjustsContentInsets = true
 		return view
 	}()
@@ -46,7 +46,7 @@ class ViewController: NSViewController {
 		view.floatsGroupRows = false
 		view.allowsMultipleSelection = true
 		view.allowsColumnResizing = false
-		view.usesAlternatingRowBackgroundColors = true
+		view.usesAlternatingRowBackgroundColors = false
 		view.usesAutomaticRowHeights = false
 		view.indentationPerLevel = 24
 		return view
@@ -124,6 +124,7 @@ private extension ViewController {
 
 		table.frame = scrollview.bounds
 		table.headerView = nil
+		view.additionalSafeAreaInsets = .horizontal(32)
 
 		let column = NSTableColumn(identifier: .init("main"))
 		table.addTableColumn(column)
