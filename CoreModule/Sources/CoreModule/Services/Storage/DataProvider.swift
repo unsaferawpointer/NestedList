@@ -20,7 +20,7 @@ extension DataProvider: ContentProvider {
 
 		let formatter = BasicFormatter()
 
-		let text = content.nodes.map {
+		let text = content.root.nodes.map {
 			formatter.format($0)
 		}.joined(separator: "\n")
 
@@ -44,7 +44,7 @@ extension DataProvider: ContentProvider {
 	public func data(of content: Content) throws -> Data {
 		let formatter = BasicFormatter()
 
-		let text = content.nodes.map {
+		let text = content.root.nodes.map {
 			formatter.format($0)
 		}.joined(separator: "\n")
 

@@ -22,6 +22,7 @@ class ViewController: NSViewController {
 	var adapter: ListAdapter<ItemModel>?
 
 	var output: UnitViewOutput?
+	weak var dropDelegate: (any DropDelegate<UUID>)?
 
 	// MARK: - UI-Properties
 
@@ -54,6 +55,7 @@ class ViewController: NSViewController {
 		super.init(nibName: nil, bundle: nil)
 		configure(self)
 		self.adapter = ListAdapter<ItemModel>(tableView: table)
+		self.adapter?.dropDelegate = dropDelegate
 	}
 
 	@available(*, unavailable, message: "Use init(storage:)")

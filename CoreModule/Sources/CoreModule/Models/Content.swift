@@ -9,19 +9,18 @@ import Hierarchy
 
 public struct Content {
 
-	public var nodes: [Node<Item>]
+	public var root: Root<Item>
 
 	// MARK: - Initialization
 
-	public init(nodes: [Node<Item>] = []) {
-		self.nodes = nodes
+	init(nodes: [Node<Item>] = []) {
+		self.root = Root<Item>(hierarchy: nodes)
 	}
 }
 
-// MARK: - Templates
 public extension Content {
 
 	static var empty: Content {
-		return .init(nodes: [])
+		return .init()
 	}
 }

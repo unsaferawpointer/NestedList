@@ -15,6 +15,7 @@ final class UnitAssembly {
 		let interactor = UnitInteractor(storage: storage)
 		return ViewController { viewController in
 			viewController.output = presenter
+			viewController.dropDelegate = presenter
 			presenter.view = viewController
 			presenter.interactor = interactor
 			interactor.presenter = presenter

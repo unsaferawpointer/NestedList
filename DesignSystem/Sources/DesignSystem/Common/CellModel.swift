@@ -5,6 +5,8 @@
 //  Created by Anton Cherkasov on 16.11.2024.
 //
 
+import Hierarchy
+
 public protocol CellModel: Identifiable {
 
 	associatedtype Value

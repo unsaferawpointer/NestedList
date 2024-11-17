@@ -6,10 +6,14 @@
 //
 
 import Foundation
+import Hierarchy
 import CoreModule
 
 protocol UnitInteractorProtocol {
 	func fetchData()
+
+	func move(_ ids: [UUID], to destination: Destination<UUID>)
+	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool
 }
 
 final class UnitInteractor {
@@ -36,5 +40,15 @@ extension UnitInteractor: UnitInteractorProtocol {
 
 	func fetchData() {
 		presenter?.present(storage.state)
+	}
+
+	func move(_ ids: [UUID], to destination: Destination<UUID>) {
+		storage.modificate { content in
+			content.root.moveItems(with: ids, to: destination)
+		}
+	}
+
+	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
+		storage.state.root.validateMoving(ids, to: destination)
 	}
 }

@@ -57,8 +57,10 @@ extension Parser: ParserProtocol {
 
 			if line.indent == 0 {
 				result.append(node)
+				node.parent = nil
 			} else if let parent = cache[line.indent - 1] {
 				parent.children.append(node)
+				node.parent = parent
 			}
 
 			cache[line.indent] = node

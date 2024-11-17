@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Hierarchy
 
 public struct Item {
 
@@ -21,5 +22,13 @@ extension Item: Identifiable {
 
 	public var id: UUID {
 		uuid
+	}
+}
+
+// MARK: - NodeValue
+extension Item: NodeValue {
+
+	public mutating func generateIdentifier() {
+		self.uuid = UUID()
 	}
 }

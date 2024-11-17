@@ -5,7 +5,9 @@
 //  Created by Anton Cherkasov on 16.11.2024.
 //
 
+import Foundation
 import CoreModule
+import DesignSystem
 import Hierarchy
 
 protocol UnitPresenterProtocol: AnyObject {
@@ -23,7 +25,7 @@ final class UnitPresenter {
 extension UnitPresenter: UnitPresenterProtocol {
 
 	func present(_ content: Content) {
-		let snapshot = Snapshot(content.nodes)
+		let snapshot = Snapshot(content.root.nodes)
 			.map { item in
 				ItemModel(
 					id: item.id,
@@ -43,5 +45,19 @@ extension UnitPresenter: UnitViewOutput {
 
 	func viewDidLoad() {
 		interactor?.fetchData()
+	}
+}
+
+// MARK: - DropDelelgate
+extension UnitPresenter: DropDelegate {
+
+	typealias ID = UUID
+
+	func move(_ ids: [UUID], to destination: Destination<UUID>) {
+		interactor?.move(ids, to: destination)
+	}
+
+	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
+		interactor?.validateMovement(ids, to: destination) ?? false
 	}
 }

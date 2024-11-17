@@ -26,7 +26,7 @@ public struct Snapshot<Model: Identifiable> {
 	// MARK: - Initialization
 
 	public init(_ base: [Node<Model>]) {
-		self.root = base.map(\.id)
+		self.root = base.map(\.value.id)
 		base.forEach { node in
 			normalize(base: node)
 		}
@@ -100,7 +100,7 @@ private extension Snapshot {
 	mutating func normalize(base: Node<Model>) {
 
 		identifiers.insert(base.id)
-		storage[base.id] = base.children.map(\.id)
+		storage[base.id] = base.children.map(\.value.id)
 		cache[base.id] = base.value
 
 		for child in base.children {

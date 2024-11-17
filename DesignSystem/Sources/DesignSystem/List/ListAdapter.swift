@@ -12,11 +12,15 @@ import Cocoa
 #endif
 
 #if os(macOS)
-public final class ListAdapter<Model: CellModel>: NSObject, NSOutlineViewDataSource, NSOutlineViewDelegate {
+public final class ListAdapter<Model: CellModel>: NSObject,
+												  NSOutlineViewDataSource,
+												  NSOutlineViewDelegate where Model.ID: Codable {
 
-	typealias ID = Model.ID
+	public typealias ID = Model.ID
 
 	weak var tableView: NSOutlineView?
+
+	public weak var dropDelegate: (any DropDelegate<ID>)?
 
 	// MARK: - Data
 
@@ -32,6 +36,8 @@ public final class ListAdapter<Model: CellModel>: NSObject, NSOutlineViewDataSou
 
 		tableView.dataSource = self
 		tableView.delegate = self
+
+		tableView.registerForDraggedTypes([.identifier])
 	}
 
 	// MARK: - NSOutlineViewDataSource
@@ -76,6 +82,78 @@ public final class ListAdapter<Model: CellModel>: NSObject, NSOutlineViewDataSou
 		let model = snapshot.model(with: item.id)
 		return makeCellIfNeeded(for: model, in: outlineView)
 	}
+
+	// MARK: - Drag And Drop support
+
+	public func outlineView(_ outlineView: NSOutlineView, pasteboardWriterForItem item: Any) -> NSPasteboardWriting? {
+		guard let item = item as? Item else {
+			return nil
+		}
+		let pasteboardItem = NSPasteboardItem()
+
+		let encoder = JSONEncoder()
+		guard let data = try? encoder.encode(item.id) else {
+			return nil
+		}
+
+		pasteboardItem.setData(data, forType: .identifier)
+		return pasteboardItem
+	}
+
+	public func outlineView(
+		_ outlineView: NSOutlineView,
+		draggingSession session: NSDraggingSession,
+		willBeginAt screenPoint: NSPoint,
+		forItems draggedItems: [Any]
+	) {
+
+		let identifiers = draggedItems.compactMap { item in
+			item as? Item
+		}.map { item in
+			return item.id
+		}
+
+		precondition(session.draggingPasteboard.pasteboardItems?.count == identifiers.count)
+
+//		let pasteboard = PasteboardFacade(pasteboard: session.draggingPasteboard)
+//		delegate.write(ids: identifiers, to: pasteboard)
+	}
+
+	public func outlineView(
+		_ outlineView: NSOutlineView,
+		validateDrop info: NSDraggingInfo,
+		proposedItem item: Any?,
+		proposedChildIndex index: Int
+	) -> NSDragOperation {
+
+		let destination = getDestination(proposedItem: item, proposedChildIndex: index)
+		let ids = getIdentifiers(from: info)
+
+		if isLocal(from: info) {
+			let isValid = dropDelegate?.validateMovement(ids, to: destination) ?? false
+			return isValid ? .private : []
+		}
+
+		return .copy
+	}
+
+	public func outlineView(_ outlineView: NSOutlineView, acceptDrop info: NSDraggingInfo, item: Any?, childIndex index: Int) -> Bool {
+
+		guard let dropDelegate else {
+			return false
+		}
+
+		let destination = getDestination(proposedItem: item, proposedChildIndex: index)
+
+		guard !isLocal(from: info) else {
+			let ids = getIdentifiers(from: info)
+			dropDelegate.move(ids, to: destination)
+			return true
+		}
+
+//		delegate.insert(from: PasteboardFacade(pasteboard: info.draggingPasteboard), to: destination)
+		return true
+	}
 }
 
 // MARK: - Public interface
@@ -104,6 +182,48 @@ public extension ListAdapter {
 
 extension ListAdapter {
 
+	func getDestination(proposedItem item: Any?, proposedChildIndex index: Int) -> Destination<ID> {
+		switch (item, index) {
+		case (.none, -1):
+			return .toRoot
+		case (.none, let index):
+			return .inRoot(atIndex: index)
+		case (let item as Item, -1):
+			return .onItem(with: item.id)
+		case (let item as Item, let index):
+			return .inItem(with: item.id, atIndex: index)
+		default:
+			fatalError()
+		}
+	}
+
+	func isLocal(from info: NSDraggingInfo) -> Bool {
+
+		guard let source = info.draggingSource as? NSOutlineView else {
+			return false
+		}
+
+		return source === tableView
+	}
+
+	func getIdentifiers(from info: NSDraggingInfo) -> [ID] {
+
+		guard let pasteboardItems = info.draggingPasteboard.pasteboardItems else {
+			return []
+		}
+
+		let decoder = JSONDecoder()
+
+		return pasteboardItems.compactMap { item in
+			item.data(forType: .identifier)
+		}.compactMap { data in
+			return try? decoder.decode(ID.self, from: data)
+		}
+	}
+}
+
+extension ListAdapter {
+
 	@MainActor
 	func makeCellIfNeeded<T: CellModel>(for model: T, in table: NSTableView) -> NSView? {
 
@@ -120,6 +240,11 @@ extension ListAdapter {
 		view?.action = model.action
 		return view
 	}
+}
+
+private extension NSPasteboard.PasteboardType {
+
+	static let identifier: Self = .init("dev.zeroindex.ListAdapter.identifier")
 }
 
 // MARK: - Nested data structs
