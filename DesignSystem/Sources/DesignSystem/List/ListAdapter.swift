@@ -34,6 +34,16 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 	private(set) var selection = Set<ID>()
 
+	public var effectiveSelection: [ID] {
+		guard let tableView else {
+			return []
+		}
+		return tableView.effectiveSelection().compactMap {
+			tableView.item(atRow: $0) as? Item
+		}
+		.map(\.id)
+	}
+
 	// MARK: - Initialization
 
 	public init(tableView: NSOutlineView) {
@@ -256,6 +266,33 @@ public extension ListAdapter {
 		validateSelection()
 	}
 
+	func scroll(to id: ID) {
+		guard let tableView, let item = cache[id] else {
+			return
+		}
+		let row = tableView.row(forItem: item)
+		guard row >= 0 else {
+			return
+		}
+
+		NSAnimationContext.runAnimationGroup { context in
+			context.allowsImplicitAnimation = true
+			tableView.scrollRowToVisible(row)
+		}
+	}
+
+	func select(_ id: ID) {
+		guard let tableView, let item = cache[id] else {
+			return
+		}
+		let row = tableView.row(forItem: item)
+		guard row >= 0 else {
+			return
+		}
+
+		tableView.selectRowIndexes(.init(integer: row), byExtendingSelection: false)
+	}
+
 	func expand(_ ids: [ID]?) {
 
 		guard let ids else {
@@ -269,6 +306,14 @@ public extension ListAdapter {
 				tableView?.animator().expandItem(item)
 			}
 		}
+	}
+
+	func focus(on id: ID) {
+		guard let item = cache[id], let row = tableView?.row(forItem: item), row != -1 else {
+			return
+		}
+		let view = tableView?.view(atColumn: 0, row: row, makeIfNecessary: false)
+		_ = view?.becomeFirstResponder()
 	}
 }
 

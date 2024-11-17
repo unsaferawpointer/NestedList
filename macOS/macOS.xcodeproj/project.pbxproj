@@ -119,11 +119,11 @@
 		4CF92CF52CE8CD9600135033 /* macOS */ = {
 			isa = PBXGroup;
 			children = (
+				4CF92CED2CE8CD9600135033 /* AppDelegate.swift */,
+				4CF92CEF2CE8CD9600135033 /* Document.swift */,
 				4CF92D222CEA291200135033 /* Common */,
 				4CF92CFC2CE8CD9C00135033 /* Unit */,
-				4CF92CED2CE8CD9600135033 /* AppDelegate.swift */,
 				4CF92CEE2CE8CD9600135033 /* Assets.xcassets */,
-				4CF92CEF2CE8CD9600135033 /* Document.swift */,
 				4CF92CF02CE8CD9600135033 /* Info.plist */,
 				4CF92CF12CE8CD9600135033 /* macOS.entitlements */,
 				4CF92CF32CE8CD9600135033 /* Main.storyboard */,

@@ -14,6 +14,9 @@ protocol UnitInteractorProtocol {
 
 	func move(_ ids: [UUID], to destination: Destination<UUID>)
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool
+
+	func newItem(_ text: String, target: UUID?) -> UUID
+	func deleteItems(_ ids: [UUID])
 }
 
 final class UnitInteractor {
@@ -51,4 +54,20 @@ extension UnitInteractor: UnitInteractorProtocol {
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
 		storage.state.root.validateMoving(ids, to: destination)
 	}
+
+	func newItem(_ text: String, target: UUID?) -> UUID {
+		let new = Item(uuid: .random, text: text)
+		let destination = Destination(target: target)
+		storage.modificate { content in
+			content.root.insertItems(with: [new], to: destination)
+		}
+		return new.id
+	}
+
+	func deleteItems(_ ids: [UUID]) {
+		storage.modificate { content in
+			content.root.deleteItems(ids)
+		}
+	}
+
 }

@@ -97,7 +97,7 @@ private extension Root {
 // MARK: - Insertion
 extension Root {
 
-	func insertItems(with contents: [Value], to destination: Destination<ID>) {
+	public func insertItems(with contents: [Value], to destination: Destination<ID>) {
 		let items = contents.map { Node(value: $0) }
 		storeInCache(items)
 		switch destination {
@@ -151,7 +151,7 @@ extension Root {
 }
 
 // MARK: - Deletion
-extension Root {
+public extension Root {
 
 	func deleteItems(_ ids: [ID]) {
 		for id in ids {

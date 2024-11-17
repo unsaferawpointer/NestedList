@@ -15,6 +15,14 @@ public struct Item {
 	public var isDone: Bool
 
 	public var text: String
+
+	// MARK: - Initialization
+
+	public init(uuid: UUID, isDone: Bool = false, text: String) {
+		self.uuid = uuid
+		self.isDone = isDone
+		self.text = text
+	}
 }
 
 // MARK: - Identifiable

@@ -47,6 +47,28 @@ extension UnitPresenter: UnitViewOutput {
 		interactor?.fetchData()
 		view?.expand(nil)
 	}
+
+	func userCreateNewItem() {
+		guard let interactor else {
+			return
+		}
+
+		let first = view?.selection.first
+		let id = interactor.newItem("New Item", target: first)
+
+		view?.scroll(to: id)
+		if let first {
+			view?.expand([first])
+		}
+		view?.focus(on: id)
+	}
+
+	func userDeleteItem() {
+		guard let selection = view?.selection else {
+			return
+		}
+		interactor?.deleteItems(selection)
+	}
 }
 
 // MARK: - DropDelelgate

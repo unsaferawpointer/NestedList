@@ -18,7 +18,7 @@ final class BasicFormatter {
 
 	// MARK: - Initialization
 
-	init(format: Format = Format(indent: .tab, prefix: .dash)) {
+	init(format: Format = Format(indent: .tab)) {
 		self.format = format
 	}
 }
@@ -61,7 +61,7 @@ private extension BasicFormatter {
 
 	func text(for node: Node<Item>, indent: Int) -> [String] {
 		let indentPrefix = Array(repeating: format.indent.value, count: indent).joined()
-		let line = indentPrefix + format.prefix.sign + " " + node.value.text
+		let line = indentPrefix + " " + node.value.text
 		return [line] + node.children.flatMap { text(for: $0, indent: indent + 1) }
 	}
 }
@@ -71,7 +71,6 @@ extension BasicFormatter {
 
 	struct Format {
 		var indent: Indent
-		var prefix: Prefix
 	}
 
 	enum Indent {
@@ -84,21 +83,6 @@ extension BasicFormatter {
 				return Array(repeating: " ", count: value).joined()
 			case .tab:
 				return "\t"
-			}
-		}
-	}
-
-	enum Prefix {
-
-		case asterics
-		case dash
-
-		var sign: String {
-			switch self {
-			case .asterics:
-				return "*"
-			case .dash:
-				return "-"
 			}
 		}
 	}

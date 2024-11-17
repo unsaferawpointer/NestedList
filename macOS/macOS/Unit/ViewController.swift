@@ -11,6 +11,9 @@ import DesignSystem
 
 protocol UnitViewOutput {
 	func viewDidLoad()
+
+	func userCreateNewItem()
+	func userDeleteItem()
 }
 
 protocol UnitView: AnyObject, ListSupportable {
@@ -22,7 +25,7 @@ class ViewController: NSViewController {
 	var adapter: ListAdapter<ItemModel>?
 
 	var output: UnitViewOutput?
-	weak var dropDelegate: (any DropDelegate<UUID>)?
+	weak var dropDelegate: (any DesignSystem.DropDelegate<UUID>)?
 
 	// MARK: - UI-Properties
 
@@ -93,6 +96,22 @@ extension ViewController: UnitView {
 // MARK: - ListSupportable
 extension ViewController: ListSupportable {
 
+	var selection: [UUID] {
+		adapter?.effectiveSelection ?? []
+	}
+
+	func scroll(to id: UUID) {
+		adapter?.scroll(to: id)
+	}
+
+	func select(_ id: UUID) {
+		adapter?.select(id)
+	}
+
+	func focus(on id: UUID) {
+		adapter?.focus(on: id)
+	}
+
 	func expand(_ ids: [UUID]?) {
 		adapter?.expand(ids)
 	}
@@ -110,6 +129,8 @@ private extension ViewController {
 		table.addTableColumn(column)
 
 		scrollview.documentView = table
+
+		table.menu = MenuBuilder.build()
 	}
 
 	func configureConstraints() {
@@ -126,5 +147,17 @@ private extension ViewController {
 				scrollview.bottomAnchor.constraint(equalTo: view.bottomAnchor)
 			]
 		)
+	}
+}
+
+// MARK: - MenuSupportable
+extension ViewController: MenuSupportable {
+
+	func newItem(_ sender: NSMenuItem) {
+		output?.userCreateNewItem()
+	}
+	
+	func deleteItem(_ sender: NSMenuItem) {
+		output?.userDeleteItem()
 	}
 }
