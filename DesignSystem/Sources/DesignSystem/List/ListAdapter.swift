@@ -28,6 +28,10 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 	private var cache: [ID: Item] = [:]
 
+	// MARK: - UI-State
+
+	private(set) var selection = Set<ID>()
+
 	// MARK: - Initialization
 
 	public init(tableView: NSOutlineView) {
@@ -114,9 +118,6 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		}
 
 		precondition(session.draggingPasteboard.pasteboardItems?.count == identifiers.count)
-
-//		let pasteboard = PasteboardFacade(pasteboard: session.draggingPasteboard)
-//		delegate.write(ids: identifiers, to: pasteboard)
 	}
 
 	public func outlineView(
@@ -151,8 +152,41 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 			return true
 		}
 
-//		delegate.insert(from: PasteboardFacade(pasteboard: info.draggingPasteboard), to: destination)
-		return true
+		return false
+	}
+
+	// MARK: - Selection support
+
+	public func outlineView(
+		_ outlineView: NSOutlineView,
+		selectionIndexesForProposedSelection proposedSelectionIndexes: IndexSet
+	) -> IndexSet {
+		selection.removeAll()
+		for index in proposedSelectionIndexes {
+			guard let item = tableView?.item(atRow: index) as? Item else {
+				continue
+			}
+			selection.insert(item.id)
+		}
+		return proposedSelectionIndexes
+	}
+
+	public func outlineViewItemDidExpand(_ notification: Notification) {
+		validateSelection()
+	}
+}
+
+// MARK: - Support selection
+private extension ListAdapter {
+
+	func validateSelection() {
+		let rows = selection.compactMap { id -> Int? in
+			guard let item = cache[id], let row = tableView?.row(forItem: item), row != -1 else {
+				return nil
+			}
+			return row
+		}
+		tableView?.selectRowIndexes(.init(rows), byExtendingSelection: false)
 	}
 }
 
@@ -171,12 +205,14 @@ public extension ListAdapter {
 
 		for id in deleted {
 			cache[id] = nil
+			selection.remove(id)
 		}
 		for id in inserted {
 			cache[id] = Item(id: id)
 		}
 
 		tableView?.reloadData()
+		validateSelection()
 	}
 }
 
@@ -250,7 +286,7 @@ private extension NSPasteboard.PasteboardType {
 // MARK: - Nested data structs
 private extension ListAdapter {
 
-	final class Item {
+	final class Item: Identifiable {
 
 		var id: ID
 
