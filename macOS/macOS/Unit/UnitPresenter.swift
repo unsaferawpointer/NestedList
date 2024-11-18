@@ -29,11 +29,11 @@ extension UnitPresenter: UnitPresenterProtocol {
 			.map { item in
 				ItemModel(
 					id: item.id,
-					value: .init(
-						isOn: item.isDone,
-						text: item.text
-					),
-					configuration: .init(textColor: .labelColor)
+					value: .init(text: item.text),
+					configuration: .init(
+						textColor: item.isDone ? .secondaryLabelColor : .labelColor,
+						strikethrough: item.isDone
+					)
 				)
 			}
 		view?.display(snapshot)

@@ -7,6 +7,7 @@
 
 import Cocoa
 import DesignSystem
+import SwiftUI
 
 final class ItemCell: NSView, ListCell {
 
@@ -38,17 +39,13 @@ final class ItemCell: NSView, ListCell {
 		return view
 	}()
 
-	lazy var checkbox: NSButton = {
-		let view = NSButton(
-			checkboxWithTitle: "",
-			target: self,
-			action: #selector(checkboxDidChange(_:))
-		)
+	lazy var prefixView: NSView = {
+		let view = NSHostingView(rootView: ItemSignView())
 		return view
 	}()
 
 	lazy var container: NSStackView = {
-		let view = NSStackView(views: [checkbox, textfield])
+		let view = NSStackView(views: [prefixView, textfield])
 		view.orientation = .horizontal
 		view.distribution = .fillProportionally
 		view.alignment = .centerY
@@ -85,12 +82,16 @@ private extension ItemCell {
 		let value = model.value
 		let configuration = model.configuration
 
-		// Value
-		textfield.stringValue = value.text
-		checkbox.state = value.isOn ? .on : .off
+		let attrString = NSAttributedString(
+			string: value.text,
+			textColor: configuration.textColor,
+			strikethrough: configuration.strikethrough
+		)
 
-		// Configuration
-		textfield.textColor = configuration.textColor
+		// Value
+		textfield.attributedStringValue = attrString
+
+		textfield.allowsEditingTextAttributes = true
 	}
 
 	func configureConstraints() {
@@ -119,22 +120,24 @@ extension ItemCell {
 			return
 		}
 
-		let isOn = checkbox.state == .on
 		let text = sender.stringValue
 
-		action?(.init(isOn: isOn, text: text))
+		action?(.init(text: text))
 	}
 
-	@objc
-	func checkboxDidChange(_ sender: NSButton) {
-		guard sender === checkbox else {
-			return
-		}
-
-		let isOn = sender.state == .on
-		let text = textfield.stringValue
-
-		action?(.init(isOn: isOn, text: text))
-	}
 }
 
+extension NSAttributedString {
+
+	convenience init(string: String, textColor: NSColor, strikethrough: Bool = false) {
+		let strikethroughStyle: NSUnderlineStyle = strikethrough ? .thick : []
+		let strikethroughColor: NSColor = .secondaryLabelColor
+
+		let attributes: [NSAttributedString.Key: Any] = [
+			.strikethroughStyle: strikethroughStyle.rawValue,
+			.foregroundColor: textColor,
+			.strikethroughColor: strikethroughColor
+		]
+		self.init(string: string, attributes: attributes)
+	}
+}

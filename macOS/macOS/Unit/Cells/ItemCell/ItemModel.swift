@@ -27,10 +27,10 @@ extension ItemModel {
 
 	struct Configuration {
 		var textColor: NSColor
+		var strikethrough: Bool
 	}
 
 	struct Value {
-		var isOn: Bool
 		var text: String
 	}
 }
