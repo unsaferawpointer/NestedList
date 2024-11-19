@@ -19,7 +19,9 @@ public struct Snapshot<Model: Identifiable> {
 
 	// MARK: - Cache
 
-	private(set) var cache: [ID: Model] = [:]
+	private(set) var models: [ID: Model] = [:]
+
+	public private(set) var cache: [ID: Bool] = [:]
 
 	public private(set) var identifiers: Set<ID> = .init()
 
@@ -28,7 +30,14 @@ public struct Snapshot<Model: Identifiable> {
 	public init(_ base: [Node<Model>]) {
 		self.root = base.map(\.value.id)
 		base.forEach { node in
-			normalize(base: node)
+			normalize(base: node, keyPath: nil)
+		}
+	}
+
+	public init(_ base: [Node<Model>], keyPath: KeyPath<Model, Bool>) {
+		self.root = base.map(\.value.id)
+		base.forEach { node in
+			normalize(base: node, keyPath: keyPath)
 		}
 	}
 
@@ -38,7 +47,7 @@ public struct Snapshot<Model: Identifiable> {
 	init(root: [ID], storage: [ID: [ID]], cache: [ID: Model], identifiers: Set<ID>) {
 		self.root = root
 		self.storage = storage
-		self.cache = cache
+		self.models = cache
 		self.identifiers = identifiers
 	}
 }
@@ -48,10 +57,7 @@ public extension Snapshot {
 
 	func rootItem(at index: Int) -> Model {
 		let id = root[index]
-		guard let model = cache[id] else {
-			fatalError()
-		}
-		return model
+		return models[unsafe: id]
 	}
 
 	func rootIdentifier(at index: Int) -> ID {
@@ -69,42 +75,55 @@ public extension Snapshot {
 		return children.count
 	}
 
+	func children(of parent: ID) -> [ID] {
+		return storage[unsafe: parent]
+	}
+
 	func childOfItem(_ id: ID, at index: Int) -> Model {
-		guard let id = storage[id]?[index], let model = cache[id] else {
+		guard let id = storage[id]?[index], let model = models[id] else {
 			fatalError()
 		}
 		return model
 	}
 
 	func model(with id: ID) -> Model {
-		return cache[unsafe: id]
+		return models[unsafe: id]
 	}
 
-	func map<T>(_ transform: (Model) -> T) -> Snapshot<T> where T.ID == ID {
-		var newCache = [ID: T]()
-		for (id, model) in cache {
-			newCache[id] = transform(model)
+	func map<T>(_ transform: (Model, Bool) -> T) -> Snapshot<T> where T.ID == ID {
+		var newModels = [ID: T]()
+		for (id, model) in models {
+			newModels[id] = transform(model, cache[unsafe: id])
 		}
 		return Snapshot<T>(
 			root: root,
 			storage: storage,
-			cache: newCache,
+			cache: newModels,
 			identifiers: identifiers
 		)
+	}
+
+	func allSatisfy(_ id: ID) -> Bool {
+		return cache[unsafe: id]
 	}
 }
 
 // MARK: - Helpers
 private extension Snapshot {
 
-	mutating func normalize(base: Node<Model>) {
+	mutating func normalize(base: Node<Model>, keyPath: KeyPath<Model, Bool>?) {
 
 		identifiers.insert(base.id)
 		storage[base.id] = base.children.map(\.value.id)
-		cache[base.id] = base.value
+		models[base.id] = base.value
+
+		// TODO: - Optimize
+		if let keyPath {
+			cache[base.id] = base.allSatisfy(keyPath, equalsTo: true)
+		}
 
 		for child in base.children {
-			normalize(base: child)
+			normalize(base: child, keyPath: keyPath)
 		}
 	}
 }

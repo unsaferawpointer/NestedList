@@ -19,24 +19,32 @@ final class UnitPresenter {
 	var interactor: UnitInteractorProtocol?
 
 	weak var view: UnitView?
+
+	// MARK: - Cache
+
+	private(set) var cache: [UUID: Bool] = [:]
 }
 
 // MARK: - UnitPresenterProtocol
 extension UnitPresenter: UnitPresenterProtocol {
 
 	func present(_ content: Content) {
-		let snapshot = Snapshot(content.root.nodes)
-			.map { item in
+
+		let snapshot = Snapshot(content.root.nodes, keyPath: \.isDone)
+		self.cache = snapshot.cache
+
+		let converted = snapshot
+			.map { item, isDone in
 				ItemModel(
 					id: item.id,
 					value: .init(text: item.text),
 					configuration: .init(
-						textColor: item.isDone ? .secondaryLabelColor : .labelColor,
-						strikethrough: item.isDone
+						textColor: isDone ? .secondaryLabelColor : .labelColor,
+						strikethrough: isDone
 					)
 				)
 			}
-		view?.display(snapshot)
+		view?.display(converted)
 	}
 }
 
@@ -69,6 +77,13 @@ extension UnitPresenter: UnitViewOutput {
 		}
 		interactor?.deleteItems(selection)
 	}
+
+	func userChangedStatus(_ status: Bool) {
+		guard let selection = view?.selection else {
+			return
+		}
+		interactor?.setStatus(status, for: selection)
+	}
 }
 
 // MARK: - DropDelelgate
@@ -82,5 +97,32 @@ extension UnitPresenter: DropDelegate {
 
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
 		interactor?.validateMovement(ids, to: destination) ?? false
+	}
+}
+
+extension UnitPresenter {
+
+	func validateStatus() -> Bool? {
+		guard let selection = view?.selection else {
+			return false
+		}
+		let allDone = selection.compactMap {
+			cache[$0]
+		}.allSatisfy { $0 }
+
+		let allUndone = selection.compactMap {
+			cache[$0]
+		}.allSatisfy { !$0 }
+
+		switch (allDone, allUndone) {
+		case (false, false):
+			return nil
+		case (true, false):
+			return true
+		case (false, true):
+			return false
+		default:
+			fatalError()
+		}
 	}
 }

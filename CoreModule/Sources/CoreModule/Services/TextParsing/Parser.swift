@@ -28,7 +28,7 @@ extension Parser: ParserProtocol {
 
 		let minIndent = lines.map(\.indent).min() ?? 0
 		lines = lines.map {
-			Line(indent: $0.indent - minIndent, text: $0.text)
+			Line(indent: $0.indent - minIndent, text: $0.text, isDone: $0.isDone)
 		}
 
 		// Normilize indents
@@ -52,7 +52,7 @@ extension Parser: ParserProtocol {
 
 		for line in lines {
 
-			let item = Item(uuid: .init(), isDone: false, text: line.text)
+			let item = Item(uuid: .init(), isDone: line.isDone, text: line.text)
 			let node = Node<Model>(value: item)
 
 			if line.indent == 0 {
@@ -75,14 +75,19 @@ private extension Parser {
 	func parseLines(text: String) -> [Line] {
 		var result: [Line] = []
 		text.enumerateLines { line, stop in
-			let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
+			var trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
 
 			// Skip empty line
 			guard !trimmed.isEmpty else {
 				return
 			}
 
-			let line = Line(indent: line.indent, text: trimmed)
+			let isDone = trimmed.contains("@done")
+			if isDone {
+				trimmed = trimmed.replacingOccurrences(of: "@done", with: "")
+			}
+
+			let line = Line(indent: line.indent, text: trimmed, isDone: isDone)
 			result.append(line)
 		}
 		return result
@@ -95,6 +100,7 @@ extension Parser {
 	struct Line {
 		var indent: Int
 		var text: String
+		var isDone: Bool
 	}
 }
 

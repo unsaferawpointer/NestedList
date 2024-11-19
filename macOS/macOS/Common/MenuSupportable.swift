@@ -11,4 +11,5 @@ import Cocoa
 protocol MenuSupportable {
 	func newItem(_ sender: NSMenuItem)
 	func deleteItem(_ sender: NSMenuItem)
+	func toggleStatus(_ sender: NSMenuItem)
 }

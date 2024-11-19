@@ -14,6 +14,9 @@ protocol UnitViewOutput {
 
 	func userCreateNewItem()
 	func userDeleteItem()
+	func userChangedStatus(_ status: Bool)
+
+	func validateStatus() -> Bool?
 }
 
 protocol UnitView: AnyObject, ListSupportable {
@@ -157,8 +160,41 @@ extension ViewController: MenuSupportable {
 	func newItem(_ sender: NSMenuItem) {
 		output?.userCreateNewItem()
 	}
-	
+
+	func toggleStatus(_ sender: NSMenuItem) {
+		let enabled = sender.state == .on
+		output?.userChangedStatus(!enabled)
+	}
+
 	func deleteItem(_ sender: NSMenuItem) {
 		output?.userDeleteItem()
+	}
+}
+
+// MARK: - NSMenuItemValidation
+extension ViewController: NSMenuItemValidation {
+
+	func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+
+		switch menuItem.action {
+			case #selector(newItem):
+			return true
+		case #selector(toggleStatus):
+
+			let status = output?.validateStatus()
+
+			switch status {
+			case .some(let value):
+				menuItem.state = value ? .on : .off
+			case .none:
+				menuItem.state = .mixed
+			}
+
+			return adapter?.effectiveSelection.count ?? 0 > 0
+		case #selector(deleteItem):
+			return adapter?.effectiveSelection.count ?? 0 > 0
+		default:
+			return false
+		}
 	}
 }

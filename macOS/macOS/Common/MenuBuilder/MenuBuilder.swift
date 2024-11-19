@@ -31,6 +31,12 @@ extension MenuBuilder: MenuBuilderProtocol {
 		)
 		menu.addItem(.separator())
 		menu.addItem(
+			withTitle: "Completed",
+			action: #selector(MenuSupportable.toggleStatus(_:)),
+			keyEquivalent: "\r"
+		)
+		menu.addItem(.separator())
+		menu.addItem(
 			NSMenuItem(
 				title: "Delete",
 				action: #selector(MenuSupportable.deleteItem(_:)),
