@@ -7,7 +7,7 @@
 
 import Foundation
 
-public final class DocumentStorage<State> {
+public final class DocumentStorage<State: Codable> {
 
 	private let provider: any ContentProvider<State>
 
@@ -107,7 +107,7 @@ private extension DocumentStorage {
 			self.performOperation(with: oldData, oldData: newData, oppositeOperation: true)
 		}
 		if oppositeOperation {
-			guard let content = try? provider.read(from: newData) else {
+			guard let content = try? JSONDecoder().decode(State.self, from: newData) else {
 				return
 			}
 			self.state = content
@@ -116,9 +116,12 @@ private extension DocumentStorage {
 	}
 
 	func performOperation(_ block: (inout State) -> Void) {
-		let oldData = try? provider.data(of: state)
+
+		let encoder = JSONEncoder()
+
+		let oldData = try? encoder.encode(state)
 		block(&state)
-		let newData = try? provider.data(of: state)
+		let newData = try? encoder.encode(state)
 		guard let oldData, let newData else {
 			return
 		}

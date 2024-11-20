@@ -33,6 +33,9 @@ extension Item: Identifiable {
 	}
 }
 
+// MARK: - Codable
+extension Item: Codable { }
+
 // MARK: - NodeValue
 extension Item: NodeValue {
 
