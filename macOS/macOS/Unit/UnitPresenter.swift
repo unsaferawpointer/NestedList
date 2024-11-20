@@ -100,6 +100,15 @@ extension UnitPresenter: DropDelegate {
 	}
 }
 
+// MARK: - CellDelegate
+extension UnitPresenter: CellDelegate {
+
+	typealias Model = ItemModel
+
+	func cellDidChange(newValue: ItemModel.Value, id: UUID) {
+		interactor?.setText(newValue.text, for: id)
+	}
+}
 extension UnitPresenter {
 
 	func validateStatus() -> Bool? {

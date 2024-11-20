@@ -16,6 +16,7 @@ final class UnitAssembly {
 		return ViewController { viewController in
 			viewController.output = presenter
 			viewController.dropDelegate = presenter
+			viewController.cellDelegate = presenter
 			presenter.view = viewController
 			presenter.interactor = interactor
 			interactor.presenter = presenter

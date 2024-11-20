@@ -24,6 +24,8 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 	public weak var dropDelegate: (any DropDelegate<ID>)?
 
+	public weak var cellDelegate: (any CellDelegate<Model>)?
+
 	// MARK: - Data
 
 	private var snapshot = Snapshot<Model>()
@@ -361,7 +363,7 @@ extension ListAdapter {
 
 extension ListAdapter {
 
-	func makeCellIfNeeded<T: CellModel>(for model: T, in table: NSTableView) -> NSView? {
+	func makeCellIfNeeded<T: CellModel>(for model: T, in table: NSTableView) -> NSView? where T == Model {
 
 		typealias Cell = T.Cell
 
@@ -370,10 +372,11 @@ extension ListAdapter {
 		if view == nil {
 			view = Cell(model)
 			view?.identifier = id
+			view?.delegate = cellDelegate
 			return view
 		}
 		view?.model = model
-		view?.action = model.action
+		view?.delegate = cellDelegate
 		return view
 	}
 

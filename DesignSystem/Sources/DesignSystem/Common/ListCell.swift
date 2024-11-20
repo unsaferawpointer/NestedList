@@ -20,7 +20,7 @@ public protocol ListCell: NSView {
 
 	init(_ model: Model)
 
-	var action: ((Model.Value) -> Void)? { get set }
+	var delegate: (any CellDelegate<Model>)? { get set }
 }
 #endif
 

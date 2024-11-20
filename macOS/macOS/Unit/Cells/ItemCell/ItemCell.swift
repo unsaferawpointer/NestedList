@@ -21,7 +21,7 @@ final class ItemCell: NSView, ListCell {
 		}
 	}
 
-	var action: ((Model.Value) -> Void)?
+	var delegate: (any CellDelegate<ItemModel>)?
 
 	// MARK: - UI-Properties
 
@@ -122,7 +122,7 @@ extension ItemCell {
 
 		let text = sender.stringValue
 
-		action?(.init(text: text))
+		delegate?.cellDidChange(newValue: .init(text: text), id: model.id)
 	}
 
 }
