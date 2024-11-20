@@ -11,7 +11,14 @@ import Cocoa
 class AppDelegate: NSObject, NSApplicationDelegate {
 
 	func applicationDidFinishLaunching(_ aNotification: Notification) {
-		// Insert code here to initialize your application
+		if let menu = NSApplication.shared.mainMenu {
+
+			let item = NSMenuItem()
+			item.title = "Editor"
+			item.submenu = MenuBuilder.build()
+
+			menu.insertItem(item, at: 2)
+		}
 	}
 
 	func applicationWillTerminate(_ aNotification: Notification) {

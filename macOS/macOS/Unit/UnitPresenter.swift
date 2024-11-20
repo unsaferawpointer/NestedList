@@ -103,7 +103,7 @@ extension UnitPresenter: DropDelegate {
 extension UnitPresenter {
 
 	func validateStatus() -> Bool? {
-		guard let selection = view?.selection else {
+		guard let selection = view?.selection, !selection.isEmpty else {
 			return false
 		}
 		let allDone = selection.compactMap {
