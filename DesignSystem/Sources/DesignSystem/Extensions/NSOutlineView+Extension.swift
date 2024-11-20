@@ -5,8 +5,11 @@
 //  Created by Anton Cherkasov on 17.11.2024.
 //
 
+#if canImport(Cocoa)
 import Cocoa
+#endif
 
+#if os(macOS)
 extension NSOutlineView {
 
 	func effectiveSelection() -> IndexSet {
@@ -21,3 +24,4 @@ extension NSOutlineView {
 		}
 	}
 }
+#endif
