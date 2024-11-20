@@ -2,6 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="23094" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23094"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -689,6 +690,27 @@
                         <rect key="contentRect" x="196" y="240" width="480" height="270"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
                         <value key="minSize" type="size" width="360" height="240"/>
+                        <toolbar key="toolbar" implicitIdentifier="2283DAE1-2ACD-44DE-ACB6-9F069FBA2A28" autosavesConfiguration="NO" allowsUserCustomization="NO" showsBaselineSeparator="NO" displayMode="iconOnly" sizeMode="regular" id="tzn-Er-iDM">
+                            <allowedToolbarItems>
+                                <toolbarItem implicitItemIdentifier="AC37FEF0-16F7-4C2B-8F28-CD9A3008481F" label="New Item" paletteLabel="Custom View" image="plus" catalog="system" title="New Item" sizingBehavior="auto" id="Q5T-Kf-Oem">
+                                    <nil key="toolTip"/>
+                                    <button key="view" verticalHuggingPriority="750" id="81n-Nr-EkT">
+                                        <rect key="frame" x="0.0" y="14" width="127" height="25"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="roundTextured" title="New Item" bezelStyle="texturedRounded" image="plus" catalog="system" imagePosition="only" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="xFy-X2-Shs">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="newItem:" target="6f7-a7-6o1" id="ops-iC-TIC"/>
+                                        </connections>
+                                    </button>
+                                </toolbarItem>
+                            </allowedToolbarItems>
+                            <defaultToolbarItems>
+                                <toolbarItem reference="Q5T-Kf-Oem"/>
+                            </defaultToolbarItems>
+                        </toolbar>
                         <connections>
                             <outlet property="delegate" destination="jGA-0Y-lOj" id="98r-iN-zZc"/>
                         </connections>
@@ -699,4 +721,7 @@
             <point key="canvasLocation" x="75" y="250"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="plus" catalog="system" width="14" height="13"/>
+    </resources>
 </document>

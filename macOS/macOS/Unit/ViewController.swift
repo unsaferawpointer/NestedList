@@ -157,6 +157,7 @@ private extension ViewController {
 // MARK: - MenuSupportable
 extension ViewController: MenuSupportable {
 
+	@IBAction
 	func newItem(_ sender: NSMenuItem) {
 		output?.userCreateNewItem()
 	}
