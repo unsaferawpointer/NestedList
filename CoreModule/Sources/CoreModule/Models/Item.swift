@@ -18,7 +18,7 @@ public struct Item {
 
 	// MARK: - Initialization
 
-	public init(uuid: UUID, isDone: Bool = false, text: String) {
+	public init(uuid: UUID = UUID(), isDone: Bool = false, text: String) {
 		self.uuid = uuid
 		self.isDone = isDone
 		self.text = text

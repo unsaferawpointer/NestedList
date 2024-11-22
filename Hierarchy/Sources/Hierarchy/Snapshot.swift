@@ -25,6 +25,14 @@ public struct Snapshot<Model: Identifiable> {
 
 	public private(set) var identifiers: Set<ID> = .init()
 
+	private(set) var flattened: [ID] = []
+
+	private(set) var levels: [ID: Int] = [:]
+
+	private(set) var indices: [ID: Int] = [:]
+
+	private(set) var maxLevel: Int = 0
+
 	// MARK: - Initialization
 
 	public init(_ base: [Node<Model>]) {
@@ -44,16 +52,64 @@ public struct Snapshot<Model: Identifiable> {
 	/// Initialize empty snapshot
 	public init() { }
 
-	init(root: [ID], storage: [ID: [ID]], cache: [ID: Model], identifiers: Set<ID>) {
+	init(
+		root: [ID],
+		storage: [ID: [ID]],
+		cache: [ID: Model],
+		identifiers: Set<ID>,
+		flattened: [ID],
+		levels: [ID: Int],
+		maxLevel: Int,
+		indices: [ID: Int]
+	) {
 		self.root = root
 		self.storage = storage
 		self.models = cache
 		self.identifiers = identifiers
+		self.flattened = flattened
+		self.levels = levels
+		self.maxLevel = maxLevel
+		self.indices = indices
 	}
 }
 
 // MARK: - Public interface
 public extension Snapshot {
+
+	func flattened(while condition: (Model) -> Bool) -> [Model] {
+
+		var result: [Model] = []
+
+		for id in root {
+
+			var queue = [id]
+
+			while !queue.isEmpty {
+
+				let current = queue.remove(at: 0)
+
+				let model = models[unsafe: current]
+				result.append(model)
+				guard condition(model) else {
+					continue
+				}
+
+				for child in storage[unsafe: current] {
+					queue.insert(child, at: 0)
+				}
+			}
+		}
+
+		return result
+	}
+
+	func level(for id: ID) -> Int {
+		return levels[unsafe: id]
+	}
+
+	func index(for id: ID) -> Int {
+		return indices[unsafe: id]
+	}
 
 	func rootItem(at index: Int) -> Model {
 		let id = root[index]
@@ -86,6 +142,10 @@ public extension Snapshot {
 		return model
 	}
 
+	func isLeaf(id: ID) -> Bool {
+		return storage[unsafe: id].count == 0
+	}
+
 	func model(with id: ID) -> Model {
 		return models[unsafe: id]
 	}
@@ -93,13 +153,17 @@ public extension Snapshot {
 	func map<T>(_ transform: (Model, Bool) -> T) -> Snapshot<T> where T.ID == ID {
 		var newModels = [ID: T]()
 		for (id, model) in models {
-			newModels[id] = transform(model, cache[unsafe: id])
+			newModels[model.id] = transform(model, cache[unsafe: model.id])
 		}
 		return Snapshot<T>(
 			root: root,
 			storage: storage,
 			cache: newModels,
-			identifiers: identifiers
+			identifiers: identifiers,
+			flattened: flattened,
+			levels: levels,
+			maxLevel: maxLevel,
+			indices: indices
 		)
 	}
 
@@ -111,11 +175,15 @@ public extension Snapshot {
 // MARK: - Helpers
 private extension Snapshot {
 
-	mutating func normalize(base: Node<Model>, keyPath: KeyPath<Model, Bool>?) {
+	mutating func normalize(base: Node<Model>, keyPath: KeyPath<Model, Bool>?, level: Int = 0) {
 
 		identifiers.insert(base.id)
 		storage[base.id] = base.children.map(\.value.id)
 		models[base.id] = base.value
+		flattened.append(base.id)
+		levels[base.id] = level
+		maxLevel = max(maxLevel, level)
+		indices[base.id] = flattened.count - 1
 
 		// TODO: - Optimize
 		if let keyPath {
@@ -123,7 +191,7 @@ private extension Snapshot {
 		}
 
 		for child in base.children {
-			normalize(base: child, keyPath: keyPath)
+			normalize(base: child, keyPath: keyPath, level: level + 1)
 		}
 	}
 }

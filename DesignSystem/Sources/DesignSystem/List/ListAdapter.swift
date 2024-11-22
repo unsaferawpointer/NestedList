@@ -9,6 +9,8 @@ import Hierarchy
 
 #if canImport(Cocoa)
 import Cocoa
+#elseif canImport(UIKit)
+import UIKit
 #endif
 
 #if os(macOS)
@@ -409,6 +411,49 @@ private extension ListAdapter {
 		init(id: ID) {
 			self.id = id
 		}
+	}
+}
+#endif
+
+#if os(iOS)
+public final class ListAdapter<Model: CellModel>: NSObject, UITableViewDataSource {
+
+	public typealias ID = Model.ID
+
+	weak var list: UITableView?
+
+	// MARK: - Data
+
+	private var snapshot = Snapshot<Model>()
+
+	// MARK: - Cache
+
+	private(set) var expanded: Set<ID> = []
+
+	// MARK: - Initialization
+
+	public init(list: UITableView) {
+		self.list = list
+		super.init()
+
+		list.dataSource = self
+		list.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+	}
+
+	// MARK: - UITableViewDataSource
+
+	public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+		let models = snapshot.flattened { item in
+			expanded.contains(item.id)
+		}
+		return models.count
+	}
+
+	public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
+		let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+
+		return cell
 	}
 }
 #endif

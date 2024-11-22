@@ -29,7 +29,7 @@ import UIKit
 #endif
 
 #if os(iOS)
-public protocol ListCell: UIView {
+public protocol ListCell: UITableViewCell {
 
 	associatedtype Model: CellModel
 
