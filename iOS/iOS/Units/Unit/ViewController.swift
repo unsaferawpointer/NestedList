@@ -1,25 +1,36 @@
 //
-//  DocumentViewController.swift
+//  ViewController.swift
 //  iOS
 //
 //  Created by Anton Cherkasov on 16.11.2024.
 //
 
 import UIKit
+import SwiftUI
+
 import CoreModule
 import DesignSystem
 import Hierarchy
 
 protocol UnitViewDelegate {
 	func updateView()
-	func createNew(target: UUID?)
+	func userTappedCreateButton()
+	func userTappedEditButton(id: UUID)
+	func userTappedDeleteButton(ids: [UUID])
+	func userTappedAddButton(target: UUID)
 }
 
 protocol UnitView: AnyObject {
+
 	func display(_ snapshot: Snapshot<ItemModel>)
+
+	func showDetails(with model: ItemModel, completionHandler: @escaping (ItemModel, Bool) -> Void)
+	func hideDetails()
+
+	func expand(_ id: UUID)
 }
 
-class DocumentViewController: UIDocumentViewController {
+class ViewController: UIDocumentViewController {
 
 	var delegate: UnitViewDelegate?
 
@@ -63,12 +74,18 @@ class DocumentViewController: UIDocumentViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(add))
 		tableView.reloadData()
 	}
 }
 
 // MARK: - Helpers
-private extension DocumentViewController {
+private extension ViewController {
+
+	@objc
+	func add() {
+		delegate?.userTappedCreateButton()
+	}
 
 	func animate(oldSnapshot: Snapshot<ItemModel>, newSnapshot: Snapshot<ItemModel>) {
 
@@ -119,9 +136,6 @@ private extension DocumentViewController {
 
 		let diff = newModels.difference(from: oldModels)
 
-		
-
-
 		tableView.beginUpdates()
 
 		var toRemove = [IndexPath]()
@@ -137,9 +151,6 @@ private extension DocumentViewController {
 			}
 		}
 
-		print("toRemove = \(toRemove)")
-		print("toInsert = \(toInsert)")
-
 		tableView.deleteRows(at: toRemove, with: .fade)
 		tableView.insertRows(at: toInsert, with: .fade)
 
@@ -150,20 +161,40 @@ private extension DocumentViewController {
 }
 
 // MARK: - DocumentView
-extension DocumentViewController: UnitView {
+extension ViewController: UnitView {
 
 	func display(_ snapshot: Snapshot<ItemModel>) {
-		print("is Main = \(Thread.isMainThread)")
-		DispatchQueue.main.async {
+		if Thread.isMainThread {
 			self.animate(oldSnapshot: self.snapshot, newSnapshot: snapshot)
+		} else {
+			DispatchQueue.main.async {
+				self.animate(oldSnapshot: self.snapshot, newSnapshot: snapshot)
+			}
 		}
 
+	}
+
+	func showDetails(with model: ItemModel, completionHandler: @escaping (ItemModel, Bool) -> Void) {
+		let details = DetailsView(item: model, completionHandler: completionHandler)
+		let controller = UIHostingController(rootView: details)
+		present(controller, animated: true)
+	}
+
+	func hideDetails() {
+		presentedViewController?.dismiss(animated: true)
+	}
+
+	func expand(_ id: UUID) {
+		let old = snapshot.flattened(while: { expanded.contains($0.id) })
+		expanded.insert(id)
+		let new = snapshot.flattened(while: { expanded.contains($0.id) })
+		animate(oldModels: old, newModels: new)
 	}
 
 }
 
 // MARK: - UITableViewDataSource
-extension DocumentViewController: UITableViewDataSource {
+extension ViewController: UITableViewDataSource {
 
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		let models = snapshot.flattened { item in
@@ -208,7 +239,7 @@ extension DocumentViewController: UITableViewDataSource {
 }
 
 // MARK: - UITableViewDelegate
-extension DocumentViewController: UITableViewDelegate {
+extension ViewController: UITableViewDelegate {
 
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		tableView.deselectRow(at: indexPath, animated: true)
@@ -261,21 +292,22 @@ extension DocumentViewController: UITableViewDelegate {
 
 		return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { suggestedActions in
 
-			// Create an action for sharing
-			let newItem = UIAction(title: "New Item...", image: UIImage(systemName: "pencil")) { [weak self] action in
-				self?.delegate?.createNew(target: model.id)
+			let newItem = UIAction(title: "Add item...", image: UIImage(systemName: "pencil")) { [weak self] action in
+				self?.delegate?.userTappedAddButton(target: model.id)
 			}
 
-			// Create other actions...
+			let deleteItem = UIAction(title: "Delete", image: UIImage(systemName: "trash")) { [weak self] action in
+				self?.delegate?.userTappedDeleteButton(ids: [model.id])
+			}
 
-			return UIMenu(title: "", children: [newItem])
+			return UIMenu(title: "", children: [newItem, deleteItem])
 		}
 
 	}
 }
 
 // MARK: - Helpers
-private extension DocumentViewController {
+private extension ViewController {
 
 	func configureLayout() {
 		[tableView].forEach {

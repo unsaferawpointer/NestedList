@@ -14,6 +14,7 @@ protocol UnitInteractorProtocol {
 
 	@discardableResult
 	func newItem(_ text: String, target: UUID?) -> UUID
+	func deleteItems(_ ids: [UUID])
 }
 
 final class UnitInteractor {
@@ -49,5 +50,11 @@ extension UnitInteractor: UnitInteractorProtocol {
 			content.root.insertItems(with: [new], to: destination)
 		}
 		return new.id
+	}
+
+	func deleteItems(_ ids: [UUID]) {
+		storage.modificate { content in
+			content.root.deleteItems(ids)
+		}
 	}
 }

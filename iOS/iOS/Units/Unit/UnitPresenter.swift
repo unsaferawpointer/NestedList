@@ -38,8 +38,29 @@ extension UnitPresenter: UnitPresenterProtocol {
 
 extension UnitPresenter: UnitViewDelegate {
 
-	func createNew(target: UUID?) {
-		interactor?.newItem("New Item", target: target)
+	func userTappedCreateButton() {
+		let item = ItemModel(uuid: .init(), title: "", isDone: false)
+		view?.showDetails(with: item) { [weak self] saved, success in
+			self?.interactor?.newItem(saved.title, target: nil)
+			self?.view?.hideDetails()
+		}
+	}
+	
+	func userTappedEditButton(id: UUID) {
+		fatalError()
+	}
+	
+	func userTappedDeleteButton(ids: [UUID]) {
+		interactor?.deleteItems(ids)
+	}
+	
+	func userTappedAddButton(target: UUID) {
+		let item = ItemModel(uuid: .init(), title: "", isDone: false)
+		view?.showDetails(with: item) { [weak self] saved, success in
+			self?.view?.hideDetails()
+			self?.interactor?.newItem(saved.title, target: target)
+			self?.view?.expand(target)
+		}
 	}
 
 	func updateView() {

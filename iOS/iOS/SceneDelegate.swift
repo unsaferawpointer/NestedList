@@ -19,7 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		}
 
 		window = UIWindow(windowScene: windowScene)
-		window?.rootViewController = UINavigationController(rootViewController: DocumentViewController())
+		window?.rootViewController = UINavigationController(rootViewController: ViewController())
 		window?.makeKeyAndVisible()
 	}
 
