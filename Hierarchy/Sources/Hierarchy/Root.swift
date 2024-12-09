@@ -214,6 +214,24 @@ public extension Root {
 			move(moved, toOther: target, at: index)
 		}
 	}
+
+	func moveToEnd(_ ids: [ID]) {
+		let moved = ids.compactMap {
+			cache[$0]
+		}
+
+		let grouped = Dictionary<Node<Value>?, [Node<Value>]>(grouping: moved) { item in
+			return item.parent
+		}
+
+		for (container, items) in grouped {
+			guard let container else {
+				moveItems(with: items.map(\.id), to: .toRoot)
+				continue
+			}
+			moveItems(with: items.map(\.id), to: .onItem(with: container.id))
+		}
+	}
 }
 
 // MARK: - Equatable

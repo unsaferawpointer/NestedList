@@ -82,7 +82,7 @@ extension UnitPresenter: UnitViewOutput {
 		guard let selection = view?.selection else {
 			return
 		}
-		interactor?.setStatus(status, for: selection)
+		interactor?.setStatus(status, for: selection, moveToEnd: false)
 	}
 }
 
