@@ -28,10 +28,14 @@ fileprivate var strikethroughColor: Color = .secondaryLabel
 
 public extension NSAttributedString {
 
-	public convenience init(string: String, textColor: Color, strikethrough: Bool = false) {
+	convenience init(string: String, textColor: Color, strikethrough: Bool = false) {
 		let strikethroughStyle: NSUnderlineStyle = strikethrough ? .thick : []
 
+		let paragraphStyle = NSParagraphStyle.default.mutableCopy() as! NSMutableParagraphStyle
+		paragraphStyle.lineBreakMode = .byTruncatingTail
+
 		let attributes: [NSAttributedString.Key: Any] = [
+			.paragraphStyle: paragraphStyle,
 			.strikethroughStyle: strikethroughStyle.rawValue,
 			.foregroundColor: textColor,
 			.strikethroughColor: strikethroughColor
