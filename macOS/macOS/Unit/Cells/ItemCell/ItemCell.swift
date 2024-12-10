@@ -92,7 +92,7 @@ private extension ItemCell {
 		// Value
 		textfield.attributedStringValue = attrString
 
-		textfield.allowsEditingTextAttributes = true
+		textfield.allowsEditingTextAttributes = false
 	}
 
 	func configureConstraints() {

@@ -13,7 +13,7 @@ import AppKit
 
 public typealias Color = NSColor
 
-fileprivate var strikethroughColor: Color = .secondaryLabel
+fileprivate var strikethroughColor: Color = .secondaryLabelColor
 
 #endif
 
