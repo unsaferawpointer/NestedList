@@ -51,7 +51,17 @@ extension Node: Identifiable {
 }
 
 // MARK: - Public interface
-extension Node {
+public extension Node {
+
+	func map<T>(_ transform: (Value) -> T) -> Node<T> {
+		let transformed = transform(value)
+		return .init(
+			value: transformed,
+			children: children.map{ node in
+				node.map(transform)
+			}
+		)
+	}
 
 	func enumerateBackwards(_ block: (Node) -> Void) {
 		block(self)

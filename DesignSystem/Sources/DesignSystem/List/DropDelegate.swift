@@ -12,5 +12,6 @@ public protocol DropDelegate<ID>: AnyObject {
 	associatedtype ID
 
 	func move(_ ids: [ID], to destination: Destination<ID>)
+	func copy(_ ids: [ID], to destination: Destination<ID>)
 	func validateMovement(_ ids: [ID], to destination: Destination<ID>) -> Bool
 }

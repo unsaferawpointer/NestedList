@@ -15,6 +15,8 @@ protocol UnitInteractorProtocol {
 	func move(_ ids: [UUID], to destination: Destination<UUID>)
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool
 
+	func copy(_ ids: [UUID], to destination: Destination<UUID>)
+
 	func newItem(_ text: String, target: UUID?) -> UUID
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool)
 	func setText(_ text: String, for id: UUID)
@@ -55,6 +57,22 @@ extension UnitInteractor: UnitInteractorProtocol {
 
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
 		storage.state.root.validateMoving(ids, to: destination)
+	}
+
+	func copy(_ ids: [UUID], to destination: Hierarchy.Destination<UUID>) {
+		let nodes = storage.state.root.nodes(with: ids)
+		let copied = nodes.map { node in
+			node.map { item in
+				Item(
+					uuid: .random,
+					isDone: item.isDone,
+					text: item.text
+				)
+			}
+		}
+		storage.modificate { content in
+			content.root.insertItems(from: copied, to: destination)
+		}
 	}
 
 	func newItem(_ text: String, target: UUID?) -> UUID {

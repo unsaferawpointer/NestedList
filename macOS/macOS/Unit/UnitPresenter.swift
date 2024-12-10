@@ -95,6 +95,10 @@ extension UnitPresenter: DropDelegate {
 		interactor?.move(ids, to: destination)
 	}
 
+	func copy(_ ids: [UUID], to destination: Hierarchy.Destination<UUID>) {
+		interactor?.copy(ids, to: destination)
+	}
+
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
 		interactor?.validateMovement(ids, to: destination) ?? false
 	}

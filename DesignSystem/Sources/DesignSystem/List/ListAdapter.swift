@@ -147,8 +147,14 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		let ids = getIdentifiers(from: info)
 
 		if isLocal(from: info) {
-			let isValid = dropDelegate?.validateMovement(ids, to: destination) ?? false
-			return isValid ? .private : []
+
+			guard info.draggingSourceOperationMask == .copy else {
+				let isValid = dropDelegate?.validateMovement(ids, to: destination) ?? false
+				return isValid ? .private : []
+			}
+
+			return .copy
+
 		}
 
 		return .copy
@@ -164,7 +170,11 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 		guard !isLocal(from: info) else {
 			let ids = getIdentifiers(from: info)
-			dropDelegate.move(ids, to: destination)
+			if info.draggingSourceOperationMask == .copy {
+				dropDelegate.copy(ids, to: destination)
+			} else {
+				dropDelegate.move(ids, to: destination)
+			}
 			if let id = destination.id, let targetItem = cache[id] {
 				tableView?.expandItem(targetItem, expandChildren: false)
 			}

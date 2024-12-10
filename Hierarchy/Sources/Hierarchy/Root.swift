@@ -118,7 +118,7 @@ extension Root {
 		}
 	}
 
-	func insertItems(from data: [any TreeNode<Value>], to destination: Destination<Value.ID>) {
+	public func insertItems(from data: [any TreeNode<Value>], to destination: Destination<Value.ID>) {
 		let items = data.map { node in
 			makeNode(from: node)
 		}
