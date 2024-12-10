@@ -11,6 +11,7 @@ import SwiftUI
 import CoreModule
 import DesignSystem
 import Hierarchy
+import UniformTypeIdentifiers
 
 protocol UnitViewDelegate {
 	func updateView()
@@ -18,6 +19,7 @@ protocol UnitViewDelegate {
 	func userTappedEditButton(id: UUID)
 	func userTappedDeleteButton(ids: [UUID])
 	func userTappedAddButton(target: UUID)
+	func userSetStatus(isDone: Bool, id: UUID)
 }
 
 protocol UnitView: AnyObject {
@@ -214,6 +216,11 @@ extension ViewController: UITableViewDataSource {
 
 		var configuration = UIListContentConfiguration.cell()
 		configuration.text = model.title
+		configuration.attributedText = .init(
+			string: model.title,
+			textColor: model.isDone ? .secondaryLabel : .label,
+			strikethrough: model.isDone
+		)
 		configuration.image = UIImage(named: "point")
 
 		cell.contentConfiguration = configuration
@@ -264,8 +271,6 @@ extension ViewController: UITableViewDelegate {
 			expanded.insert(model.id)
 		}
 
-
-
 		let iconName = !isExpanded ? "chevron.down" : "chevron.right"
 		let image = UIImage(systemName: iconName)
 
@@ -300,7 +305,16 @@ extension ViewController: UITableViewDelegate {
 				self?.delegate?.userTappedDeleteButton(ids: [model.id])
 			}
 
-			return UIMenu(title: "", children: [newItem, deleteItem])
+			let statusItem = UIAction(
+				title: "Completed",
+				image: nil
+			) { [weak self] action in
+				self?.delegate?.userSetStatus(isDone: !model.isDone, id: model.id)
+			}
+
+			statusItem.state = model.isDone ? .on : .off
+
+			return UIMenu(title: "", children: [newItem, statusItem, deleteItem])
 		}
 
 	}

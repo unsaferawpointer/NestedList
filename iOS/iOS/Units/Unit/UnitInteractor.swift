@@ -15,6 +15,7 @@ protocol UnitInteractorProtocol {
 	@discardableResult
 	func newItem(_ text: String, target: UUID?) -> UUID
 	func deleteItems(_ ids: [UUID])
+	func setStatus(_ isDone: Bool, for id: UUID)
 }
 
 final class UnitInteractor {
@@ -55,6 +56,12 @@ extension UnitInteractor: UnitInteractorProtocol {
 	func deleteItems(_ ids: [UUID]) {
 		storage.modificate { content in
 			content.root.deleteItems(ids)
+		}
+	}
+
+	func setStatus(_ isDone: Bool, for id: UUID) {
+		storage.modificate { content in
+			content.root.setProperty(\.isDone, to: isDone, for: [id], downstream: true)
 		}
 	}
 }

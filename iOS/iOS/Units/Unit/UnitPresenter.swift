@@ -63,6 +63,10 @@ extension UnitPresenter: UnitViewDelegate {
 		}
 	}
 
+	func userSetStatus(isDone: Bool, id: UUID) {
+		interactor?.setStatus(isDone, for: id)
+	}
+
 	func updateView() {
 		interactor?.fetchData()
 	}

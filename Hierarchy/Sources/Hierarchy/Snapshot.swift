@@ -73,6 +73,15 @@ public struct Snapshot<Model: Identifiable> {
 	}
 }
 
+// MARK: - Subscripts
+public extension Snapshot {
+
+	subscript(row: Int) -> Model {
+		let id = flattened[row]
+		return models[unsafe: id]
+	}
+}
+
 // MARK: - Public interface
 public extension Snapshot {
 

@@ -7,6 +7,7 @@
 
 import Cocoa
 import DesignSystem
+import CoreModule
 import SwiftUI
 
 final class ItemCell: NSView, ListCell {
@@ -125,19 +126,4 @@ extension ItemCell {
 		delegate?.cellDidChange(newValue: .init(text: text), id: model.id)
 	}
 
-}
-
-extension NSAttributedString {
-
-	convenience init(string: String, textColor: NSColor, strikethrough: Bool = false) {
-		let strikethroughStyle: NSUnderlineStyle = strikethrough ? .thick : []
-		let strikethroughColor: NSColor = .secondaryLabelColor
-
-		let attributes: [NSAttributedString.Key: Any] = [
-			.strikethroughStyle: strikethroughStyle.rawValue,
-			.foregroundColor: textColor,
-			.strikethroughColor: strikethroughColor
-		]
-		self.init(string: string, attributes: attributes)
-	}
 }
