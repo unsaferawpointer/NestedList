@@ -61,7 +61,7 @@ private extension BasicFormatter {
 
 	func text(for node: Node<Item>, indent: Int) -> [String] {
 		let indentPrefix = Array(repeating: format.indent.value, count: indent).joined()
-		let line = indentPrefix + " " + node.value.text + (node.value.isDone ? " @done" : "")
+		let line = indentPrefix + "\(Prefix.asterisk.rawValue) " + node.value.text + (node.value.isDone ? " @done" : "")
 		return [line] + node.children.flatMap { text(for: $0, indent: indent + 1) }
 	}
 }

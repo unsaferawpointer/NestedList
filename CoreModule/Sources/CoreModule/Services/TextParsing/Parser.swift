@@ -108,12 +108,6 @@ extension Parser {
 		var isDone: Bool
 	}
 
-	enum Prefix: Character, CaseIterable {
-		case dash = "-"
-		case asterisk = "*"
-		case plus = "+"
-	}
-
 	enum Annotation: String {
 		case done
 	}
