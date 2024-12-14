@@ -375,9 +375,9 @@ extension ListAdapter {
 
 extension ListAdapter {
 
-	func makeCellIfNeeded<T: CellModel>(for model: T, in table: NSTableView) -> NSView? where T == Model {
+	func makeCellIfNeeded(for model: Model, in table: NSTableView) -> NSView? {
 
-		typealias Cell = T.Cell
+		typealias Cell = Model.Cell
 
 		let id = NSUserInterfaceItemIdentifier(Cell.reuseIdentifier)
 		var view = table.makeView(withIdentifier: id, owner: self) as? Cell

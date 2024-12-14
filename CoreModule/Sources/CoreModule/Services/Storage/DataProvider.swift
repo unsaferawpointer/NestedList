@@ -29,7 +29,7 @@ extension DataProvider: ContentProvider {
 
 	public func read(from data: Data, ofType typeName: String) throws -> Content {
 
-		guard let type = DocumentType(rawValue: typeName.lowercased()) else {
+		guard let type = DocumentType(rawValue: typeName.lowercased()), type == .text else {
 			throw DocumentError.unexpectedFormat
 		}
 

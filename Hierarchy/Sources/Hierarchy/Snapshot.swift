@@ -161,7 +161,7 @@ public extension Snapshot {
 
 	func map<T>(_ transform: (Model, Bool) -> T) -> Snapshot<T> where T.ID == ID {
 		var newModels = [ID: T]()
-		for (id, model) in models {
+		for (_, model) in models {
 			newModels[model.id] = transform(model, cache[unsafe: model.id])
 		}
 		return Snapshot<T>(
