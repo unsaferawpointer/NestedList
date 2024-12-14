@@ -75,16 +75,21 @@ private extension Parser {
 	func parseLines(text: String) -> [Line] {
 		var result: [Line] = []
 		text.enumerateLines { line, stop in
-			var trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
+
+			var trimmed = String(line.trimmingPrefix { character in
+				Prefix.allCases.map(\.rawValue).contains(character) || character.isWhitespace
+			})
 
 			// Skip empty line
 			guard !trimmed.isEmpty else {
 				return
 			}
 
-			let isDone = trimmed.contains("@done")
+			let statusAnnotation = "@\(Annotation.done.rawValue)"
+
+			let isDone = trimmed.contains(statusAnnotation)
 			if isDone {
-				trimmed = trimmed.replacingOccurrences(of: "@done", with: "")
+				trimmed = trimmed.replacingOccurrences(of: statusAnnotation, with: "")
 			}
 
 			let line = Line(indent: line.indent, text: trimmed, isDone: isDone)
@@ -102,6 +107,16 @@ extension Parser {
 		var text: String
 		var isDone: Bool
 	}
+
+	enum Prefix: Character, CaseIterable {
+		case dash = "-"
+		case asterisk = "*"
+		case plus = "+"
+	}
+
+	enum Annotation: String {
+		case done
+	}
 }
 
 // MARK: - Extensions
@@ -112,7 +127,7 @@ private extension String {
 
 		let tab: Character = "\t"
 
-		let prefix = self.prefix(while: { $0.isPrefix })
+		let prefix = self.prefix(while: { $0.isWhitespace })
 		let spacesCount = prefix.reduce(0) { partialResult, character in
 			return partialResult + (character.spacesWidth ?? 0)
 		}
@@ -122,7 +137,7 @@ private extension String {
 
 private extension Character {
 
-	var isPrefix: Bool {
+	var isWhitespace: Bool {
 		switch self {
 		case "\u{00A0}", "\t":	true
 		default:				false
