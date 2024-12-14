@@ -28,6 +28,7 @@ extension ItemModel {
 	struct Configuration {
 		var textColor: NSColor
 		var strikethrough: Bool
+		var prefixColor: NSColor
 	}
 
 	struct Value {

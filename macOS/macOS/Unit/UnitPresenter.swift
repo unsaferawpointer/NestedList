@@ -40,7 +40,8 @@ extension UnitPresenter: UnitPresenterProtocol {
 					value: .init(text: item.text),
 					configuration: .init(
 						textColor: isDone ? .secondaryLabelColor : .labelColor,
-						strikethrough: isDone
+						strikethrough: isDone,
+						prefixColor: .tertiaryLabelColor
 					)
 				)
 			}

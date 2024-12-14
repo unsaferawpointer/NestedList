@@ -41,7 +41,16 @@ final class ItemCell: NSView, ListCell {
 	}()
 
 	lazy var prefixView: NSView = {
-		let view = NSHostingView(rootView: ItemSignView())
+		let view = NSView()
+		view.wantsLayer = true
+		view.layer?.backgroundColor = NSColor.systemGray.cgColor
+		view.layer?.cornerRadius = 3
+		NSLayoutConstraint.activate(
+			[
+				view.widthAnchor.constraint(equalToConstant: 6),
+				view.heightAnchor.constraint(equalToConstant: 6),
+			]
+		)
 		return view
 	}()
 
@@ -88,6 +97,8 @@ private extension ItemCell {
 			textColor: configuration.textColor,
 			strikethrough: configuration.strikethrough
 		)
+
+		prefixView.layer?.backgroundColor = configuration.prefixColor.cgColor
 
 		// Value
 		textfield.attributedStringValue = attrString
