@@ -21,6 +21,8 @@ protocol UnitInteractorProtocol {
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool)
 	func setText(_ text: String, for id: UUID)
 	func deleteItems(_ ids: [UUID])
+
+	func strings(for ids: [UUID]) -> [String]
 }
 
 final class UnitInteractor {
@@ -102,6 +104,26 @@ extension UnitInteractor: UnitInteractorProtocol {
 	func deleteItems(_ ids: [UUID]) {
 		storage.modificate { content in
 			content.root.deleteItems(ids)
+		}
+	}
+
+	func strings(for ids: [UUID]) -> [String] {
+
+		let cache = Set(ids)
+
+		let nodes = storage.state.root.nodes(with: ids)
+		let copied = nodes.map { node in
+			node.map { $0 }
+		}
+
+		copied.forEach { node in
+			node.deleteDescendants(with: cache)
+		}
+
+		let formatter = BasicFormatter()
+
+		return copied.map { node in
+			formatter.format(node)
 		}
 	}
 

@@ -105,6 +105,26 @@ extension UnitPresenter: DropDelegate {
 	}
 }
 
+// MARK: - DragDelegate
+extension UnitPresenter: DragDelegate {
+
+	func write(ids: [UUID], to pasteboard: any PasteboardProtocol) {
+		guard let strings = interactor?.strings(for: ids) else {
+			return
+		}
+
+		let items = strings.map { string in
+			PasteboardInfo.Item(string: string)
+		}
+
+		print("items = \(items)")
+
+		let info = PasteboardInfo(items: items)
+		pasteboard.setInfo(info, clearContents: false)
+	}
+
+}
+
 // MARK: - CellDelegate
 extension UnitPresenter: CellDelegate {
 

@@ -119,6 +119,15 @@ public extension Node {
 		return index
 	}
 
+	func deleteDescendants(with ids: Set<ID>) {
+		children.removeAll {
+			ids.contains($0.value.id)
+		}
+		for index in 0..<children.count {
+			children[index].deleteDescendants(with: ids)
+		}
+	}
+
 	func insertItems(with items: [Node], to index: Int) {
 		self.children.insert(contentsOf: items, at: index)
 		items.forEach { item in

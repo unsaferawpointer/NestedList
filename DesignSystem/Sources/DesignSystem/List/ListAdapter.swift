@@ -24,7 +24,11 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 	private var animator = ListAnimator<Model>()
 
+	// MARK: - Delegates
+
 	public weak var dropDelegate: (any DropDelegate<ID>)?
+
+	public weak var dragDelegate: (any DragDelegate<ID>)?
 
 	public weak var cellDelegate: (any CellDelegate<Model>)?
 
@@ -57,7 +61,8 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		tableView.dataSource = self
 		tableView.delegate = self
 
-		tableView.registerForDraggedTypes([.identifier])
+		tableView.registerForDraggedTypes([.identifier, .string])
+		tableView.setDraggingSourceOperationMask(.copy, forLocal: false)
 	}
 
 	// MARK: - NSOutlineViewDataSource
@@ -109,6 +114,7 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		guard let item = item as? Item else {
 			return nil
 		}
+
 		let pasteboardItem = NSPasteboardItem()
 
 		let encoder = JSONEncoder()
@@ -117,6 +123,7 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		}
 
 		pasteboardItem.setData(data, forType: .identifier)
+
 		return pasteboardItem
 	}
 
@@ -127,13 +134,16 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		forItems draggedItems: [Any]
 	) {
 
-		let identifiers = draggedItems.compactMap { item in
+		let ids = draggedItems.compactMap { item in
 			item as? Item
 		}.map { item in
 			return item.id
 		}
 
-		precondition(session.draggingPasteboard.pasteboardItems?.count == identifiers.count)
+		precondition(session.draggingPasteboard.pasteboardItems?.count == ids.count)
+
+		let pasteboard = Pasteboard(pasteboard: session.draggingPasteboard)
+		dragDelegate?.write(ids: ids, to: pasteboard)
 	}
 
 	public func outlineView(
