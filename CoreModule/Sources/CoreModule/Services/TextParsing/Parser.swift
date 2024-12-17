@@ -96,7 +96,7 @@ private extension Parser {
 				trimmed = trimmed.replacingOccurrences(of: statusAnnotation, with: "")
 			}
 
-			let line = Line(indent: line.indent, text: trimmed, isDone: isDone)
+			let line = Line(indent: line.indent, text: trimmed.trimmingCharacters(in: .whitespaces), isDone: isDone)
 			result.append(line)
 		}
 		return result
