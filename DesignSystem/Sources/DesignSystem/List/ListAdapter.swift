@@ -156,18 +156,23 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		let destination = getDestination(proposedItem: item, proposedChildIndex: index)
 		let ids = getIdentifiers(from: info)
 
-		if isLocal(from: info) {
-
-			guard info.draggingSourceOperationMask == .copy else {
-				let isValid = dropDelegate?.validateMovement(ids, to: destination) ?? false
-				return isValid ? .private : []
-			}
-
-			return .copy
-
+		guard let dropDelegate else {
+			return []
 		}
 
-		return .copy
+		if isLocal(from: info) {
+			guard info.draggingSourceOperationMask == .copy else {
+				let isValid = dropDelegate.validateMovement(ids, to: destination)
+				return isValid ? .private : []
+			}
+			return .copy
+		}
+
+		guard let info = Pasteboard(pasteboard: info.draggingPasteboard).getInfo() else {
+			return []
+		}
+
+		return dropDelegate.validateDrop(info, to: destination) ? .copy : []
 	}
 
 	public func outlineView(_ outlineView: NSOutlineView, acceptDrop info: NSDraggingInfo, item: Any?, childIndex index: Int) -> Bool {
@@ -190,6 +195,12 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 			}
 			return true
 		}
+
+		guard let info = Pasteboard(pasteboard: info.draggingPasteboard).getInfo() else {
+			return false
+		}
+
+		dropDelegate.drop(info, to: destination)
 
 		return false
 	}

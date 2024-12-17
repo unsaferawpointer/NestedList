@@ -8,19 +8,23 @@
 import Foundation
 import Hierarchy
 
-protocol ParserProtocol {
+public protocol ParserProtocol {
 	func parse(from text: String) -> [Node<Item>]
 }
 
 public final class Parser {
 
-	typealias Model = Item
+	public typealias Model = Item
+
+	// MARK: - Initialization
+
+	public init() { }
 }
 
 // MARK: - ParserProtocol
 extension Parser: ParserProtocol {
 
-	func parse(from text: String) -> [Node<Model>] {
+	public func parse(from text: String) -> [Node<Model>] {
 
 		var lines = parseLines(text: text)
 

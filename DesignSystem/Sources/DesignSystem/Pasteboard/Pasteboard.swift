@@ -14,8 +14,8 @@ import AppKit
 public protocol PasteboardProtocol {
 
 	func contains(_ types: Set<String>) -> Bool
-	func info(for types: Set<String>) -> PasteboardInfo?
 	func setInfo(_ info: PasteboardInfo, clearContents: Bool)
+	func getInfo() -> PasteboardInfo?
 }
 
 final class Pasteboard {
@@ -32,13 +32,8 @@ final class Pasteboard {
 // MARK: - PasteboardProtocol
 extension Pasteboard: PasteboardProtocol {
 
-	func contains(_ types: Set<String>) -> Bool {
-		return types.contains { type in
-			pasteboard.data(forType: .init(type)) != nil
-		}
-	}
-
-	func info(for types: Set<String>) -> PasteboardInfo? {
+	func getInfo() -> PasteboardInfo? {
+		let types = pasteboard.types?.map(\.rawValue) ?? []
 		let items = pasteboard.pasteboardItems?.map { item in
 			let tuples = types.compactMap { identifier -> (String, Data)? in
 				guard let data = item.data(forType: .init(identifier)) else {
@@ -55,6 +50,12 @@ extension Pasteboard: PasteboardProtocol {
 		}
 
 		return PasteboardInfo(items: items)
+	}
+
+	func contains(_ types: Set<String>) -> Bool {
+		return types.contains { type in
+			pasteboard.data(forType: .init(type)) != nil
+		}
 	}
 
 	func setInfo(_ info: PasteboardInfo, clearContents: Bool) {
@@ -74,9 +75,6 @@ extension Pasteboard: PasteboardProtocol {
 			}
 			return item
 		}
-
-		print("info = \(info)")
-
 		pasteboard.writeObjects(items)
 	}
 }

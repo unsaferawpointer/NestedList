@@ -10,6 +10,8 @@ import CoreModule
 import DesignSystem
 import Hierarchy
 
+import AppKit
+
 protocol UnitPresenterProtocol: AnyObject {
 	func present(_ content: Content)
 }
@@ -19,6 +21,10 @@ final class UnitPresenter {
 	var interactor: UnitInteractorProtocol?
 
 	weak var view: UnitView?
+
+	// MARK: - Constants
+
+	private let stringType = NSPasteboard.PasteboardType.string.rawValue
 
 	// MARK: - Cache
 
@@ -103,6 +109,21 @@ extension UnitPresenter: DropDelegate {
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
 		interactor?.validateMovement(ids, to: destination) ?? false
 	}
+
+	func validateDrop(_ info: PasteboardInfo, to destination: Destination<UUID>) -> Bool {
+		info.containsInfo(of: stringType)
+	}
+
+	func drop(_ info: PasteboardInfo, to destination: Destination<UUID>) {
+
+		let strings = info.items.compactMap { item in
+			item.data[stringType]
+		}.compactMap { data in
+			String(data: data, encoding: .utf8)
+		}
+
+		interactor?.insertStrings(strings, to: destination)
+	}
 }
 
 // MARK: - DragDelegate
@@ -116,8 +137,6 @@ extension UnitPresenter: DragDelegate {
 		let items = strings.map { string in
 			PasteboardInfo.Item(string: string)
 		}
-
-		print("items = \(items)")
 
 		let info = PasteboardInfo(items: items)
 		pasteboard.setInfo(info, clearContents: false)

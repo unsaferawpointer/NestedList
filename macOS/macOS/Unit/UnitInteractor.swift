@@ -23,6 +23,7 @@ protocol UnitInteractorProtocol {
 	func deleteItems(_ ids: [UUID])
 
 	func strings(for ids: [UUID]) -> [String]
+	func insertStrings(_ strings: [String], to destination: Destination<UUID>)
 }
 
 final class UnitInteractor {
@@ -124,6 +125,16 @@ extension UnitInteractor: UnitInteractorProtocol {
 
 		return copied.map { node in
 			formatter.format(node)
+		}
+	}
+
+	func insertStrings(_ strings: [String], to destination: Destination<UUID>) {
+		let parser = Parser()
+		let nodes = strings.flatMap { string in
+			parser.parse(from: string)
+		}
+		storage.modificate { content in
+			content.root.insertItems(from: nodes, to: destination)
 		}
 	}
 
