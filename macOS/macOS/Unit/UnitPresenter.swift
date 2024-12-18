@@ -91,6 +91,55 @@ extension UnitPresenter: UnitViewOutput {
 		}
 		interactor?.setStatus(status, for: selection, moveToEnd: false)
 	}
+
+	func pasteIsAvailable() -> Bool {
+		let types = Set([stringType])
+		let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
+		return pasteboard.contains(types)
+	}
+
+	func userCopyItems() {
+		guard
+			let selection = view?.selection, !selection.isEmpty,
+			let strings = interactor?.strings(for: selection)
+		else {
+			return
+		}
+
+		let items = strings.map { string in
+			PasteboardInfo.Item(string: string)
+		}
+
+		let info = PasteboardInfo(items: items)
+
+		let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
+		pasteboard.setInfo(info, clearContents: true)
+	}
+
+	func userPaste() {
+
+		let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
+
+		guard
+			let info = pasteboard.getInfo()
+		else {
+			return
+		}
+
+		let destination: Destination<UUID> = if let first = view?.selection.first {
+			.onItem(with: first)
+		} else {
+			.toRoot
+		}
+
+		let strings = info.items.compactMap { item in
+			item.data[stringType]
+		}.compactMap { data in
+			String(data: data, encoding: .utf8)
+		}
+
+		interactor?.insertStrings(strings, to: destination)
+	}
 }
 
 // MARK: - DropDelelgate
@@ -102,7 +151,7 @@ extension UnitPresenter: DropDelegate {
 		interactor?.move(ids, to: destination)
 	}
 
-	func copy(_ ids: [UUID], to destination: Hierarchy.Destination<UUID>) {
+	func copy(_ ids: [UUID], to destination: Destination<UUID>) {
 		interactor?.copy(ids, to: destination)
 	}
 

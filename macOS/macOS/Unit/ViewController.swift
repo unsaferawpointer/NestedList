@@ -15,8 +15,11 @@ protocol UnitViewOutput {
 	func userCreateNewItem()
 	func userDeleteItem()
 	func userChangedStatus(_ status: Bool)
+	func userCopyItems()
+	func userPaste()
 
 	func validateStatus() -> Bool?
+	func pasteIsAvailable() -> Bool
 }
 
 protocol UnitView: AnyObject, ListSupportable {
@@ -174,6 +177,14 @@ extension ViewController: MenuSupportable {
 	func deleteItem(_ sender: NSMenuItem) {
 		output?.userDeleteItem()
 	}
+
+	func copy(_ sender: NSMenuItem) {
+		output?.userCopyItems()
+	}
+
+	func paste(_ sender: NSMenuItem) {
+		output?.userPaste()
+	}
 }
 
 // MARK: - NSMenuItemValidation
@@ -196,8 +207,10 @@ extension ViewController: NSMenuItemValidation {
 			}
 
 			return adapter?.effectiveSelection.count ?? 0 > 0
-		case #selector(deleteItem):
+		case #selector(deleteItem), #selector(copy(_:)):
 			return adapter?.effectiveSelection.count ?? 0 > 0
+		case #selector(paste(_:)):
+			return output?.pasteIsAvailable() ?? false
 		default:
 			return false
 		}

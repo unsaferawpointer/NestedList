@@ -18,13 +18,13 @@ public protocol PasteboardProtocol {
 	func getInfo() -> PasteboardInfo?
 }
 
-final class Pasteboard {
+public final class Pasteboard {
 
 	let pasteboard: NSPasteboard
 
 	// MARK: - Initialization
 
-	init(pasteboard: NSPasteboard = .general) {
+	public init(pasteboard: NSPasteboard = .general) {
 		self.pasteboard = pasteboard
 	}
 }
@@ -32,7 +32,7 @@ final class Pasteboard {
 // MARK: - PasteboardProtocol
 extension Pasteboard: PasteboardProtocol {
 
-	func getInfo() -> PasteboardInfo? {
+	public func getInfo() -> PasteboardInfo? {
 		let types = pasteboard.types?.map(\.rawValue) ?? []
 		let items = pasteboard.pasteboardItems?.map { item in
 			let tuples = types.compactMap { identifier -> (String, Data)? in
@@ -52,13 +52,13 @@ extension Pasteboard: PasteboardProtocol {
 		return PasteboardInfo(items: items)
 	}
 
-	func contains(_ types: Set<String>) -> Bool {
+	public func contains(_ types: Set<String>) -> Bool {
 		return types.contains { type in
 			pasteboard.data(forType: .init(type)) != nil
 		}
 	}
 
-	func setInfo(_ info: PasteboardInfo, clearContents: Bool) {
+	public func setInfo(_ info: PasteboardInfo, clearContents: Bool) {
 
 		if clearContents {
 			pasteboard.clearContents()

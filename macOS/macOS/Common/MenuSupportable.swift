@@ -12,4 +12,6 @@ protocol MenuSupportable {
 	func newItem(_ sender: NSMenuItem)
 	func deleteItem(_ sender: NSMenuItem)
 	func toggleStatus(_ sender: NSMenuItem)
+	func copy(_ sender: NSMenuItem)
+	func paste(_ sender: NSMenuItem)
 }
