@@ -202,7 +202,7 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 		dropDelegate.drop(info, to: destination)
 
-		return false
+		return true
 	}
 
 	// MARK: - Selection support
