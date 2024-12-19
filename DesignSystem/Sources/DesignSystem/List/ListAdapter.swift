@@ -94,17 +94,23 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		return snapshot.numberOfChildren(ofItem: item.id) > 0
 	}
 
+	public func outlineView(_ outlineView: NSOutlineView, isGroupItem item: Any) -> Bool {
+		guard let item = item as? Item else {
+			return false
+		}
+		let model = snapshot.model(with: item.id)
+		return model.isGroup
+	}
+
 	// MARK: - NSOutlineViewDelegate
 
 	public func outlineView(_ outlineView: NSOutlineView, viewFor tableColumn: NSTableColumn?, item: Any) -> NSView? {
-
-		let isHeader = tableColumn == nil
-
-		guard let item = item as? Item, !isHeader else {
+		guard let item = item as? Item else {
 			return nil
 		}
 
 		let model = snapshot.model(with: item.id)
+
 		return makeCellIfNeeded(for: model, in: outlineView)
 	}
 

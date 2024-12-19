@@ -48,7 +48,8 @@ extension UnitPresenter: UnitPresenterProtocol {
 						textColor: isDone ? .secondaryLabelColor : .labelColor,
 						strikethrough: isDone,
 						prefixColor: .tertiaryLabelColor
-					)
+					),
+					isGroup: false
 				)
 			}
 		view?.display(converted)

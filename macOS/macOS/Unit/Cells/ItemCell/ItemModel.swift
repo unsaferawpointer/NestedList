@@ -20,6 +20,8 @@ struct ItemModel: CellModel {
 
 	var action: ((Value) -> Void)?
 
+	var isGroup: Bool
+
 }
 
 // MARK: - Nested data structs
