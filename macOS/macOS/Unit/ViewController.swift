@@ -17,6 +17,7 @@ protocol UnitViewOutput {
 	func userChangedStatus(_ status: Bool)
 	func userCopyItems()
 	func userPaste()
+	func userCut()
 
 	func validateStatus() -> Bool?
 	func pasteIsAvailable() -> Bool
@@ -185,6 +186,10 @@ extension ViewController: MenuSupportable {
 	func paste(_ sender: NSMenuItem) {
 		output?.userPaste()
 	}
+
+	func cut(_ sender: NSMenuItem) {
+		output?.userCut()
+	}
 }
 
 // MARK: - NSMenuItemValidation
@@ -207,7 +212,7 @@ extension ViewController: NSMenuItemValidation {
 			}
 
 			return adapter?.effectiveSelection.count ?? 0 > 0
-		case #selector(deleteItem), #selector(copy(_:)):
+		case #selector(deleteItem), #selector(copy(_:)), #selector(cut(_:)):
 			return adapter?.effectiveSelection.count ?? 0 > 0
 		case #selector(paste(_:)):
 			return output?.pasteIsAvailable() ?? false

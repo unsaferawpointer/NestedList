@@ -140,6 +140,25 @@ extension UnitPresenter: UnitViewOutput {
 
 		interactor?.insertStrings(strings, to: destination)
 	}
+
+	func userCut() {
+		guard
+			let selection = view?.selection, !selection.isEmpty,
+			let strings = interactor?.strings(for: selection)
+		else {
+			return
+		}
+
+		let items = strings.map { string in
+			PasteboardInfo.Item(string: string)
+		}
+
+		let info = PasteboardInfo(items: items)
+
+		let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
+		pasteboard.setInfo(info, clearContents: true)
+		interactor?.deleteItems(selection)
+	}
 }
 
 // MARK: - DropDelelgate
