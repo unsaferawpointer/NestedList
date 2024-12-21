@@ -40,14 +40,14 @@ extension UnitPresenter: UnitPresenterProtocol {
 		self.cache = snapshot.cache
 
 		let converted = snapshot
-			.map { item, isDone in
+			.map { item, isDone, level in
 				ItemModel(
 					id: item.id,
 					value: .init(text: item.text),
 					configuration: .init(
 						textColor: isDone ? .secondaryLabelColor : .labelColor,
 						strikethrough: isDone,
-						prefixColor: .tertiaryLabelColor
+						style: .point(.tertiaryLabelColor)
 					),
 					isGroup: false
 				)

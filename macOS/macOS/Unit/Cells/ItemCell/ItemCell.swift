@@ -98,7 +98,15 @@ private extension ItemCell {
 			strikethrough: configuration.strikethrough
 		)
 
-		prefixView.layer?.backgroundColor = configuration.prefixColor.cgColor
+		switch configuration.style {
+		case .point(let color):
+			prefixView.isHidden = false
+			prefixView.layer?.backgroundColor = color.cgColor
+			textfield.font = NSFont.preferredFont(forTextStyle: .body)
+		case .section:
+			prefixView.isHidden = true
+			textfield.font = NSFont.preferredFont(forTextStyle: .headline)
+		}
 
 		// Value
 		textfield.attributedStringValue = attrString

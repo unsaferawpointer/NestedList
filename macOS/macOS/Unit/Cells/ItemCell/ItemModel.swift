@@ -30,10 +30,15 @@ extension ItemModel {
 	struct Configuration {
 		var textColor: NSColor
 		var strikethrough: Bool
-		var prefixColor: NSColor
+		var style: Style
 	}
 
 	struct Value {
 		var text: String
+	}
+
+	enum Style {
+		case point(_ color: NSColor)
+		case section
 	}
 }
