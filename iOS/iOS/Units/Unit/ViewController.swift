@@ -45,7 +45,6 @@ class ViewController: UIDocumentViewController {
 			guard let document = listDocument else {
 				return
 			}
-			print("is Main = \(Thread.isMainThread)")
 			self.delegate = UnitAssembly.build(self, storage: document.storage)
 		}
 	}
@@ -125,10 +124,7 @@ private extension ViewController {
 
 				cell?.accessoryView = UIImageView(image: image)
 			}
-
-
 		}
-
 
 		self.snapshot = newSnapshot
 		animate(oldModels: oldModels, newModels: newModels)
@@ -157,8 +153,6 @@ private extension ViewController {
 		tableView.insertRows(at: toInsert, with: .fade)
 
 		tableView.endUpdates()
-
-
 	}
 }
 

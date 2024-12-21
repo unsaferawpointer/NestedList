@@ -58,8 +58,10 @@ extension UnitPresenter: UnitViewDelegate {
 		let item = ItemModel(uuid: .init(), title: "", isDone: false)
 		view?.showDetails(with: item) { [weak self] saved, success in
 			self?.view?.hideDetails()
-			self?.interactor?.newItem(saved.title, target: target)
-			self?.view?.expand(target)
+			if success {
+				self?.interactor?.newItem(saved.title, target: target)
+				self?.view?.expand(target)
+			}
 		}
 	}
 

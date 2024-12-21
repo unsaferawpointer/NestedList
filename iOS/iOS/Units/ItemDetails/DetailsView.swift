@@ -13,6 +13,10 @@ struct DetailsView: View {
 
 	var completionHandler: (ItemModel, Bool) -> Void
 
+	var isValid: Bool {
+		return !item.title.isEmpty
+	}
+
 	// MARK: - Initialization
 
 	init(item: ItemModel, completionHandler: @escaping (ItemModel, Bool) -> Void) {
@@ -36,6 +40,7 @@ struct DetailsView: View {
 					Button("Save", role: .none) {
 						completionHandler(item, true)
 					}
+					.disabled(!isValid)
 				}
 			}
 		}
