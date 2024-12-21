@@ -25,7 +25,7 @@ extension UnitPresenter: UnitPresenterProtocol {
 
 	func present(_ content: Content) {
 		let snapshot = Snapshot(content.root.nodes, keyPath: \.isDone)
-			.map { model, isDone in
+			.map { model, isDone, level in
 				ItemModel(
 					uuid: model.id,
 					title: model.text,

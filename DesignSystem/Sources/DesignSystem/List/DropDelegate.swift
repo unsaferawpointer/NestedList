@@ -7,6 +7,8 @@
 
 import Hierarchy
 
+#if os(macOS)
+
 public protocol DropDelegate<ID>: AnyObject {
 
 	associatedtype ID
@@ -17,3 +19,4 @@ public protocol DropDelegate<ID>: AnyObject {
 	func validateDrop(_ info: PasteboardInfo, to destination: Destination<ID>) -> Bool
 	func drop(_ info: PasteboardInfo, to destination: Destination<ID>)
 }
+#endif

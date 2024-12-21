@@ -5,9 +5,7 @@
 //  Created by Anton Cherkasov on 15.12.2024.
 //
 
-#if canImport(AppKit)
-import AppKit
-#endif
+#if os(macOS)
 
 public struct PasteboardInfo {
 
@@ -48,3 +46,5 @@ public extension PasteboardInfo {
 		}
 	}
 }
+
+#endif

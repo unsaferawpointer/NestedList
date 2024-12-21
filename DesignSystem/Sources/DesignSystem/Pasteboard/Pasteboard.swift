@@ -7,9 +7,8 @@
 
 import Foundation
 
-#if canImport(AppKit)
+#if os(macOS)
 import AppKit
-#endif
 
 public protocol PasteboardProtocol {
 
@@ -78,3 +77,4 @@ extension Pasteboard: PasteboardProtocol {
 		pasteboard.writeObjects(items)
 	}
 }
+#endif

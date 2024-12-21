@@ -7,9 +7,11 @@
 
 import Foundation
 
+#if os(macOS)
 public protocol DragDelegate<ID>: AnyObject {
 
 	associatedtype ID
 
 	func write(ids: [ID], to pasteboard: PasteboardProtocol)
 }
+#endif
