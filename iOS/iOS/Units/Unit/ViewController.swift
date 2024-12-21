@@ -26,7 +26,7 @@ protocol UnitView: AnyObject {
 
 	func display(_ snapshot: Snapshot<ItemModel>)
 
-	func showDetails(with model: ItemModel, completionHandler: @escaping (ItemModel, Bool) -> Void)
+	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Model, Bool) -> Void)
 	func hideDetails()
 
 	func expand(_ id: UUID)
@@ -170,7 +170,7 @@ extension ViewController: UnitView {
 
 	}
 
-	func showDetails(with model: ItemModel, completionHandler: @escaping (ItemModel, Bool) -> Void) {
+	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Model, Bool) -> Void) {
 		let details = DetailsView(item: model, completionHandler: completionHandler)
 		let controller = UIHostingController(rootView: details)
 		present(controller, animated: true)
@@ -291,8 +291,12 @@ extension ViewController: UITableViewDelegate {
 
 		return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { suggestedActions in
 
-			let newItem = UIAction(title: "Add item...", image: UIImage(systemName: "pencil")) { [weak self] action in
+			let newItem = UIAction(title: "Add item...", image: UIImage(systemName: "plus")) { [weak self] action in
 				self?.delegate?.userTappedAddButton(target: model.id)
+			}
+
+			let editItem = UIAction(title: "Edit item...", image: UIImage(systemName: "pencil")) { [weak self] action in
+				self?.delegate?.userTappedEditButton(id: model.id)
 			}
 
 			let deleteItem = UIAction(title: "Delete", image: UIImage(systemName: "trash")) { [weak self] action in
@@ -308,7 +312,7 @@ extension ViewController: UITableViewDelegate {
 
 			statusItem.state = model.isDone ? .on : .off
 
-			return UIMenu(title: "", children: [newItem, statusItem, deleteItem])
+			return UIMenu(title: "", children: [newItem, editItem, statusItem, deleteItem])
 		}
 
 	}

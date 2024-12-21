@@ -16,6 +16,8 @@ protocol UnitInteractorProtocol {
 	func newItem(_ text: String, target: UUID?) -> UUID
 	func deleteItems(_ ids: [UUID])
 	func setStatus(_ isDone: Bool, for id: UUID)
+	func setText(_ text: String, for id: UUID)
+	func item(for id: UUID) -> Item
 }
 
 final class UnitInteractor {
@@ -53,6 +55,13 @@ extension UnitInteractor: UnitInteractorProtocol {
 		return new.id
 	}
 
+	func item(for id: UUID) -> Item {
+		guard let node = storage.state.root.node(with: id) else {
+			fatalError()
+		}
+		return node.value
+	}
+
 	func deleteItems(_ ids: [UUID]) {
 		storage.modificate { content in
 			content.root.deleteItems(ids)
@@ -62,6 +71,12 @@ extension UnitInteractor: UnitInteractorProtocol {
 	func setStatus(_ isDone: Bool, for id: UUID) {
 		storage.modificate { content in
 			content.root.setProperty(\.isDone, to: isDone, for: [id], downstream: true)
+		}
+	}
+
+	func setText(_ text: String, for id: UUID) {
+		storage.modificate { content in
+			content.root.setProperty(\.text, to: text, for: [id])
 		}
 	}
 }

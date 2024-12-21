@@ -39,15 +39,24 @@ extension UnitPresenter: UnitPresenterProtocol {
 extension UnitPresenter: UnitViewDelegate {
 
 	func userTappedCreateButton() {
-		let item = ItemModel(uuid: .init(), title: "", isDone: false)
-		view?.showDetails(with: item) { [weak self] saved, success in
+		let model = DetailsView.Model(title: "New Item")
+		view?.showDetails(with: model) { [weak self] saved, success in
 			self?.interactor?.newItem(saved.title, target: nil)
 			self?.view?.hideDetails()
 		}
 	}
 	
 	func userTappedEditButton(id: UUID) {
-		fatalError()
+		guard let item = interactor?.item(for: id) else {
+			return
+		}
+		let model = DetailsView.Model(title: item.text)
+		view?.showDetails(with: model) { [weak self] saved, success in
+			self?.view?.hideDetails()
+			if success {
+				self?.interactor?.setText(saved.title, for: id)
+			}
+		}
 	}
 	
 	func userTappedDeleteButton(ids: [UUID]) {
@@ -55,8 +64,8 @@ extension UnitPresenter: UnitViewDelegate {
 	}
 	
 	func userTappedAddButton(target: UUID) {
-		let item = ItemModel(uuid: .init(), title: "", isDone: false)
-		view?.showDetails(with: item) { [weak self] saved, success in
+		let model = DetailsView.Model(title: "")
+		view?.showDetails(with: model) { [weak self] saved, success in
 			self?.view?.hideDetails()
 			if success {
 				self?.interactor?.newItem(saved.title, target: target)
