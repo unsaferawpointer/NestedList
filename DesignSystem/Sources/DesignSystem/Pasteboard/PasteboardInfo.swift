@@ -7,6 +7,8 @@
 
 #if os(macOS)
 
+import AppKit
+
 public struct PasteboardInfo {
 
 	public var items: [Item] = []
