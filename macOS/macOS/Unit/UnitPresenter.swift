@@ -219,6 +219,10 @@ extension UnitPresenter: CellDelegate {
 	typealias Model = ItemModel
 
 	func cellDidChange(newValue: ItemModel.Value, id: UUID) {
+		guard !newValue.text.isEmpty else {
+			interactor?.deleteItems([id])
+			return
+		}
 		interactor?.setText(newValue.text, for: id)
 	}
 }
