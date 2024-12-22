@@ -95,7 +95,7 @@ public extension Snapshot {
 
 			while !queue.isEmpty {
 
-				let current = queue.remove(at: 0)
+				let current = queue.removeLast()
 
 				let model = models[unsafe: current]
 				result.append(model)
