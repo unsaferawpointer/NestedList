@@ -135,7 +135,7 @@ private extension ViewController {
 
 		table.frame = scrollview.bounds
 		table.headerView = nil
-		view.additionalSafeAreaInsets = .horizontal(32)
+		scrollview.additionalSafeAreaInsets = .horizontal(32)
 
 		let column = NSTableColumn(identifier: .init("main"))
 		table.addTableColumn(column)
