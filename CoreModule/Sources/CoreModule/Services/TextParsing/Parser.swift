@@ -32,7 +32,7 @@ extension Parser: ParserProtocol {
 
 		let minIndent = lines.map(\.indent).min() ?? 0
 		lines = lines.map {
-			Line(indent: $0.indent - minIndent, text: $0.text, isDone: $0.isDone)
+			Line(indent: $0.indent - minIndent, text: $0.text, isDone: $0.isDone, hasColon: $0.hasColon)
 		}
 
 		// Normilize indents
@@ -56,7 +56,14 @@ extension Parser: ParserProtocol {
 
 		for line in lines {
 
-			let item = Item(uuid: .init(), isDone: line.isDone, text: line.text)
+			let item = Item(
+				uuid: .init(),
+				isDone: line.isDone,
+				text: line.text,
+				style: line.hasColon
+					? .section
+					: .item
+			)
 			let node = Node<Model>(value: item)
 
 			if line.indent == 0 {
@@ -96,7 +103,13 @@ private extension Parser {
 				trimmed = trimmed.replacingOccurrences(of: statusAnnotation, with: "")
 			}
 
-			let line = Line(indent: line.indent, text: trimmed.trimmingCharacters(in: .whitespaces), isDone: isDone)
+			var text = trimmed.trimmingCharacters(in: .whitespaces)
+			let hasColon = text.hasSuffix(":")
+			if hasColon {
+				text.removeLast()
+			}
+
+			let line = Line(indent: line.indent, text: text, isDone: isDone, hasColon: hasColon)
 			result.append(line)
 		}
 		return result
@@ -110,6 +123,7 @@ extension Parser {
 		var indent: Int
 		var text: String
 		var isDone: Bool
+		var hasColon: Bool
 	}
 
 	enum Annotation: String {

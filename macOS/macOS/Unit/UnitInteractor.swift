@@ -69,7 +69,8 @@ extension UnitInteractor: UnitInteractorProtocol {
 				Item(
 					uuid: .random,
 					isDone: item.isDone,
-					text: item.text
+					text: item.text,
+					style: item.style
 				)
 			}
 		}
@@ -79,7 +80,7 @@ extension UnitInteractor: UnitInteractorProtocol {
 	}
 
 	func newItem(_ text: String, target: UUID?) -> UUID {
-		let new = Item(uuid: .random, text: text)
+		let new = Item(uuid: .random, text: text, style: .item)
 		let destination = Destination(target: target)
 		storage.modificate { content in
 			content.root.insertItems(with: [new], to: destination)

@@ -16,12 +16,20 @@ public struct Item {
 
 	public var text: String
 
+	public var style: Style
+
 	// MARK: - Initialization
 
-	public init(uuid: UUID = UUID(), isDone: Bool = false, text: String) {
+	public init(
+		uuid: UUID = UUID(),
+		isDone: Bool = false,
+		text: String,
+		style: Style
+	) {
 		self.uuid = uuid
 		self.isDone = isDone
 		self.text = text
+		self.style = style
 	}
 }
 
@@ -41,5 +49,14 @@ extension Item: NodeValue {
 
 	public mutating func generateIdentifier() {
 		self.uuid = UUID()
+	}
+}
+
+// MARK: - Nested data structs
+public extension Item {
+
+	enum Style: Int, Codable {
+		case item
+		case section
 	}
 }

@@ -37,7 +37,7 @@ extension ItemModel {
 		var text: String
 	}
 
-	enum Style {
+	enum Style: Equatable {
 		case point(_ color: NSColor)
 		case section
 	}

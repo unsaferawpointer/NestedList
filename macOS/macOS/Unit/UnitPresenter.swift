@@ -39,17 +39,27 @@ extension UnitPresenter: UnitPresenterProtocol {
 		let snapshot = Snapshot(content.root.nodes, keyPath: \.isDone)
 		self.cache = snapshot.cache
 
+
+
 		let converted = snapshot
 			.map { item, isDone, level in
-				ItemModel(
+
+				let style: ItemModel.Style = switch item.style {
+				case .item:
+					.point(.tertiaryLabelColor)
+				case .section:
+					.section
+				}
+
+				return ItemModel(
 					id: item.id,
 					value: .init(text: item.text),
 					configuration: .init(
 						textColor: isDone ? .secondaryLabelColor : .labelColor,
 						strikethrough: isDone,
-						style: .point(.tertiaryLabelColor)
+						style: style
 					),
-					isGroup: false
+					isGroup: level == 0 && style == .section
 				)
 			}
 		view?.display(converted)
