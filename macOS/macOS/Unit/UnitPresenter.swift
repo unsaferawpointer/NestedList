@@ -18,9 +18,13 @@ protocol UnitPresenterProtocol: AnyObject {
 
 final class UnitPresenter {
 
+	// MARK: - DI
+
 	var interactor: UnitInteractorProtocol?
 
 	weak var view: UnitView?
+
+	private(set) var factory: ItemsFactoryProtocol = ItemsFactory()
 
 	// MARK: - Constants
 
@@ -39,27 +43,12 @@ extension UnitPresenter: UnitPresenterProtocol {
 		let snapshot = Snapshot(content.root.nodes, keyPath: \.isDone)
 		self.cache = snapshot.cache
 
-
-
 		let converted = snapshot
 			.map { item, isDone, level in
-
-				let style: ItemModel.Style = switch item.style {
-				case .item:
-					.point(.tertiaryLabelColor)
-				case .section:
-					.section
-				}
-
-				return ItemModel(
-					id: item.id,
-					value: .init(text: item.text),
-					configuration: .init(
-						textColor: isDone ? .secondaryLabelColor : .labelColor,
-						strikethrough: isDone,
-						style: style
-					),
-					isGroup: level == 0 && style == .section
+				factory.makeItem(
+					item: item,
+					isDone: isDone,
+					level: level
 				)
 			}
 		view?.display(converted)
@@ -80,7 +69,7 @@ extension UnitPresenter: UnitViewOutput {
 		}
 
 		let first = view?.selection.first
-		let id = interactor.newItem("New Item", target: first)
+		let id = interactor.newItem("New...", target: first)
 
 		view?.scroll(to: id)
 		if let first {
