@@ -37,6 +37,38 @@ extension MenuBuilder: MenuBuilderProtocol {
 		)
 		menu.addItem(.separator())
 		menu.addItem(
+			{
+				let item = NSMenuItem()
+				item.title = "Style"
+				item.submenu = {
+					let menu = NSMenu()
+					menu.addItem(
+						{
+							let item = NSMenuItem()
+							item.title = "Item"
+							item.action = #selector(MenuSupportable.setItemStyle(_:))
+							item.keyEquivalent = ""
+							item.tag = 0
+							return item
+						}()
+					)
+					menu.addItem(
+						{
+							let item = NSMenuItem()
+							item.title = "Section"
+							item.action = #selector(MenuSupportable.setItemStyle(_:))
+							item.keyEquivalent = ""
+							item.tag = 1
+							return item
+						}()
+					)
+					return menu
+				}()
+				return item
+			}()
+		)
+		menu.addItem(.separator())
+		menu.addItem(
 			NSMenuItem(
 				title: "Delete",
 				action: #selector(MenuSupportable.deleteItem(_:)),

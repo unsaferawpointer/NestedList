@@ -175,6 +175,10 @@ extension ViewController: MenuSupportable {
 		output?.userChangedStatus(!enabled)
 	}
 
+	func setItemStyle(_ sender: NSMenuItem) {
+
+	}
+
 	func deleteItem(_ sender: NSMenuItem) {
 		output?.userDeleteItem()
 	}
@@ -212,7 +216,7 @@ extension ViewController: NSMenuItemValidation {
 			}
 
 			return adapter?.effectiveSelection.count ?? 0 > 0
-		case #selector(deleteItem), #selector(copy(_:)), #selector(cut(_:)):
+		case #selector(deleteItem), #selector(copy(_:)), #selector(cut(_:)), #selector(setItemStyle(_:)):
 			return adapter?.effectiveSelection.count ?? 0 > 0
 		case #selector(paste(_:)):
 			return output?.pasteIsAvailable() ?? false
