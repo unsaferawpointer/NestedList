@@ -32,7 +32,13 @@ extension Parser: ParserProtocol {
 
 		let minIndent = lines.map(\.indent).min() ?? 0
 		lines = lines.map {
-			Line(indent: $0.indent - minIndent, text: $0.text, isDone: $0.isDone, hasColon: $0.hasColon)
+			Line(
+				indent: $0.indent - minIndent,
+				prefix: $0.prefix,
+				text: $0.text,
+				isDone: $0.isDone,
+				hasColon: $0.hasColon
+			)
 		}
 
 		// Normilize indents
@@ -83,33 +89,45 @@ extension Parser: ParserProtocol {
 // MARK: - Helpers
 private extension Parser {
 
+	/*
+	Project:
+		* Body @done
+	 */
 	func parseLines(text: String) -> [Line] {
 		var result: [Line] = []
 		text.enumerateLines { line, stop in
 
-			var trimmed = String(line.trimmingPrefix { character in
-				Prefix.allCases.map(\.rawValue).contains(character) || character.isWhitespace
-			})
+			var trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
 
-			// Skip empty line
-			guard !trimmed.isEmpty else {
+			// Prefix
+
+			guard let first = trimmed.first else {
 				return
 			}
+			let prefix = Prefix(rawValue: first)
+			if prefix != nil {
+				trimmed.removeFirst()
+			}
 
-			let statusAnnotation = "@\(Annotation.done.rawValue)"
+			// Done annotation
 
-			let isDone = trimmed.contains(statusAnnotation)
+			let annotation = "@" + Annotation.done.rawValue
+
+			let isDone = trimmed.contains(annotation)
 			if isDone {
-				trimmed = trimmed.replacingOccurrences(of: statusAnnotation, with: "")
+				trimmed = trimmed.replacing(annotation, with: "")
 			}
 
-			var text = trimmed.trimmingCharacters(in: .whitespaces)
-			let hasColon = text.hasSuffix(":")
+			trimmed = trimmed.trimmingCharacters(in: .whitespaces)
+
+			// Colon
+
+			let hasColon = trimmed.hasSuffix(":")
 			if hasColon {
-				text.removeLast()
+				trimmed.removeLast()
 			}
 
-			let line = Line(indent: line.indent, text: text, isDone: isDone, hasColon: hasColon)
+			let line = Line(indent: line.indent, prefix: prefix, text: trimmed, isDone: isDone, hasColon: hasColon)
 			result.append(line)
 		}
 		return result
@@ -121,6 +139,7 @@ extension Parser {
 
 	struct Line {
 		var indent: Int
+		var prefix: Prefix?
 		var text: String
 		var isDone: Bool
 		var hasColon: Bool
