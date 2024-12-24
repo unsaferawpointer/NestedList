@@ -15,4 +15,5 @@ protocol MenuSupportable {
 	func copy(_ sender: NSMenuItem)
 	func paste(_ sender: NSMenuItem)
 	func cut(_ sender: NSMenuItem)
+	func setItemStyle(_ sender: NSMenuItem)
 }

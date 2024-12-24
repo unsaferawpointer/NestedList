@@ -7,6 +7,7 @@
 
 import Cocoa
 import Hierarchy
+import CoreModule
 import DesignSystem
 
 protocol UnitViewOutput {
@@ -15,11 +16,13 @@ protocol UnitViewOutput {
 	func userCreateNewItem()
 	func userDeleteItem()
 	func userChangedStatus(_ status: Bool)
+	func userChangedStyle(_ style: Item.Style)
 	func userCopyItems()
 	func userPaste()
 	func userCut()
 
 	func validateStatus() -> Bool?
+	func validateStyle(_ style: Item.Style) -> Bool?
 	func pasteIsAvailable() -> Bool
 }
 
@@ -175,6 +178,11 @@ extension ViewController: MenuSupportable {
 		output?.userChangedStatus(!enabled)
 	}
 
+	func setItemStyle(_ sender: NSMenuItem) {
+		let style = Item.Style(rawValue: sender.tag) ?? .item
+		output?.userChangedStyle(style)
+	}
+
 	func deleteItem(_ sender: NSMenuItem) {
 		output?.userDeleteItem()
 	}
@@ -203,6 +211,19 @@ extension ViewController: NSMenuItemValidation {
 		case #selector(toggleStatus):
 
 			let status = output?.validateStatus()
+
+			switch status {
+			case .some(let value):
+				menuItem.state = value ? .on : .off
+			case .none:
+				menuItem.state = .mixed
+			}
+
+			return adapter?.effectiveSelection.count ?? 0 > 0
+		case #selector(setItemStyle(_:)):
+
+			let style = Item.Style(rawValue: menuItem.tag) ?? .item
+			let status = output?.validateStyle(style)
 
 			switch status {
 			case .some(let value):

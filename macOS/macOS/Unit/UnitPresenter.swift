@@ -32,7 +32,11 @@ final class UnitPresenter {
 
 	// MARK: - Cache
 
-	private(set) var cache: [UUID: Bool] = [:]
+	private(set) var allDone: Set<UUID> = []
+
+	private(set) var allItems: Set<UUID> = []
+
+	private(set) var allSections: Set<UUID> = []
 }
 
 // MARK: - UnitPresenterProtocol
@@ -41,7 +45,21 @@ extension UnitPresenter: UnitPresenterProtocol {
 	func present(_ content: Content) {
 
 		let snapshot = Snapshot(content.root.nodes, keyPath: \.isDone)
-		self.cache = snapshot.cache
+
+		self.allDone = snapshot.satisfy { item in
+			item.isDone
+		}
+
+		self.allItems = snapshot.satisfy { item in
+			item.style == .item
+		}
+		self.allSections = snapshot.satisfy { item in
+			item.style == .section
+		}
+
+		let count = allItems.intersection(allSections).count
+
+		assert( count == 0)
 
 		let converted = snapshot
 			.map { item, isDone, level in
@@ -90,6 +108,13 @@ extension UnitPresenter: UnitViewOutput {
 			return
 		}
 		interactor?.setStatus(status, for: selection, moveToEnd: false)
+	}
+
+	func userChangedStyle(_ style: Item.Style) {
+		guard let selection = view?.selection else {
+			return
+		}
+		interactor?.setStyle(style, for: selection)
 	}
 
 	func pasteIsAvailable() -> Bool {
@@ -227,27 +252,34 @@ extension UnitPresenter: CellDelegate {
 }
 extension UnitPresenter {
 
+	func validate(in cache: Set<UUID>, with selection: [UUID]) -> Bool? {
+		let count = Set(selection).intersection(cache).count
+		switch count {
+		case 0:
+			return false
+		case selection.count:
+			return true
+		default:
+			return nil
+		}
+	}
+
 	func validateStatus() -> Bool? {
 		guard let selection = view?.selection, !selection.isEmpty else {
 			return false
 		}
-		let allDone = selection.compactMap {
-			cache[$0]
-		}.allSatisfy { $0 }
+		return validate(in: allDone, with: selection)
+	}
 
-		let allUndone = selection.compactMap {
-			cache[$0]
-		}.allSatisfy { !$0 }
-
-		switch (allDone, allUndone) {
-		case (false, false):
-			return nil
-		case (true, false):
-			return true
-		case (false, true):
+	func validateStyle(_ style: Item.Style) -> Bool? {
+		guard let selection = view?.selection, !selection.isEmpty else {
 			return false
-		default:
-			fatalError()
+		}
+		switch style {
+		case .item:
+			return validate(in: allItems, with: selection)
+		case .section:
+			return validate(in: allSections, with: selection)
 		}
 	}
 }

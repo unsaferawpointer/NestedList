@@ -94,31 +94,6 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		return snapshot.numberOfChildren(ofItem: item.id) > 0
 	}
 
-	public func outlineView(_ outlineView: NSOutlineView, isGroupItem item: Any) -> Bool {
-		guard let item = item as? Item else {
-			return false
-		}
-		let model = snapshot.model(with: item.id)
-		return model.isGroup
-	}
-
-	public func outlineView(_ outlineView: NSOutlineView, rowViewForItem item: Any) -> NSTableRowView? {
-		MyRow()
-	}
-
-	final class MyRow: NSTableRowView {
-
-		override func drawSelection(in dirtyRect: NSRect) {
-			if isGroupRowStyle {
-				self.isGroupRowStyle = false
-				super.drawSelection(in: dirtyRect)
-				self.isGroupRowStyle = true
-			} else {
-				super.drawSelection(in: dirtyRect)
-			}
-		}
-	}
-
 	// MARK: - NSOutlineViewDelegate
 
 	public func outlineView(_ outlineView: NSOutlineView, viewFor tableColumn: NSTableColumn?, item: Any) -> NSView? {

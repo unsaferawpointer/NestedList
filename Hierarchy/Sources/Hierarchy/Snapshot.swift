@@ -112,6 +112,18 @@ public extension Snapshot {
 		return result
 	}
 
+	func satisfy(condition: (Model) -> Bool) -> Set<ID> {
+		var result = Set<ID>()
+		for id in identifiers {
+			let model = models[unsafe: id]
+			guard condition(model) else {
+				continue
+			}
+			result.insert(id)
+		}
+		return result
+	}
+
 	func level(for id: ID) -> Int {
 		return levels[unsafe: id]
 	}
