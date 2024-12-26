@@ -20,7 +20,12 @@ extension ItemsFactory: ItemsFactoryProtocol {
 
 	func makeItem(item: Item, isDone: Bool, level: Int) -> ItemModel {
 
-		let textColor: NSColor = isDone ? .secondaryLabelColor : .labelColor
+		let textColor: NSColor = switch item.style {
+		case .item:
+			isDone ? .secondaryLabelColor : .labelColor
+		case .section:
+			.labelColor
+		}
 
 		return ItemModel(
 			id: item.id,
@@ -40,7 +45,7 @@ fileprivate extension Item.Style {
 
 	var modelStyle: ItemModel.Style {
 		switch self {
-		case .item:		.point(.tertiaryLabelColor)
+		case .item:		.point(.secondarySystemFill)
 		case .section:	.section
 		}
 	}

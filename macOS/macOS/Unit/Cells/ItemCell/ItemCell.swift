@@ -43,7 +43,6 @@ final class ItemCell: NSView, ListCell {
 	lazy var prefixView: NSView = {
 		let view = NSView()
 		view.wantsLayer = true
-		view.layer?.backgroundColor = NSColor.systemGray.cgColor
 		view.layer?.cornerRadius = 3
 		NSLayoutConstraint.activate(
 			[
@@ -77,6 +76,16 @@ final class ItemCell: NSView, ListCell {
 	}
 
 	// MARK: - NSView life-cycle
+
+	override func layout() {
+		super.layout()
+		switch model.configuration.style {
+		case .point(let color):
+			prefixView.layer?.backgroundColor = color.cgColor
+		default:
+			break
+		}
+	}
 
 	override func becomeFirstResponder() -> Bool {
 		super.becomeFirstResponder()
