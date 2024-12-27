@@ -208,17 +208,27 @@ extension ViewController: UITableViewDataSource {
 
 		let model = models[indexPath.row]
 
-		var configuration = UIListContentConfiguration.cell()
-		configuration.text = model.title
-		configuration.attributedText = .init(
-			string: model.title,
-			textColor: model.isDone ? .secondaryLabel : .label,
-			strikethrough: model.isDone
-		)
-		configuration.image = UIImage(named: "point")
-
-		cell.contentConfiguration = configuration
-
+		switch model.style {
+		case .point:
+			var configuration = UIListContentConfiguration.cell()
+			configuration.attributedText = .init(
+				string: model.text,
+				textColor: model.textColor.color,
+				strikethrough: model.strikethrough
+			)
+			configuration.image = UIImage(named: "point")
+			cell.contentConfiguration = configuration
+		case .section:
+			var configuration = UIListContentConfiguration.cell()
+			configuration.textProperties.font = .preferredFont(forTextStyle: .headline)
+			configuration.attributedText = .init(
+				string: model.text,
+				textColor: model.textColor.color,
+				strikethrough: model.strikethrough
+			)
+			configuration.image = nil
+			cell.contentConfiguration = configuration
+		}
 
 		let level = snapshot.level(for: model.id)
 		cell.indentationLevel = level
@@ -307,10 +317,10 @@ extension ViewController: UITableViewDelegate {
 				title: "Completed",
 				image: nil
 			) { [weak self] action in
-				self?.delegate?.userSetStatus(isDone: !model.isDone, id: model.id)
+				self?.delegate?.userSetStatus(isDone: !model.status, id: model.id)
 			}
 
-			statusItem.state = model.isDone ? .on : .off
+			statusItem.state = model.status ? .on : .off
 
 			return UIMenu(title: "", children: [newItem, editItem, statusItem, deleteItem])
 		}

@@ -17,7 +17,9 @@ final class UnitPresenter {
 
 	var interactor: UnitInteractorProtocol?
 
-	var view: UnitView?
+	weak var view: UnitView?
+
+	private(set) var factory: ItemsFactoryProtocol = ItemsFactory()
 }
 
 // MARK: - UnitPresenterProtocol
@@ -25,11 +27,11 @@ extension UnitPresenter: UnitPresenterProtocol {
 
 	func present(_ content: Content) {
 		let snapshot = Snapshot(content.root.nodes, keyPath: \.isDone)
-			.map { model, isDone, level in
-				ItemModel(
-					uuid: model.id,
-					title: model.text,
-					isDone: isDone
+			.map { item, isDone, level in
+				factory.makeItem(
+					item: item,
+					isDone: isDone,
+					level: level
 				)
 			}
 		view?.display(snapshot)
