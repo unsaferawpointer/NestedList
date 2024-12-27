@@ -99,13 +99,15 @@ public extension Snapshot {
 
 				let model = models[unsafe: current]
 				result.append(model)
+
 				guard condition(model) else {
 					continue
 				}
 
-				for child in storage[unsafe: current] {
-					queue.insert(child, at: 0)
+				for child in storage[unsafe: current].reversed() {
+					queue.append(child)
 				}
+
 			}
 		}
 
