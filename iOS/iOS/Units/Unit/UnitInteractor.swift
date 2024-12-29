@@ -18,6 +18,9 @@ protocol UnitInteractorProtocol {
 	func setStatus(_ isDone: Bool, for id: UUID)
 	func setText(_ text: String, for id: UUID)
 	func item(for id: UUID) -> Item
+
+	func string(for id: UUID) -> String
+	func insertStrings(_ strings: [String], to destination: Destination<UUID>)
 }
 
 final class UnitInteractor {
@@ -77,6 +80,27 @@ extension UnitInteractor: UnitInteractorProtocol {
 	func setText(_ text: String, for id: UUID) {
 		storage.modificate { content in
 			content.root.setProperty(\.text, to: text, for: [id])
+		}
+	}
+
+	func string(for id: UUID) -> String {
+
+		guard let node = storage.state.root.node(with: id) else {
+			fatalError("Can`t find node with id = \(id)")
+		}
+
+		let formatter = BasicFormatter()
+
+		return formatter.format(node)
+	}
+
+	func insertStrings(_ strings: [String], to destination: Hierarchy.Destination<UUID>) {
+		let parser = Parser()
+		let nodes = strings.flatMap { string in
+			parser.parse(from: string)
+		}
+		storage.modificate { content in
+			content.root.insertItems(from: nodes, to: destination)
 		}
 	}
 }

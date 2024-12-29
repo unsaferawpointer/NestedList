@@ -7,6 +7,7 @@
 
 import Foundation
 import Hierarchy
+import UIKit
 import CoreModule
 
 protocol UnitPresenterProtocol: AnyObject {
@@ -78,6 +79,24 @@ extension UnitPresenter: UnitViewDelegate {
 
 	func userSetStatus(isDone: Bool, id: UUID) {
 		interactor?.setStatus(isDone, for: id)
+	}
+
+	func userTappedCutButton(ids: [UUID]) {
+		guard let first = ids.first, let interactor else {
+			return
+		}
+		let string = interactor.string(for: first)
+
+		UIPasteboard.general.string = string
+
+		interactor.deleteItems(ids)
+	}
+
+	func userTappedPasteButton(target: UUID) {
+		guard let string = UIPasteboard.general.string else {
+			return
+		}
+		interactor?.insertStrings([string], to: .onItem(with: target))
 	}
 
 	func updateView() {

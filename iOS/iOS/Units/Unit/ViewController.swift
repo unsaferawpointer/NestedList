@@ -20,6 +20,9 @@ protocol UnitViewDelegate {
 	func userTappedDeleteButton(ids: [UUID])
 	func userTappedAddButton(target: UUID)
 	func userSetStatus(isDone: Bool, id: UUID)
+	func userTappedCutButton(ids: [UUID])
+	func userTappedPasteButton(target: UUID)
+
 }
 
 protocol UnitView: AnyObject {
@@ -333,6 +336,14 @@ extension ViewController: UITableViewDelegate {
 				self?.delegate?.userTappedEditButton(id: model.id)
 			}
 
+			let cutItem = UIAction(title: "Cut", image: UIImage(systemName: "scissors")) { [weak self] action in
+				self?.delegate?.userTappedCutButton(ids: [model.id])
+			}
+
+			let pasteItem = UIAction(title: "Paste", image: UIImage(systemName: "document.on.clipboard")) { [weak self] action in
+				self?.delegate?.userTappedPasteButton(target: model.id)
+			}
+
 			let deleteItem = UIAction(title: "Delete", image: UIImage(systemName: "trash")) { [weak self] action in
 				self?.delegate?.userTappedDeleteButton(ids: [model.id])
 			}
@@ -346,7 +357,7 @@ extension ViewController: UITableViewDelegate {
 
 			statusItem.state = model.status ? .on : .off
 
-			return UIMenu(title: "", children: [newItem, editItem, statusItem, deleteItem])
+			return UIMenu(title: "", children: [newItem, editItem, statusItem, cutItem, pasteItem, deleteItem])
 		}
 
 	}
