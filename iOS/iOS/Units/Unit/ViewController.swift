@@ -57,6 +57,7 @@ class ViewController: UIDocumentViewController {
 
 		tableView.dataSource = self
 		tableView.delegate = self
+		tableView.allowsMultipleSelection = false
 
 		tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
 		return tableView
@@ -75,13 +76,36 @@ class ViewController: UIDocumentViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(add))
+
+		navigationItem.trailingItemGroups = [
+			.init(barButtonItems: [
+				UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(add)),
+				editButtonItem
+			], representativeItem: nil)
+		]
+
 		tableView.reloadData()
+	}
+
+	override func setEditing(_ editing: Bool, animated: Bool) {
+		super.setEditing(editing, animated: animated)
+
+		tableView.setEditing(editing, animated: animated)
 	}
 }
 
 // MARK: - Helpers
 private extension ViewController {
+
+	@objc
+	func edit() {
+		let isEditing = !tableView.isEditing
+
+		editButtonItem.title = isEditing ? "Done" : "Edit"
+
+		navigationItem.trailingItemGroups.first?.barButtonItems[1].title = isEditing ? "Done" : "Edit"
+		tableView.setEditing(isEditing, animated: true)
+	}
 
 	@objc
 	func add() {
@@ -326,9 +350,25 @@ extension ViewController: UITableViewDelegate {
 		}
 
 	}
+
+	func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+		return .delete
+	}
+
+	func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+
+		guard case .delete = editingStyle else {
+			return
+		}
+
+		let models = snapshot.flattened { item in
+			expanded.contains(item.id)
+		}
+		let model = models[indexPath.row]
+
+		delegate?.userTappedDeleteButton(ids: [model.id])
+	}
 }
-
-
 
 // MARK: - Helpers
 private extension ViewController {
