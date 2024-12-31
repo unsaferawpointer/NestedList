@@ -92,6 +92,15 @@ extension UnitPresenter: UnitViewDelegate {
 		interactor.deleteItems(ids)
 	}
 
+	func userTappedCopyButton(ids: [UUID]) {
+		guard let first = ids.first, let interactor else {
+			return
+		}
+		let string = interactor.string(for: first)
+
+		UIPasteboard.general.string = string
+	}
+
 	func userTappedPasteButton(target: UUID) {
 		guard let string = UIPasteboard.general.string else {
 			return

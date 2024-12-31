@@ -22,6 +22,7 @@ protocol UnitViewDelegate {
 	func userSetStatus(isDone: Bool, id: UUID)
 	func userTappedCutButton(ids: [UUID])
 	func userTappedPasteButton(target: UUID)
+	func userTappedCopyButton(ids: [UUID])
 
 }
 
@@ -328,23 +329,44 @@ extension ViewController: UITableViewDelegate {
 
 		return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { suggestedActions in
 
-			let newItem = UIAction(title: "Add item...", image: UIImage(systemName: "plus")) { [weak self] action in
-				self?.delegate?.userTappedAddButton(target: model.id)
+			let editItem = UIAction(title: "Edit...", image: UIImage(systemName: "pencil")) { [weak self] action in
+				self?.delegate?.userTappedEditButton(id: model.id)
 			}
 
-			let editItem = UIAction(title: "Edit item...", image: UIImage(systemName: "pencil")) { [weak self] action in
-				self?.delegate?.userTappedEditButton(id: model.id)
+			let editGroup = UIMenu(
+				title: "", image: nil,
+				identifier: nil,
+				options: [.displayInline],
+				preferredElementSize: .medium,
+				children: [editItem]
+			)
+			editGroup.preferredElementSize = .large
+
+			let newItem = UIAction(title: "New...", image: UIImage(systemName: "plus")) { [weak self] action in
+				self?.delegate?.userTappedAddButton(target: model.id)
 			}
 
 			let cutItem = UIAction(title: "Cut", image: UIImage(systemName: "scissors")) { [weak self] action in
 				self?.delegate?.userTappedCutButton(ids: [model.id])
 			}
 
+			let copyItem = UIAction(title: "Copy", image: UIImage(systemName: "document.on.document")) { [weak self] action in
+				self?.delegate?.userTappedCopyButton(ids: [model.id])
+			}
+
 			let pasteItem = UIAction(title: "Paste", image: UIImage(systemName: "document.on.clipboard")) { [weak self] action in
 				self?.delegate?.userTappedPasteButton(target: model.id)
 			}
 
-			let deleteItem = UIAction(title: "Delete", image: UIImage(systemName: "trash")) { [weak self] action in
+			let groupItem = UIMenu(
+				title: "", image: nil,
+				identifier: nil,
+				options: [.displayInline],
+				preferredElementSize: .large,
+				children: [cutItem, copyItem, pasteItem]
+			)
+
+			let deleteItem = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] action in
 				self?.delegate?.userTappedDeleteButton(ids: [model.id])
 			}
 
@@ -355,9 +377,20 @@ extension ViewController: UITableViewDelegate {
 				self?.delegate?.userSetStatus(isDone: !model.status, id: model.id)
 			}
 
+			let statusGroup = UIMenu(
+				title: "",
+				image: nil,
+				identifier: nil,
+				options: [.displayInline],
+				preferredElementSize: .large,
+				children: [statusItem]
+			)
+
 			statusItem.state = model.status ? .on : .off
 
-			return UIMenu(title: "", children: [newItem, editItem, statusItem, cutItem, pasteItem, deleteItem])
+			let menu = UIMenu(title: "", children: [newItem, editGroup, groupItem, statusGroup, deleteItem])
+
+			return menu
 		}
 
 	}
