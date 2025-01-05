@@ -21,6 +21,9 @@ protocol UnitInteractorProtocol {
 
 	func string(for id: UUID) -> String
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>)
+
+	func move(id: UUID, to destination: Destination<UUID>)
+	func validateMovement(_ id: UUID, to destination: Destination<UUID>) -> Bool
 }
 
 final class UnitInteractor {
@@ -102,5 +105,15 @@ extension UnitInteractor: UnitInteractorProtocol {
 		storage.modificate { content in
 			content.root.insertItems(from: nodes, to: destination)
 		}
+	}
+
+	func move(id: UUID, to destination: Destination<UUID>) {
+		storage.modificate { content in
+			content.root.moveItems(with: [id], to: destination)
+		}
+	}
+
+	func validateMovement(_ id: UUID, to destination: Destination<UUID>) -> Bool {
+		storage.state.root.validateMoving([id], to: destination)
 	}
 }

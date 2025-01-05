@@ -13,16 +13,19 @@ import DesignSystem
 import Hierarchy
 import UniformTypeIdentifiers
 
-protocol UnitViewDelegate {
+protocol UnitViewDelegate<ID>: DesignSystem.DropDelegate {
+
+	associatedtype ID
+
 	func updateView()
 	func userTappedCreateButton()
-	func userTappedEditButton(id: UUID)
-	func userTappedDeleteButton(ids: [UUID])
-	func userTappedAddButton(target: UUID)
-	func userSetStatus(isDone: Bool, id: UUID)
-	func userTappedCutButton(ids: [UUID])
-	func userTappedPasteButton(target: UUID)
-	func userTappedCopyButton(ids: [UUID])
+	func userTappedEditButton(id: ID)
+	func userTappedDeleteButton(ids: [ID])
+	func userTappedAddButton(target: ID)
+	func userSetStatus(isDone: Bool, id: ID)
+	func userTappedCutButton(ids: [ID])
+	func userTappedPasteButton(target: ID)
+	func userTappedCopyButton(ids: [ID])
 
 }
 
@@ -38,7 +41,7 @@ protocol UnitView: AnyObject {
 
 class ViewController: UIDocumentViewController {
 
-	var delegate: UnitViewDelegate?
+	var delegate: (any UnitViewDelegate<UUID>)?
 
 	var listDocument: Document? {
 		self.document as? Document
@@ -61,6 +64,8 @@ class ViewController: UIDocumentViewController {
 
 		tableView.dataSource = self
 		tableView.delegate = self
+		tableView.dropDelegate = self
+		tableView.dragDelegate = self
 		tableView.allowsMultipleSelection = false
 
 		tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
@@ -72,6 +77,10 @@ class ViewController: UIDocumentViewController {
 	var expanded: Set<UUID> = []
 
 	var snapshot = Snapshot<ItemModel>()
+
+	var flattenedList: [ItemModel] = []
+
+	var invalidateState: Bool = false
 
 	override func loadView() {
 		self.view = UIView()
@@ -102,16 +111,6 @@ class ViewController: UIDocumentViewController {
 private extension ViewController {
 
 	@objc
-	func edit() {
-		let isEditing = !tableView.isEditing
-
-		editButtonItem.title = isEditing ? "Done" : "Edit"
-
-		navigationItem.trailingItemGroups.first?.barButtonItems[1].title = isEditing ? "Done" : "Edit"
-		tableView.setEditing(isEditing, animated: true)
-	}
-
-	@objc
 	func add() {
 		delegate?.userTappedCreateButton()
 	}
@@ -131,7 +130,7 @@ private extension ViewController {
 		for id in ids {
 			guard
 				oldSnapshot.index(for: id) == newSnapshot.index(for: id),
-				oldSnapshot.isLeaf(id: id) != newSnapshot.isLeaf(id: id)
+				oldSnapshot.isLeaf(id: id) != newSnapshot.isLeaf(id: id) || oldSnapshot.level(for: id) != newSnapshot.level(for: id)
 			else {
 				continue
 			}
@@ -142,6 +141,7 @@ private extension ViewController {
 			let cell = tableView.cellForRow(at: .init(row: index, section: 0))
 
 			let isLeaf = newSnapshot.isLeaf(id: id)
+			cell?.indentationLevel = newSnapshot.level(for: id)
 
 			if isLeaf {
 				cell?.accessoryView = nil
@@ -155,6 +155,15 @@ private extension ViewController {
 		}
 
 		self.snapshot = newSnapshot
+		self.flattenedList = newSnapshot.flattened { item in
+			expanded.contains(item.id)
+		}
+
+		guard !invalidateState else {
+			tableView.reloadData()
+			return
+		}
+
 		animate(oldModels: oldModels, newModels: newModels)
 	}
 
@@ -209,9 +218,10 @@ extension ViewController: UnitView {
 	}
 
 	func expand(_ id: UUID) {
-		let old = snapshot.flattened(while: { expanded.contains($0.id) })
+		let old = self.flattenedList
 		expanded.insert(id)
 		let new = snapshot.flattened(while: { expanded.contains($0.id) })
+		self.flattenedList = new
 		animate(oldModels: old, newModels: new)
 	}
 
@@ -221,20 +231,13 @@ extension ViewController: UnitView {
 extension ViewController: UITableViewDataSource {
 
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		let models = snapshot.flattened { item in
-			expanded.contains(item.id)
-		}
-		return models.count
+		return flattenedList.count
 	}
 
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
 
-		let models = snapshot.flattened { item in
-			expanded.contains(item.id)
-		}
-
-		let model = models[indexPath.row]
+		let model = flattenedList[indexPath.row]
 
 		switch model.style {
 		case .point:
@@ -266,12 +269,9 @@ extension ViewController: UITableViewDataSource {
 		cell.layoutMargins.right = 32
 
 		let isExpanded = expanded.contains(model.id)
-
-		let iconName = isExpanded ? "chevron.down" : "chevron.right"
-		let image = UIImage(systemName: iconName)
-
 		let isNode = snapshot.numberOfChildren(ofItem: model.id) > 0
-		cell.accessoryView = isNode ? UIImageView(image: image) : nil
+
+		configureCell(cell, isExpanded: isExpanded, isNode: isNode)
 
 		return cell
 	}
@@ -282,10 +282,8 @@ extension ViewController: UITableViewDelegate {
 
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		tableView.deselectRow(at: indexPath, animated: true)
-		let models = snapshot.flattened { item in
-			expanded.contains(item.id)
-		}
-		let model = models[indexPath.row]
+		let old = self.flattenedList
+		let model = flattenedList[indexPath.row]
 
 		let isNode = snapshot.numberOfChildren(ofItem: model.id) > 0
 
@@ -293,7 +291,9 @@ extension ViewController: UITableViewDelegate {
 			return
 		}
 
-		let cell = tableView.cellForRow(at: indexPath)
+		guard let cell = tableView.cellForRow(at: indexPath) else {
+			return
+		}
 
 		let isExpanded = expanded.contains(model.id)
 
@@ -303,16 +303,15 @@ extension ViewController: UITableViewDelegate {
 			expanded.insert(model.id)
 		}
 
-		let iconName = !isExpanded ? "chevron.down" : "chevron.right"
-		let image = UIImage(systemName: iconName)
-
-		cell?.accessoryView = isNode ? UIImageView(image: image) : nil
 
 		let newModels = snapshot.flattened { item in
 			expanded.contains(item.id)
 		}
+		self.flattenedList = newModels
 
-		animate(oldModels: models, newModels: newModels)
+		configureCell(cell, isExpanded: isExpanded, isNode: isNode)
+
+		animate(oldModels: old, newModels: newModels)
 
 	}
 
@@ -322,10 +321,11 @@ extension ViewController: UITableViewDelegate {
 		point: CGPoint
 	) -> UIContextMenuConfiguration? {
 
-		let models = snapshot.flattened { item in
-			expanded.contains(item.id)
+		guard !tableView.isEditing else {
+			return nil
 		}
-		let model = models[indexPath.row]
+
+		let model = flattenedList[indexPath.row]
 
 		return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { suggestedActions in
 
@@ -396,21 +396,150 @@ extension ViewController: UITableViewDelegate {
 	}
 
 	func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
-		return .delete
+		return .none
+	}
+
+	func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
+		return false
 	}
 
 	func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-
 		guard case .delete = editingStyle else {
 			return
 		}
 
-		let models = snapshot.flattened { item in
-			expanded.contains(item.id)
-		}
-		let model = models[indexPath.row]
+		let model = flattenedList[indexPath.row]
 
 		delegate?.userTappedDeleteButton(ids: [model.id])
+	}
+}
+
+// MARK: - UITableViewDragDelegate
+extension ViewController: UITableViewDragDelegate {
+
+	func tableView(_ tableView: UITableView, itemsForBeginning session: any UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+
+		guard tableView.isEditing, delegate != nil else {
+			return []
+		}
+
+		let model = flattenedList[indexPath.row]
+		let item = UIDragItem(itemProvider: .init())
+		item.localObject = model.id
+		return [item]
+	}
+
+}
+
+// MARK: - UITableViewDropDelegate
+extension ViewController: UITableViewDropDelegate {
+
+	func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+		guard tableView.isEditing, delegate != nil else {
+			return false
+		}
+		return true
+	}
+
+	func tableView(
+		_ tableView: UITableView,
+		dropSessionDidUpdate session: any UIDropSession,
+		withDestinationIndexPath destinationIndexPath: IndexPath?
+	) -> UITableViewDropProposal {
+
+		guard
+			let destinationIndexPath, let delegate,
+			let dragged = session.items.first?.localObject as? UUID
+		else {
+			return .init(operation: .cancel)
+		}
+
+		if destinationIndexPath.row < flattenedList.count {
+			let model = flattenedList[destinationIndexPath.row]
+			guard delegate.validateMovement(dragged, to: .onItem(with: model.id)) else {
+				return .init(operation: .cancel)
+			}
+
+			return .init(operation: .move, intent: .automatic)
+		} else {
+			guard delegate.validateMovement(dragged, to: .toRoot) else {
+				return .init(operation: .cancel)
+			}
+
+			return .init(operation: .move, intent: .automatic)
+		}
+	}
+
+	func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+
+		invalidateState = true
+
+		let source = flattenedList[sourceIndexPath.row]
+
+		let destinationRow = if sourceIndexPath.row < destinationIndexPath.row {
+			destinationIndexPath.row
+		} else {
+			destinationIndexPath.row
+		}
+
+		let below = flattenedList[destinationIndexPath.row].id
+		if let parent = snapshot.parent(for: below) {
+			let index = snapshot.children(of: parent.id).firstIndex(where: { $0 == below })!
+			if sourceIndexPath.row < destinationIndexPath.row {
+				let destination: Destination<UUID> = .inItem(with: parent.id, atIndex: index + 1)
+				delegate?.move(source.id, to: destination)
+			} else {
+				let destination: Destination<UUID> = .inItem(with: parent.id, atIndex: index)
+				delegate?.move(source.id, to: destination)
+			}
+		} else {
+			let index = snapshot.root.firstIndex(where: { $0 == below })!
+			if sourceIndexPath.row < destinationIndexPath.row {
+				let destination: Destination<UUID> = .inRoot(atIndex: index + 1)
+				delegate?.move(source.id, to: destination)
+			} else {
+				let destination: Destination<UUID> = .inRoot(atIndex: index)
+				delegate?.move(source.id, to: destination)
+			}
+		}
+	}
+
+	func tableView(_ tableView: UITableView, performDropWith coordinator: any UITableViewDropCoordinator) {
+
+		guard let sourceIndexPath = coordinator.items.first?.sourceIndexPath else {
+			return
+		}
+
+		let target = flattenedList[sourceIndexPath.row]
+		let proposal = coordinator.proposal
+
+		guard proposal.operation == .move else {
+			assertionFailure("Invalid proposal")
+			return
+		}
+
+		guard let destinationIndexPath = coordinator.destinationIndexPath else {
+			delegate?.move(target.id, to: .toRoot)
+			return
+		}
+
+		let model = flattenedList[destinationIndexPath.row]
+
+		expanded.insert(model.id)
+		delegate?.move(target.id, to: .onItem(with: model.id))
+
+	}
+
+}
+
+private extension ViewController {
+
+	func configureCell(_ cell: UITableViewCell, isExpanded: Bool, isNode: Bool) {
+
+		let iconName = !isExpanded ? "chevron.down" : "chevron.right"
+		let image = UIImage(systemName: iconName)
+
+		cell.accessoryView = isNode ? UIImageView(image: image) : nil
 	}
 }
 

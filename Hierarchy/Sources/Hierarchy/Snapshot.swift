@@ -31,6 +31,8 @@ public struct Snapshot<Model: Identifiable> {
 
 	private(set) var indices: [ID: Int] = [:]
 
+	private(set) var parents: [ID: ID] = [:]
+
 	private(set) var maxLevel: Int = 0
 
 	// MARK: - Initialization
@@ -38,14 +40,14 @@ public struct Snapshot<Model: Identifiable> {
 	public init(_ base: [Node<Model>]) {
 		self.root = base.map(\.value.id)
 		base.forEach { node in
-			normalize(base: node, keyPath: nil)
+			normalize(base: node, parent: nil, keyPath: nil)
 		}
 	}
 
 	public init(_ base: [Node<Model>], keyPath: KeyPath<Model, Bool>) {
 		self.root = base.map(\.value.id)
 		base.forEach { node in
-			normalize(base: node, keyPath: keyPath)
+			normalize(base: node, parent: nil, keyPath: keyPath)
 		}
 	}
 
@@ -60,7 +62,8 @@ public struct Snapshot<Model: Identifiable> {
 		flattened: [ID],
 		levels: [ID: Int],
 		maxLevel: Int,
-		indices: [ID: Int]
+		indices: [ID: Int],
+		parents: [ID: ID]
 	) {
 		self.root = root
 		self.storage = storage
@@ -70,6 +73,7 @@ public struct Snapshot<Model: Identifiable> {
 		self.levels = levels
 		self.maxLevel = maxLevel
 		self.indices = indices
+		self.parents = parents
 	}
 }
 
@@ -139,6 +143,27 @@ public extension Snapshot {
 		return models[unsafe: id]
 	}
 
+	func parent(for id: ID) -> Model? {
+		guard let parent = parents[id] else {
+			return nil
+		}
+		return models[unsafe: parent]
+	}
+
+	func destination(ofItem id: ID) -> Destination<ID> {
+		guard let parent = parents[id] else {
+			if let index = root.firstIndex(of: id) {
+				return .inRoot(atIndex: index)
+			}
+			fatalError()
+		}
+		let children = storage[unsafe: parent]
+		guard let index = children.firstIndex(of: id) else {
+			fatalError()
+		}
+		return .inItem(with: parent, atIndex: index)
+	}
+
 	func rootIdentifier(at index: Int) -> ID {
 		return root[index]
 	}
@@ -186,7 +211,8 @@ public extension Snapshot {
 			flattened: flattened,
 			levels: levels,
 			maxLevel: maxLevel,
-			indices: indices
+			indices: indices,
+			parents: parents
 		)
 	}
 
@@ -198,7 +224,11 @@ public extension Snapshot {
 // MARK: - Helpers
 private extension Snapshot {
 
-	mutating func normalize(base: Node<Model>, keyPath: KeyPath<Model, Bool>?, level: Int = 0) {
+	func move(id: ID, destination: Destination<ID>) {
+		
+	}
+
+	mutating func normalize(base: Node<Model>, parent: ID?, keyPath: KeyPath<Model, Bool>?, level: Int = 0) {
 
 		identifiers.insert(base.id)
 		storage[base.id] = base.children.map(\.value.id)
@@ -207,6 +237,7 @@ private extension Snapshot {
 		levels[base.id] = level
 		maxLevel = max(maxLevel, level)
 		indices[base.id] = flattened.count - 1
+		parents[base.id] = parent
 
 		// TODO: - Optimize
 		if let keyPath {
@@ -214,7 +245,7 @@ private extension Snapshot {
 		}
 
 		for child in base.children {
-			normalize(base: child, keyPath: keyPath, level: level + 1)
+			normalize(base: child, parent: base.id, keyPath: keyPath, level: level + 1)
 		}
 	}
 }

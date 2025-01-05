@@ -20,3 +20,15 @@ public protocol DropDelegate<ID>: AnyObject {
 	func drop(_ info: PasteboardInfo, to destination: Destination<ID>)
 }
 #endif
+
+#if os(iOS)
+
+public protocol DropDelegate<ID>: AnyObject {
+
+	associatedtype ID
+
+	func move(_ id: ID, to destination: Destination<ID>)
+	func validateMovement(_ id: ID, to destination: Destination<ID>) -> Bool
+	func canMove(_ id: ID) -> Bool
+}
+#endif

@@ -7,10 +7,11 @@
 
 import Foundation
 import CoreModule
+import DesignSystem
 
 final class UnitAssembly {
 
-	static func build(_ view: UnitView, storage: DocumentStorage<Content>) -> UnitViewDelegate {
+	static func build(_ view: UnitView, storage: DocumentStorage<Content>) -> any UnitViewDelegate<UUID> {
 		let interactor = UnitInteractor(storage: storage)
 		let presenter  = UnitPresenter()
 		presenter.interactor = interactor

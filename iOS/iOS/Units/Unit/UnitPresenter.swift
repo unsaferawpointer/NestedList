@@ -9,6 +9,7 @@ import Foundation
 import Hierarchy
 import UIKit
 import CoreModule
+import DesignSystem
 
 protocol UnitPresenterProtocol: AnyObject {
 	func present(_ content: Content)
@@ -110,5 +111,23 @@ extension UnitPresenter: UnitViewDelegate {
 
 	func updateView() {
 		interactor?.fetchData()
+	}
+}
+
+// MARK: - DropDelegate
+extension UnitPresenter: DropDelegate {
+
+	typealias ID = UUID
+
+	func move(_ id: UUID, to destination: Destination<UUID>) {
+		interactor?.move(id: id, to: destination)
+	}
+
+	func canMove(_ id: UUID) -> Bool {
+		return true
+	}
+
+	func validateMovement(_ id: UUID, to destination: Destination<UUID>) -> Bool {
+		interactor?.validateMovement(id, to: destination) ?? false
 	}
 }
