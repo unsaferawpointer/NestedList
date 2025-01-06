@@ -14,6 +14,10 @@ struct ItemModel {
 
 	var textColor: ColorToken
 
+	var iconColor: ColorToken
+
+	var hideIcon: Bool
+
 	var strikethrough: Bool
 
 	var style: Style

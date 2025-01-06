@@ -30,6 +30,8 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		return ItemModel(
 			uuid: item.id,
 			textColor: textColor,
+			iconColor: item.style == .item ? .tertiary : .quaternary,
+			hideIcon: item.style == .section,
 			strikethrough: isDone,
 			style: item.style.modelStyle,
 			text: item.text,

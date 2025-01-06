@@ -8,6 +8,7 @@
 public enum ColorToken {
 
 	// MARK: - Basic
+	case clear
 	case accent
 	case primary
 	case secondary
@@ -39,6 +40,8 @@ public extension ColorToken {
 
 	var color: NSColor {
 		switch self {
+		case clear:
+			return .clear
 		case .accent:
 			return .controlAccentColor
 		case .primary:
@@ -83,6 +86,8 @@ public extension ColorToken {
 
 	var color: UIColor {
 		switch self {
+		case .clear:
+			return .clear
 		case .accent:
 			return .tintColor
 		case .primary:

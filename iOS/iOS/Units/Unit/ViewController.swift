@@ -239,31 +239,28 @@ extension ViewController: UITableViewDataSource {
 
 		let model = flattenedList[indexPath.row]
 
-		switch model.style {
+		var configuration = UIListContentConfiguration.cell()
+		configuration.image = model.hideIcon ? nil : UIImage(named: "point")
+		configuration.imageProperties.tintColor = model.iconColor.color
+		configuration.attributedText = .init(
+			string: model.text,
+			textColor: model.textColor.color,
+			strikethrough: model.strikethrough
+		)
+
+		let font: UIFont = switch model.style {
 		case .point:
-			var configuration = UIListContentConfiguration.cell()
-			configuration.attributedText = .init(
-				string: model.text,
-				textColor: model.textColor.color,
-				strikethrough: model.strikethrough
-			)
-			configuration.image = UIImage(named: "point")
-			cell.contentConfiguration = configuration
+			.preferredFont(forTextStyle: .body)
 		case .section:
-			var configuration = UIListContentConfiguration.cell()
-			configuration.textProperties.font = .preferredFont(forTextStyle: .headline)
-			configuration.attributedText = .init(
-				string: model.text,
-				textColor: model.textColor.color,
-				strikethrough: model.strikethrough
-			)
-			configuration.image = nil
-			cell.contentConfiguration = configuration
+			.preferredFont(forTextStyle: .headline)
 		}
+		configuration.textProperties.font = font
+
+		cell.contentConfiguration = configuration
 
 		let level = snapshot.level(for: model.id)
 		cell.indentationLevel = level
-		cell.indentationWidth = 32
+		cell.indentationWidth = 42
 		cell.tintColor = .tertiaryLabel
 		cell.layoutMargins.left = 32
 		cell.layoutMargins.right = 32
