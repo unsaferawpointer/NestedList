@@ -17,6 +17,8 @@ struct DetailsView {
 		return !model.title.isEmpty
 	}
 
+	@FocusState var isFocused: Bool
+
 	// MARK: - Initialization
 
 	init(item: Model, completionHandler: @escaping (Model, Bool) -> Void) {
@@ -32,7 +34,9 @@ extension DetailsView: View {
 		NavigationStack {
 			Form {
 				TextField("", text: $model.title, prompt: Text("Enter text"))
+					.focused($isFocused)
 			}
+			.formStyle(.automatic)
 			.toolbar {
 				ToolbarItem(placement: .cancellationAction) {
 					Button("Cancel", role: .cancel) {
@@ -48,6 +52,9 @@ extension DetailsView: View {
 				}
 			}
 		}
+		.onAppear {
+			self.isFocused = true
+		}
 
 	}
 }
@@ -57,5 +64,11 @@ extension DetailsView {
 
 	struct Model {
 		var title: String
+	}
+}
+
+#Preview {
+	DetailsView(item: .init(title: "New Item")) { _, _ in
+
 	}
 }

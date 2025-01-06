@@ -43,7 +43,7 @@ extension UnitPresenter: UnitPresenterProtocol {
 extension UnitPresenter: UnitViewDelegate {
 
 	func userTappedCreateButton() {
-		let model = DetailsView.Model(title: "New Item")
+		let model = DetailsView.Model(title: "")
 		view?.showDetails(with: model) { [weak self] saved, success in
 			self?.view?.hideDetails()
 			if success {
