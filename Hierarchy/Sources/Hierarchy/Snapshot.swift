@@ -130,6 +130,11 @@ public extension Snapshot {
 		return result
 	}
 
+	func isLeaf(id: ID) -> Bool {
+		let children = storage[unsafe: id]
+		return children.isEmpty
+	}
+
 	func level(for id: ID) -> Int {
 		return levels[unsafe: id]
 	}
@@ -188,10 +193,6 @@ public extension Snapshot {
 			fatalError()
 		}
 		return model
-	}
-
-	func isLeaf(id: ID) -> Bool {
-		return storage[unsafe: id].count == 0
 	}
 
 	func model(with id: ID) -> Model {

@@ -40,7 +40,7 @@ public extension ColorToken {
 
 	var color: NSColor {
 		switch self {
-		case clear:
+		case .clear:
 			return .clear
 		case .accent:
 			return .controlAccentColor
