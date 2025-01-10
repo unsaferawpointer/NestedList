@@ -256,7 +256,6 @@ public extension ListAdapter {
 			configureRow(with: model, at: row)
 		}
 
-		tableView?.beginUpdates()
 		let (deleted, inserted) = animator.calculate(old: snapshot, new: new)
 		for id in deleted {
 			cache[id] = nil
@@ -267,6 +266,8 @@ public extension ListAdapter {
 		}
 
 		self.snapshot = new
+
+		tableView?.beginUpdates()
 		animator.calculate(old: old, new: new) { [weak self] animation in
 			guard let self else {
 				return
@@ -295,6 +296,7 @@ public extension ListAdapter {
 				tableView?.reloadItem(item)
 			}
 		}
+
 		tableView?.endUpdates()
 		validateSelection()
 	}

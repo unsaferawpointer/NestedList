@@ -10,6 +10,8 @@ import Hierarchy
 import CoreModule
 import DesignSystem
 
+import SwiftUI
+
 protocol UnitViewOutput {
 	func viewDidLoad()
 
@@ -35,11 +37,21 @@ class ViewController: NSViewController {
 	var adapter: ListAdapter<ItemModel>?
 
 	var output: UnitViewOutput?
-	weak var dropDelegate: (any DropDelegate<UUID>)?
-	weak var dragDelegate: (any DragDelegate<UUID>)?
-	weak var cellDelegate: (any CellDelegate<ItemModel>)?
+	weak var dropDelegate: (any DesignSystem.DropDelegate<UUID>)?
+	weak var dragDelegate: (any DesignSystem.DragDelegate<UUID>)?
+	weak var cellDelegate: (any DesignSystem.CellDelegate<ItemModel>)?
 
 	// MARK: - UI-Properties
+
+	lazy var placeholderView: NSView = {
+		let view = NSHostingView(
+			rootView: PlaceholderView.init(
+				title: "No items yet",
+				subtitle: "To add a new item, click the «plus» button or use the keyboard shortcut cmd + t"
+			)
+		)
+		return view
+	}()
 
 	lazy var scrollview: NSScrollView = {
 		let view = NSScrollView()
@@ -59,6 +71,7 @@ class ViewController: NSViewController {
 		view.allowsMultipleSelection = true
 		view.allowsColumnResizing = false
 		view.usesAlternatingRowBackgroundColors = false
+		view.autoresizesOutlineColumn = false
 		view.usesAutomaticRowHeights = false
 		view.indentationPerLevel = 24
 		return view
@@ -104,6 +117,7 @@ extension ViewController: UnitView {
 
 	func display(_ snapshot: Snapshot<ItemModel>) {
 		adapter?.apply(snapshot)
+		placeholderView.isHidden = !snapshot.root.isEmpty
 	}
 }
 
@@ -149,7 +163,7 @@ private extension ViewController {
 	}
 
 	func configureConstraints() {
-		[scrollview].forEach {
+		[scrollview, placeholderView].forEach {
 			view.addSubview($0)
 			$0.translatesAutoresizingMaskIntoConstraints = false
 		}
@@ -159,7 +173,14 @@ private extension ViewController {
 				scrollview.leadingAnchor.constraint(equalTo: view.leadingAnchor),
 				scrollview.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 				scrollview.topAnchor.constraint(equalTo: view.topAnchor),
-				scrollview.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+				scrollview.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+				placeholderView.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor),
+				placeholderView.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor),
+				placeholderView.topAnchor.constraint(greaterThanOrEqualTo: view.topAnchor),
+				placeholderView.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor),
+				placeholderView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+				placeholderView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 			]
 		)
 	}
