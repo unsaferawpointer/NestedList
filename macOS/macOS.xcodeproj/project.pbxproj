@@ -34,6 +34,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4C2CF87C2D329D7000CA19FB /* macOSRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOSRelease.entitlements; sourceTree = "<group>"; };
 		4CF92C4A2CE8A94D00135033 /* macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = macOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CF92C5E2CE8A94E00135033 /* macOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = macOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CF92C682CE8A94E00135033 /* macOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = macOSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -119,6 +120,7 @@
 		4CF92CF52CE8CD9600135033 /* macOS */ = {
 			isa = PBXGroup;
 			children = (
+				4C2CF87C2D329D7000CA19FB /* macOSRelease.entitlements */,
 				4CF92CED2CE8CD9600135033 /* AppDelegate.swift */,
 				4CF92CEF2CE8CD9600135033 /* Document.swift */,
 				4CF92D222CEA291200135033 /* Common */,
@@ -343,9 +345,11 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 48KV35Y6PN;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = macOS/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NestedList;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Anton Cherkasov. All rights reserved";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -353,7 +357,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.1;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.zeroindex.NestedList;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -366,15 +370,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
+				CODE_SIGN_ENTITLEMENTS = macOS/macOSRelease.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 48KV35Y6PN;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = macOS/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NestedList;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Anton Cherkasov. All rights reserved";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -382,7 +388,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.1;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.zeroindex.NestedList;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
