@@ -35,7 +35,7 @@
 
 /* Begin PBXFileReference section */
 		4C2CF87C2D329D7000CA19FB /* macOSRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOSRelease.entitlements; sourceTree = "<group>"; };
-		4CF92C4A2CE8A94D00135033 /* macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = macOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4CF92C4A2CE8A94D00135033 /* Nested List.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Nested List.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CF92C5E2CE8A94E00135033 /* macOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = macOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CF92C682CE8A94E00135033 /* macOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = macOSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CF92CED2CE8CD9600135033 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -110,7 +110,7 @@
 		4CF92C4B2CE8A94D00135033 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				4CF92C4A2CE8A94D00135033 /* macOS.app */,
+				4CF92C4A2CE8A94D00135033 /* Nested List.app */,
 				4CF92C5E2CE8A94E00135033 /* macOSTests.xctest */,
 				4CF92C682CE8A94E00135033 /* macOSUITests.xctest */,
 			);
@@ -136,9 +136,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		4CF92C492CE8A94D00135033 /* macOS */ = {
+		4CF92C492CE8A94D00135033 /* Nested List */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4CF92C712CE8A94E00135033 /* Build configuration list for PBXNativeTarget "macOS" */;
+			buildConfigurationList = 4CF92C712CE8A94E00135033 /* Build configuration list for PBXNativeTarget "Nested List" */;
 			buildPhases = (
 				4CF92C462CE8A94D00135033 /* Sources */,
 				4CF92C472CE8A94D00135033 /* Frameworks */,
@@ -152,14 +152,14 @@
 				4CF92CFC2CE8CD9C00135033 /* Unit */,
 				4CF92D222CEA291200135033 /* Common */,
 			);
-			name = macOS;
+			name = "Nested List";
 			packageProductDependencies = (
 				4CF92CE82CE8CD3800135033 /* Hierarchy */,
 				4CF92D0D2CE8D6CE00135033 /* DesignSystem */,
 				4CF92D132CE8DDD100135033 /* CoreModule */,
 			);
 			productName = macOS;
-			productReference = 4CF92C4A2CE8A94D00135033 /* macOS.app */;
+			productReference = 4CF92C4A2CE8A94D00135033 /* Nested List.app */;
 			productType = "com.apple.product-type.application";
 		};
 		4CF92C5D2CE8A94E00135033 /* macOSTests */ = {
@@ -250,7 +250,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				4CF92C492CE8A94D00135033 /* macOS */,
+				4CF92C492CE8A94D00135033 /* Nested List */,
 				4CF92C5D2CE8A94E00135033 /* macOSTests */,
 				4CF92C672CE8A94E00135033 /* macOSUITests */,
 			);
@@ -312,12 +312,12 @@
 /* Begin PBXTargetDependency section */
 		4CF92C602CE8A94E00135033 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4CF92C492CE8A94D00135033 /* macOS */;
+			target = 4CF92C492CE8A94D00135033 /* Nested List */;
 			targetProxy = 4CF92C5F2CE8A94E00135033 /* PBXContainerItemProxy */;
 		};
 		4CF92C6A2CE8A94E00135033 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 4CF92C492CE8A94D00135033 /* macOS */;
+			target = 4CF92C492CE8A94D00135033 /* Nested List */;
 			targetProxy = 4CF92C692CE8A94E00135033 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -350,7 +350,7 @@
 				INFOPLIST_FILE = macOS/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NestedList;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Anton Cherkasov. All rights reserved";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Anton Cherkasov. All rights reserved";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -381,7 +381,7 @@
 				INFOPLIST_FILE = macOS/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NestedList;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 Anton Cherkasov. All rights reserved";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Anton Cherkasov. All rights reserved";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -594,7 +594,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4CF92C712CE8A94E00135033 /* Build configuration list for PBXNativeTarget "macOS" */ = {
+		4CF92C712CE8A94E00135033 /* Build configuration list for PBXNativeTarget "Nested List" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4CF92C722CE8A94E00135033 /* Debug */,

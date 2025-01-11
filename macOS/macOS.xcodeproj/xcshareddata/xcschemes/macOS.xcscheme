@@ -16,8 +16,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "4CF92C492CE8A94D00135033"
-               BuildableName = "macOS.app"
-               BlueprintName = "macOS"
+               BuildableName = "Nested List.app"
+               BlueprintName = "Nested List"
                ReferencedContainer = "container:macOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,8 +45,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4CF92C492CE8A94D00135033"
-            BuildableName = "macOS.app"
-            BlueprintName = "macOS"
+            BuildableName = "Nested List.app"
+            BlueprintName = "Nested List"
             ReferencedContainer = "container:macOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -62,8 +62,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4CF92C492CE8A94D00135033"
-            BuildableName = "macOS.app"
-            BlueprintName = "macOS"
+            BuildableName = "Nested List.app"
+            BlueprintName = "Nested List"
             ReferencedContainer = "container:macOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
