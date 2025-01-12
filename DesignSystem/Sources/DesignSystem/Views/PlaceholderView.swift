@@ -19,24 +19,27 @@ public struct PlaceholderView: View {
 	}
 
 	public var body: some View {
-		VStack {
-			Image(systemName: "shippingbox")
-				.resizable()
-				.scaledToFit()
-				.frame(width: 80, height: 80)
-				.foregroundStyle(.quaternary)
-			Text(title)
-				.font(.title2)
-				.foregroundStyle(.secondary)
-				.lineLimit(1)
-			Text(subtitle)
-				.font(.body)
-				.multilineTextAlignment(.center)
-				.foregroundStyle(.tertiary)
-				.lineLimit(nil)
+		ZStack(alignment: .center) {
+			VStack {
+				Image(systemName: "shippingbox")
+					.resizable()
+					.scaledToFit()
+					.frame(width: 80, height: 80)
+					.foregroundStyle(.quaternary)
+				Text(title)
+					.font(.title2)
+					.foregroundStyle(.secondary)
+					.lineLimit(1)
+				Text(subtitle)
+					.font(.body)
+					.multilineTextAlignment(.center)
+					.foregroundStyle(.tertiary)
+					.lineLimit(nil)
+			}
+			.frame(width: 320)
+			.padding()
 		}
-		.frame(width: 320)
-		.padding()
+		.frame(maxWidth: .infinity, maxHeight: .infinity)
 	}
 }
 
@@ -45,5 +48,4 @@ public struct PlaceholderView: View {
 		title: "No items yet",
 		subtitle: "To add a new item, click the «plus» button or use the keyboard shortcut cmd + t"
 	)
-	.frame(width: 240)
 }

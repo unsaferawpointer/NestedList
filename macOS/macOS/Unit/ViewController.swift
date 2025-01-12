@@ -163,26 +163,8 @@ private extension ViewController {
 	}
 
 	func configureConstraints() {
-		[scrollview, placeholderView].forEach {
-			view.addSubview($0)
-			$0.translatesAutoresizingMaskIntoConstraints = false
-		}
-
-		NSLayoutConstraint.activate(
-			[
-				scrollview.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-				scrollview.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-				scrollview.topAnchor.constraint(equalTo: view.topAnchor),
-				scrollview.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-				placeholderView.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor),
-				placeholderView.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor),
-				placeholderView.topAnchor.constraint(greaterThanOrEqualTo: view.topAnchor),
-				placeholderView.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor),
-				placeholderView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-				placeholderView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-			]
-		)
+		scrollview.pin(edges: .all, to: view)
+		placeholderView.pin(edges: .all, to: view)
 	}
 }
 
