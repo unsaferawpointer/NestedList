@@ -47,7 +47,7 @@ class ViewController: NSViewController {
 		let view = NSHostingView(
 			rootView: PlaceholderView.init(
 				title: "No items yet",
-				subtitle: "To add a new item, click the «plus» button or use the keyboard shortcut cmd + t"
+				subtitle: "To add a new item, click the «plus» button or use the keyboard shortcut ⌘T"
 			)
 		)
 		return view
