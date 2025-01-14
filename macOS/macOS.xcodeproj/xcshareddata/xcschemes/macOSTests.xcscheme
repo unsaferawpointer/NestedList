@@ -14,7 +14,7 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:../../macOSTests.xctestplan"
+            reference = "container:macOSTests/macOSTests.xctestplan"
             default = "YES">
          </TestPlanReference>
       </TestPlans>
@@ -29,6 +29,70 @@
                BlueprintName = "macOSTests"
                ReferencedContainer = "container:macOS.xcodeproj">
             </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4C2CF9562D343C9D00CA19FB"
+               BuildableName = "macOSTests.xctest"
+               BlueprintName = "macOSTests"
+               ReferencedContainer = "container:macOS.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4C2CF9562D343C9D00CA19FB"
+               BuildableName = "macOSTests.xctest"
+               BlueprintName = "macOSTests"
+               ReferencedContainer = "container:macOS.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4C2CF9562D343C9D00CA19FB"
+               BuildableName = "macOSTests.xctest"
+               BlueprintName = "macOSTests"
+               ReferencedContainer = "container:macOS.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4C2CF9562D343C9D00CA19FB"
+               BuildableName = "macOSTests.xctest"
+               BlueprintName = "macOSTests"
+               ReferencedContainer = "container:macOS.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4C2CF9562D343C9D00CA19FB"
+               BuildableName = "macOSTests.xctest"
+               BlueprintName = "macOSTests"
+               ReferencedContainer = "container:macOS.xcodeproj">
+            </BuildableReference>
+            <SelectedTests>
+               <Test
+                  Identifier = "ItemsFactoryTests/makeItem()">
+               </Test>
+               <Test
+                  Identifier = "ItemsFactoryTests/makeItem_when_itemIsCompleted()">
+               </Test>
+               <Test
+                  Identifier = "ItemsFactoryTests/makeSection()">
+               </Test>
+               <Test
+                  Identifier = "ItemsFactoryTests/makeSection_when_sectionIsCompleted()">
+               </Test>
+            </SelectedTests>
          </TestableReference>
       </Testables>
    </TestAction>
@@ -59,15 +123,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4CF92C492CE8A94D00135033"
-            BuildableName = "Nested List.app"
-            BlueprintName = "Nested List"
-            ReferencedContainer = "container:macOS.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

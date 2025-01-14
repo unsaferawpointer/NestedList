@@ -22,9 +22,9 @@ extension ItemsFactory: ItemsFactoryProtocol {
 
 		let textColor: NSColor = switch item.style {
 		case .item:
-			isDone ? .secondaryLabelColor : .labelColor
+			isDone ? .tertiaryLabelColor : .labelColor
 		case .section:
-			.labelColor
+			isDone ? .tertiaryLabelColor : .labelColor
 		}
 
 		return ItemModel(
