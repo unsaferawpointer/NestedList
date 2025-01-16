@@ -10,7 +10,7 @@ import DesignSystem
 import CoreModule
 import SwiftUI
 
-final class ItemCell: NSView, ListCell {
+final class ItemCell: NSTableCellView, ListCell {
 
 	typealias Model = ItemModel
 
@@ -53,8 +53,14 @@ final class ItemCell: NSView, ListCell {
 		return view
 	}()
 
+	lazy var iconView: NSImageView = {
+		let view = NSImageView()
+		view.image?.isTemplate = true
+		return view
+	}()
+
 	lazy var container: NSStackView = {
-		let view = NSStackView(views: [prefixView, textfield])
+		let view = NSStackView(views: [prefixView, iconView, textfield])
 		view.orientation = .horizontal
 		view.distribution = .fillProportionally
 		view.alignment = .centerY
@@ -79,12 +85,7 @@ final class ItemCell: NSView, ListCell {
 
 	override func layout() {
 		super.layout()
-		switch model.configuration.style {
-		case .point(let color):
-			prefixView.layer?.backgroundColor = color.cgColor
-		default:
-			break
-		}
+		prefixView.layer?.backgroundColor = model.configuration.point?.color.value.cgColor
 	}
 
 	override func becomeFirstResponder() -> Bool {
@@ -98,23 +99,33 @@ private extension ItemCell {
 
 	func updateUserInterface() {
 
+		self.textField = textfield
+		self.imageView = iconView
+
 		let value = model.value
 		let configuration = model.configuration
 
 		let attrString = NSAttributedString(
 			string: value.text,
-			textColor: configuration.textColor,
-			strikethrough: configuration.strikethrough
+			textColor: configuration.text.colorToken.value,
+			strikethrough: configuration.text.strikethrough
 		)
+		textfield.font = NSFont.preferredFont(forTextStyle: configuration.text.style)
 
-		switch configuration.style {
-		case .point(let color):
+		if let pointConfiguration = configuration.point {
 			prefixView.isHidden = false
-			prefixView.layer?.backgroundColor = color.cgColor
-			textfield.font = NSFont.preferredFont(forTextStyle: .body)
-		case .section:
+			prefixView.layer?.backgroundColor = pointConfiguration.color.value.cgColor
+		} else {
 			prefixView.isHidden = true
-			textfield.font = NSFont.preferredFont(forTextStyle: .headline)
+			prefixView.layer?.backgroundColor = nil
+		}
+
+		if let iconConfiguration = configuration.icon {
+			iconView.isHidden = false
+			iconView.image = NSImage(systemSymbolName: iconConfiguration.iconName, accessibilityDescription: nil)
+			iconView.contentTintColor = iconConfiguration.color.value
+		} else {
+			iconView.isHidden = true
 		}
 
 		// Value

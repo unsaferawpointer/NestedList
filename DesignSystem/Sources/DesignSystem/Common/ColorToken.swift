@@ -38,7 +38,7 @@ import AppKit
 
 public extension ColorToken {
 
-	var color: NSColor {
+	var value: NSColor {
 		switch self {
 		case .clear:
 			return .clear

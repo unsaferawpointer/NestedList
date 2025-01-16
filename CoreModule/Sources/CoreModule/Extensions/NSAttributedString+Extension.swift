@@ -35,7 +35,7 @@ public extension NSAttributedString {
 			.paragraphStyle: paragraphStyle,
 			.strikethroughStyle: strikethroughStyle.rawValue,
 			.foregroundColor: textColor,
-			.strikethroughColor: textColor
+			.strikethroughColor: NSColor.labelColor
 		]
 		self.init(string: string, attributes: attributes)
 	}

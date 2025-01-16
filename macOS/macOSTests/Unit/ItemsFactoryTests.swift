@@ -28,9 +28,9 @@ struct ItemsFactoryTests {
 		// Assert
 		#expect(result.isGroup == false)
 		#expect(result.value.text == item.text)
-		#expect(result.configuration.textColor == .labelColor)
-		#expect(!result.configuration.strikethrough)
-		#expect(result.configuration.style == .point(.secondarySystemFill))
+		#expect(result.configuration.text.colorToken == .primary)
+		#expect(!result.configuration.text.strikethrough)
+		#expect(result.configuration.point?.color == .tertiary)
 	}
 
 	@Test func makeItem_when_itemIsCompleted() {
@@ -50,9 +50,9 @@ struct ItemsFactoryTests {
 		// Assert
 		#expect(result.isGroup == false)
 		#expect(result.value.text == item.text)
-		#expect(result.configuration.textColor == .tertiaryLabelColor)
-		#expect(result.configuration.strikethrough)
-		#expect(result.configuration.style == .point(.secondarySystemFill))
+		#expect(result.configuration.text.colorToken == .secondary)
+		#expect(result.configuration.text.strikethrough)
+		#expect(result.configuration.point?.color == .tertiary)
 	}
 
 	@Test func makeSection() {
@@ -72,9 +72,9 @@ struct ItemsFactoryTests {
 		// Assert
 		#expect(result.isGroup)
 		#expect(result.value.text == item.text)
-		#expect(result.configuration.textColor == .labelColor)
-		#expect(!result.configuration.strikethrough)
-		#expect(result.configuration.style == .section)
+		#expect(result.configuration.text.colorToken == .primary)
+		#expect(!result.configuration.text.strikethrough)
+		#expect(result.configuration.point == nil)
 	}
 
 	@Test func makeSection_when_sectionIsCompleted() {
@@ -94,8 +94,8 @@ struct ItemsFactoryTests {
 		// Assert
 		#expect(result.isGroup)
 		#expect(result.value.text == item.text)
-		#expect(result.configuration.textColor == .tertiaryLabelColor)
-		#expect(result.configuration.strikethrough)
-		#expect(result.configuration.style == .section)
+		#expect(result.configuration.text.colorToken == .secondary)
+		#expect(result.configuration.text.strikethrough)
+		#expect(result.configuration.point == nil)
 	}
 }

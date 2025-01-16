@@ -28,17 +28,27 @@ struct ItemModel: CellModel {
 extension ItemModel {
 
 	struct Configuration {
-		var textColor: NSColor
-		var strikethrough: Bool
-		var style: Style
+		var point: PointConfiguration?
+		var icon: IconConfiguration?
+		var text: TextConfiguration
 	}
 
 	struct Value {
 		var text: String
 	}
+}
 
-	enum Style: Equatable {
-		case point(_ color: NSColor)
-		case section
-	}
+struct TextConfiguration {
+	var style: NSFont.TextStyle
+	var colorToken: ColorToken
+	var strikethrough: Bool
+}
+
+struct IconConfiguration {
+	var iconName: String
+	var color: ColorToken
+}
+
+struct PointConfiguration {
+	var color: ColorToken
 }
