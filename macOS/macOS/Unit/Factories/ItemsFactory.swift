@@ -24,13 +24,13 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		case .item:
 			TextConfiguration(
 				style: .body,
-				colorToken: isDone ? .secondary : .primary,
+				colorToken: .primary,
 				strikethrough: isDone
 			)
 		case .section:
 			TextConfiguration(
 				style: .headline,
-				colorToken: isDone ? .secondary : .primary,
+				colorToken: .primary,
 				strikethrough: isDone
 			)
 		}
@@ -46,7 +46,7 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		case .item:
 			nil
 		case .section:
-			IconConfiguration(iconName: "doc.text", color: isDone ? .secondary : .primary)
+			IconConfiguration(iconName: "doc.text", color: .tertiary)
 		}
 
 		return ItemModel(

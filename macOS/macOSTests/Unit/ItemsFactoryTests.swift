@@ -50,7 +50,7 @@ struct ItemsFactoryTests {
 		// Assert
 		#expect(result.isGroup == false)
 		#expect(result.value.text == item.text)
-		#expect(result.configuration.text.colorToken == .secondary)
+		#expect(result.configuration.text.colorToken == .primary)
 		#expect(result.configuration.text.strikethrough)
 		#expect(result.configuration.point?.color == .tertiary)
 	}
@@ -94,7 +94,7 @@ struct ItemsFactoryTests {
 		// Assert
 		#expect(result.isGroup)
 		#expect(result.value.text == item.text)
-		#expect(result.configuration.text.colorToken == .secondary)
+		#expect(result.configuration.text.colorToken == .primary)
 		#expect(result.configuration.text.strikethrough)
 		#expect(result.configuration.point == nil)
 	}

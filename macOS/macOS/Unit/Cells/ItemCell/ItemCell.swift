@@ -10,7 +10,7 @@ import DesignSystem
 import CoreModule
 import SwiftUI
 
-final class ItemCell: NSTableCellView, ListCell {
+final class ItemCell: NSView, ListCell {
 
 	typealias Model = ItemModel
 
@@ -98,9 +98,6 @@ final class ItemCell: NSTableCellView, ListCell {
 private extension ItemCell {
 
 	func updateUserInterface() {
-
-		self.textField = textfield
-		self.imageView = iconView
 
 		let value = model.value
 		let configuration = model.configuration
