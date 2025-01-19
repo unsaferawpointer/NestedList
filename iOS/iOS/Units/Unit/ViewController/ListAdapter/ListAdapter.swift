@@ -126,11 +126,17 @@ private extension ListAdapter {
 	}
 
 	func updateCell(_ cell: UITableViewCell, with model: ItemModel) {
-		cell.tintColor = model.iconColor.color
 		let configuration = {
 			var configuration = UIListContentConfiguration.cell()
-			configuration.image = model.hideIcon ? nil : UIImage(named: "point")
-			configuration.imageProperties.tintColor = model.iconColor.color
+
+			if let iconConfiguration = model.icon {
+				configuration.image = UIImage(systemName: iconConfiguration.iconName)
+				configuration.imageProperties.tintColor = iconConfiguration.color.color
+			} else {
+				configuration.image = UIImage(named: "point")
+				configuration.imageProperties.tintColor = .systemFill
+			}
+
 			configuration.attributedText = .init(
 				string: model.text,
 				textColor: model.textColor.color,
@@ -269,7 +275,30 @@ extension ListAdapter {
 
 			statusItem.state = model.status ? .on : .off
 
-			let menu = UIMenu(title: "", children: [newItem, editGroup, groupItem, statusGroup, deleteItem])
+			let defaultStyleItem = UIAction(
+				title: "Item",
+				image: nil
+			) { [weak self] action in
+				self?.delegate?.userSetStyle(style: .item, id: model.id)
+			}
+
+			let sectionStyleItem = UIAction(
+				title: "Section",
+				image: nil
+			) { [weak self] action in
+				self?.delegate?.userSetStyle(style: .section, id: model.id)
+			}
+
+			let styleGroup = UIMenu(
+				title: "Style",
+				image: nil,
+				identifier: nil,
+				options: [],
+				preferredElementSize: .large,
+				children: [defaultStyleItem, sectionStyleItem]
+			)
+
+			let menu = UIMenu(title: "", children: [newItem, editGroup, groupItem, statusGroup, styleGroup, deleteItem])
 
 			return menu
 		}

@@ -44,11 +44,6 @@ struct TextConfiguration {
 	var strikethrough: Bool
 }
 
-struct IconConfiguration {
-	var iconName: String
-	var color: ColorToken
-}
-
 struct PointConfiguration {
 	var color: ColorToken
 }

@@ -27,11 +27,17 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			.primary
 		}
 
+		let iconConfiguration: IconConfiguration? = switch item.style {
+		case .item:
+			nil
+		case .section:
+			.init(iconName: "doc.text", color: .tertiary)
+		}
+
 		return ItemModel(
 			uuid: item.id,
 			textColor: textColor,
-			iconColor: item.style == .item ? .tertiary : .quaternary,
-			hideIcon: item.style == .section,
+			icon: iconConfiguration,
 			strikethrough: isDone,
 			style: item.style.modelStyle,
 			text: item.text,

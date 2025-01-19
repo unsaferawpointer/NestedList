@@ -14,9 +14,7 @@ struct ItemModel {
 
 	var textColor: ColorToken
 
-	var iconColor: ColorToken
-
-	var hideIcon: Bool
+	var icon: IconConfiguration?
 
 	var strikethrough: Bool
 

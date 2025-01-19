@@ -7,6 +7,7 @@
 
 import Foundation
 import AppKit
+import DesignSystem
 import CoreModule
 
 protocol ItemsFactoryProtocol {

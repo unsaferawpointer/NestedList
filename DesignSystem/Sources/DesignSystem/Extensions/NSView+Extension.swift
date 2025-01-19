@@ -5,6 +5,7 @@
 //  Created by Anton Cherkasov on 12.01.2025.
 //
 
+#if canImport(AppKit)
 import AppKit
 
 public extension NSView {
@@ -50,3 +51,4 @@ public extension NSView {
 		}
 	}
 }
+#endif

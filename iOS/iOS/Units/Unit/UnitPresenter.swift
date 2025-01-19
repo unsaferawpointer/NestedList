@@ -84,6 +84,10 @@ extension UnitPresenter: UnitViewDelegate {
 		interactor?.setStatus(isDone, for: id)
 	}
 
+	func userSetStyle(style: Item.Style, id: UUID) {
+		interactor?.setStyle(style, for: id)
+	}
+
 	func userTappedCutButton(ids: [UUID]) {
 		guard let first = ids.first, let interactor else {
 			return
