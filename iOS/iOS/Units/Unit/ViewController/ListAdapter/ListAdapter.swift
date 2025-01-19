@@ -158,23 +158,6 @@ private extension ListAdapter {
 	}
 }
 
-// MARK: - UITableViewDragDelegate
-extension ListAdapter: UITableViewDragDelegate {
-
-	func tableView(_ tableView: UITableView, itemsForBeginning session: any UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
-
-		guard tableView.isEditing, delegate != nil else {
-			return []
-		}
-
-		let model = cache.model(with: indexPath.row)
-		let item = UIDragItem(itemProvider: .init())
-		item.localObject = model.id
-		return [item]
-	}
-
-}
-
 extension ListAdapter: CacheDelegate {
 
 	func updateCell(indexPath: IndexPath, model: ItemModel) {
