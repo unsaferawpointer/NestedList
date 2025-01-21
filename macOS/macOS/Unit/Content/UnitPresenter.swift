@@ -37,6 +37,8 @@ final class UnitPresenter {
 	private(set) var allItems: Set<UUID> = []
 
 	private(set) var allSections: Set<UUID> = []
+
+	private(set) var allMarked: Set<UUID> = []
 }
 
 // MARK: - UnitPresenterProtocol
@@ -55,6 +57,10 @@ extension UnitPresenter: UnitPresenterProtocol {
 		}
 		self.allSections = snapshot.satisfy { item in
 			item.style == .section
+		}
+
+		self.allMarked = snapshot.satisfy { item in
+			item.isMarked
 		}
 
 		let count = allItems.intersection(allSections).count
@@ -108,6 +114,13 @@ extension UnitPresenter: UnitViewOutput {
 			return
 		}
 		interactor?.setStatus(status, for: selection, moveToEnd: false)
+	}
+
+	func userChangedMark(_ mark: Bool) {
+		guard let selection = view?.selection else {
+			return
+		}
+		interactor?.setMark(mark, for: selection)
 	}
 
 	func userChangedStyle(_ style: Item.Style) {
@@ -269,6 +282,13 @@ extension UnitPresenter {
 			return false
 		}
 		return validate(in: allDone, with: selection)
+	}
+
+	func validateMark() -> Bool? {
+		guard let selection = view?.selection, !selection.isEmpty else {
+			return false
+		}
+		return validate(in: allMarked, with: selection)
 	}
 
 	func validateStyle(_ style: Item.Style) -> Bool? {

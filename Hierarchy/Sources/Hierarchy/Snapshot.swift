@@ -225,10 +225,6 @@ public extension Snapshot {
 // MARK: - Helpers
 private extension Snapshot {
 
-	func move(id: ID, destination: Destination<ID>) {
-		
-	}
-
 	mutating func normalize(base: Node<Model>, parent: ID?, keyPath: KeyPath<Model, Bool>?, level: Int = 0) {
 
 		identifiers.insert(base.id)

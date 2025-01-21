@@ -14,6 +14,8 @@ public struct Item {
 
 	public var isDone: Bool
 
+	public var isMarked: Bool
+
 	public var text: String
 
 	public var style: Style
@@ -23,11 +25,13 @@ public struct Item {
 	public init(
 		uuid: UUID = UUID(),
 		isDone: Bool = false,
+		isMarked: Bool = false,
 		text: String,
 		style: Style
 	) {
 		self.uuid = uuid
 		self.isDone = isDone
+		self.isMarked = isMarked
 		self.text = text
 		self.style = style
 	}

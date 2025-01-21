@@ -35,6 +35,11 @@ extension MenuBuilder: MenuBuilderProtocol {
 			action: #selector(MenuSupportable.toggleStatus(_:)),
 			keyEquivalent: "\r"
 		)
+		menu.addItem(
+			withTitle: "Marked",
+			action: #selector(MenuSupportable.toggleMark(_:)),
+			keyEquivalent: ""
+		)
 		menu.addItem(.separator())
 		menu.addItem(
 			{

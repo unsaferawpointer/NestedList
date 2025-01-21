@@ -38,7 +38,7 @@ extension ItemsFactory: ItemsFactoryProtocol {
 
 		let pointConfiguration: PointConfiguration? = switch item.style {
 		case .item:
-			PointConfiguration(color: .tertiary)
+			PointConfiguration(color: item.isMarked && !isDone ? .yellow : .tertiary)
 		case .section:
 			nil
 		}
@@ -47,7 +47,7 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		case .item:
 			nil
 		case .section:
-			IconConfiguration(iconName: "doc.text", color: .tertiary)
+			IconConfiguration(iconName: "doc.text", color: item.isMarked && !isDone ? .yellow : .tertiary)
 		}
 
 		return ItemModel(

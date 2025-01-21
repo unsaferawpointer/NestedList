@@ -42,11 +42,13 @@ private extension BasicFormatter {
 			+ node.value.text
 			+ ":"
 			+ (node.value.isDone ? " @done" : "")
+			+ (node.value.isMarked ? " @mark" : "")
 		} else {
 			Array(repeating: format.indent.value, count: indent).joined()
 			+ "\(Prefix.asterisk.rawValue) "
 			+ node.value.text
 			+ (node.value.isDone ? " @done" : "")
+			+ (node.value.isMarked ? " @mark" : "")
 		}
 
 

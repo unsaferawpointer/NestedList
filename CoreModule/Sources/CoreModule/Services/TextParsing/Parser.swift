@@ -37,6 +37,7 @@ extension Parser: ParserProtocol {
 				prefix: $0.prefix,
 				text: $0.text,
 				isDone: $0.isDone,
+				isMarked: $0.isMarked,
 				hasColon: $0.hasColon
 			)
 		}
@@ -127,7 +128,22 @@ private extension Parser {
 				trimmed.removeLast()
 			}
 
-			let line = Line(indent: line.indent, prefix: prefix, text: trimmed, isDone: isDone, hasColon: hasColon)
+			// Mark annotation
+
+			let markAnnotation = "@" + Annotation.mark.rawValue
+			let isMarked = trimmed.contains(markAnnotation)
+			if isMarked {
+				trimmed = trimmed.replacing(markAnnotation, with: "")
+			}
+
+			let line = Line(
+				indent: line.indent,
+				prefix: prefix,
+				text: trimmed,
+				isDone: isDone,
+				isMarked: isMarked,
+				hasColon: hasColon
+			)
 			result.append(line)
 		}
 		return result
@@ -142,11 +158,13 @@ extension Parser {
 		var prefix: Prefix?
 		var text: String
 		var isDone: Bool
+		var isMarked: Bool
 		var hasColon: Bool
 	}
 
 	enum Annotation: String {
 		case done
+		case mark
 	}
 }
 
