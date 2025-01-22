@@ -32,13 +32,7 @@ final class UnitPresenter {
 
 	// MARK: - Cache
 
-	private(set) var allDone: Set<UUID> = []
-
-	private(set) var allItems: Set<UUID> = []
-
-	private(set) var allSections: Set<UUID> = []
-
-	private(set) var allMarked: Set<UUID> = []
+	var cache = Cache<Property, Item>()
 }
 
 // MARK: - UnitPresenterProtocol
@@ -48,24 +42,10 @@ extension UnitPresenter: UnitPresenterProtocol {
 
 		let snapshot = Snapshot(content.root.nodes, keyPath: \.isDone)
 
-		self.allDone = snapshot.satisfy { item in
-			item.isDone
-		}
-
-		self.allItems = snapshot.satisfy { item in
-			item.style == .item
-		}
-		self.allSections = snapshot.satisfy { item in
-			item.style == .section
-		}
-
-		self.allMarked = snapshot.satisfy { item in
-			item.isMarked
-		}
-
-		let count = allItems.intersection(allSections).count
-
-		assert( count == 0)
+		cache.store(.isDone, keyPath: \.isDone, equalsTo: true, from: snapshot)
+		cache.store(.isMarked, keyPath: \.isMarked, equalsTo: true, from: snapshot)
+		cache.store(.isItem, keyPath: \.style, equalsTo: .item, from: snapshot)
+		cache.store(.isSection, keyPath: \.style, equalsTo: .section, from: snapshot)
 
 		let converted = snapshot
 			.map { item, isDone, level in
@@ -265,30 +245,18 @@ extension UnitPresenter: CellDelegate {
 }
 extension UnitPresenter {
 
-	func validate(in cache: Set<UUID>, with selection: [UUID]) -> Bool? {
-		let count = Set(selection).intersection(cache).count
-		switch count {
-		case 0:
-			return false
-		case selection.count:
-			return true
-		default:
-			return nil
-		}
-	}
-
 	func validateStatus() -> Bool? {
 		guard let selection = view?.selection, !selection.isEmpty else {
 			return false
 		}
-		return validate(in: allDone, with: selection)
+		return cache.validate(.isDone, other: selection)
 	}
 
 	func validateMark() -> Bool? {
 		guard let selection = view?.selection, !selection.isEmpty else {
 			return false
 		}
-		return validate(in: allMarked, with: selection)
+		return cache.validate(.isMarked, other: selection)
 	}
 
 	func validateStyle(_ style: Item.Style) -> Bool? {
@@ -297,9 +265,50 @@ extension UnitPresenter {
 		}
 		switch style {
 		case .item:
-			return validate(in: allItems, with: selection)
+			return cache.validate(.isItem, other: selection)
 		case .section:
-			return validate(in: allSections, with: selection)
+			return cache.validate(.isSection, other: selection)
 		}
 	}
+}
+
+final class Cache<Property: Hashable, Model: Identifiable> {
+
+	private var storage: [Property: Set<Model.ID>] = [:]
+
+	func store<T: Equatable>(_ property: Property, keyPath: KeyPath<Model, T>, equalsTo value: T, from snapshot: Snapshot<Model>) {
+		storage[property] = snapshot.satisfy { model in
+			model[keyPath: keyPath] == value
+		}
+	}
+
+	func validate(_ property: Property, other: [Model.ID]) -> Bool? {
+		guard let stored = storage[property] else {
+			return nil
+		}
+		return validate(in: stored, with: other)
+	}
+}
+
+// MARK: - Helpers
+private extension Cache {
+
+	func validate(in cache: Set<Model.ID>, with other: [Model.ID]) -> Bool? {
+		let count = Set(other).intersection(cache).count
+		switch count {
+		case 0:
+			return false
+		case other.count:
+			return true
+		default:
+			return nil
+		}
+	}
+}
+
+enum Property: Hashable {
+	case isDone
+	case isMarked
+	case isItem
+	case isSection
 }
