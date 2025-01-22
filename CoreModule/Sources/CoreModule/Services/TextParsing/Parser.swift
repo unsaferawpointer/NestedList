@@ -66,6 +66,7 @@ extension Parser: ParserProtocol {
 			let item = Item(
 				uuid: .init(),
 				isDone: line.isDone,
+				isMarked: line.isMarked,
 				text: line.text,
 				style: line.hasColon
 					? .section
@@ -136,6 +137,8 @@ private extension Parser {
 				trimmed = trimmed.replacing(markAnnotation, with: "")
 			}
 
+			trimmed = trimmed.trimmingCharacters(in: .whitespaces)
+
 			let line = Line(
 				indent: line.indent,
 				prefix: prefix,
@@ -161,11 +164,11 @@ extension Parser {
 		var isMarked: Bool
 		var hasColon: Bool
 	}
+}
 
-	enum Annotation: String {
-		case done
-		case mark
-	}
+enum Annotation: String {
+	case done
+	case mark
 }
 
 // MARK: - Extensions

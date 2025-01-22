@@ -37,20 +37,16 @@ private extension BasicFormatter {
 	func text(for node: Node<Item>, indent: Int) -> [String] {
 		let item = node.value
 
-		let line = if item.style == .section {
-			Array(repeating: format.indent.value, count: indent).joined()
-			+ node.value.text
-			+ ":"
-			+ (node.value.isDone ? " @done" : "")
-			+ (node.value.isMarked ? " @mark" : "")
-		} else {
-			Array(repeating: format.indent.value, count: indent).joined()
-			+ "\(Prefix.asterisk.rawValue) "
-			+ node.value.text
-			+ (node.value.isDone ? " @done" : "")
-			+ (node.value.isMarked ? " @mark" : "")
-		}
+		let indentPrefix = Array(repeating: format.indent.value, count: indent).joined()
 
+		let sign = (item.style == .item) ? String(Prefix.dash.rawValue) : ""
+
+		let body = item.text + (item.style == .section ? ":" : "")
+
+		let markAnnotation = node.value.isMarked ? "@" + Annotation.mark.rawValue : ""
+		let doneAnnotation = node.value.isDone ? "@" + Annotation.done.rawValue : ""
+
+		let line = indentPrefix + [sign, body, doneAnnotation, markAnnotation].filter { !$0.isEmpty }.joined(separator: " ")
 
 		return [line] + node.children.flatMap { text(for: $0, indent: indent + 1) }
 	}
