@@ -44,6 +44,7 @@ final class ItemCell: NSView, ListCell {
 		let view = NSView()
 		view.wantsLayer = true
 		view.layer?.cornerRadius = 3
+		view.layer?.borderWidth = 1
 		NSLayoutConstraint.activate(
 			[
 				view.widthAnchor.constraint(equalToConstant: 6),
@@ -86,6 +87,7 @@ final class ItemCell: NSView, ListCell {
 	override func layout() {
 		super.layout()
 		prefixView.layer?.backgroundColor = model.configuration.point?.color.value.cgColor
+		prefixView.layer?.borderColor = NSColor.separatorColor.cgColor
 	}
 
 	override func becomeFirstResponder() -> Bool {

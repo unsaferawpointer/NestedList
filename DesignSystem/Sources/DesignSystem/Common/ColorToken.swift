@@ -15,6 +15,8 @@ public enum ColorToken {
 	case tertiary
 	case quaternary
 
+	case disabledText
+
 	// MARK: - Accent
 
 	case red
@@ -74,6 +76,12 @@ public extension ColorToken {
 			return .systemPurple
 		case .pink:
 			return .systemPink
+		case .disabledText:
+			return NSColor(name: nil) { appearance in
+				appearance.name == .darkAqua
+					? NSColor(white: 0.8, alpha: 0.85)
+					: NSColor(white: 0.2, alpha: 0.85)
+			}
 		}
 	}
 }
@@ -120,6 +128,12 @@ public extension ColorToken {
 			return .systemPurple
 		case .pink:
 			return .systemPink
+		case .disabledText:
+			return UIColor(name: nil) { traits in
+				traits.userInterfaceStyle == .dark
+					? NSColor(white: 0.8, alpha: 0.75)
+					: NSColor(white: 0.2, alpha: 0.75)
+			}
 		}
 	}
 }
