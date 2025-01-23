@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1600"
+   LastUpgradeVersion = "1620"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4CF92C492CE8A94D00135033"
-               BuildableName = "Nested List.app"
-               BlueprintName = "Nested List"
-               ReferencedContainer = "container:macOS.xcodeproj">
+               BlueprintIdentifier = "4CF92C842CE8A97300135033"
+               BuildableName = "iOS.app"
+               BlueprintName = "iOS"
+               ReferencedContainer = "container:iOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -27,13 +27,8 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
-      <TestPlans>
-         <TestPlanReference
-            reference = "container:macOS.xctestplan"
-            default = "YES">
-         </TestPlanReference>
-      </TestPlans>
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      shouldAutocreateTestPlan = "YES">
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -49,10 +44,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4CF92C492CE8A94D00135033"
-            BuildableName = "Nested List.app"
-            BlueprintName = "Nested List"
-            ReferencedContainer = "container:macOS.xcodeproj">
+            BlueprintIdentifier = "4CF92C842CE8A97300135033"
+            BuildableName = "iOS.app"
+            BlueprintName = "iOS"
+            ReferencedContainer = "container:iOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -66,10 +61,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4CF92C492CE8A94D00135033"
-            BuildableName = "Nested List.app"
-            BlueprintName = "Nested List"
-            ReferencedContainer = "container:macOS.xcodeproj">
+            BlueprintIdentifier = "4CF92C842CE8A97300135033"
+            BuildableName = "iOS.app"
+            BlueprintName = "iOS"
+            ReferencedContainer = "container:iOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

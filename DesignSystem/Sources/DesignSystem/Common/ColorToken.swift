@@ -129,10 +129,10 @@ public extension ColorToken {
 		case .pink:
 			return .systemPink
 		case .disabledText:
-			return UIColor(name: nil) { traits in
+			return UIColor { traits in
 				traits.userInterfaceStyle == .dark
-					? NSColor(white: 0.8, alpha: 0.75)
-					: NSColor(white: 0.2, alpha: 0.75)
+					? UIColor(white: 0.8, alpha: 0.75)
+					: UIColor(white: 0.2, alpha: 0.75)
 			}
 		}
 	}

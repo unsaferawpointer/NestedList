@@ -36,6 +36,7 @@
 /* Begin PBXFileReference section */
 		4C2CF87C2D329D7000CA19FB /* macOSRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOSRelease.entitlements; sourceTree = "<group>"; };
 		4C2CF9572D343C9D00CA19FB /* macOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = macOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C4C1D802D42DF3C00A3D589 /* macOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = macOS.xctestplan; sourceTree = "<group>"; };
 		4CF92C4A2CE8A94D00135033 /* Nested List.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Nested List.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CF92C682CE8A94E00135033 /* macOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = macOSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CF92CED2CE8CD9600135033 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -100,6 +101,7 @@
 		4CF92C412CE8A94D00135033 = {
 			isa = PBXGroup;
 			children = (
+				4C4C1D802D42DF3C00A3D589 /* macOS.xctestplan */,
 				4CF92CF52CE8CD9600135033 /* macOS */,
 				4CF92C6B2CE8A94E00135033 /* macOSUITests */,
 				4C2CF9582D343C9D00CA19FB /* macOSTests */,
