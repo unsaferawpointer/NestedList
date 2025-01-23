@@ -22,6 +22,8 @@ struct ItemModel: CellModel {
 
 	var isGroup: Bool
 
+	var height: CGFloat?
+
 }
 
 // MARK: - Nested data structs
@@ -34,7 +36,8 @@ extension ItemModel {
 	}
 
 	struct Value {
-		var text: String
+		var title: String
+		var subtitle: String?
 	}
 }
 

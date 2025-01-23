@@ -18,6 +18,8 @@ public struct Item {
 
 	public var text: String
 
+	public var note: String?
+
 	public var style: Style
 
 	// MARK: - Initialization
@@ -27,12 +29,14 @@ public struct Item {
 		isDone: Bool = false,
 		isMarked: Bool = false,
 		text: String,
+		note: String? = nil,
 		style: Style
 	) {
 		self.uuid = uuid
 		self.isDone = isDone
 		self.isMarked = isMarked
 		self.text = text
+		self.note = note
 		self.style = style
 	}
 }

@@ -19,6 +19,7 @@ struct ItemsFactoryTests {
 			uuid: .random,
 			isDone: false,
 			text: .random,
+			note: .random,
 			style: .item
 		)
 
@@ -27,10 +28,11 @@ struct ItemsFactoryTests {
 
 		// Assert
 		#expect(result.isGroup == false)
-		#expect(result.value.text == item.text)
+		#expect(result.value.title == item.text)
+		#expect(result.value.subtitle == item.note)
 		#expect(result.configuration.text.colorToken == .primary)
 		#expect(!result.configuration.text.strikethrough)
-		#expect(result.configuration.point?.color == .tertiary)
+		#expect(result.configuration.point?.color == .quaternary)
 	}
 
 	@Test func makeItem_when_itemIsCompleted() {
@@ -49,10 +51,11 @@ struct ItemsFactoryTests {
 
 		// Assert
 		#expect(result.isGroup == false)
-		#expect(result.value.text == item.text)
-		#expect(result.configuration.text.colorToken == .primary)
+		#expect(result.value.title == item.text)
+		#expect(result.value.subtitle == nil)
+		#expect(result.configuration.text.colorToken == .disabledText)
 		#expect(result.configuration.text.strikethrough)
-		#expect(result.configuration.point?.color == .tertiary)
+		#expect(result.configuration.point?.color == .quaternary)
 	}
 
 	@Test func makeSection() {
@@ -71,7 +74,7 @@ struct ItemsFactoryTests {
 
 		// Assert
 		#expect(result.isGroup)
-		#expect(result.value.text == item.text)
+		#expect(result.value.title == item.text)
 		#expect(result.configuration.text.colorToken == .primary)
 		#expect(!result.configuration.text.strikethrough)
 		#expect(result.configuration.point == nil)
@@ -93,8 +96,8 @@ struct ItemsFactoryTests {
 
 		// Assert
 		#expect(result.isGroup)
-		#expect(result.value.text == item.text)
-		#expect(result.configuration.text.colorToken == .primary)
+		#expect(result.value.title == item.text)
+		#expect(result.configuration.text.colorToken == .disabledText)
 		#expect(result.configuration.text.strikethrough)
 		#expect(result.configuration.point == nil)
 	}

@@ -21,7 +21,9 @@ protocol UnitInteractorProtocol {
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool)
 	func setMark(_ isMarked: Bool, for ids: [UUID])
 	func setStyle(_ style: Item.Style, for ids: [UUID])
-	func setText(_ text: String, for id: UUID)
+	func set(text: String, note: String?, for id: UUID)
+	func deleteNote(for ids: [UUID])
+	func addNote(for ids: [UUID])
 	func deleteItems(_ ids: [UUID])
 
 	func strings(for ids: [UUID]) -> [String]
@@ -111,9 +113,10 @@ extension UnitInteractor: UnitInteractorProtocol {
 		}
 	}
 
-	func setText(_ text: String, for id: UUID) {
+	func set(text: String, note: String?, for id: UUID) {
 		storage.modificate { content in
 			content.root.setProperty(\.text, to: text, for: [id])
+			content.root.setProperty(\.note, to: note, for: [id])
 		}
 	}
 
@@ -150,6 +153,18 @@ extension UnitInteractor: UnitInteractorProtocol {
 		}
 		storage.modificate { content in
 			content.root.insertItems(from: nodes, to: destination)
+		}
+	}
+
+	func deleteNote(for ids: [UUID]) {
+		storage.modificate { content in
+			content.root.setProperty(\.note, to: nil, for: ids)
+		}
+	}
+
+	func addNote(for ids: [UUID]) {
+		storage.modificate { content in
+			content.root.setProperty(\.note, to: "", for: ids)
 		}
 	}
 

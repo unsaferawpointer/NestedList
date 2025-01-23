@@ -52,13 +52,14 @@ extension ItemsFactory: ItemsFactoryProtocol {
 
 		return ItemModel(
 			id: item.id,
-			value: .init(text: item.text),
+			value: .init(title: item.text, subtitle: item.note),
 			configuration: .init(
 				point: pointConfiguration,
 				icon: iconConfiguration,
 				text: textConfiguration
 			),
-			isGroup: level == 0 && item.style == .section
+			isGroup: level == 0 && item.style == .section,
+			height: item.note != nil ? 36 : nil
 		)
 	}
 }

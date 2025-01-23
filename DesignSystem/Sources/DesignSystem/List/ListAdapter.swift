@@ -106,6 +106,16 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		return makeCellIfNeeded(for: model, in: outlineView)
 	}
 
+	public func outlineView(_ outlineView: NSOutlineView, heightOfRowByItem item: Any) -> CGFloat {
+		guard let item = item as? Item else {
+			return NSView.noIntrinsicMetric
+		}
+
+		let model = snapshot.model(with: item.id)
+
+		return model.height ?? NSView.noIntrinsicMetric
+	}
+
 	// MARK: - Drag And Drop support
 
 	public func outlineView(_ outlineView: NSOutlineView, pasteboardWriterForItem item: Any) -> NSPasteboardWriting? {
@@ -247,6 +257,25 @@ public extension ListAdapter {
 
 		let intersection = old.identifiers.intersection(new.identifiers)
 
+		// MARK: - Update height
+
+		var updateHeight = IndexSet()
+		for id in intersection {
+
+			let oldModel = old.model(with: id)
+			let newModel = new.model(with: id)
+
+			let oldIndex = old.index(for: id)
+			let newIndex = new.index(for: id)
+
+			guard oldIndex == newIndex, oldModel.height != newModel.height else {
+				continue
+			}
+			updateHeight.insert(oldIndex)
+		}
+
+		// MARK: - Update content
+
 		for id in intersection {
 			let item = cache[unsafe: id]
 			let model = new.model(with: id)
@@ -266,6 +295,9 @@ public extension ListAdapter {
 		}
 
 		self.snapshot = new
+		tableView?.noteHeightOfRows(withIndexesChanged: updateHeight)
+
+		// MARK: - Animate
 
 		tableView?.beginUpdates()
 		animator.calculate(old: old, new: new) { [weak self] animation in

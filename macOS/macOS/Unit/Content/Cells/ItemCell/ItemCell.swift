@@ -26,7 +26,7 @@ final class ItemCell: NSView, ListCell {
 
 	// MARK: - UI-Properties
 
-	lazy var textfield: NSTextField = {
+	lazy var titleTextfield: NSTextField = {
 		let view = NSTextField()
 		view.focusRingType = .default
 		view.cell?.sendsActionOnEndEditing = true
@@ -37,6 +37,33 @@ final class ItemCell: NSView, ListCell {
 		view.font = NSFont.preferredFont(forTextStyle: .body)
 		view.target = self
 		view.action = #selector(textfieldDidChange(_:))
+		view.allowsEditingTextAttributes = false
+		return view
+	}()
+
+	lazy var subtitleTextfield: NSTextField = {
+		let view = NSTextField()
+		view.focusRingType = .default
+		view.cell?.sendsActionOnEndEditing = true
+		view.isBordered = false
+		view.drawsBackground = false
+		view.usesSingleLineMode = true
+		view.lineBreakMode = .byTruncatingMiddle
+		view.font = NSFont.preferredFont(forTextStyle: .callout)
+		view.textColor = .secondaryLabelColor
+		view.target = self
+		view.action = #selector(textfieldDidChange(_:))
+		view.allowsEditingTextAttributes = false
+		view.placeholderString = "Item Description"
+		return view
+	}()
+
+	lazy var textfieldsContainer: NSStackView = {
+		let view = NSStackView(views: [titleTextfield, subtitleTextfield])
+		view.orientation = .vertical
+		view.distribution = .fillProportionally
+		view.alignment = .leading
+		view.spacing = 2
 		return view
 	}()
 
@@ -61,7 +88,7 @@ final class ItemCell: NSView, ListCell {
 	}()
 
 	lazy var container: NSStackView = {
-		let view = NSStackView(views: [prefixView, iconView, textfield])
+		let view = NSStackView(views: [prefixView, iconView, textfieldsContainer])
 		view.orientation = .horizontal
 		view.distribution = .fillProportionally
 		view.alignment = .centerY
@@ -92,7 +119,7 @@ final class ItemCell: NSView, ListCell {
 
 	override func becomeFirstResponder() -> Bool {
 		super.becomeFirstResponder()
-		return textfield.becomeFirstResponder()
+		return titleTextfield.becomeFirstResponder()
 	}
 }
 
@@ -105,11 +132,11 @@ private extension ItemCell {
 		let configuration = model.configuration
 
 		let attrString = NSAttributedString(
-			string: value.text,
+			string: value.title,
 			textColor: configuration.text.colorToken.value,
 			strikethrough: configuration.text.strikethrough
 		)
-		textfield.font = NSFont.preferredFont(forTextStyle: configuration.text.style)
+		titleTextfield.font = NSFont.preferredFont(forTextStyle: configuration.text.style)
 
 		if let pointConfiguration = configuration.point {
 			prefixView.isHidden = false
@@ -128,9 +155,10 @@ private extension ItemCell {
 		}
 
 		// Value
-		textfield.attributedStringValue = attrString
+		titleTextfield.attributedStringValue = attrString
 
-		textfield.allowsEditingTextAttributes = false
+		subtitleTextfield.isHidden = value.subtitle == nil
+		subtitleTextfield.stringValue = value.subtitle ?? ""
 	}
 
 	func configureConstraints() {
@@ -155,13 +183,15 @@ extension ItemCell {
 
 	@objc
 	func textfieldDidChange(_ sender: NSTextField) {
-		guard sender === textfield else {
+
+		guard sender === titleTextfield || sender === subtitleTextfield else {
 			return
 		}
 
-		let text = sender.stringValue
+		let title = titleTextfield.stringValue
+		let subtitle = subtitleTextfield.stringValue
 
-		delegate?.cellDidChange(newValue: .init(text: text), id: model.id)
+		delegate?.cellDidChange(newValue: .init(title: title, subtitle: subtitle), id: model.id)
 	}
 
 }

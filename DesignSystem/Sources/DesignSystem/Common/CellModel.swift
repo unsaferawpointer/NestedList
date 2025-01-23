@@ -6,6 +6,7 @@
 //
 
 import Hierarchy
+import CoreFoundation
 
 public protocol CellModel: Identifiable {
 
@@ -22,6 +23,8 @@ public protocol CellModel: Identifiable {
 	var action: ((Value) -> Void)? { get }
 
 	var isGroup: Bool { get }
+
+	var height: CGFloat? { get }
 }
 
 // MARK: - Identifiable

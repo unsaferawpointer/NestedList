@@ -42,6 +42,17 @@ extension MenuBuilder: MenuBuilderProtocol {
 		)
 		menu.addItem(.separator())
 		menu.addItem(
+			withTitle: "Add Note",
+			action: #selector(MenuSupportable.addNote(_:)),
+			keyEquivalent: ""
+		)
+		menu.addItem(
+			withTitle: "Delete Note",
+			action: #selector(MenuSupportable.deleteNote(_:)),
+			keyEquivalent: ""
+		)
+		menu.addItem(.separator())
+		menu.addItem(
 			{
 				let item = NSMenuItem()
 				item.title = "Style"

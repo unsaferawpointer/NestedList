@@ -177,6 +177,24 @@ extension UnitPresenter: UnitViewOutput {
 		pasteboard.setInfo(info, clearContents: true)
 		interactor?.deleteItems(selection)
 	}
+
+	func userAddNote() {
+		guard
+			let selection = view?.selection, !selection.isEmpty
+		else {
+			return
+		}
+		interactor?.addNote(for: selection)
+	}
+
+	func userDeleteNote() {
+		guard
+			let selection = view?.selection, !selection.isEmpty
+		else {
+			return
+		}
+		interactor?.deleteNote(for: selection)
+	}
 }
 
 // MARK: - DropDelelgate
@@ -236,11 +254,16 @@ extension UnitPresenter: CellDelegate {
 	typealias Model = ItemModel
 
 	func cellDidChange(newValue: ItemModel.Value, id: UUID) {
-		guard !newValue.text.isEmpty else {
+		guard !newValue.title.isEmpty else {
 			interactor?.deleteItems([id])
 			return
 		}
-		interactor?.setText(newValue.text, for: id)
+		let note: String? = if let subtitle = newValue.subtitle {
+			subtitle.isEmpty ? nil : subtitle
+		} else {
+			nil
+		}
+		interactor?.set(text: newValue.title, note: note, for: id)
 	}
 }
 extension UnitPresenter {

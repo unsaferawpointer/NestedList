@@ -20,6 +20,8 @@ protocol UnitViewOutput {
 	func userChangedStatus(_ status: Bool)
 	func userChangedMark(_ status: Bool)
 	func userChangedStyle(_ style: Item.Style)
+	func userAddNote()
+	func userDeleteNote()
 	func userCopyItems()
 	func userPaste()
 	func userCut()
@@ -68,7 +70,7 @@ class ViewController: NSViewController {
 	lazy var table: NSOutlineView = {
 		let view = NSOutlineView()
 		view.style = .inset
-		view.rowSizeStyle = .default
+		view.rowSizeStyle = .custom
 		view.floatsGroupRows = false
 		view.allowsMultipleSelection = true
 		view.allowsColumnResizing = false
@@ -193,6 +195,14 @@ extension ViewController: MenuSupportable {
 		output?.userChangedStyle(style)
 	}
 
+	func addNote(_ sender: NSMenuItem) {
+		output?.userAddNote()
+	}
+
+	func deleteNote(_ sender: NSMenuItem) {
+		output?.userDeleteNote()
+	}
+
 	func deleteItem(_ sender: NSMenuItem) {
 		output?.userDeleteItem()
 	}
@@ -253,6 +263,8 @@ extension ViewController: NSMenuItemValidation {
 				menuItem.state = .mixed
 			}
 
+			return adapter?.effectiveSelection.count ?? 0 > 0
+		case #selector(addNote(_:)), #selector(deleteNote(_:)):
 			return adapter?.effectiveSelection.count ?? 0 > 0
 		case #selector(deleteItem), #selector(copy(_:)), #selector(cut(_:)):
 			return adapter?.effectiveSelection.count ?? 0 > 0

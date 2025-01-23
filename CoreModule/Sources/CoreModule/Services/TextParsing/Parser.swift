@@ -32,14 +32,7 @@ extension Parser: ParserProtocol {
 
 		let minIndent = lines.map(\.indent).min() ?? 0
 		lines = lines.map {
-			Line(
-				indent: $0.indent - minIndent,
-				prefix: $0.prefix,
-				text: $0.text,
-				isDone: $0.isDone,
-				isMarked: $0.isMarked,
-				hasColon: $0.hasColon
-			)
+			$0.shifted(shift: -minIndent)
 		}
 
 		// Normilize indents
@@ -60,19 +53,34 @@ extension Parser: ParserProtocol {
 
 		var result: [Node<Model>] = []
 		var cache: [Int: Node<Model>] = [:]
+		var previous: Node<Model>? = nil
 
 		for line in lines {
 
+			let isNote = line.prefix == nil && !line.hasColon
+
+			if isNote, let previous {
+				if previous.value.note != nil {
+					previous.value.note?.append(line.text)
+				} else {
+					previous.value.note = line.text
+				}
+				continue
+			}
+
+			let isDone = line.annotations.contains(.done)
+			let isMarked = line.annotations.contains(.mark)
+			let style: Item.Style = line.hasColon ? .section : .item
+
 			let item = Item(
 				uuid: .init(),
-				isDone: line.isDone,
-				isMarked: line.isMarked,
+				isDone: isDone,
+				isMarked: isMarked,
 				text: line.text,
-				style: line.hasColon
-					? .section
-					: .item
+				style: style
 			)
 			let node = Node<Model>(value: item)
+			previous = node
 
 			if line.indent == 0 {
 				result.append(node)
@@ -111,40 +119,32 @@ private extension Parser {
 				trimmed.removeFirst()
 			}
 
-			// Done annotation
+			// Annotations
 
-			let annotation = "@" + Annotation.done.rawValue
+			var annotations = Set<Annotation>()
 
-			let isDone = trimmed.contains(annotation)
-			if isDone {
-				trimmed = trimmed.replacing(annotation, with: "")
+			if trimmed.replace(.done) {
+				annotations.insert(.done)
 			}
 
-			trimmed = trimmed.trimmingCharacters(in: .whitespaces)
+			if trimmed.replace(.mark) {
+				annotations.insert(.mark)
+			}
 
 			// Colon
+
+			trimmed = trimmed.trimmingCharacters(in: .whitespaces)
 
 			let hasColon = trimmed.hasSuffix(":")
 			if hasColon {
 				trimmed.removeLast()
 			}
 
-			// Mark annotation
-
-			let markAnnotation = "@" + Annotation.mark.rawValue
-			let isMarked = trimmed.contains(markAnnotation)
-			if isMarked {
-				trimmed = trimmed.replacing(markAnnotation, with: "")
-			}
-
-			trimmed = trimmed.trimmingCharacters(in: .whitespaces)
-
 			let line = Line(
 				indent: line.indent,
 				prefix: prefix,
 				text: trimmed,
-				isDone: isDone,
-				isMarked: isMarked,
+				annotations: annotations,
 				hasColon: hasColon
 			)
 			result.append(line)
@@ -160,9 +160,18 @@ extension Parser {
 		var indent: Int
 		var prefix: Prefix?
 		var text: String
-		var isDone: Bool
-		var isMarked: Bool
+		var annotations: Set<Annotation>
 		var hasColon: Bool
+
+		func shifted(shift: Int) -> Line {
+			Line(
+				indent: indent + shift,
+				prefix: prefix,
+				text: text,
+				annotations: annotations,
+				hasColon: hasColon
+			)
+		}
 	}
 }
 
@@ -184,6 +193,15 @@ private extension String {
 			return partialResult + (character.spacesWidth ?? 0)
 		}
 		return spacesCount / (tab.spacesWidth ?? 1)
+	}
+
+	mutating func replace(_ annotation: Annotation) -> Bool {
+		let substring = "@" + annotation.rawValue
+		guard self.contains(substring) else {
+			return false
+		}
+		replace(substring, with: "", maxReplacements: 1)
+		return true
 	}
 }
 

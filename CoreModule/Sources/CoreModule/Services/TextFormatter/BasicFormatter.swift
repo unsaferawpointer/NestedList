@@ -48,7 +48,12 @@ private extension BasicFormatter {
 
 		let line = indentPrefix + [sign, body, doneAnnotation, markAnnotation].filter { !$0.isEmpty }.joined(separator: " ")
 
-		return [line] + node.children.flatMap { text(for: $0, indent: indent + 1) }
+		var lines = [line]
+		if let note = item.note {
+			lines.append(indentPrefix + note)
+		}
+
+		return lines + node.children.flatMap { text(for: $0, indent: indent + 1) }
 	}
 }
 

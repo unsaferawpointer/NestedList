@@ -25,6 +25,7 @@ My goal is to create an application for reading and editing nested lists in plai
 Section:
 	- Marked Task 0 @mark
 		- Subtask 0
+		Note for Subtask 0
 		- Completed Subtask 1 @done
 	- Task 1
 ```
