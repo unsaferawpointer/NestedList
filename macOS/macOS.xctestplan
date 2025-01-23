@@ -1,0 +1,31 @@
+{
+  "configurations" : [
+    {
+      "id" : "01777BE2-760A-4903-9484-48D5AF37D5F8",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:macOS.xcodeproj",
+        "identifier" : "4CF92C672CE8A94E00135033",
+        "name" : "macOSUITests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:macOS.xcodeproj",
+        "identifier" : "4C2CF9562D343C9D00CA19FB",
+        "name" : "macOSTests"
+      }
+    }
+  ],
+  "version" : 1
+}
