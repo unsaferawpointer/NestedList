@@ -58,6 +58,30 @@ struct ItemsFactoryTests {
 		#expect(result.configuration.point?.color == .quaternary)
 	}
 
+	@Test func makeItem_when_itemIsCompletedAndMarked() {
+		// Arrange
+		let sut = ItemsFactory()
+
+		let item = Item(
+			uuid: .random,
+			isDone: false,
+			isMarked: true,
+			text: .random,
+			style: .item
+		)
+
+		// Act
+		let result = sut.makeItem(item: item, isDone: true, level: 0)
+
+		// Assert
+		#expect(result.isGroup == false)
+		#expect(result.value.title == item.text)
+		#expect(result.value.subtitle == nil)
+		#expect(result.configuration.text.colorToken == .disabledText)
+		#expect(result.configuration.text.strikethrough)
+		#expect(result.configuration.point?.color == .quaternary)
+	}
+
 	@Test func makeSection() {
 		// Arrange
 		let sut = ItemsFactory()
@@ -87,6 +111,29 @@ struct ItemsFactoryTests {
 		let item = Item(
 			uuid: .random,
 			isDone: false,
+			text: .random,
+			style: .section
+		)
+
+		// Act
+		let result = sut.makeItem(item: item, isDone: true, level: 0)
+
+		// Assert
+		#expect(result.isGroup)
+		#expect(result.value.title == item.text)
+		#expect(result.configuration.text.colorToken == .disabledText)
+		#expect(result.configuration.text.strikethrough)
+		#expect(result.configuration.point == nil)
+	}
+
+	@Test func makeSection_when_sectionIsCompletedAndMarked() {
+		// Arrange
+		let sut = ItemsFactory()
+
+		let item = Item(
+			uuid: .random,
+			isDone: false,
+			isMarked: true,
 			text: .random,
 			style: .section
 		)

@@ -14,7 +14,7 @@ public struct Content {
 
 	// MARK: - Initialization
 
-	init(nodes: [Node<Item>] = []) {
+	public init(nodes: [Node<Item>] = []) {
 		self.root = Root<Item>(hierarchy: nodes)
 	}
 }
