@@ -37,6 +37,24 @@ Section:
 * Drag&Drop support.
 * Hotkeys support.
 
+## Guide
+
+* Create:
+	- Use Editor > New item to create a new item
+	- Press ⌘T to create a new item
+	- Right-click to use the context menu to create a new item
+* Delete:
+	- Use Editor > Delete to delete selected items
+	- Open the context menu to delete selected items
+	- Press ⌘⌫ to delete selected items
+* Customization:
+	- Go to Edit > Style to change the style of the selected items
+	- Access the context menu to change the style of selected items
+	- Choose Editor > Completed to toggle the completion status
+* Drag & Drop:
+	- Drag plain text to the document
+	- Move selected items to another document
+
 ## Localization
 
 - English
