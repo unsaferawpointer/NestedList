@@ -1,7 +1,7 @@
 {
   "configurations" : [
     {
-      "id" : "01777BE2-760A-4903-9484-48D5AF37D5F8",
+      "id" : "4CD03946-B433-465A-A872-AC945FBEFA57",
       "name" : "Configuration 1",
       "options" : {
 
@@ -15,14 +15,14 @@
     {
       "target" : {
         "containerPath" : "container:macOS.xcodeproj",
-        "identifier" : "4CF92C672CE8A94E00135033",
+        "identifier" : "4C1F87EA2D458C020093C0BC",
         "name" : "macOSUITests"
       }
     },
     {
       "target" : {
         "containerPath" : "container:macOS.xcodeproj",
-        "identifier" : "4C2CF9562D343C9D00CA19FB",
+        "identifier" : "4C1F87F92D458C590093C0BC",
         "name" : "macOSTests"
       }
     }

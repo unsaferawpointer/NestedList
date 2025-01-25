@@ -2,7 +2,7 @@
 //  macOSUITests.swift
 //  macOSUITests
 //
-//  Created by Anton Cherkasov on 16.11.2024.
+//  Created by Anton Cherkasov on 26.01.2025.
 //
 
 import XCTest
