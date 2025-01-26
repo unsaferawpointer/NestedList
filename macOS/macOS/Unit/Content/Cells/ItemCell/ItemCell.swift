@@ -74,23 +74,14 @@ final class ItemCell: NSView, ListCell {
 	lazy var textfieldsContainer: NSStackView = {
 		let view = NSStackView(views: [titleTextfield, subtitleTextfield])
 		view.orientation = .vertical
-		view.distribution = .fillProportionally
+		view.distribution = .fill
 		view.alignment = .leading
 		view.spacing = 2
 		return view
 	}()
 
-	lazy var prefixView: NSView = {
-		let view = NSView()
-		view.wantsLayer = true
-		view.layer?.cornerRadius = 3
-		view.layer?.borderWidth = 1
-		NSLayoutConstraint.activate(
-			[
-				view.widthAnchor.constraint(equalToConstant: 6),
-				view.heightAnchor.constraint(equalToConstant: 6),
-			]
-		)
+	lazy var prefixView: CircleView = {
+		let view = CircleView()
 		return view
 	}()
 
@@ -103,7 +94,7 @@ final class ItemCell: NSView, ListCell {
 	lazy var container: NSStackView = {
 		let view = NSStackView(views: [prefixView, iconView, textfieldsContainer])
 		view.orientation = .horizontal
-		view.distribution = .fillProportionally
+		view.distribution = .fill
 		view.alignment = .centerY
 		return view
 	}()
@@ -123,12 +114,6 @@ final class ItemCell: NSView, ListCell {
 	}
 
 	// MARK: - NSView life-cycle
-
-	override func layout() {
-		super.layout()
-		prefixView.layer?.backgroundColor = model.configuration.point?.color.value.cgColor
-		prefixView.layer?.borderColor = NSColor.separatorColor.cgColor
-	}
 
 	override func becomeFirstResponder() -> Bool {
 		super.becomeFirstResponder()
@@ -153,10 +138,10 @@ private extension ItemCell {
 
 		if let pointConfiguration = configuration.point {
 			prefixView.isHidden = false
-			prefixView.layer?.backgroundColor = pointConfiguration.color.value.cgColor
+			prefixView.color = pointConfiguration.color
 		} else {
 			prefixView.isHidden = true
-			prefixView.layer?.backgroundColor = nil
+			prefixView.color = .clear
 		}
 
 		if let iconConfiguration = configuration.icon {
