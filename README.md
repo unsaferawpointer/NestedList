@@ -55,6 +55,10 @@ Section:
 	- Drag plain text to the document
 	- Move selected items to another document
 
+## App Store
+
+* macOS: https://apps.apple.com/ru/app/nested-list/id6738434530?mt=12
+
 ## Localization
 
 - English
