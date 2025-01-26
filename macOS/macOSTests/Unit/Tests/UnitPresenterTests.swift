@@ -6,6 +6,7 @@
 //
 
 import Testing
+import Foundation
 import CoreModule
 @testable import Nested_List
 
@@ -96,10 +97,12 @@ extension UnitPresenterTests {
 		}
 		#expect(id?.first == view.selection.first)
 
-		guard case let .focus(id) = view.invocations[2] else {
+		guard case let .focus(id, key) = view.invocations[2] else {
 			Issue.record("Expect focus invocation")
 			return
 		}
+
+		#expect(key == "title")
 		#expect(id == interactor.stubs.newItem)
 	}
 
@@ -172,7 +175,8 @@ extension UnitPresenterTests {
 
 	@Test func test_userAddNote() {
 		// Arrange
-		view.stubs.selection = [.random, .random]
+		let first: UUID = .random
+		view.stubs.selection = [first, .random]
 
 		// Act
 		sut.userAddNote()
@@ -183,7 +187,17 @@ extension UnitPresenterTests {
 			return
 		}
 
-		#expect(ids == view.stubs.selection)
+		#expect(interactor.invocations.count == 1)
+		#expect(ids == [first])
+
+		#expect(view.invocations.count == 1)
+		guard case let .focus(id, key) = view.invocations[0] else {
+			Issue.record("Expect focus invocation")
+			return
+		}
+
+		#expect(id == first)
+		#expect(key == "subtitle")
 	}
 
 	@Test func test_userDeleteNote() {
