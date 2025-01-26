@@ -99,9 +99,9 @@ extension UnitInteractor: UnitInteractorProtocol {
 			fatalError("Can`t find node with id = \(id)")
 		}
 
-		let formatter = BasicFormatter()
+		let parser = Parser()
 
-		return formatter.format(node)
+		return parser.format(node)
 	}
 
 	func insertStrings(_ strings: [String], to destination: Hierarchy.Destination<UUID>) {

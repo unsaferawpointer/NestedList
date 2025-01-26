@@ -139,10 +139,10 @@ extension UnitInteractor: UnitInteractorProtocol {
 			node.deleteDescendants(with: cache)
 		}
 
-		let formatter = BasicFormatter()
+		let parser = Parser()
 
 		return copied.map { node in
-			formatter.format(node)
+			parser.format(node)
 		}
 	}
 

@@ -10,7 +10,11 @@ import Foundation
 /// Data provider of board document
 public final class DataProvider {
 
-	public init() {}
+	private let parser: ParserProtocol
+
+	public init(parser: ParserProtocol = Parser()) {
+		self.parser = parser
+	}
 }
 
 // MARK: - ContentProvider
@@ -18,10 +22,8 @@ extension DataProvider: ContentProvider {
 
 	public func data(ofType typeName: String, content: Content) throws -> Data {
 
-		let formatter = BasicFormatter()
-
 		let text = content.root.nodes.map {
-			formatter.format($0)
+			parser.format($0)
 		}.joined(separator: "\n")
 
 		return text.data(using: .utf8)!
@@ -36,16 +38,15 @@ extension DataProvider: ContentProvider {
 		guard let string = String(data: data, encoding: .utf8) else {
 			throw DocumentError.unexpectedFormat
 		}
-		let parser = Parser()
+
 		let nodes = parser.parse(from: string)
 		return .init(nodes: nodes)
 	}
 
 	public func data(of content: Content) throws -> Data {
-		let formatter = BasicFormatter()
 
 		let text = content.root.nodes.map {
-			formatter.format($0)
+			parser.format($0)
 		}.joined(separator: "\n")
 
 		return text.data(using: .utf8)!
@@ -55,7 +56,7 @@ extension DataProvider: ContentProvider {
 		guard let string = String(data: data, encoding: .utf8) else {
 			throw DocumentError.unexpectedFormat
 		}
-		let parser = Parser()
+
 		let nodes = parser.parse(from: string)
 		return .init(nodes: nodes)
 	}
