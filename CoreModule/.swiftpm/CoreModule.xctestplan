@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "6237CDC8-DB42-48BB-9913-40433A5FF861",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "CoreModuleTests",
+        "name" : "CoreModuleTests"
+      }
+    }
+  ],
+  "version" : 1
+}
