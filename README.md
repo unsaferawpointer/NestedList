@@ -15,7 +15,7 @@ Create and edit nested lists with ease..
 
 ## Screenshots
 
-![Main](./Documents/Screenshots/mac_roadmap_screenshot.png)
+![Main](./Documents/Screenshots/common-2880-1800.png)
 
 ## Introduction
 
