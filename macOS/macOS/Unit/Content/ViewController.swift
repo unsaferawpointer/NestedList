@@ -140,8 +140,8 @@ extension ViewController: ListSupportable {
 		adapter?.select(id)
 	}
 
-	func focus(on id: UUID) {
-		adapter?.focus(on: id)
+	func focus(on id: UUID, key: String) {
+		adapter?.focus(on: id, with: key)
 	}
 
 	func expand(_ ids: [UUID]?) {

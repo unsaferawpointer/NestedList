@@ -21,6 +21,8 @@ public protocol ListCell: NSView {
 	init(_ model: Model)
 
 	var delegate: (any CellDelegate<Model>)? { get set }
+
+	func focus(on field: String)
 }
 #endif
 

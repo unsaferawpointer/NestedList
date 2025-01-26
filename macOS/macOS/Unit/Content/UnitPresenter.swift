@@ -79,7 +79,7 @@ extension UnitPresenter: UnitViewOutput {
 		if let first {
 			view?.expand([first])
 		}
-		view?.focus(on: id)
+		view?.focus(on: id, key: "title")
 	}
 
 	func userDeleteItem() {
@@ -180,11 +180,12 @@ extension UnitPresenter: UnitViewOutput {
 
 	func userAddNote() {
 		guard
-			let selection = view?.selection, !selection.isEmpty
+			let selection = view?.selection, let first = selection.first
 		else {
 			return
 		}
-		interactor?.addNote(for: selection)
+		interactor?.addNote(for: [first])
+		view?.focus(on: first, key: "subtitle")
 	}
 
 	func userDeleteNote() {

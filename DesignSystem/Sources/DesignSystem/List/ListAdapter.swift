@@ -375,12 +375,12 @@ public extension ListAdapter {
 		}
 	}
 
-	func focus(on id: ID) {
+	func focus(on id: ID, with key: String) {
 		guard let item = cache[id], let row = tableView?.row(forItem: item), row != -1 else {
 			return
 		}
-		let view = tableView?.view(atColumn: 0, row: row, makeIfNecessary: false)
-		_ = view?.becomeFirstResponder()
+		let cell = tableView?.view(atColumn: 0, row: row, makeIfNecessary: false) as? Model.Cell
+		cell?.focus(on: key)
 	}
 }
 
