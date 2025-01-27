@@ -24,29 +24,33 @@ struct ItemModel: CellModel {
 
 	var height: CGFloat?
 
+	func contentIsEquals(to other: ItemModel) -> Bool {
+		return value == other.value && configuration == other.configuration
+	}
+
 }
 
 // MARK: - Nested data structs
 extension ItemModel {
 
-	struct Configuration {
+	struct Configuration: Equatable {
 		var point: PointConfiguration?
 		var icon: IconConfiguration?
 		var text: TextConfiguration
 	}
 
-	struct Value {
+	struct Value: Equatable {
 		var title: String
 		var subtitle: String?
 	}
 }
 
-struct TextConfiguration {
+struct TextConfiguration: Equatable {
 	var style: NSFont.TextStyle
 	var colorToken: ColorToken
 	var strikethrough: Bool
 }
 
-struct PointConfiguration {
+struct PointConfiguration: Equatable {
 	var color: ColorToken
 }

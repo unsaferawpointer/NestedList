@@ -25,6 +25,8 @@ public protocol CellModel: Identifiable {
 	var isGroup: Bool { get }
 
 	var height: CGFloat? { get }
+
+	func contentIsEquals(to other: Self) -> Bool
 }
 
 // MARK: - Identifiable
