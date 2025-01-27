@@ -47,7 +47,10 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		case .item:
 			nil
 		case .section:
-			IconConfiguration(iconName: "doc.text", color: item.isMarked && !isDone ? .yellow : .tertiary)
+			IconConfiguration(
+				name: .systemName("doc.text"),
+				token: item.isMarked && !isDone ? .yellow : .tertiary
+			)
 		}
 
 		return ItemModel(

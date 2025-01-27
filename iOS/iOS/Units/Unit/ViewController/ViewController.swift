@@ -23,6 +23,7 @@ protocol UnitViewDelegate<ID>: DesignSystem.DropDelegate {
 	func userTappedDeleteButton(ids: [ID])
 	func userTappedAddButton(target: ID)
 	func userSetStatus(isDone: Bool, id: ID)
+	func userMark(isMarked: Bool, id: ID)
 	func userSetStyle(style: Item.Style, id: ID)
 	func userTappedCutButton(ids: [ID])
 	func userTappedPasteButton(target: ID)

@@ -146,8 +146,14 @@ private extension ItemCell {
 
 		if let iconConfiguration = configuration.icon {
 			iconView.isHidden = false
-			iconView.image = NSImage(systemSymbolName: iconConfiguration.iconName, accessibilityDescription: nil)
-			iconView.contentTintColor = iconConfiguration.color.value
+			let image: NSImage? = switch iconConfiguration.name {
+			case .named(let name):
+				NSImage(named: name)
+			case .systemName(let name):
+				NSImage(systemSymbolName: name, accessibilityDescription: nil)
+			}
+			iconView.image = image
+			iconView.contentTintColor = iconConfiguration.token.value
 		} else {
 			iconView.isHidden = true
 		}

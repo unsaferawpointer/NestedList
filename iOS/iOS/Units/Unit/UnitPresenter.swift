@@ -84,6 +84,10 @@ extension UnitPresenter: UnitViewDelegate {
 		interactor?.setStatus(isDone, for: id)
 	}
 
+	func userMark(isMarked: Bool, id: UUID) {
+		interactor?.mark(isMarked, id: id)
+	}
+
 	func userSetStyle(style: Item.Style, id: UUID) {
 		interactor?.setStyle(style, for: id)
 	}

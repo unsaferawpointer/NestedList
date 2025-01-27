@@ -129,27 +129,28 @@ private extension ListAdapter {
 		let configuration = {
 			var configuration = UIListContentConfiguration.cell()
 
-			if let iconConfiguration = model.icon {
-				configuration.image = UIImage(systemName: iconConfiguration.iconName)
-				configuration.imageProperties.tintColor = iconConfiguration.color.color
-			} else {
-				configuration.image = UIImage(named: "point")
-				configuration.imageProperties.tintColor = .systemFill
+			configuration.imageProperties.tintColor = model.icon.token.color
+			switch model.icon.name {
+			case .named(let name):
+				configuration.image = UIImage(named: name)
+			case .systemName(let name):
+				configuration.image = UIImage(systemName: name)
 			}
 
 			configuration.attributedText = .init(
-				string: model.text,
-				textColor: model.textColor.color,
-				strikethrough: model.strikethrough
+				string: model.title.text,
+				textColor: model.title.colorToken.color,
+				strikethrough: model.title.strikethrough
 			)
 
-			let font: UIFont = switch model.style {
-			case .point:
-				.preferredFont(forTextStyle: .body)
-			case .section:
-				.preferredFont(forTextStyle: .headline)
+			configuration.textProperties.font = .preferredFont(forTextStyle: model.title.style)
+
+			if let subtitleConfiguration = model.subtitle {
+				configuration.secondaryTextProperties.font = .preferredFont(forTextStyle: subtitleConfiguration.style)
+				configuration.secondaryTextProperties.color = subtitleConfiguration.colorToken.color
+			} else {
+				configuration.secondaryText = nil
 			}
-			configuration.textProperties.font = font
 
 			return configuration
 		}()
@@ -246,6 +247,15 @@ extension ListAdapter {
 			) { [weak self] action in
 				self?.delegate?.userSetStatus(isDone: !model.status, id: model.id)
 			}
+			statusItem.state = model.status ? .on : .off
+
+			let markItem = UIAction(
+				title: "Marked",
+				image: nil
+			) { [weak self] action in
+				self?.delegate?.userMark(isMarked: !model.isMarked, id: model.id)
+			}
+			markItem.state = model.isMarked ? .on : .off
 
 			let statusGroup = UIMenu(
 				title: "",
@@ -253,10 +263,10 @@ extension ListAdapter {
 				identifier: nil,
 				options: [.displayInline],
 				preferredElementSize: .large,
-				children: [statusItem]
+				children: [statusItem, markItem]
 			)
 
-			statusItem.state = model.status ? .on : .off
+
 
 			let defaultStyleItem = UIAction(
 				title: "Item",

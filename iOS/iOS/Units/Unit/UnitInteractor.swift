@@ -16,6 +16,7 @@ protocol UnitInteractorProtocol {
 	func newItem(_ text: String, target: UUID?) -> UUID
 	func deleteItems(_ ids: [UUID])
 	func setStatus(_ isDone: Bool, for id: UUID)
+	func mark(_ isMarked: Bool, id: UUID)
 	func setStyle(_ style: Item.Style, for id: UUID)
 	func setText(_ text: String, for id: UUID)
 	func item(for id: UUID) -> Item
@@ -78,6 +79,12 @@ extension UnitInteractor: UnitInteractorProtocol {
 	func setStatus(_ isDone: Bool, for id: UUID) {
 		storage.modificate { content in
 			content.root.setProperty(\.isDone, to: isDone, for: [id], downstream: true)
+		}
+	}
+
+	func mark(_ isMarked: Bool, id: UUID) {
+		storage.modificate { content in
+			content.root.setProperty(\.isMarked, to: isMarked, for: [id], downstream: true)
 		}
 	}
 

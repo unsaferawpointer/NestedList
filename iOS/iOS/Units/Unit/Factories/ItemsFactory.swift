@@ -20,40 +20,43 @@ extension ItemsFactory: ItemsFactoryProtocol {
 
 	func makeItem(item: Item, isDone: Bool, level: Int) -> ItemModel {
 
-		let textColor: ColorToken = switch item.style {
+		let titleConfiguration: TextConfiguration = switch item.style {
 		case .item:
-			isDone ? .secondary : .primary
+			TextConfiguration(
+				text: item.text,
+				style: .body,
+				colorToken: isDone ? .disabledText : .primary,
+				strikethrough: isDone
+			)
 		case .section:
-			.primary
+			TextConfiguration(
+				text: item.text,
+				style: .headline,
+				colorToken: isDone ? .disabledText : .primary,
+				strikethrough: isDone
+			)
 		}
 
-		let iconConfiguration: IconConfiguration? = switch item.style {
+		let iconConfiguration: IconConfiguration = switch item.style {
 		case .item:
-			nil
+			IconConfiguration(
+				name: .named("point"),
+				token: item.isMarked && !isDone ? .yellow : .quaternary
+			)
 		case .section:
-			.init(iconName: "doc.text", color: .tertiary)
+			IconConfiguration(
+				name: .systemName("doc.text"),
+				token: item.isMarked && !isDone ? .yellow : .tertiary
+			)
 		}
 
 		return ItemModel(
 			uuid: item.id,
-			textColor: textColor,
 			icon: iconConfiguration,
-			strikethrough: isDone,
-			style: item.style.modelStyle,
-			text: item.text,
-			status: isDone
+			title: titleConfiguration,
+			subtitle: nil,
+			status: isDone,
+			isMarked: item.isMarked
 		)
 	}
 }
-
-// MARK: - Computed properties
-fileprivate extension Item.Style {
-
-	var modelStyle: ItemModel.Style {
-		switch self {
-		case .item:		.point(.secondary)
-		case .section:	.section
-		}
-	}
-}
-
