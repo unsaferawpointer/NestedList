@@ -148,9 +148,13 @@ private extension ListAdapter {
 			if let subtitleConfiguration = model.subtitle {
 				configuration.secondaryTextProperties.font = .preferredFont(forTextStyle: subtitleConfiguration.style)
 				configuration.secondaryTextProperties.color = subtitleConfiguration.colorToken.color
+				configuration.secondaryText = subtitleConfiguration.text
 			} else {
 				configuration.secondaryText = nil
+				configuration.secondaryText = nil
 			}
+
+			configuration.secondaryText = model.subtitle?.text
 
 			return configuration
 		}()

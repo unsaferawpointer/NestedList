@@ -37,6 +37,17 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			)
 		}
 
+		let subtitleConfiguration: TextConfiguration? = if let note = item.note {
+			TextConfiguration(
+				text: note,
+				style: .callout,
+				colorToken: .secondary,
+				strikethrough: false
+			)
+		} else {
+			nil
+		}
+
 		let iconConfiguration: IconConfiguration = switch item.style {
 		case .item:
 			IconConfiguration(
@@ -54,7 +65,7 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			uuid: item.id,
 			icon: iconConfiguration,
 			title: titleConfiguration,
-			subtitle: nil,
+			subtitle: subtitleConfiguration,
 			status: isDone,
 			isMarked: item.isMarked
 		)

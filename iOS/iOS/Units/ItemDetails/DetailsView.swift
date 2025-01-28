@@ -33,8 +33,26 @@ extension DetailsView: View {
 	var body: some View {
 		NavigationStack {
 			Form {
-				TextField("", text: $model.title, prompt: Text("Enter text"))
-					.focused($isFocused)
+				Section {
+					TextField("", text: $model.title, prompt: Text("Enter text"))
+						.focused($isFocused)
+					TextEditor.init(text: $model.description)
+						.foregroundStyle(.secondary)
+				} footer: {
+					if !isValid {
+
+					}
+					Text(!isValid ? "Text is empty" : "Add note to item")
+						.foregroundStyle(isValid ? Color.secondary : Color.red)
+
+				}
+
+				Section {
+					Toggle(isOn: $model.isMarked) {
+						Text("Is marked")
+					}
+				}
+
 			}
 			.formStyle(.automatic)
 			.toolbar {
@@ -64,11 +82,13 @@ extension DetailsView {
 
 	struct Model {
 		var title: String
+		var description: String = ""
+		var isMarked: Bool = false
 	}
 }
 
 #Preview {
-	DetailsView(item: .init(title: "New Item")) { _, _ in
+	DetailsView(item: .init(title: "New Item", description: "")) { _, _ in
 
 	}
 }
