@@ -78,6 +78,7 @@ class ViewController: NSViewController {
 		view.autoresizesOutlineColumn = false
 		view.usesAutomaticRowHeights = false
 		view.indentationPerLevel = 24
+		view.backgroundColor = .clear
 		return view
 	}()
 

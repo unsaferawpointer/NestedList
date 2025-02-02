@@ -28,15 +28,19 @@ final class UnitPresenter {
 extension UnitPresenter: UnitPresenterProtocol {
 
 	func present(_ content: Content) {
-		let snapshot = Snapshot(content.root.nodes, keyPath: \.isDone)
-			.map { item, isDone, level in
+
+		var snapshot = Snapshot(content.root.nodes)
+		snapshot.validate(keyPath: \.isDone)
+		snapshot.validate(keyPath: \.isMarked)
+
+		let converted = snapshot
+			.map { info in
 				factory.makeItem(
-					item: item,
-					isDone: isDone,
-					level: level
+					item: info.model,
+					level: info.level
 				)
 			}
-		view?.display(snapshot)
+		view?.display(converted)
 	}
 }
 

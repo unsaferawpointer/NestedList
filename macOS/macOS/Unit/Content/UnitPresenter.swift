@@ -40,21 +40,22 @@ extension UnitPresenter: UnitPresenterProtocol {
 
 	func present(_ content: Content) {
 
-		let snapshot = Snapshot(content.root.nodes, keyPath: \.isDone)
+		var snapshot = Snapshot(content.root.nodes)
+		snapshot.validate(keyPath: \.isDone)
+		snapshot.validate(keyPath: \.isMarked)
 
 		cache.store(.isDone, keyPath: \.isDone, equalsTo: true, from: snapshot)
 		cache.store(.isMarked, keyPath: \.isMarked, equalsTo: true, from: snapshot)
 		cache.store(.isItem, keyPath: \.style, equalsTo: .item, from: snapshot)
 		cache.store(.isSection, keyPath: \.style, equalsTo: .section, from: snapshot)
 
-		let converted = snapshot
-			.map { item, isDone, level in
-				factory.makeItem(
-					item: item,
-					isDone: isDone,
-					level: level
-				)
-			}
+		let converted = snapshot.map { info in
+			factory.makeItem(
+				item: info.model,
+				level: info.level
+			)
+		}
+
 		view?.display(converted)
 	}
 }

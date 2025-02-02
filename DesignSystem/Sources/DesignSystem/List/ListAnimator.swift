@@ -32,8 +32,8 @@ final class ListAnimator<Model: Identifiable> {
 				return (old: old.root, new: new.root)
 			}
 			return (
-				old: old.storage[unsafe: parent],
-				new: new.storage[unsafe: parent]
+				old: old.hierarchy[unsafe: parent],
+				new: new.hierarchy[unsafe: parent]
 			)
 		}
 	}

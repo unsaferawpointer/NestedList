@@ -24,7 +24,7 @@ struct ItemsFactoryTests {
 		)
 
 		// Act
-		let result = sut.makeItem(item: item, isDone: false, level: 0)
+		let result = sut.makeItem(item: item, level: 0)
 
 		// Assert
 		#expect(result.isGroup == false)
@@ -41,13 +41,13 @@ struct ItemsFactoryTests {
 
 		let item = Item(
 			uuid: .random,
-			isDone: false,
+			isDone: true,
 			text: .random,
 			style: .item
 		)
 
 		// Act
-		let result = sut.makeItem(item: item, isDone: true, level: 0)
+		let result = sut.makeItem(item: item, level: 0)
 
 		// Assert
 		#expect(result.isGroup == false)
@@ -64,14 +64,14 @@ struct ItemsFactoryTests {
 
 		let item = Item(
 			uuid: .random,
-			isDone: false,
+			isDone: true,
 			isMarked: true,
 			text: .random,
 			style: .item
 		)
 
 		// Act
-		let result = sut.makeItem(item: item, isDone: true, level: 0)
+		let result = sut.makeItem(item: item, level: 0)
 
 		// Assert
 		#expect(result.isGroup == false)
@@ -94,7 +94,7 @@ struct ItemsFactoryTests {
 		)
 
 		// Act
-		let result = sut.makeItem(item: item, isDone: false, level: 0)
+		let result = sut.makeItem(item: item, level: 0)
 
 		// Assert
 		#expect(result.isGroup)
@@ -110,13 +110,13 @@ struct ItemsFactoryTests {
 
 		let item = Item(
 			uuid: .random,
-			isDone: false,
+			isDone: true,
 			text: .random,
 			style: .section
 		)
 
 		// Act
-		let result = sut.makeItem(item: item, isDone: true, level: 0)
+		let result = sut.makeItem(item: item, level: 0)
 
 		// Assert
 		#expect(result.isGroup)
@@ -132,14 +132,14 @@ struct ItemsFactoryTests {
 
 		let item = Item(
 			uuid: .random,
-			isDone: false,
+			isDone: true,
 			isMarked: true,
 			text: .random,
 			style: .section
 		)
 
 		// Act
-		let result = sut.makeItem(item: item, isDone: true, level: 0)
+		let result = sut.makeItem(item: item, level: 0)
 
 		// Assert
 		#expect(result.isGroup)

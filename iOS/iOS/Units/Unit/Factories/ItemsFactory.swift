@@ -10,7 +10,7 @@ import DesignSystem
 import CoreModule
 
 protocol ItemsFactoryProtocol {
-	func makeItem(item: Item, isDone: Bool, level: Int) -> ItemModel
+	func makeItem(item: Item, level: Int) -> ItemModel
 }
 
 final class ItemsFactory { }
@@ -18,22 +18,22 @@ final class ItemsFactory { }
 // MARK: - ItemsFactoryProtocol
 extension ItemsFactory: ItemsFactoryProtocol {
 
-	func makeItem(item: Item, isDone: Bool, level: Int) -> ItemModel {
+	func makeItem(item: Item, level: Int) -> ItemModel {
 
 		let titleConfiguration: TextConfiguration = switch item.style {
 		case .item:
 			TextConfiguration(
 				text: item.text,
 				style: .body,
-				colorToken: isDone ? .disabledText : .primary,
-				strikethrough: isDone
+				colorToken: item.isDone ? .disabledText : .primary,
+				strikethrough: item.isDone
 			)
 		case .section:
 			TextConfiguration(
 				text: item.text,
 				style: .headline,
-				colorToken: isDone ? .disabledText : .primary,
-				strikethrough: isDone
+				colorToken: item.isDone ? .disabledText : .primary,
+				strikethrough: item.isDone
 			)
 		}
 
@@ -52,12 +52,12 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		case .item:
 			IconConfiguration(
 				name: .named("point"),
-				token: item.isMarked && !isDone ? .yellow : .quaternary
+				token: item.isMarked && !item.isDone ? .yellow : .quaternary
 			)
 		case .section:
 			IconConfiguration(
 				name: .systemName("doc.text"),
-				token: item.isMarked && !isDone ? .yellow : .tertiary
+				token: item.isMarked && !item.isDone ? .yellow : .tertiary
 			)
 		}
 
@@ -66,7 +66,7 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			icon: iconConfiguration,
 			title: titleConfiguration,
 			subtitle: subtitleConfiguration,
-			status: isDone,
+			status: item.isDone,
 			isMarked: item.isMarked
 		)
 	}
