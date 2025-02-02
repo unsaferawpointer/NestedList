@@ -47,6 +47,7 @@ extension DetailsView: View {
 					Toggle(isOn: $model.isMarked) {
 						Text("Is marked")
 					}
+					.tint(.accentColor)
 				}
 
 			}
