@@ -36,17 +36,13 @@ extension DetailsView: View {
 				Section {
 					TextField("", text: $model.title, prompt: Text("Enter text"))
 						.focused($isFocused)
-					TextEditor.init(text: $model.description)
-						.foregroundStyle(.secondary)
+					TextField("Note to Item...", text: $model.description, axis: .vertical)
 				} footer: {
 					if !isValid {
-
+						Text("Text is empty")
+							.foregroundStyle(.red)
 					}
-					Text(!isValid ? "Text is empty" : "Add note to item")
-						.foregroundStyle(isValid ? Color.secondary : Color.red)
-
 				}
-
 				Section {
 					Toggle(isOn: $model.isMarked) {
 						Text("Is marked")
