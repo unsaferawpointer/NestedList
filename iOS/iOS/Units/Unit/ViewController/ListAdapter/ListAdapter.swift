@@ -118,11 +118,21 @@ extension ListAdapter: UITableViewDelegate {
 private extension ListAdapter {
 
 	func updateCell(_ cell: UITableViewCell, with configuration: RowConfiguration) {
+
+		guard let tableView else {
+			return
+		}
+
 		let iconName = configuration.isExpanded ? "chevron.down" : "chevron.right"
 		let image = UIImage(systemName: iconName)
 
 		cell.accessoryView = !configuration.isLeaf ? UIImageView(image: image) : nil
-		cell.indentationLevel = configuration.level
+
+		let interval = tableView.contentSize.width - 240.0
+		let level = Double(configuration.level)
+		let offset = interval - exp(-0.4 * level) * interval
+
+		cell.layoutMargins.left = offset
 	}
 
 	func updateCell(_ cell: UITableViewCell, with model: ItemModel) {
