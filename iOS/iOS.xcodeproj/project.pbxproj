@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4C6B28502D5019B5006FE722 /* iOS.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 4C6B284F2D5019B5006FE722 /* iOS.xctestplan */; };
 		4CF92CEC2CE8CD4300135033 /* Hierarchy in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92CEB2CE8CD4300135033 /* Hierarchy */; };
 		4CF92D112CE8D6DA00135033 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92D102CE8D6DA00135033 /* DesignSystem */; };
 		4CF92D172CE8DDDB00135033 /* CoreModule in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92D162CE8DDDB00135033 /* CoreModule */; };
@@ -30,6 +31,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4C6B284F2D5019B5006FE722 /* iOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = iOS.xctestplan; sourceTree = "<group>"; };
 		4CF92C852CE8A97300135033 /* iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CF92C9A2CE8A97400135033 /* iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CF92CA42CE8A97400135033 /* iOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iOSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -97,6 +99,7 @@
 		4CF92C7C2CE8A97300135033 = {
 			isa = PBXGroup;
 			children = (
+				4C6B284F2D5019B5006FE722 /* iOS.xctestplan */,
 				4CF92C872CE8A97300135033 /* iOS */,
 				4CF92C9D2CE8A97400135033 /* iOSTests */,
 				4CF92CA72CE8A97400135033 /* iOSUITests */,
@@ -242,6 +245,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C6B28502D5019B5006FE722 /* iOS.xctestplan in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
