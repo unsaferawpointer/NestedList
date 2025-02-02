@@ -305,7 +305,7 @@ extension ListAdapter {
 				children: [defaultStyleItem, sectionStyleItem]
 			)
 
-			let menu = UIMenu(title: "", children: [newItem, statusGroup, editGroup, groupItem, styleGroup, deleteItem])
+			let menu = UIMenu(title: "", children: [newItem, editGroup, statusGroup, groupItem, styleGroup, deleteItem])
 
 			return menu
 		}
