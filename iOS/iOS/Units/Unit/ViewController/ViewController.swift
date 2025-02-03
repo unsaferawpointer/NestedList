@@ -83,14 +83,10 @@ class ViewController: UIDocumentViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 
+		let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(add))
+		addButton.accessibilityIdentifier = "navigation-item-add"
 		navigationItem.trailingItemGroups = [
-			.init(
-				barButtonItems:
-					[
-						UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(add))
-					],
-				representativeItem: nil
-			)
+			.init(barButtonItems: [addButton], representativeItem: nil)
 		]
 
 		self.adapter = ListAdapter(tableView: tableView, delegate: delegate)

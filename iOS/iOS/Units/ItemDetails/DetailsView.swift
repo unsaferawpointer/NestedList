@@ -36,11 +36,14 @@ extension DetailsView: View {
 				Section {
 					TextField("", text: $model.title, prompt: Text("Enter text"))
 						.focused($isFocused)
+						.accessibilityIdentifier("textfield-title")
 					TextField("Note to Item...", text: $model.description, axis: .vertical)
+						.accessibilityIdentifier("textfield-description")
 				} footer: {
 					if !isValid {
 						Text("Text is empty")
 							.foregroundStyle(.red)
+							.accessibilityIdentifier("label-hint")
 					}
 				}
 				Section {
@@ -48,6 +51,7 @@ extension DetailsView: View {
 						Text("Is marked")
 					}
 					.tint(.accentColor)
+					.accessibilityIdentifier("toggle-is-marked")
 				}
 
 			}
@@ -57,6 +61,7 @@ extension DetailsView: View {
 					Button("Cancel", role: .cancel) {
 						completionHandler(model, false)
 					}
+					.accessibilityIdentifier("button-cancel")
 				}
 
 				ToolbarItem(placement: .confirmationAction) {
@@ -64,6 +69,7 @@ extension DetailsView: View {
 						completionHandler(model, true)
 					}
 					.disabled(!isValid)
+					.accessibilityIdentifier("button-save")
 				}
 			}
 		}
