@@ -52,7 +52,7 @@ extension UnitPresenter: UnitViewDelegate {
 			self?.view?.hideDetails()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
-				self?.interactor?.newItem(saved.title, note: note, isMarked: model.isMarked, target: nil)
+				self?.interactor?.newItem(saved.title, note: note, isMarked: saved.isMarked, target: nil)
 			}
 		}
 	}
@@ -81,7 +81,7 @@ extension UnitPresenter: UnitViewDelegate {
 			self?.view?.hideDetails()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
-				self?.interactor?.newItem(saved.title, note: note, isMarked: model.isMarked, target: target)
+				self?.interactor?.newItem(saved.title, note: note, isMarked: saved.isMarked, target: target)
 				self?.view?.expand(target)
 			}
 		}
