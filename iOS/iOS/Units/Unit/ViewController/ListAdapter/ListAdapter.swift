@@ -128,9 +128,13 @@ private extension ListAdapter {
 
 		cell.accessoryView = !configuration.isLeaf ? UIImageView(image: image) : nil
 
+		let isPad = UIDevice.current.userInterfaceIdiom == .pad
+
+		let attenuation = isPad ? 0.1 : 0.4
+
 		let interval = tableView.contentSize.width - 240.0
 		let level = Double(configuration.level)
-		let offset = interval - exp(-0.4 * level) * interval
+		let offset = interval - exp(-attenuation * level) * interval
 
 		cell.layoutMargins.left = offset
 	}
