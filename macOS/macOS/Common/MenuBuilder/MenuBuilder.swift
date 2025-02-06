@@ -11,9 +11,7 @@ protocol MenuBuilderProtocol {
 	static func build() -> NSMenu
 }
 
-final class MenuBuilder {
-
-}
+final class MenuBuilder { }
 
 // MARK: - MenuBuilderProtocol
 extension MenuBuilder: MenuBuilderProtocol {
@@ -23,11 +21,14 @@ extension MenuBuilder: MenuBuilderProtocol {
 		let menu = NSMenu(title: "Editor")
 
 		menu.addItem(
-			NSMenuItem(
-				title: "New Item",
-				action: #selector(MenuSupportable.newItem(_:)),
-				keyEquivalent: "t"
-			)
+			{
+				let item = NSMenuItem()
+				item.title = "New Item"
+				item.action = #selector(MenuSupportable.newItem(_:))
+				item.keyEquivalent = "t"
+				item.image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)
+				return item
+			}()
 		)
 		menu.addItem(.separator())
 		menu.addItem(
@@ -85,11 +86,14 @@ extension MenuBuilder: MenuBuilderProtocol {
 		)
 		menu.addItem(.separator())
 		menu.addItem(
-			NSMenuItem(
-				title: "Delete",
-				action: #selector(MenuSupportable.deleteItem(_:)),
-				keyEquivalent: "\u{0008}"
-			)
+			{
+				let item = NSMenuItem()
+				item.title = "Delete"
+				item.action = #selector(MenuSupportable.deleteItem(_:))
+				item.keyEquivalent = "\u{0008}"
+				item.image = NSImage(systemSymbolName: "trash", accessibilityDescription: nil)
+				return item
+			}()
 		)
 
 		return menu

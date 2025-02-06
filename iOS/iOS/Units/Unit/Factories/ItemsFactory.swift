@@ -10,7 +10,7 @@ import DesignSystem
 import CoreModule
 
 protocol ItemsFactoryProtocol {
-	func makeItem(item: Item, isDone: Bool, level: Int) -> ItemModel
+	func makeItem(item: Item, level: Int) -> ItemModel
 }
 
 final class ItemsFactory { }
@@ -18,42 +18,56 @@ final class ItemsFactory { }
 // MARK: - ItemsFactoryProtocol
 extension ItemsFactory: ItemsFactoryProtocol {
 
-	func makeItem(item: Item, isDone: Bool, level: Int) -> ItemModel {
+	func makeItem(item: Item, level: Int) -> ItemModel {
 
-		let textColor: ColorToken = switch item.style {
+		let titleConfiguration: TextConfiguration = switch item.style {
 		case .item:
-			isDone ? .secondary : .primary
+			TextConfiguration(
+				text: item.text,
+				style: .body,
+				colorToken: item.isDone ? .disabledText : .primary,
+				strikethrough: item.isDone
+			)
 		case .section:
-			.primary
+			TextConfiguration(
+				text: item.text,
+				style: .headline,
+				colorToken: item.isDone ? .disabledText : .primary,
+				strikethrough: item.isDone
+			)
 		}
 
-		let iconConfiguration: IconConfiguration? = switch item.style {
-		case .item:
+		let subtitleConfiguration: TextConfiguration? = if let note = item.note {
+			TextConfiguration(
+				text: note,
+				style: .callout,
+				colorToken: .secondary,
+				strikethrough: false
+			)
+		} else {
 			nil
+		}
+
+		let iconConfiguration: IconConfiguration = switch item.style {
+		case .item:
+			IconConfiguration(
+				name: .named("point"),
+				token: item.isMarked && !item.isDone ? .yellow : .quaternary
+			)
 		case .section:
-			.init(iconName: "doc.text", color: .tertiary)
+			IconConfiguration(
+				name: .systemName("doc.text"),
+				token: item.isMarked && !item.isDone ? .yellow : .tertiary
+			)
 		}
 
 		return ItemModel(
 			uuid: item.id,
-			textColor: textColor,
 			icon: iconConfiguration,
-			strikethrough: isDone,
-			style: item.style.modelStyle,
-			text: item.text,
-			status: isDone
+			title: titleConfiguration,
+			subtitle: subtitleConfiguration,
+			status: item.isDone,
+			isMarked: item.isMarked
 		)
 	}
 }
-
-// MARK: - Computed properties
-fileprivate extension Item.Style {
-
-	var modelStyle: ItemModel.Style {
-		switch self {
-		case .item:		.point(.secondary)
-		case .section:	.section
-		}
-	}
-}
-

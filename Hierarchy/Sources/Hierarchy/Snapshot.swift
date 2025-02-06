@@ -15,39 +15,20 @@ public struct Snapshot<Model: Identifiable> {
 
 	public private(set) var root: [ID] = []
 
-	public private(set) var storage: [ID: [ID]] = [:]
+	public private(set) var hierarchy: [ID: [ID]] = [:]
+
+	private(set) var storage: [ID: NodeInfo<Model>] = [:]
 
 	// MARK: - Cache
 
-	private(set) var models: [ID: Model] = [:]
-
-	public private(set) var cache: [ID: Bool] = [:]
-
-	public private(set) var identifiers: Set<ID> = .init()
-
-	private(set) var flattened: [ID] = []
-
-	private(set) var levels: [ID: Int] = [:]
-
-	private(set) var indices: [ID: Int] = [:]
-
-	private(set) var parents: [ID: ID] = [:]
-
-	private(set) var maxLevel: Int = 0
+	private var cache: SnapshotCache<ID> = .init()
 
 	// MARK: - Initialization
 
 	public init(_ base: [Node<Model>]) {
 		self.root = base.map(\.value.id)
 		base.forEach { node in
-			normalize(base: node, parent: nil, keyPath: nil)
-		}
-	}
-
-	public init(_ base: [Node<Model>], keyPath: KeyPath<Model, Bool>) {
-		self.root = base.map(\.value.id)
-		base.forEach { node in
-			normalize(base: node, parent: nil, keyPath: keyPath)
+			normalize(base: node, parent: nil)
 		}
 	}
 
@@ -57,23 +38,13 @@ public struct Snapshot<Model: Identifiable> {
 	init(
 		root: [ID],
 		storage: [ID: [ID]],
-		cache: [ID: Model],
-		identifiers: Set<ID>,
-		flattened: [ID],
-		levels: [ID: Int],
-		maxLevel: Int,
-		indices: [ID: Int],
-		parents: [ID: ID]
+		models: [ID: NodeInfo<Model>],
+		cache: SnapshotCache<ID>
 	) {
 		self.root = root
-		self.storage = storage
-		self.models = cache
-		self.identifiers = identifiers
-		self.flattened = flattened
-		self.levels = levels
-		self.maxLevel = maxLevel
-		self.indices = indices
-		self.parents = parents
+		self.hierarchy = storage
+		self.storage = models
+		self.cache = cache
 	}
 }
 
@@ -81,13 +52,17 @@ public struct Snapshot<Model: Identifiable> {
 public extension Snapshot {
 
 	subscript(row: Int) -> Model {
-		let id = flattened[row]
-		return models[unsafe: id]
+		let id = cache.flattened[row]
+		return storage[unsafe: id].model
 	}
 }
 
 // MARK: - Public interface
 public extension Snapshot {
+
+	var identifiers: Set<ID> {
+		cache.identifiers
+	}
 
 	func flattened(while condition: (Model) -> Bool) -> [Model] {
 
@@ -101,14 +76,14 @@ public extension Snapshot {
 
 				let current = queue.removeLast()
 
-				let model = models[unsafe: current]
-				result.append(model)
+				let info = storage[unsafe: current]
+				result.append(info.model)
 
-				guard condition(model) else {
+				guard condition(info.model) else {
 					continue
 				}
 
-				for child in storage[unsafe: current].reversed() {
+				for child in hierarchy[unsafe: current].reversed() {
 					queue.append(child)
 				}
 
@@ -120,9 +95,9 @@ public extension Snapshot {
 
 	func satisfy(condition: (Model) -> Bool) -> Set<ID> {
 		var result = Set<ID>()
-		for id in identifiers {
-			let model = models[unsafe: id]
-			guard condition(model) else {
+		for id in cache.identifiers {
+			let info = storage[unsafe: id]
+			guard condition(info.model) else {
 				continue
 			}
 			result.insert(id)
@@ -131,38 +106,38 @@ public extension Snapshot {
 	}
 
 	func isLeaf(id: ID) -> Bool {
-		let children = storage[unsafe: id]
+		let children = hierarchy[unsafe: id]
 		return children.isEmpty
 	}
 
 	func level(for id: ID) -> Int {
-		return levels[unsafe: id]
+		return storage[unsafe: id].level
 	}
 
 	func index(for id: ID) -> Int {
-		return indices[unsafe: id]
+		return storage[unsafe: id].index
 	}
 
 	func rootItem(at index: Int) -> Model {
 		let id = root[index]
-		return models[unsafe: id]
+		return storage[unsafe: id].model
 	}
 
 	func parent(for id: ID) -> Model? {
-		guard let parent = parents[id] else {
+		guard let parent = storage[unsafe: id].parent else {
 			return nil
 		}
-		return models[unsafe: parent]
+		return storage[unsafe: parent].model
 	}
 
 	func destination(ofItem id: ID) -> Destination<ID> {
-		guard let parent = parents[id] else {
+		guard let parent = storage[unsafe: id].parent else {
 			if let index = root.firstIndex(of: id) {
 				return .inRoot(atIndex: index)
 			}
 			fatalError()
 		}
-		let children = storage[unsafe: parent]
+		let children = hierarchy[unsafe: parent]
 		guard let index = children.firstIndex(of: id) else {
 			fatalError()
 		}
@@ -178,71 +153,109 @@ public extension Snapshot {
 	}
 
 	func numberOfChildren(ofItem id: ID) -> Int {
-		guard let children = storage[id] else {
+		guard let children = hierarchy[id] else {
 			fatalError()
 		}
 		return children.count
 	}
 
 	func children(of parent: ID) -> [ID] {
-		return storage[unsafe: parent]
+		return hierarchy[unsafe: parent]
 	}
 
 	func childOfItem(_ id: ID, at index: Int) -> Model {
-		guard let id = storage[id]?[index], let model = models[id] else {
+		guard let id = hierarchy[id]?[index], let info = storage[id] else {
 			fatalError()
 		}
-		return model
+		return info.model
 	}
 
 	func model(with id: ID) -> Model {
-		return models[unsafe: id]
+		return storage[unsafe: id].model
 	}
 
-	func map<T>(_ transform: (Model, Bool, Int) -> T) -> Snapshot<T> where T.ID == ID {
-		var newModels = [ID: T]()
-		for (_, model) in models {
-			newModels[model.id] = transform(model, cache[unsafe: model.id], level(for: model.id))
+	func map<T: Identifiable>(_ transform: (NodeInfo<Model>) -> T) -> Snapshot<T> where T.ID == ID {
+
+		var modificated: [ID: NodeInfo<T>] = [:]
+
+		for info in storage.values {
+			let id = info.model.id
+			let model = transform(info)
+			modificated[id] = NodeInfo(
+				model: model,
+				level: info.level,
+				index: info.index,
+				parent: info.parent
+			)
 		}
+
 		return Snapshot<T>(
 			root: root,
-			storage: storage,
-			cache: newModels,
-			identifiers: identifiers,
-			flattened: flattened,
-			levels: levels,
-			maxLevel: maxLevel,
-			indices: indices,
-			parents: parents
+			storage: hierarchy,
+			models: modificated,
+			cache: cache
 		)
 	}
 
-	func allSatisfy(_ id: ID) -> Bool {
-		return cache[unsafe: id]
+	mutating func validate(keyPath: WritableKeyPath<Model, Bool>) {
+		for id in root {
+			validate(id, keyPath: keyPath)
+		}
+	}
+
+}
+
+// MARK: - Enumeration
+private extension Snapshot {
+
+	@discardableResult
+	mutating func validate(_ id: ID, keyPath: WritableKeyPath<Model, Bool>) -> Bool {
+
+		let info = storage[unsafe: id]
+		let children = hierarchy[unsafe: id]
+
+		let result = {
+			if children.isEmpty {
+				return info.model[keyPath: keyPath]
+			} else {
+				var result = true
+				for child in children {
+					let current = validate(child, keyPath: keyPath)
+					result = result && current
+				}
+				return result
+			}
+		}()
+
+		var modificated = storage[unsafe: id]
+		modificated.model[keyPath: keyPath] = result
+
+		storage[id] = modificated
+
+		return result
 	}
 }
 
 // MARK: - Helpers
 private extension Snapshot {
 
-	mutating func normalize(base: Node<Model>, parent: ID?, keyPath: KeyPath<Model, Bool>?, level: Int = 0) {
+	mutating func normalize(base: Node<Model>, parent: ID?, level: Int = 0) {
 
-		identifiers.insert(base.id)
-		storage[base.id] = base.children.map(\.value.id)
-		models[base.id] = base.value
-		flattened.append(base.id)
-		levels[base.id] = level
-		maxLevel = max(maxLevel, level)
-		indices[base.id] = flattened.count - 1
-		parents[base.id] = parent
+		hierarchy[base.id] = base.children.map(\.value.id)
 
-		// TODO: - Optimize
-		if let keyPath {
-			cache[base.id] = base.allSatisfy(keyPath, equalsTo: true)
-		}
+		storage[base.id] = NodeInfo(
+			model: base.value,
+			level: level,
+			index: cache.flattened.count - 1,
+			parent: parent
+		)
+
+		cache.identifiers.insert(base.id)
+		cache.flattened.append(base.id)
+		cache.maxLevel = max(cache.maxLevel, level)
 
 		for child in base.children {
-			normalize(base: child, parent: base.id, keyPath: keyPath, level: level + 1)
+			normalize(base: child, parent: base.id, level: level + 1)
 		}
 	}
 }

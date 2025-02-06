@@ -34,8 +34,8 @@ extension UnitViewMock: UnitView {
 		invocations.append(.select(id))
 	}
 	
-	func focus(on id: UUID) {
-		invocations.append(.focus(id))
+	func focus(on id: UUID, key: String) {
+		invocations.append(.focus(id, key: key))
 	}
 	
 	var selection: [UUID] {
@@ -56,7 +56,7 @@ extension UnitViewMock {
 		case expand(_ ids: [UUID]?)
 		case scroll(_ id: UUID)
 		case select(_ id: UUID)
-		case focus(_ id: UUID)
+		case focus(_ id: UUID, key: String)
 		case didSetSelection(selection: [UUID])
 	}
 

@@ -28,15 +28,19 @@ final class UnitPresenter {
 extension UnitPresenter: UnitPresenterProtocol {
 
 	func present(_ content: Content) {
-		let snapshot = Snapshot(content.root.nodes, keyPath: \.isDone)
-			.map { item, isDone, level in
+
+		var snapshot = Snapshot(content.root.nodes)
+		snapshot.validate(keyPath: \.isDone)
+		snapshot.validate(keyPath: \.isMarked)
+
+		let converted = snapshot
+			.map { info in
 				factory.makeItem(
-					item: item,
-					isDone: isDone,
-					level: level
+					item: info.model,
+					level: info.level
 				)
 			}
-		view?.display(snapshot)
+		view?.display(converted)
 	}
 }
 
@@ -47,7 +51,8 @@ extension UnitPresenter: UnitViewDelegate {
 		view?.showDetails(with: model) { [weak self] saved, success in
 			self?.view?.hideDetails()
 			if success {
-				self?.interactor?.newItem(saved.title, target: nil)
+				let note = saved.description.isEmpty ? nil : saved.description
+				self?.interactor?.newItem(saved.title, note: note, isMarked: saved.isMarked, target: nil)
 			}
 		}
 	}
@@ -56,11 +61,12 @@ extension UnitPresenter: UnitViewDelegate {
 		guard let item = interactor?.item(for: id) else {
 			return
 		}
-		let model = DetailsView.Model(title: item.text)
+		let model = DetailsView.Model(title: item.text, description: item.note ?? "", isMarked: item.isMarked)
 		view?.showDetails(with: model) { [weak self] saved, success in
 			self?.view?.hideDetails()
 			if success {
-				self?.interactor?.setText(saved.title, for: id)
+				let note = saved.description.isEmpty ? nil : saved.description
+				self?.interactor?.set(saved.title, note: note, isMarked: saved.isMarked, for: id)
 			}
 		}
 	}
@@ -74,7 +80,8 @@ extension UnitPresenter: UnitViewDelegate {
 		view?.showDetails(with: model) { [weak self] saved, success in
 			self?.view?.hideDetails()
 			if success {
-				self?.interactor?.newItem(saved.title, target: target)
+				let note = saved.description.isEmpty ? nil : saved.description
+				self?.interactor?.newItem(saved.title, note: note, isMarked: saved.isMarked, target: target)
 				self?.view?.expand(target)
 			}
 		}
@@ -82,6 +89,10 @@ extension UnitPresenter: UnitViewDelegate {
 
 	func userSetStatus(isDone: Bool, id: UUID) {
 		interactor?.setStatus(isDone, for: id)
+	}
+
+	func userMark(isMarked: Bool, id: UUID) {
+		interactor?.mark(isMarked, id: id)
 	}
 
 	func userSetStyle(style: Item.Style, id: UUID) {

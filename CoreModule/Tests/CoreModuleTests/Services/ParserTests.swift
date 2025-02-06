@@ -16,13 +16,15 @@ struct ParserTests {
 		let parser = Parser()
 		let text =
 		"""
-		item 0
-			item 0 0
-			item 0 1
-				item 0 1 0
-		item 1
-			item 1 0
-			item 1 1
+		- item 0
+			- item 0 0
+			Note 0 0
+			- item 0 1
+				- item 0 1 0
+				Note 0 1 0
+		- item 1
+			- item 1 0
+			- item 1 1
 		"""
 
 		// Act
@@ -37,13 +39,15 @@ struct ParserTests {
 		let parser = Parser()
 		let text =
 		"""
-		item 0
-			item	 0 0
-			item		 0 1
-				item 0 1 0
-		item 1
-			item	 1 0
-			item 1 1
+		- item 0
+			- item	 0 0
+			Note 0 0
+			- item		 0 1
+				- item 0 1 0
+				Note 0 1 0
+		- item 1
+			- item	 1 0
+			- item 1 1
 		"""
 
 		// Act
@@ -58,13 +62,15 @@ struct ParserTests {
 		let parser = Parser()
 		let text =
 		"""
-			item 0
-				item 0 0
-				item 0 1
-					item 0 1 0
-			item 1
-				item 1 0
-				item 1 1
+			- item 0
+				- item 0 0
+				Note 0 0
+				- item 0 1
+					- item 0 1 0
+					Note 0 1 0
+			- item 1
+				- item 1 0
+				- item 1 1
 		"""
 
 		// Act
@@ -79,13 +85,15 @@ struct ParserTests {
 		let parser = Parser()
 		let text =
 		"""
-			item 0
-					item 0 0
-				item 0 1
-						item 0 1 0
-			item 1
-				item 1 0
-				item 1 1
+			- item 0
+					- item 0 0
+					Note 0 0
+				- item 0 1
+						- item 0 1 0
+						Note 0 1 0
+			- item 1
+				- item 1 0
+				- item 1 1
 		"""
 
 		// Act

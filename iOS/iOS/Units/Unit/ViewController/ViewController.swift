@@ -23,6 +23,7 @@ protocol UnitViewDelegate<ID>: DesignSystem.DropDelegate {
 	func userTappedDeleteButton(ids: [ID])
 	func userTappedAddButton(target: ID)
 	func userSetStatus(isDone: Bool, id: ID)
+	func userMark(isMarked: Bool, id: ID)
 	func userSetStyle(style: Item.Style, id: ID)
 	func userTappedCutButton(ids: [ID])
 	func userTappedPasteButton(target: ID)
@@ -82,14 +83,10 @@ class ViewController: UIDocumentViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 
+		let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(add))
+		addButton.accessibilityIdentifier = "navigation-item-add"
 		navigationItem.trailingItemGroups = [
-			.init(
-				barButtonItems:
-					[
-						UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(add))
-					],
-				representativeItem: nil
-			)
+			.init(barButtonItems: [addButton], representativeItem: nil)
 		]
 
 		self.adapter = ListAdapter(tableView: tableView, delegate: delegate)

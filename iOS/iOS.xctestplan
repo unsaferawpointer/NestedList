@@ -1,0 +1,31 @@
+{
+  "configurations" : [
+    {
+      "id" : "130923F2-F3E6-4FEE-8DA3-BA59A7793A15",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:iOS.xcodeproj",
+        "identifier" : "4CF92CA32CE8A97400135033",
+        "name" : "iOSUITests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:iOS.xcodeproj",
+        "identifier" : "4CF92C992CE8A97400135033",
+        "name" : "iOSTests"
+      }
+    }
+  ],
+  "version" : 1
+}

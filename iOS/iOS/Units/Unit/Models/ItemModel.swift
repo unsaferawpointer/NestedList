@@ -6,24 +6,22 @@
 //
 
 import Foundation
+import UIKit
 import DesignSystem
 
 struct ItemModel {
 
 	var uuid: UUID
 
-	var textColor: ColorToken
+	var icon: IconConfiguration
 
-	var icon: IconConfiguration?
+	var title: TextConfiguration
 
-	var strikethrough: Bool
-
-	var style: Style
-
-	var text: String
+	var subtitle: TextConfiguration?
 
 	var status: Bool
 
+	var isMarked: Bool
 }
 
 // MARK: - Identifiable
@@ -37,11 +35,9 @@ extension ItemModel: Identifiable {
 // MARK: - Hashable
 extension ItemModel: Hashable { }
 
-// MARK: - Nested data structs
-extension ItemModel {
-
-	enum Style: Hashable {
-		case point(_ color: ColorToken)
-		case section
-	}
+struct TextConfiguration: Hashable {
+	var text: String
+	var style: UIFont.TextStyle
+	var colorToken: ColorToken
+	var strikethrough: Bool
 }

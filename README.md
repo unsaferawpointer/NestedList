@@ -15,7 +15,7 @@ Create and edit nested lists with ease..
 
 ## Screenshots
 
-![Main](./Documents/Screenshots/mac_roadmap_screenshot.png)
+![Main](./Documents/Screenshots/common-2880-1800.png)
 
 ## Introduction
 
@@ -54,6 +54,10 @@ Section:
 * Drag & Drop:
 	- Drag plain text to the document
 	- Move selected items to another document
+
+## App Store
+
+* macOS: https://apps.apple.com/ru/app/nested-list/id6738434530?mt=12
 
 ## Localization
 

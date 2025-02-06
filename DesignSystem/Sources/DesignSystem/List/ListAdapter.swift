@@ -277,12 +277,23 @@ public extension ListAdapter {
 		// MARK: - Update content
 
 		for id in intersection {
+
 			let item = cache[unsafe: id]
-			let model = new.model(with: id)
+
+			let oldModel = old.model(with: id)
+			let newModel = new.model(with: id)
+
+			let oldIndex = old.index(for: id)
+			let newIndex = new.index(for: id)
+
+			guard oldIndex == newIndex, !oldModel.contentIsEquals(to: newModel) else {
+				continue
+			}
+
 			guard let row = tableView?.row(forItem: item), row != -1 else {
 				continue
 			}
-			configureRow(with: model, at: row)
+			configureRow(with: newModel, at: row)
 		}
 
 		let (deleted, inserted) = animator.calculate(old: snapshot, new: new)

@@ -7,14 +7,14 @@
 
 public struct IconConfiguration {
 
-	public var iconName: String
-	public var color: ColorToken
+	public var name: IconName
+	public var token: ColorToken
 
 	// MARK: - Initialization
 
-	public init(iconName: String, color: ColorToken) {
-		self.iconName = iconName
-		self.color = color
+	public init(name: IconName, token: ColorToken) {
+		self.name = name
+		self.token = token
 	}
 }
 

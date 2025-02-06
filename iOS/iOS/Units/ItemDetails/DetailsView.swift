@@ -33,8 +33,27 @@ extension DetailsView: View {
 	var body: some View {
 		NavigationStack {
 			Form {
-				TextField("", text: $model.title, prompt: Text("Enter text"))
-					.focused($isFocused)
+				Section {
+					TextField("", text: $model.title, prompt: Text("Enter text"))
+						.focused($isFocused)
+						.accessibilityIdentifier("textfield-title")
+					TextField("Note to Item...", text: $model.description, axis: .vertical)
+						.accessibilityIdentifier("textfield-description")
+				} footer: {
+					if !isValid {
+						Text("Text is empty")
+							.foregroundStyle(.red)
+							.accessibilityIdentifier("label-hint")
+					}
+				}
+				Section {
+					Toggle(isOn: $model.isMarked) {
+						Text("Is marked")
+					}
+					.tint(.accentColor)
+					.accessibilityIdentifier("toggle-is-marked")
+				}
+
 			}
 			.formStyle(.automatic)
 			.toolbar {
@@ -42,6 +61,7 @@ extension DetailsView: View {
 					Button("Cancel", role: .cancel) {
 						completionHandler(model, false)
 					}
+					.accessibilityIdentifier("button-cancel")
 				}
 
 				ToolbarItem(placement: .confirmationAction) {
@@ -49,6 +69,7 @@ extension DetailsView: View {
 						completionHandler(model, true)
 					}
 					.disabled(!isValid)
+					.accessibilityIdentifier("button-save")
 				}
 			}
 		}
@@ -64,11 +85,13 @@ extension DetailsView {
 
 	struct Model {
 		var title: String
+		var description: String = ""
+		var isMarked: Bool = false
 	}
 }
 
 #Preview {
-	DetailsView(item: .init(title: "New Item")) { _, _ in
+	DetailsView(item: .init(title: "New Item", description: "")) { _, _ in
 
 	}
 }

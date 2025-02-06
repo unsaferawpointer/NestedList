@@ -118,38 +118,57 @@ extension ListAdapter: UITableViewDelegate {
 private extension ListAdapter {
 
 	func updateCell(_ cell: UITableViewCell, with configuration: RowConfiguration) {
+
+		guard let tableView else {
+			return
+		}
+
 		let iconName = configuration.isExpanded ? "chevron.down" : "chevron.right"
 		let image = UIImage(systemName: iconName)
 
 		cell.accessoryView = !configuration.isLeaf ? UIImageView(image: image) : nil
-		cell.indentationLevel = configuration.level
+
+		let isPad = UIDevice.current.userInterfaceIdiom == .pad
+
+		let attenuation = isPad ? 0.1 : 0.4
+
+		let interval = tableView.contentSize.width - 240.0
+		let level = Double(configuration.level)
+		let offset = interval - exp(-attenuation * level) * interval
+
+		cell.layoutMargins.left = offset
 	}
 
 	func updateCell(_ cell: UITableViewCell, with model: ItemModel) {
 		let configuration = {
 			var configuration = UIListContentConfiguration.cell()
 
-			if let iconConfiguration = model.icon {
-				configuration.image = UIImage(systemName: iconConfiguration.iconName)
-				configuration.imageProperties.tintColor = iconConfiguration.color.color
-			} else {
-				configuration.image = UIImage(named: "point")
-				configuration.imageProperties.tintColor = .systemFill
+			configuration.imageProperties.tintColor = model.icon.token.color
+			switch model.icon.name {
+			case .named(let name):
+				configuration.image = UIImage(named: name)
+			case .systemName(let name):
+				configuration.image = UIImage(systemName: name)
 			}
 
 			configuration.attributedText = .init(
-				string: model.text,
-				textColor: model.textColor.color,
-				strikethrough: model.strikethrough
+				string: model.title.text,
+				textColor: model.title.colorToken.color,
+				strikethrough: model.title.strikethrough
 			)
 
-			let font: UIFont = switch model.style {
-			case .point:
-				.preferredFont(forTextStyle: .body)
-			case .section:
-				.preferredFont(forTextStyle: .headline)
+			configuration.textProperties.font = .preferredFont(forTextStyle: model.title.style)
+
+			if let subtitleConfiguration = model.subtitle {
+				configuration.secondaryTextProperties.font = .preferredFont(forTextStyle: subtitleConfiguration.style)
+				configuration.secondaryTextProperties.color = subtitleConfiguration.colorToken.color
+				configuration.secondaryText = subtitleConfiguration.text
+			} else {
+				configuration.secondaryText = nil
+				configuration.secondaryText = nil
 			}
-			configuration.textProperties.font = font
+
+			configuration.secondaryText = model.subtitle?.text
 
 			return configuration
 		}()
@@ -246,6 +265,15 @@ extension ListAdapter {
 			) { [weak self] action in
 				self?.delegate?.userSetStatus(isDone: !model.status, id: model.id)
 			}
+			statusItem.state = model.status ? .on : .off
+
+			let markItem = UIAction(
+				title: "Marked",
+				image: nil
+			) { [weak self] action in
+				self?.delegate?.userMark(isMarked: !model.isMarked, id: model.id)
+			}
+			markItem.state = model.isMarked ? .on : .off
 
 			let statusGroup = UIMenu(
 				title: "",
@@ -253,10 +281,10 @@ extension ListAdapter {
 				identifier: nil,
 				options: [.displayInline],
 				preferredElementSize: .large,
-				children: [statusItem]
+				children: [statusItem, markItem]
 			)
 
-			statusItem.state = model.status ? .on : .off
+
 
 			let defaultStyleItem = UIAction(
 				title: "Item",
@@ -281,7 +309,7 @@ extension ListAdapter {
 				children: [defaultStyleItem, sectionStyleItem]
 			)
 
-			let menu = UIMenu(title: "", children: [newItem, statusGroup, editGroup, groupItem, styleGroup, deleteItem])
+			let menu = UIMenu(title: "", children: [newItem, editGroup, statusGroup, groupItem, styleGroup, deleteItem])
 
 			return menu
 		}

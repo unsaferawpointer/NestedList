@@ -10,15 +10,20 @@ import Hierarchy
 
 public protocol ParserProtocol {
 	func parse(from text: String) -> [Node<Item>]
+	func format(_ node: Node<Item>) -> String
 }
 
 public final class Parser {
 
 	public typealias Model = Item
 
+	let format: Format
+
 	// MARK: - Initialization
 
-	public init() { }
+	public init(format: Format = Format(indent: .tab)) {
+		self.format = format
+	}
 }
 
 // MARK: - ParserProtocol
@@ -94,10 +99,36 @@ extension Parser: ParserProtocol {
 		}
 		return result
 	}
+
+	public func format(_ node: Node<Item>) -> String {
+		return text(for: node, indent: 0).joined(separator: "\n")
+	}
 }
 
 // MARK: - Helpers
 private extension Parser {
+
+	func text(for node: Node<Item>, indent: Int) -> [String] {
+		let item = node.value
+
+		let indentPrefix = Array(repeating: format.indent.value, count: indent).joined()
+
+		let sign = (item.style == .item) ? String(Prefix.dash.rawValue) : ""
+
+		let body = item.text + (item.style == .section ? ":" : "")
+
+		let markAnnotation = node.value.isMarked ? "@" + Annotation.mark.rawValue : ""
+		let doneAnnotation = node.value.isDone ? "@" + Annotation.done.rawValue : ""
+
+		let line = indentPrefix + [sign, body, doneAnnotation, markAnnotation].filter { !$0.isEmpty }.joined(separator: " ")
+
+		var lines = [line]
+		if let note = item.note {
+			lines.append(indentPrefix + note)
+		}
+
+		return lines + node.children.flatMap { text(for: $0, indent: indent + 1) }
+	}
 
 	/*
 	Project:
