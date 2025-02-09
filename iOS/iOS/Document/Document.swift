@@ -31,4 +31,3 @@ class Document: UIDocument {
 		try storage.read(from: data, ofType: typeName)
 	}
 }
-

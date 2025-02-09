@@ -49,6 +49,16 @@ class ViewController: UIDocumentViewController {
 		self.document as? Document
 	}
 
+	override func navigationItemDidUpdate() {
+
+		let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(add))
+		addButton.accessibilityIdentifier = "navigation-item-add"
+
+		addButton.isEnabled = document != nil
+
+		navigationItem.rightBarButtonItem = addButton
+	}
+
 	override var document: UIDocument? {
 		didSet {
 			guard let document = listDocument else {
@@ -82,13 +92,6 @@ class ViewController: UIDocumentViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-
-		let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(add))
-		addButton.accessibilityIdentifier = "navigation-item-add"
-		navigationItem.trailingItemGroups = [
-			.init(barButtonItems: [addButton], representativeItem: nil)
-		]
-
 		self.adapter = ListAdapter(tableView: tableView, delegate: delegate)
 
 		tableView.reloadData()
