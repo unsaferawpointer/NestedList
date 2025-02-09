@@ -12,8 +12,8 @@ class Document: NSDocument {
 
 	lazy var storage: DocumentStorage<Content> = {
 		return DocumentStorage<Content>(
-			initialState: .empty,
-			provider: DataProvider(),
+			stateProvider: StateProvider<Content>(initialState: .empty),
+			contentProvider: DataProvider(),
 			undoManager: undoManager
 		)
 	}()

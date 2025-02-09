@@ -9,11 +9,9 @@ import Foundation
 
 public final class DocumentStorage<State: Codable> {
 
-	private let provider: any ContentProvider<State>
+	private let contentProvider: any ContentProvider<State>
 
-	private var observations = [(State) -> Bool]()
-
-	public private(set) var state: State
+	private let stateProvider: any StateProviderProtocol<State>
 
 	// MARK: - Undo Manager
 
@@ -24,18 +22,30 @@ public final class DocumentStorage<State: Codable> {
 	/// Basic initialization
 	///
 	/// - Parameters:
-	///    - initialState: Initial state
-	///    - provider: Document file data provider
+	///    - stateProvider: Document state provider
+	///    - contentProvider: Document file data provider
 	///    - undoManager: Document undo manager
-	public init(initialState: State, provider: any ContentProvider<State>, undoManager: UndoManager?) {
-		self.state = initialState
-		self.provider = provider
+	public init(
+		stateProvider: any StateProviderProtocol<State>,
+		contentProvider: any ContentProvider<State>,
+		undoManager: UndoManager?) {
+		self.contentProvider = contentProvider
+		self.stateProvider = stateProvider
 		self.undoManager = undoManager
 	}
 }
 
-// MARK: - StateProvider
-extension DocumentStorage: StateProvider {
+// MARK: - StateProviderProtocol
+extension DocumentStorage: StateProviderProtocol {
+
+	public var state: State {
+		get {
+			stateProvider.state
+		}
+		set {
+			stateProvider.state = newValue
+		}
+	}
 
 	public func modificate(_ block: (inout State) -> Void) {
 		performOperation(block)
@@ -45,20 +55,7 @@ extension DocumentStorage: StateProvider {
 		for object: O,
 		handler: @escaping (O, State) -> Void
 	) {
-
-		handler(object, state)
-
-		// Each observation closure returns a Bool that indicates
-		// whether the observation should still be kept alive,
-		// based on whether the observing object is still retained.
-		observations.append { [weak object] value in
-			guard let object = object else {
-				return false
-			}
-
-			handler(object, value)
-			return true
-		}
+		stateProvider.addObservation(for: object, handler: handler)
 	}
 }
 
@@ -66,12 +63,14 @@ extension DocumentStorage: StateProvider {
 extension DocumentStorage: DocumentDataRepresentation {
 
 	public func data(ofType typeName: String) throws -> Data {
-		try provider.data(ofType: typeName, content: state)
+		return try contentProvider.data(
+			ofType: typeName,
+			content: stateProvider.state
+		)
 	}
 
 	public func read(from data: Data, ofType typeName: String) throws {
-		self.state = try provider.read(from: data, ofType: typeName)
-		observations = observations.filter { $0(state) }
+		stateProvider.state = try contentProvider.read(from: data, ofType: typeName)
 		undoManager?.removeAllActions()
 	}
 }
@@ -110,18 +109,17 @@ private extension DocumentStorage {
 			guard let content = try? JSONDecoder().decode(State.self, from: newData) else {
 				return
 			}
-			self.state = content
+			stateProvider.state = content
 		}
-		observations = observations.filter { $0(state) }
 	}
 
 	func performOperation(_ block: (inout State) -> Void) {
 
 		let encoder = JSONEncoder()
 
-		let oldData = try? encoder.encode(state)
-		block(&state)
-		let newData = try? encoder.encode(state)
+		let oldData = try? encoder.encode(stateProvider.state)
+		block(&stateProvider.state)
+		let newData = try? encoder.encode(stateProvider.state)
 		guard let oldData, let newData else {
 			return
 		}
