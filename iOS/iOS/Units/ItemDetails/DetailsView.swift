@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CoreModule
 
 struct DetailsView {
 
@@ -46,14 +47,21 @@ extension DetailsView: View {
 							.accessibilityIdentifier("label-hint")
 					}
 				}
-				Section {
+				Section("Properties") {
 					Toggle(isOn: $model.isMarked) {
-						Text("Is marked")
+						Text("Marked")
 					}
 					.tint(.accentColor)
 					.accessibilityIdentifier("toggle-is-marked")
+					Picker(selection: $model.style) {
+						Text("Item")
+							.tag(Item.Style.item)
+						Text("Section")
+							.tag(Item.Style.section)
+					} label: {
+						Text("Style")
+					}
 				}
-
 			}
 			.formStyle(.automatic)
 			.toolbar {
@@ -87,6 +95,7 @@ extension DetailsView {
 		var title: String
 		var description: String = ""
 		var isMarked: Bool = false
+		var style: Item.Style = .item
 	}
 }
 

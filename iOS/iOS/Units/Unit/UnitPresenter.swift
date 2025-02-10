@@ -52,7 +52,13 @@ extension UnitPresenter: UnitViewDelegate {
 			self?.view?.hideDetails()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
-				self?.interactor?.newItem(saved.title, note: note, isMarked: saved.isMarked, target: nil)
+				self?.interactor?.newItem(
+					saved.title,
+					note: note,
+					isMarked: saved.isMarked,
+					style: saved.style,
+					target: nil
+				)
 			}
 		}
 	}
@@ -61,12 +67,12 @@ extension UnitPresenter: UnitViewDelegate {
 		guard let item = interactor?.item(for: id) else {
 			return
 		}
-		let model = DetailsView.Model(title: item.text, description: item.note ?? "", isMarked: item.isMarked)
+		let model = item.details
 		view?.showDetails(with: model) { [weak self] saved, success in
 			self?.view?.hideDetails()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
-				self?.interactor?.set(saved.title, note: note, isMarked: saved.isMarked, for: id)
+				self?.interactor?.set(saved.title, note: note, isMarked: saved.isMarked, style: saved.style, for: id)
 			}
 		}
 	}
@@ -81,7 +87,13 @@ extension UnitPresenter: UnitViewDelegate {
 			self?.view?.hideDetails()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
-				self?.interactor?.newItem(saved.title, note: note, isMarked: saved.isMarked, target: target)
+				self?.interactor?.newItem(
+					saved.title,
+					note: note,
+					isMarked: saved.isMarked,
+					style: saved.style,
+					target: target
+				)
 				self?.view?.expand(target)
 			}
 		}
@@ -146,5 +158,17 @@ extension UnitPresenter: DropDelegate {
 
 	func validateMovement(_ id: UUID, to destination: Destination<UUID>) -> Bool {
 		interactor?.validateMovement(id, to: destination) ?? false
+	}
+}
+
+private extension Item {
+
+	var details: DetailsView.Model {
+		return .init(
+			title: text,
+			description: note ?? "",
+			isMarked: isMarked,
+			style: style
+		)
 	}
 }
