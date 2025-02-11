@@ -49,15 +49,7 @@ class ViewController: UIDocumentViewController {
 		self.document as? Document
 	}
 
-	override func navigationItemDidUpdate() {
-
-		let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(add))
-		addButton.accessibilityIdentifier = "navigation-item-add"
-
-		addButton.isEnabled = document != nil
-
-		navigationItem.rightBarButtonItem = addButton
-	}
+	override func navigationItemDidUpdate() { }
 
 	override var document: UIDocument? {
 		didSet {
@@ -94,7 +86,26 @@ class ViewController: UIDocumentViewController {
 		super.viewDidLoad()
 		self.adapter = ListAdapter(tableView: tableView, delegate: delegate)
 
+
+
 		tableView.reloadData()
+	}
+
+	override func viewDidAppear(_ animated: Bool) {
+		super.viewDidAppear(animated)
+
+		let addButton = UIBarButtonItem(
+			title: "Create New",
+			image: .init(systemName: "plus"),
+			target: self,
+			action: #selector(add)
+		)
+
+		addButton.accessibilityIdentifier = "navigation-item-add"
+
+		toolbarItems = [.flexibleSpace(), addButton]
+		self.navigationController?.setToolbarHidden(false, animated: true)
+
 	}
 
 	override func setEditing(_ editing: Bool, animated: Bool) {
