@@ -56,6 +56,10 @@ extension ListAdapter {
 	func expand(_ id: UUID) {
 		cache.expand(id)
 	}
+
+	var isEmpty: Bool {
+		cache.list.isEmpty
+	}
 }
 
 // MARK: - UITableViewDataSource

@@ -57,8 +57,20 @@ class ViewController: UIDocumentViewController {
 				return
 			}
 			self.delegate = UnitAssembly.build(self, storage: document.storage)
-			self.adapter?.delegate = delegate
+			self.adapter = ListAdapter(tableView: tableView, delegate: delegate)
 		}
+	}
+
+	override func updateContentUnavailableConfiguration(using state: UIContentUnavailableConfigurationState) {
+		if adapter?.isEmpty ?? true {
+			var configuration = UIContentUnavailableConfiguration.empty()
+			configuration.text = "No items"
+			configuration.secondaryText = "To add a new item, tap the «plus» button"
+			self.contentUnavailableConfiguration = configuration
+		} else {
+			self.contentUnavailableConfiguration = nil
+		}
+
 	}
 
 	// MARK: - UI-Properties
@@ -84,11 +96,6 @@ class ViewController: UIDocumentViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		self.adapter = ListAdapter(tableView: tableView, delegate: delegate)
-
-
-
-		tableView.reloadData()
 	}
 
 	override func viewDidAppear(_ animated: Bool) {
@@ -128,12 +135,10 @@ private extension ViewController {
 extension ViewController: UnitView {
 
 	func display(_ snapshot: Snapshot<ItemModel>) {
-		if Thread.isMainThread {
-			adapter?.apply(newSnapshot: snapshot)
-		} else {
-			DispatchQueue.main.async {
-				self.adapter?.apply(newSnapshot: snapshot)
-			}
+
+		performUpdate { [weak self] in
+			self?.adapter?.apply(newSnapshot: snapshot)
+			self?.setNeedsUpdateContentUnavailableConfiguration()
 		}
 	}
 
@@ -155,6 +160,16 @@ extension ViewController: UnitView {
 
 // MARK: - Helpers
 private extension ViewController {
+
+	func performUpdate(_ block: @escaping () -> Void) {
+		if Thread.isMainThread {
+			block()
+		} else {
+			DispatchQueue.main.async {
+				block()
+			}
+		}
+	}
 
 	func configureLayout() {
 		[tableView].forEach {
