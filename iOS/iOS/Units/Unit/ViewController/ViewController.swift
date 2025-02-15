@@ -35,7 +35,7 @@ protocol UnitView: AnyObject {
 
 	func display(_ snapshot: Snapshot<ItemModel>)
 
-	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Model, Bool) -> Void)
+	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void)
 	func hideDetails()
 
 	func expand(_ id: UUID)
@@ -142,7 +142,7 @@ extension ViewController: UnitView {
 		}
 	}
 
-	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Model, Bool) -> Void) {
+	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void) {
 		let details = DetailsView(item: model, completionHandler: completionHandler)
 		let controller = UIHostingController(rootView: details)
 		present(controller, animated: true)

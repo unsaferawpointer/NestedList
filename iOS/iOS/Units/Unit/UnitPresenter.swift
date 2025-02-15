@@ -47,13 +47,13 @@ extension UnitPresenter: UnitPresenterProtocol {
 extension UnitPresenter: UnitViewDelegate {
 
 	func userTappedCreateButton() {
-		let model = DetailsView.Model(title: "")
+		let model = DetailsView.Model(navigationTitle: "New Item", properties: .init(text: ""))
 		view?.showDetails(with: model) { [weak self] saved, success in
 			self?.view?.hideDetails()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
 				self?.interactor?.newItem(
-					saved.title,
+					saved.text,
 					note: note,
 					isMarked: saved.isMarked,
 					style: saved.style,
@@ -67,12 +67,12 @@ extension UnitPresenter: UnitViewDelegate {
 		guard let item = interactor?.item(for: id) else {
 			return
 		}
-		let model = item.details
+		let model = DetailsView.Model(navigationTitle: "Edit Item", properties: item.details)
 		view?.showDetails(with: model) { [weak self] saved, success in
 			self?.view?.hideDetails()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
-				self?.interactor?.set(saved.title, note: note, isMarked: saved.isMarked, style: saved.style, for: id)
+				self?.interactor?.set(saved.text, note: note, isMarked: saved.isMarked, style: saved.style, for: id)
 			}
 		}
 	}
@@ -82,13 +82,13 @@ extension UnitPresenter: UnitViewDelegate {
 	}
 	
 	func userTappedAddButton(target: UUID) {
-		let model = DetailsView.Model(title: "")
+		let model = DetailsView.Model(navigationTitle: "New Item", properties: .init(text: ""))
 		view?.showDetails(with: model) { [weak self] saved, success in
 			self?.view?.hideDetails()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
 				self?.interactor?.newItem(
-					saved.title,
+					saved.text,
 					note: note,
 					isMarked: saved.isMarked,
 					style: saved.style,
@@ -163,9 +163,9 @@ extension UnitPresenter: DropDelegate {
 
 private extension Item {
 
-	var details: DetailsView.Model {
+	var details: DetailsView.Properties {
 		return .init(
-			title: text,
+			text: text,
 			description: note ?? "",
 			isMarked: isMarked,
 			style: style
