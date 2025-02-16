@@ -60,6 +60,14 @@ extension UnitPresenter: UnitPresenterProtocol {
 	}
 }
 
+// MARK: - ListDelegate
+extension UnitPresenter: ListDelegate {
+
+	func handleDoubleClick(on item: UUID) {
+		interactor?.toggleStatus(for: item, moveToEnd: false)
+	}
+}
+
 // MARK: - UnitViewOutput
 extension UnitPresenter: UnitViewOutput {
 

@@ -26,6 +26,8 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 	// MARK: - Delegates
 
+	public weak var delegate: (any ListDelegate<ID>)?
+
 	public weak var dropDelegate: (any DropDelegate<ID>)?
 
 	public weak var dragDelegate: (any DragDelegate<ID>)?
@@ -63,6 +65,9 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 		tableView.registerForDraggedTypes([.identifier, .string])
 		tableView.setDraggingSourceOperationMask(.copy, forLocal: false)
+
+		tableView.target = self
+		tableView.doubleAction = #selector(handleDoubleClick(_:))
 	}
 
 	// MARK: - NSOutlineViewDataSource
@@ -232,6 +237,16 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 	public func outlineViewItemDidExpand(_ notification: Notification) {
 		validateSelection()
 	}
+
+	@objc
+	func handleDoubleClick(_ sender: Any?) {
+		let clickedRow = tableView?.clickedRow ?? -1
+		guard clickedRow != -1, let item = tableView?.item(atRow: clickedRow) as? Item else {
+			return
+		}
+
+		delegate?.handleDoubleClick(on: item.id)
+	}
 }
 
 // MARK: - Support selection
@@ -395,7 +410,8 @@ public extension ListAdapter {
 	}
 }
 
-extension ListAdapter {
+// MARK: - Helpers
+private extension ListAdapter {
 
 	func getDestination(proposedItem item: Any?, proposedChildIndex index: Int) -> Destination<ID> {
 		switch (item, index) {
@@ -435,9 +451,6 @@ extension ListAdapter {
 			return try? decoder.decode(ID.self, from: data)
 		}
 	}
-}
-
-extension ListAdapter {
 
 	func makeCellIfNeeded(for model: Model, in table: NSTableView) -> NSView? {
 

@@ -43,7 +43,11 @@ extension UnitInteractorMock: UnitInteractorProtocol {
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool) {
 		invocations.append(.setStatus(status, ids: ids, moveToEnd: moveToEnd))
 	}
-	
+
+	func toggleStatus(for id: UUID, moveToEnd: Bool) {
+		invocations.append(.toggleStatus(id: id, moveToEnd: moveToEnd))
+	}
+
 	func setMark(_ isMarked: Bool, for ids: [UUID]) {
 		invocations.append(.setMark(isMarked, ids: ids))
 	}
@@ -89,6 +93,7 @@ extension UnitInteractorMock {
 		case copy(_ ids: [UUID], destination: Destination<UUID>)
 		case newItem(_ text: String, target: UUID?)
 		case setStatus(_ status: Bool, ids: [UUID], moveToEnd: Bool)
+		case toggleStatus(id: UUID, moveToEnd: Bool)
 		case setMark(_ isMarked: Bool, ids: [UUID])
 		case setStyle(_ style: Item.Style, ids: [UUID])
 		case set(text: String, note: String?, id: UUID)

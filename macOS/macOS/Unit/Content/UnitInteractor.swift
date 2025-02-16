@@ -19,6 +19,7 @@ protocol UnitInteractorProtocol {
 
 	func newItem(_ text: String, target: UUID?) -> UUID
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool)
+	func toggleStatus(for id: UUID, moveToEnd: Bool)
 	func setMark(_ isMarked: Bool, for ids: [UUID])
 	func setStyle(_ style: Item.Style, for ids: [UUID])
 	func set(text: String, note: String?, for id: UUID)
@@ -95,8 +96,18 @@ extension UnitInteractor: UnitInteractorProtocol {
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool) {
 		storage.modificate { content in
 			content.root.setProperty(\.isDone, to: status, for: ids, downstream: true)
-			if moveToEnd {
+			if moveToEnd == false {
 				content.root.moveToEnd(ids)
+			}
+		}
+	}
+
+	func toggleStatus(for id: UUID, moveToEnd: Bool) {
+		storage.modificate { content in
+			let status = content.root.node(with: id)?.value.isDone ?? false
+			content.root.setProperty(\.isDone, to: !status, for: [id], downstream: true)
+			if moveToEnd && status == false {
+				content.root.moveToEnd([id])
 			}
 		}
 	}
