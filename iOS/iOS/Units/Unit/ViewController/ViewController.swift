@@ -81,7 +81,7 @@ class ViewController: UIDocumentViewController {
 		if adapter?.isEmpty ?? true {
 			var configuration = UIContentUnavailableConfiguration.empty()
 			configuration.text = "No items"
-			configuration.secondaryText = "To add a new item, tap the «plus» button"
+			configuration.secondaryText = "To add a new item, tap the '+' button."
 			self.contentUnavailableConfiguration = configuration
 		} else {
 			self.contentUnavailableConfiguration = nil
