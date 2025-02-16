@@ -64,6 +64,10 @@ public extension Snapshot {
 		cache.identifiers
 	}
 
+	var nodeIdentifiers: Set<ID> {
+		return cache.nodeIdentifiers
+	}
+
 	func flattened(while condition: (Model) -> Bool) -> [Model] {
 
 		var result: [Model] = []
@@ -253,6 +257,9 @@ private extension Snapshot {
 		cache.identifiers.insert(base.id)
 		cache.flattened.append(base.id)
 		cache.maxLevel = max(cache.maxLevel, level)
+		if base.children.count > 0 {
+			cache.nodeIdentifiers.insert(base.id)
+		}
 
 		for child in base.children {
 			normalize(base: child, parent: base.id, level: level + 1)

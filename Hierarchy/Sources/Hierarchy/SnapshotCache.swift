@@ -10,6 +10,7 @@ import Foundation
 struct SnapshotCache<ID: Hashable> {
 
 	var identifiers: Set<ID> = .init()
+	var nodeIdentifiers: Set<ID> = .init()
 	var flattened: [ID] = []
 	var maxLevel: Int = 0
 }

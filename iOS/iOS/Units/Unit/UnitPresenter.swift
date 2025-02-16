@@ -44,6 +44,19 @@ extension UnitPresenter: UnitPresenterProtocol {
 	}
 }
 
+// MARK: - ViewDelegate
+extension UnitPresenter: ViewDelegate {
+
+	func viewDidChange(state: ViewState) {
+		guard case .didAppear = state else {
+			return
+		}
+		interactor?.fetchData()
+		view?.expandAll()
+	}
+}
+
+// MARK: - UnitViewDelegate
 extension UnitPresenter: UnitViewDelegate {
 
 	func userTappedCreateButton() {
@@ -136,10 +149,6 @@ extension UnitPresenter: UnitViewDelegate {
 			return
 		}
 		interactor?.insertStrings([string], to: .onItem(with: target))
-	}
-
-	func updateView() {
-		interactor?.fetchData()
 	}
 }
 

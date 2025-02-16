@@ -57,6 +57,10 @@ extension ListAdapter {
 		cache.expand(id)
 	}
 
+	func expandAll() {
+		cache.expandAll()
+	}
+
 	var isEmpty: Bool {
 		cache.list.isEmpty
 	}

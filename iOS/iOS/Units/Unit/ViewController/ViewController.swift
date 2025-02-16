@@ -13,43 +13,17 @@ import DesignSystem
 import Hierarchy
 import UniformTypeIdentifiers
 
-protocol UnitViewDelegate<ID>: DesignSystem.DropDelegate {
-
-	associatedtype ID
-
-	func updateView()
-	func userTappedCreateButton()
-	func userTappedEditButton(id: ID)
-	func userTappedDeleteButton(ids: [ID])
-	func userTappedAddButton(target: ID)
-	func userSetStatus(isDone: Bool, id: ID)
-	func userMark(isMarked: Bool, id: ID)
-	func userSetStyle(style: Item.Style, id: ID)
-	func userTappedCutButton(ids: [ID])
-	func userTappedPasteButton(target: ID)
-	func userTappedCopyButton(ids: [ID])
-
-}
-
-protocol UnitView: AnyObject {
-
-	func display(_ snapshot: Snapshot<ItemModel>)
-
-	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void)
-	func hideDetails()
-
-	func expand(_ id: UUID)
-}
-
 class ViewController: UIDocumentViewController {
 
 	var delegate: (any UnitViewDelegate<UUID>)?
 
+	// MARK: - Data
+
+	var adapter: ListAdapter?
+
 	var listDocument: Document? {
 		self.document as? Document
 	}
-
-	override func navigationItemDidUpdate() { }
 
 	override var document: UIDocument? {
 		didSet {
@@ -59,18 +33,6 @@ class ViewController: UIDocumentViewController {
 			self.delegate = UnitAssembly.build(self, storage: document.storage)
 			self.adapter = ListAdapter(tableView: tableView, delegate: delegate)
 		}
-	}
-
-	override func updateContentUnavailableConfiguration(using state: UIContentUnavailableConfigurationState) {
-		if adapter?.isEmpty ?? true {
-			var configuration = UIContentUnavailableConfiguration.empty()
-			configuration.text = "No items"
-			configuration.secondaryText = "To add a new item, tap the «plus» button"
-			self.contentUnavailableConfiguration = configuration
-		} else {
-			self.contentUnavailableConfiguration = nil
-		}
-
 	}
 
 	// MARK: - UI-Properties
@@ -85,9 +47,7 @@ class ViewController: UIDocumentViewController {
 		return tableView
 	}()
 
-	// MARK: - Data
-
-	var adapter: ListAdapter?
+	// MARK: - View-Controller life - cycle
 
 	override func loadView() {
 		self.view = UIView()
@@ -96,10 +56,13 @@ class ViewController: UIDocumentViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		delegate?.viewDidChange(state: .didLoad)
 	}
 
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
+
+		delegate?.viewDidChange(state: .didAppear)
 
 		let addButton = UIBarButtonItem(
 			title: "Create New",
@@ -112,6 +75,17 @@ class ViewController: UIDocumentViewController {
 
 		toolbarItems = [.flexibleSpace(), addButton]
 		self.navigationController?.setToolbarHidden(false, animated: true)
+	}
+
+	override func updateContentUnavailableConfiguration(using state: UIContentUnavailableConfigurationState) {
+		if adapter?.isEmpty ?? true {
+			var configuration = UIContentUnavailableConfiguration.empty()
+			configuration.text = "No items"
+			configuration.secondaryText = "To add a new item, tap the «plus» button"
+			self.contentUnavailableConfiguration = configuration
+		} else {
+			self.contentUnavailableConfiguration = nil
+		}
 
 	}
 
@@ -154,6 +128,10 @@ extension ViewController: UnitView {
 
 	func expand(_ id: UUID) {
 		adapter?.expand(id)
+	}
+
+	func expandAll() {
+		adapter?.expandAll()
 	}
 
 }
