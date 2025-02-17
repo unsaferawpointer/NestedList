@@ -6,22 +6,23 @@
 //
 
 import SwiftUI
+import CoreModule
 
 struct DetailsView {
 
 	@State var model: Model
 
-	var completionHandler: (Model, Bool) -> Void
+	var completionHandler: (Properties, Bool) -> Void
 
 	var isValid: Bool {
-		return !model.title.isEmpty
+		return !model.properties.text.isEmpty
 	}
 
 	@FocusState var isFocused: Bool
 
 	// MARK: - Initialization
 
-	init(item: Model, completionHandler: @escaping (Model, Bool) -> Void) {
+	init(item: Model, completionHandler: @escaping (Properties, Bool) -> Void) {
 		self._model = State(initialValue: item)
 		self.completionHandler = completionHandler
 	}
@@ -34,10 +35,14 @@ extension DetailsView: View {
 		NavigationStack {
 			Form {
 				Section {
-					TextField("", text: $model.title, prompt: Text("Enter text"))
+					TextField("", text: $model.properties.text, prompt: Text("Enter text"))
+						.font(.body)
+						.foregroundStyle(.primary)
 						.focused($isFocused)
 						.accessibilityIdentifier("textfield-title")
-					TextField("Note to Item...", text: $model.description, axis: .vertical)
+					TextField("Note to Item...", text: $model.properties.description, axis: .vertical)
+						.font(.callout)
+						.foregroundStyle(.secondary)
 						.accessibilityIdentifier("textfield-description")
 				} footer: {
 					if !isValid {
@@ -46,32 +51,41 @@ extension DetailsView: View {
 							.accessibilityIdentifier("label-hint")
 					}
 				}
-				Section {
-					Toggle(isOn: $model.isMarked) {
-						Text("Is marked")
+				Section("Properties") {
+					Toggle(isOn: $model.properties.isMarked) {
+						Text("Marked")
 					}
 					.tint(.accentColor)
 					.accessibilityIdentifier("toggle-is-marked")
+					Picker(selection: $model.properties.style) {
+						Text("Item")
+							.tag(Item.Style.item)
+						Text("Section")
+							.tag(Item.Style.section)
+					} label: {
+						Text("Style")
+					}
 				}
-
 			}
 			.formStyle(.automatic)
 			.toolbar {
 				ToolbarItem(placement: .cancellationAction) {
 					Button("Cancel", role: .cancel) {
-						completionHandler(model, false)
+						completionHandler(model.properties, false)
 					}
 					.accessibilityIdentifier("button-cancel")
 				}
 
 				ToolbarItem(placement: .confirmationAction) {
 					Button("Save", role: .none) {
-						completionHandler(model, true)
+						completionHandler(model.properties, true)
 					}
 					.disabled(!isValid)
 					.accessibilityIdentifier("button-save")
 				}
 			}
+			.navigationTitle(model.navigationTitle)
+			.navigationBarTitleDisplayMode(.inline)
 		}
 		.onAppear {
 			self.isFocused = true
@@ -84,14 +98,22 @@ extension DetailsView: View {
 extension DetailsView {
 
 	struct Model {
-		var title: String
+		var navigationTitle: String
+		var properties: Properties
+	}
+
+	struct Properties {
+		var text: String
 		var description: String = ""
 		var isMarked: Bool = false
+		var style: Item.Style = .item
 	}
 }
 
 #Preview {
-	DetailsView(item: .init(title: "New Item", description: "")) { _, _ in
+	DetailsView(item: .init(
+		navigationTitle: "New Item",
+		properties: .init(text: ""))) { _, _ in
 
 	}
 }

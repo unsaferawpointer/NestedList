@@ -57,7 +57,7 @@ Section:
 
 ## App Store
 
-* macOS: https://apps.apple.com/ru/app/nested-list/id6738434530?mt=12
+* App Store | Mac App Store : https://apps.apple.com/us/app/nested-list/id6738434530
 
 ## Localization
 

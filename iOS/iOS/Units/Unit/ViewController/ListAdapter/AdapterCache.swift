@@ -148,6 +148,11 @@ extension Cache {
 		animate(oldList: oldList, newList: newList)
 	}
 
+	func expandAll() {
+		self.expanded = snapshot.nodeIdentifiers
+		apply(newSnapshot: snapshot)
+	}
+
 	func expand(_ id: UUID) {
 		expanded.insert(id)
 		guard let index = list.firstIndex(of: id) else {

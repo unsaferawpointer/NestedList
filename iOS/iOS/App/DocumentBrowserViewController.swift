@@ -113,6 +113,7 @@ class DocumentBrowserViewController: UIDocumentBrowserViewController, UIDocument
 		let doc = Document(fileURL: documentURL)
 		let documentViewController = ViewController(document: doc)
 		let docNavController = UINavigationController(rootViewController: documentViewController)
+		docNavController.setNavigationBarHidden(false, animated: true)
 
 		// Load the document view.
 		documentViewController.loadViewIfNeeded()
@@ -129,7 +130,7 @@ class DocumentBrowserViewController: UIDocumentBrowserViewController, UIDocument
 
 
 
-		transitionController!.targetView = documentViewController.tableView
+		transitionController!.targetView = documentViewController.view
 
 		// Set up the loading animation.
 		//        transitionController!.loadingProgress = doc.loadProgress
@@ -138,7 +139,6 @@ class DocumentBrowserViewController: UIDocumentBrowserViewController, UIDocument
 		docNavController.modalPresentationStyle = .fullScreen
 
 		// Set and open the document.
-		documentViewController.document = doc
 		documentViewController.document?.open(completionHandler: { (success) in
 			// Make sure to implement handleError(_:userInteractionPermitted:) in your UIDocument subclass to handle errors appropriately.
 			if success {

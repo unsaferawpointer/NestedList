@@ -13,12 +13,12 @@ protocol UnitInteractorProtocol {
 	func fetchData()
 
 	@discardableResult
-	func newItem(_ text: String, note: String?, isMarked: Bool, target: UUID?) -> UUID
+	func newItem(_ text: String, note: String?, isMarked: Bool, style: Item.Style, target: UUID?) -> UUID
 	func deleteItems(_ ids: [UUID])
 	func setStatus(_ isDone: Bool, for id: UUID)
 	func mark(_ isMarked: Bool, id: UUID)
 	func setStyle(_ style: Item.Style, for id: UUID)
-	func set(_ text: String, note: String?, isMarked: Bool, for id: UUID)
+	func set(_ text: String, note: String?, isMarked: Bool, style: Item.Style, for id: UUID)
 	func item(for id: UUID) -> Item
 
 	func string(for id: UUID) -> String
@@ -54,8 +54,8 @@ extension UnitInteractor: UnitInteractorProtocol {
 		presenter?.present(storage.state)
 	}
 
-	func newItem(_ text: String, note: String?, isMarked: Bool, target: UUID?) -> UUID {
-		let new = Item(uuid: UUID(), isMarked: isMarked, text: text, note: note, style: .item)
+	func newItem(_ text: String, note: String?, isMarked: Bool, style: Item.Style, target: UUID?) -> UUID {
+		let new = Item(uuid: UUID(), isMarked: isMarked, text: text, note: note, style: style)
 		let destination = Destination(target: target)
 		storage.modificate { content in
 			content.root.insertItems(with: [new], to: destination)
@@ -94,11 +94,12 @@ extension UnitInteractor: UnitInteractorProtocol {
 		}
 	}
 
-	func set(_ text: String, note: String?, isMarked: Bool, for id: UUID) {
+	func set(_ text: String, note: String?, isMarked: Bool, style: Item.Style, for id: UUID) {
 		storage.modificate { content in
 			content.root.setProperty(\.text, to: text, for: [id])
 			content.root.setProperty(\.note, to: note, for: [id])
 			content.root.setProperty(\.isMarked, to: isMarked, for: [id], downstream: true)
+			content.root.setProperty(\.style, to: style, for: [id])
 		}
 	}
 

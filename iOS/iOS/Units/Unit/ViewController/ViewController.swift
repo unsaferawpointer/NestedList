@@ -13,50 +13,16 @@ import DesignSystem
 import Hierarchy
 import UniformTypeIdentifiers
 
-protocol UnitViewDelegate<ID>: DesignSystem.DropDelegate {
-
-	associatedtype ID
-
-	func updateView()
-	func userTappedCreateButton()
-	func userTappedEditButton(id: ID)
-	func userTappedDeleteButton(ids: [ID])
-	func userTappedAddButton(target: ID)
-	func userSetStatus(isDone: Bool, id: ID)
-	func userMark(isMarked: Bool, id: ID)
-	func userSetStyle(style: Item.Style, id: ID)
-	func userTappedCutButton(ids: [ID])
-	func userTappedPasteButton(target: ID)
-	func userTappedCopyButton(ids: [ID])
-
-}
-
-protocol UnitView: AnyObject {
-
-	func display(_ snapshot: Snapshot<ItemModel>)
-
-	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Model, Bool) -> Void)
-	func hideDetails()
-
-	func expand(_ id: UUID)
-}
-
 class ViewController: UIDocumentViewController {
 
 	var delegate: (any UnitViewDelegate<UUID>)?
 
+	// MARK: - Data
+
+	var adapter: ListAdapter?
+
 	var listDocument: Document? {
 		self.document as? Document
-	}
-
-	override func navigationItemDidUpdate() {
-
-		let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(add))
-		addButton.accessibilityIdentifier = "navigation-item-add"
-
-		addButton.isEnabled = document != nil
-
-		navigationItem.rightBarButtonItem = addButton
 	}
 
 	override var document: UIDocument? {
@@ -65,7 +31,7 @@ class ViewController: UIDocumentViewController {
 				return
 			}
 			self.delegate = UnitAssembly.build(self, storage: document.storage)
-			self.adapter?.delegate = delegate
+			self.adapter = ListAdapter(tableView: tableView, delegate: delegate)
 		}
 	}
 
@@ -81,9 +47,7 @@ class ViewController: UIDocumentViewController {
 		return tableView
 	}()
 
-	// MARK: - Data
-
-	var adapter: ListAdapter?
+	// MARK: - View-Controller life - cycle
 
 	override func loadView() {
 		self.view = UIView()
@@ -92,9 +56,37 @@ class ViewController: UIDocumentViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		self.adapter = ListAdapter(tableView: tableView, delegate: delegate)
+		delegate?.viewDidChange(state: .didLoad)
+	}
 
-		tableView.reloadData()
+	override func viewDidAppear(_ animated: Bool) {
+		super.viewDidAppear(animated)
+
+		delegate?.viewDidChange(state: .didAppear)
+
+		let addButton = UIBarButtonItem(
+			title: "Create New",
+			image: .init(systemName: "plus"),
+			target: self,
+			action: #selector(add)
+		)
+
+		addButton.accessibilityIdentifier = "navigation-item-add"
+
+		toolbarItems = [.flexibleSpace(), addButton]
+		self.navigationController?.setToolbarHidden(false, animated: true)
+	}
+
+	override func updateContentUnavailableConfiguration(using state: UIContentUnavailableConfigurationState) {
+		if adapter?.isEmpty ?? true {
+			var configuration = UIContentUnavailableConfiguration.empty()
+			configuration.text = "No items"
+			configuration.secondaryText = "To add a new item, tap the '+' button."
+			self.contentUnavailableConfiguration = configuration
+		} else {
+			self.contentUnavailableConfiguration = nil
+		}
+
 	}
 
 	override func setEditing(_ editing: Bool, animated: Bool) {
@@ -117,16 +109,14 @@ private extension ViewController {
 extension ViewController: UnitView {
 
 	func display(_ snapshot: Snapshot<ItemModel>) {
-		if Thread.isMainThread {
-			adapter?.apply(newSnapshot: snapshot)
-		} else {
-			DispatchQueue.main.async {
-				self.adapter?.apply(newSnapshot: snapshot)
-			}
+
+		performUpdate { [weak self] in
+			self?.adapter?.apply(newSnapshot: snapshot)
+			self?.setNeedsUpdateContentUnavailableConfiguration()
 		}
 	}
 
-	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Model, Bool) -> Void) {
+	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void) {
 		let details = DetailsView(item: model, completionHandler: completionHandler)
 		let controller = UIHostingController(rootView: details)
 		present(controller, animated: true)
@@ -140,10 +130,24 @@ extension ViewController: UnitView {
 		adapter?.expand(id)
 	}
 
+	func expandAll() {
+		adapter?.expandAll()
+	}
+
 }
 
 // MARK: - Helpers
 private extension ViewController {
+
+	func performUpdate(_ block: @escaping () -> Void) {
+		if Thread.isMainThread {
+			block()
+		} else {
+			DispatchQueue.main.async {
+				block()
+			}
+		}
+	}
 
 	func configureLayout() {
 		[tableView].forEach {
