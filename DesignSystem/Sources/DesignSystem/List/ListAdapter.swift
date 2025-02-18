@@ -20,9 +20,11 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 	public typealias ID = Model.ID
 
+	typealias InternalModel = ListModel<Model>
+
 	weak var tableView: NSOutlineView?
 
-	private var animator = ListAnimator<Model>()
+	private var animator = ListAnimator<InternalModel>()
 
 	// MARK: - Delegates
 
@@ -36,9 +38,9 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 	// MARK: - Data
 
-	private var snapshot = Snapshot<Model>()
+	private var snapshot = Snapshot<InternalModel>()
 
-	private var cache: [ID: Item] = [:]
+	private var cache: [InternalModel.ID: Item] = [:]
 
 	// MARK: - UI-State
 
@@ -50,8 +52,14 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		}
 		return tableView.effectiveSelection().compactMap {
 			tableView.item(atRow: $0) as? Item
+		}.compactMap { item in
+			switch item.id {
+			case .item(let id):
+				return id
+			case .spacer:
+				return nil
+			}
 		}
-		.map(\.id)
 	}
 
 	// MARK: - Initialization
@@ -108,7 +116,12 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 		let model = snapshot.model(with: item.id)
 
-		return makeCellIfNeeded(for: model, in: outlineView)
+		switch model {
+		case .model(let value):
+			return makeCellIfNeeded(for: value, in: outlineView)
+		case .spacer:
+			return nil
+		}
 	}
 
 	public func outlineView(_ outlineView: NSOutlineView, heightOfRowByItem item: Any) -> CGFloat {
@@ -118,7 +131,12 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 		let model = snapshot.model(with: item.id)
 
-		return model.height ?? NSView.noIntrinsicMetric
+		switch model {
+		case .model(let value):
+			return value.height ?? NSView.noIntrinsicMetric
+		case .spacer:
+			return 8
+		}
 	}
 
 	// MARK: - Drag And Drop support
@@ -131,7 +149,10 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		let pasteboardItem = NSPasteboardItem()
 
 		let encoder = JSONEncoder()
-		guard let data = try? encoder.encode(item.id) else {
+		guard
+			case let .item(id) = item.id,
+			let data = try? encoder.encode(id)
+		else {
 			return nil
 		}
 
@@ -149,8 +170,13 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 		let ids = draggedItems.compactMap { item in
 			item as? Item
-		}.map { item in
-			return item.id
+		}.compactMap { item in
+			switch item.id {
+			case .item(let id):
+				return id
+			case .spacer:
+				return nil
+			}
 		}
 
 		precondition(session.draggingPasteboard.pasteboardItems?.count == ids.count)
@@ -166,10 +192,9 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		proposedChildIndex index: Int
 	) -> NSDragOperation {
 
-		let destination = getDestination(proposedItem: item, proposedChildIndex: index)
 		let ids = getIdentifiers(from: info)
 
-		guard let dropDelegate else {
+		guard let dropDelegate, let destination = getDestination(proposedItem: item, proposedChildIndex: index) else {
 			return []
 		}
 
@@ -190,11 +215,9 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 	public func outlineView(_ outlineView: NSOutlineView, acceptDrop info: NSDraggingInfo, item: Any?, childIndex index: Int) -> Bool {
 
-		guard let dropDelegate else {
+		guard let dropDelegate, let destination = getDestination(proposedItem: item, proposedChildIndex: index) else {
 			return false
 		}
-
-		let destination = getDestination(proposedItem: item, proposedChildIndex: index)
 
 		guard !isLocal(from: info) else {
 			let ids = getIdentifiers(from: info)
@@ -203,7 +226,7 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 			} else {
 				dropDelegate.move(ids, to: destination)
 			}
-			if let id = destination.id, let targetItem = cache[id] {
+			if let id = destination.id, let targetItem = cache[.item(id: id)] {
 				tableView?.expandItem(targetItem, expandChildren: false)
 			}
 			return true
@@ -225,13 +248,16 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		selectionIndexesForProposedSelection proposedSelectionIndexes: IndexSet
 	) -> IndexSet {
 		selection.removeAll()
+
+		var result = IndexSet()
 		for index in proposedSelectionIndexes {
-			guard let item = tableView?.item(atRow: index) as? Item else {
+			guard let item = tableView?.item(atRow: index) as? Item, case let .item(id) = item.id else {
 				continue
 			}
-			selection.insert(item.id)
+			selection.insert(id)
+			result.insert(index)
 		}
-		return proposedSelectionIndexes
+		return result
 	}
 
 	public func outlineViewItemDidExpand(_ notification: Notification) {
@@ -241,11 +267,11 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 	@objc
 	func handleDoubleClick(_ sender: Any?) {
 		let clickedRow = tableView?.clickedRow ?? -1
-		guard clickedRow != -1, let item = tableView?.item(atRow: clickedRow) as? Item else {
+		guard clickedRow != -1, let item = tableView?.item(atRow: clickedRow) as? Item, case let .item(id) = item.id else {
 			return
 		}
 
-		delegate?.handleDoubleClick(on: item.id)
+		delegate?.handleDoubleClick(on: id)
 	}
 }
 
@@ -254,7 +280,7 @@ private extension ListAdapter {
 
 	func validateSelection() {
 		let rows = selection.compactMap { id -> Int? in
-			guard let item = cache[id], let row = tableView?.row(forItem: item), row != -1 else {
+			guard let item = cache[.item(id: id)], let row = tableView?.row(forItem: item), row != -1 else {
 				return nil
 			}
 			return row
@@ -267,6 +293,80 @@ private extension ListAdapter {
 public extension ListAdapter {
 
 	func apply(_ new: Snapshot<Model>) {
+
+		let nodes = new.getNodes()
+
+		let transformed = nodes.map {
+			$0.map { model in
+				ListModel<Model>.model(model)
+			}
+		}
+
+		let converted = Snapshot(transformed).insert { model -> ListModel<Model>? in
+			guard model.isGroup, case let .model(value) = model else {
+				return nil
+			}
+			return .spacer(before: value.id)
+		}
+
+		apply(converted)
+	}
+
+	func scroll(to id: ID) {
+		guard let tableView, let item = cache[.item(id: id)] else {
+			return
+		}
+		let row = tableView.row(forItem: item)
+		guard row >= 0 else {
+			return
+		}
+
+		NSAnimationContext.runAnimationGroup { context in
+			context.allowsImplicitAnimation = true
+			tableView.scrollRowToVisible(row)
+		}
+	}
+
+	func select(_ id: ID) {
+		guard let tableView, let item = cache[.item(id: id)] else {
+			return
+		}
+		let row = tableView.row(forItem: item)
+		guard row >= 0 else {
+			return
+		}
+
+		tableView.selectRowIndexes(.init(integer: row), byExtendingSelection: false)
+	}
+
+	func expand(_ ids: [ID]?) {
+
+		guard let ids else {
+			tableView?.animator().expandItem(nil, expandChildren: true)
+			return
+		}
+
+		NSAnimationContext.runAnimationGroup { context in
+			let items = ids.compactMap { cache[.item(id: $0)] }
+			for item in items {
+				tableView?.animator().expandItem(item)
+			}
+		}
+	}
+
+	func focus(on id: ID, with key: String) {
+		guard let item = cache[.item(id: id)], let row = tableView?.row(forItem: item), row != -1 else {
+			return
+		}
+		let cell = tableView?.view(atColumn: 0, row: row, makeIfNecessary: false) as? Model.Cell
+		cell?.focus(on: key)
+	}
+}
+
+// MARK: - Helpers
+private extension ListAdapter {
+
+	func apply(_ new: Snapshot<InternalModel>) {
 
 		let old = snapshot
 
@@ -298,23 +398,27 @@ public extension ListAdapter {
 			let oldModel = old.model(with: id)
 			let newModel = new.model(with: id)
 
-			let oldIndex = old.index(for: id)
-			let newIndex = new.index(for: id)
-
-			guard oldIndex == newIndex, !oldModel.contentIsEquals(to: newModel) else {
+			guard !oldModel.contentIsEquals(to: newModel) else {
 				continue
 			}
 
 			guard let row = tableView?.row(forItem: item), row != -1 else {
 				continue
 			}
-			configureRow(with: newModel, at: row)
+			switch newModel {
+			case .model(let value):
+				configureRow(with: value, at: row)
+			case .spacer:
+				continue
+			}
 		}
 
 		let (deleted, inserted) = animator.calculate(old: snapshot, new: new)
 		for id in deleted {
 			cache[id] = nil
-			selection.remove(id)
+			if case let .item(id) = id {
+				selection.remove(id)
+			}
 		}
 		for id in inserted {
 			cache[id] = Item(id: id)
@@ -359,70 +463,55 @@ public extension ListAdapter {
 		validateSelection()
 	}
 
-	func scroll(to id: ID) {
-		guard let tableView, let item = cache[id] else {
-			return
-		}
-		let row = tableView.row(forItem: item)
-		guard row >= 0 else {
-			return
-		}
-
-		NSAnimationContext.runAnimationGroup { context in
-			context.allowsImplicitAnimation = true
-			tableView.scrollRowToVisible(row)
-		}
-	}
-
-	func select(_ id: ID) {
-		guard let tableView, let item = cache[id] else {
-			return
-		}
-		let row = tableView.row(forItem: item)
-		guard row >= 0 else {
-			return
-		}
-
-		tableView.selectRowIndexes(.init(integer: row), byExtendingSelection: false)
-	}
-
-	func expand(_ ids: [ID]?) {
-
-		guard let ids else {
-			tableView?.animator().expandItem(nil, expandChildren: true)
-			return
-		}
-
-		NSAnimationContext.runAnimationGroup { context in
-			let items = ids.compactMap { cache[$0] }
-			for item in items {
-				tableView?.animator().expandItem(item)
-			}
-		}
-	}
-
-	func focus(on id: ID, with key: String) {
-		guard let item = cache[id], let row = tableView?.row(forItem: item), row != -1 else {
-			return
-		}
-		let cell = tableView?.view(atColumn: 0, row: row, makeIfNecessary: false) as? Model.Cell
-		cell?.focus(on: key)
-	}
-}
-
-// MARK: - Helpers
-private extension ListAdapter {
-
-	func getDestination(proposedItem item: Any?, proposedChildIndex index: Int) -> Destination<ID> {
+	func getDestination(proposedItem item: Any?, proposedChildIndex index: Int) -> Destination<ID>? {
 		switch (item, index) {
 		case (.none, -1):
 			return .toRoot
 		case (.none, let index):
-			return .inRoot(atIndex: index)
+
+			let numberOfRootItems = snapshot.numberOfRootItems()
+			if index < numberOfRootItems {
+				let model = snapshot.rootItem(at: index)
+				guard case .model = model else {
+					return nil
+				}
+			}
+
+			let shift = snapshot.contains(in: nil, maxIndex: index) { model in
+				switch model {
+				case .model:	false
+				default:		true
+				}
+			}
+			return .inRoot(atIndex: index - shift)
 		case (let item as Item, -1):
-			return .onItem(with: item.id)
+			guard case .item(let id) = item.id else {
+				return nil
+			}
+			return .onItem(with: id)
 		case (let item as Item, let index):
-			return .inItem(with: item.id, atIndex: index)
+			guard case .item(let id) = item.id else {
+				return nil
+			}
+
+			let numberOfItems = snapshot.numberOfChildren(ofItem: item.id)
+			if index < numberOfItems {
+				let model = snapshot.childOfItem(item.id, at: index)
+				guard case .model = model else {
+					return nil
+				}
+			}
+
+			let shift = snapshot.contains(in: item.id, maxIndex: index) { model in
+				switch model {
+				case .model:	false
+				default:		true
+				}
+			}
+			print("___TEST index = \(index)")
+			print("___TEST shift = \(shift)")
+
+			return .inItem(with: id, atIndex: index - shift)
 		default:
 			fatalError()
 		}
@@ -493,9 +582,9 @@ private extension ListAdapter {
 
 	final class Item: Identifiable {
 
-		var id: ID
+		var id: InternalModel.ID
 
-		init(id: ID) {
+		init(id: InternalModel.ID) {
 			self.id = id
 		}
 	}
