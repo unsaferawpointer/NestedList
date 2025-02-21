@@ -383,7 +383,7 @@ private extension ListAdapter {
 			let oldIndex = old.index(for: id)
 			let newIndex = new.index(for: id)
 
-			guard oldIndex == newIndex, oldModel.height != newModel.height else {
+			guard oldModel.height != newModel.height else {
 				continue
 			}
 			updateHeight.insert(oldIndex)

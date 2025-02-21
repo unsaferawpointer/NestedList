@@ -317,19 +317,19 @@ private extension Snapshot {
 
 		hierarchy[base.id] = base.children.map(\.value.id)
 
-		storage[base.id] = NodeInfo(
-			model: base.value,
-			level: level,
-			index: cache.flattened.count - 1,
-			parent: parent
-		)
-
 		cache.identifiers.insert(base.id)
 		cache.flattened.append(base.id)
 		cache.maxLevel = max(cache.maxLevel, level)
 		if base.children.count > 0 {
 			cache.nodeIdentifiers.insert(base.id)
 		}
+
+		storage[base.id] = NodeInfo(
+			model: base.value,
+			level: level,
+			index: cache.flattened.count - 1,
+			parent: parent
+		)
 
 		for child in base.children {
 			normalize(base: child, parent: base.id, level: level + 1)
