@@ -381,7 +381,6 @@ private extension ListAdapter {
 			let newModel = new.model(with: id)
 
 			let oldIndex = old.index(for: id)
-			let newIndex = new.index(for: id)
 
 			guard oldModel.height != newModel.height else {
 				continue
@@ -477,12 +476,7 @@ private extension ListAdapter {
 				}
 			}
 
-			let shift = snapshot.contains(in: nil, maxIndex: index) { model in
-				switch model {
-				case .model:	false
-				default:		true
-				}
-			}
+			let shift = snapshot.contains(in: nil, maxIndex: index) { $0.isDecoration }
 			return .inRoot(atIndex: index - shift)
 		case (let item as Item, -1):
 			guard case .item(let id) = item.id else {
@@ -502,14 +496,7 @@ private extension ListAdapter {
 				}
 			}
 
-			let shift = snapshot.contains(in: item.id, maxIndex: index) { model in
-				switch model {
-				case .model:	false
-				default:		true
-				}
-			}
-			print("___TEST index = \(index)")
-			print("___TEST shift = \(shift)")
+			let shift = snapshot.contains(in: item.id, maxIndex: index) { $0.isDecoration }
 
 			return .inItem(with: id, atIndex: index - shift)
 		default:

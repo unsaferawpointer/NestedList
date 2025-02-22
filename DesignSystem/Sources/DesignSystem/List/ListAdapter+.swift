@@ -70,4 +70,11 @@ extension ListModel {
 			return false
 		}
 	}
+
+	var isDecoration: Bool {
+		switch self {
+		case .model:	false
+		default:		true
+		}
+	}
 }
