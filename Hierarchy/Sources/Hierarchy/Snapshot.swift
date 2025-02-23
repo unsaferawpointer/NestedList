@@ -68,6 +68,76 @@ public extension Snapshot {
 		return cache.nodeIdentifiers
 	}
 
+	func getNodes() -> [Node<Model>] {
+		return root.map {
+			node(for: $0)
+		}
+	}
+
+	func contains(in parent: ID?, maxIndex: Int, condition: (Model) -> Bool) -> Int {
+
+		let children = if let parent {
+			hierarchy[unsafe: parent]
+		} else {
+			root
+		}
+
+		var count = 0
+
+		let upperBound = min(maxIndex, children.count - 1)
+		for child in children[0...upperBound] {
+			let model = storage[unsafe: child].model
+			if condition(model) {
+				count += 1
+			}
+		}
+		return count
+	}
+
+	func node(for id: ID) -> Node<Model> {
+
+		let value = storage[unsafe: id].model
+		let children = hierarchy[unsafe: id]
+
+		return Node<Model>(
+			value: value,
+			children: children.map {
+				node(for: $0)
+			}
+		)
+	}
+
+	func insert(before condition: (Model) -> Model?) -> Snapshot<Model> {
+		let nodes = getNodes()
+		let inserted = insert(in: nodes, before: condition)
+		return Snapshot(inserted)
+	}
+
+	func insert(
+		in nodes: [Node<Model>],
+		before condition: (Model) -> Model?
+	) -> [Node<Model>] {
+
+		var result = [Node<Model>]()
+
+		for child in nodes {
+			guard let model = condition(child.value) else {
+				result.append(child)
+				continue
+			}
+			let new = Node(value: model)
+			result.append(new)
+			result.append(child)
+		}
+
+		return result.map {
+			Node(
+				value: $0.value,
+				children: insert(in: $0.children, before: condition)
+			)
+		}
+	}
+
 	func flattened(while condition: (Model) -> Bool) -> [Model] {
 
 		var result: [Model] = []
@@ -247,19 +317,19 @@ private extension Snapshot {
 
 		hierarchy[base.id] = base.children.map(\.value.id)
 
-		storage[base.id] = NodeInfo(
-			model: base.value,
-			level: level,
-			index: cache.flattened.count - 1,
-			parent: parent
-		)
-
 		cache.identifiers.insert(base.id)
 		cache.flattened.append(base.id)
 		cache.maxLevel = max(cache.maxLevel, level)
 		if base.children.count > 0 {
 			cache.nodeIdentifiers.insert(base.id)
 		}
+
+		storage[base.id] = NodeInfo(
+			model: base.value,
+			level: level,
+			index: cache.flattened.count - 1,
+			parent: parent
+		)
 
 		for child in base.children {
 			normalize(base: child, parent: base.id, level: level + 1)

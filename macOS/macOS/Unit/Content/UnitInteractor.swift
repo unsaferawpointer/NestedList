@@ -96,7 +96,7 @@ extension UnitInteractor: UnitInteractorProtocol {
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool) {
 		storage.modificate { content in
 			content.root.setProperty(\.isDone, to: status, for: ids, downstream: true)
-			if moveToEnd == false {
+			if moveToEnd {
 				content.root.moveToEnd(ids)
 			}
 		}

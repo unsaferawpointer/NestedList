@@ -6,118 +6,126 @@
 //
 
 import Testing
+import Foundation
 import Hierarchy
 @testable import CoreModule
 
-struct ParserTests {
+struct ParserTests { }
+
+// MARK: - testing ParserProtocol
+extension ParserTests {
 
 	@Test func parseCanonicalText() {
-		// Arrange
-		let parser = Parser()
-		let text =
-		"""
-		- item 0
-			- item 0 0
-			Note 0 0
-			- item 0 1
-				- item 0 1 0
-				Note 0 1 0
-		- item 1
-			- item 1 0
-			- item 1 1
-		"""
-
-		// Act
-		let result = parser.parse(from: text)
-
-		// Assert
-		check(result)
+		test(file: "document-1-0-0")
 	}
 
 	@Test func parseCanonicalText_whenBodyHasTabulation() {
-		// Arrange
-		let parser = Parser()
-		let text =
-		"""
-		- item 0
-			- item	 0 0
-			Note 0 0
-			- item		 0 1
-				- item 0 1 0
-				Note 0 1 0
-		- item 1
-			- item	 1 0
-			- item 1 1
-		"""
-
-		// Act
-		let result = parser.parse(from: text)
-
-		// Assert
-		check(result)
+		test(file: "document-tabulation")
 	}
 
 	@Test func parseShiftedText() {
-		// Arrange
-		let parser = Parser()
-		let text =
-		"""
-			- item 0
-				- item 0 0
-				Note 0 0
-				- item 0 1
-					- item 0 1 0
-					Note 0 1 0
-			- item 1
-				- item 1 0
-				- item 1 1
-		"""
-
-		// Act
-		let result = parser.parse(from: text)
-
-		// Assert
-		check(result)
+		test(file: "document-shifted")
 	}
 
 	@Test func parseBrokenText() {
-		// Arrange
-		let parser = Parser()
-		let text =
-		"""
-			- item 0
-					- item 0 0
-					Note 0 0
-				- item 0 1
-						- item 0 1 0
-						Note 0 1 0
-			- item 1
-				- item 1 0
-				- item 1 1
-		"""
-
-		// Act
-		let result = parser.parse(from: text)
-
-		// Assert
-		check(result)
+		test(file: "document-broken")
 	}
-
 }
 
 // MARK: - Helpers
 private extension ParserTests {
 
+	func test(file name: String) {
+		// Arrange
+		let parser = Parser()
+		let text = load(file: name)
+
+		// Act
+		let result = parser.parse(from: text)
+
+		// Assert
+		check(result)
+	}
+
+	func load(file: String) -> String {
+		guard let text = FileLoader().loadFile(file) else {
+			return ""
+		}
+		return text
+	}
+
 	func check(_ result: [Node<Item>]) {
 		#expect(result.count == 2)
 
-		#expect(result[0].children.count == 2)
-		#expect(result[0].children[0].children.count == 0)
-		#expect(result[0].children[1].children.count == 1)
-		#expect(result[0].children[1].children[0].children.count == 0)
+		// project 0
+		let project0 = result[0]
 
-		#expect(result[1].children.count == 2)
-		#expect(result[1].children[0].children.count == 0)
-		#expect(result[1].children[1].children.count == 0)
+		#expect(project0.value.style == .section)
+		#expect(project0.value.text == "project 0")
+		#expect(project0.value.isDone == false)
+		#expect(project0.value.isMarked == false)
+		#expect(project0.value.note == "Note 0")
+
+		#expect(project0.children.count == 2)
+
+		// item 00
+		let item00 = project0.children[0]
+		#expect(item00.value.isDone == false)
+		#expect(item00.value.isMarked == true)
+		#expect(item00.value.style == .item)
+		#expect(item00.value.note == "Note 0 0")
+
+		#expect(item00.children.count == 0)
+
+		// item 01
+		let item01 = project0.children[1]
+
+		#expect(item01.value.isDone == false)
+		#expect(item01.value.isMarked == false)
+		#expect(item01.value.style == .item)
+		#expect(item01.value.note == nil)
+
+		#expect(item01.children.count == 1)
+
+		// item 010
+		let item010 = project0.children[1].children[0]
+
+		#expect(item010.value.text == "item 0 1 0")
+		#expect(item010.value.isDone == true)
+		#expect(item010.value.isMarked == false)
+		#expect(item010.value.style == .item)
+		#expect(item010.value.note == "Note 0 1 0")
+
+		#expect(item010.children.count == 0)
+
+		// project 1
+
+		let project1 = result[1]
+		#expect(project1.value.style == .section)
+		#expect(project1.value.text == "project 1")
+
+		#expect(project1.children.count == 2)
+
+		// item 10
+		let item10 = project1.children[0]
+
+		#expect(item10.value.isDone == false)
+		#expect(item10.value.isMarked == false)
+		#expect(item10.value.style == .item)
+		#expect(item10.value.note == nil)
+
+		#expect(item10.children.count == 0)
+
+		// item 11
+		let item11 = project1.children[1]
+
+		#expect(item11.value.text == "item 1 1")
+		#expect(item11.value.isDone == false)
+		#expect(item11.value.isMarked == false)
+		#expect(item11.value.style == .item)
+		#expect(item11.value.note == nil)
+
+		#expect(item11.children.count == 0)
+
 	}
 }
