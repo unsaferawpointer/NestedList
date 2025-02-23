@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "0215121C-4D26-4BDD-AD40-FD57F79A6DF9",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "CoreModuleTests",
+        "name" : "CoreModuleTests"
+      }
+    }
+  ],
+  "version" : 1
+}

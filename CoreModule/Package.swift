@@ -22,7 +22,8 @@ let package = Package(
 		),
 		.testTarget(
 			name: "CoreModuleTests",
-			dependencies: ["CoreModule"]
+			dependencies: ["CoreModule"],
+			resources: [.process("Resources")]
 		),
 	]
 )
