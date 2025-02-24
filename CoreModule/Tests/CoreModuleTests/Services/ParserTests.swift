@@ -12,7 +12,7 @@ import Hierarchy
 
 struct ParserTests { }
 
-// MARK: - testing ParserProtocol
+// MARK: - testing ParserProtocol (v1.0.0)
 extension ParserTests {
 
 	@Test func parseCanonicalText() {
@@ -29,6 +29,31 @@ extension ParserTests {
 
 	@Test func parseBrokenText() {
 		test(file: "document-broken")
+	}
+
+	@Test func format() {
+
+		let sut = Parser()
+		let text = load(file: "document-2-0-0")
+		let nodes = sut.parse(from: text)
+
+		// Act
+		let document = nodes.map {
+			sut.format($0)
+		}.joined(separator: "\n")
+
+		// Assert
+		let reference = load(file: "reference").dropLast() // Drop last new line
+		#expect(reference.count == document.count)
+		#expect(document == reference)
+	}
+}
+
+// MARK: - testing ParserProtocol (v2.0.0)
+extension ParserTests {
+
+	@Test func parseCanonicalText_v2() {
+		test(file: "document-2-0-0")
 	}
 }
 

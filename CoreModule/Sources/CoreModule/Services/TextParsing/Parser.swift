@@ -73,8 +73,25 @@ extension Parser: ParserProtocol {
 				continue
 			}
 
-			let isDone = line.annotations.contains(.done)
-			let isMarked = line.annotations.contains(.mark)
+			let isDone = {
+				switch line.prefix {
+				case .ex:
+					return true
+				default:
+					return line.annotations.contains(.done)
+				}
+
+			}()
+
+			let isMarked = {
+				switch line.prefix {
+				case .exclamationMark:
+					return true
+				default:
+					return line.annotations.contains(.mark)
+				}
+			}()
+
 			let style: Item.Style = line.hasColon ? .section : .item
 
 			let item = Item(
