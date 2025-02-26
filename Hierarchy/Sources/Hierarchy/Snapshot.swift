@@ -107,21 +107,22 @@ public extension Snapshot {
 		)
 	}
 
-	func insert(before condition: (Model) -> Model?) -> Snapshot<Model> {
+	func insert(before condition: (Model, Int) -> Model?) -> Snapshot<Model> {
 		let nodes = getNodes()
-		let inserted = insert(in: nodes, before: condition)
+		let inserted = insert(in: nodes, before: condition, level: 0)
 		return Snapshot(inserted)
 	}
 
 	func insert(
 		in nodes: [Node<Model>],
-		before condition: (Model) -> Model?
+		before condition: (Model, Int) -> Model?,
+		level: Int
 	) -> [Node<Model>] {
 
 		var result = [Node<Model>]()
 
 		for child in nodes {
-			guard let model = condition(child.value) else {
+			guard let model = condition(child.value, level) else {
 				result.append(child)
 				continue
 			}
@@ -133,7 +134,7 @@ public extension Snapshot {
 		return result.map {
 			Node(
 				value: $0.value,
-				children: insert(in: $0.children, before: condition)
+				children: insert(in: $0.children, before: condition, level: level + 1)
 			)
 		}
 	}

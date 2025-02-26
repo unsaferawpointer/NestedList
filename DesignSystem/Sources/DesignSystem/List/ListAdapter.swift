@@ -134,8 +134,8 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		switch model {
 		case .model(let value):
 			return value.height ?? NSView.noIntrinsicMetric
-		case .spacer:
-			return 8
+		case .spacer(_, let height):
+			return height.rawValue
 		}
 	}
 
@@ -302,11 +302,11 @@ public extension ListAdapter {
 			}
 		}
 
-		let converted = Snapshot(transformed).insert { model -> ListModel<Model>? in
+		let converted = Snapshot(transformed).insert { model, level -> ListModel<Model>? in
 			guard model.isGroup, case let .model(value) = model else {
 				return nil
 			}
-			return .spacer(before: value.id)
+			return .spacer(before: value.id, height: level == 0 ? .large : .small)
 		}
 
 		apply(converted)
