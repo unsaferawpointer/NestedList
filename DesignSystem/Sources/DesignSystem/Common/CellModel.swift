@@ -5,7 +5,6 @@
 //  Created by Anton Cherkasov on 16.11.2024.
 //
 
-import Hierarchy
 import CoreFoundation
 
 public protocol CellModel: Identifiable {

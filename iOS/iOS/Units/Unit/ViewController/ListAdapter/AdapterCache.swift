@@ -70,10 +70,6 @@ extension Cache {
 				isLeaf: newSnapshot.isLeaf(id: id)
 			)
 
-			guard oldIndex == newIndex else {
-				continue
-			}
-
 			if oldModel != newModel {
 				delegate?.updateCell(indexPath: .init(row: oldIndex, section: 0), model: newModel)
 			}

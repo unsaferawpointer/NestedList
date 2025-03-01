@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import DesignSystem
 import Hierarchy
 
 struct RowConfiguration: Equatable {
@@ -40,6 +41,8 @@ final class ListAdapter: NSObject {
 
 		self.tableView?.dataSource = self
 		self.tableView?.delegate = self
+		self.tableView?.dragDelegate = self
+		self.tableView?.dropDelegate = self
 
 		self.cache.delegate = self
 
@@ -120,6 +123,82 @@ extension ListAdapter: UITableViewDelegate {
 	func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
 		return false
 	}
+}
+
+// MARK: - UITableViewDragDelegate
+extension ListAdapter: UITableViewDragDelegate {
+
+	func tableView(
+		_ tableView: UITableView,
+		itemsForBeginning session: any UIDragSession,
+		at indexPath: IndexPath
+	) -> [UIDragItem] {
+		guard tableView.isEditing else {
+			return []
+		}
+		let model = cache.model(with: indexPath.row)
+		let item = UIDragItem(itemProvider: NSItemProvider())
+		item.localObject = model.id
+		return [item]
+	}
+
+}
+
+extension ListAdapter: UITableViewDropDelegate {
+
+	func tableView(
+		_ tableView: UITableView,
+		dropSessionDidUpdate session: any UIDropSession,
+		withDestinationIndexPath destinationIndexPath: IndexPath?
+	) -> UITableViewDropProposal {
+
+		guard let delegate else {
+			return .init(operation: .forbidden)
+		}
+
+		let ids = session.items.compactMap {
+			$0.localObject as? UUID
+		}
+
+		guard let indexPath = destinationIndexPath, indexPath.row < cache.count else {
+			return .init(operation: .forbidden)
+		}
+
+		let model = cache.model(with: indexPath.row)
+
+		guard delegate.validateMovement(ids, to: .onItem(with: model.id)) else {
+			return .init(operation: .cancel)
+		}
+		return .init(operation: .move, intent: .insertIntoDestinationIndexPath)
+	}
+
+	func tableView(_ tableView: UITableView, performDropWith coordinator: any UITableViewDropCoordinator) {
+		let proposal = coordinator.proposal
+		guard proposal.operation == .move else {
+			return
+		}
+
+		let ids = coordinator.session.items.compactMap {
+			$0.localObject as? UUID
+		}
+
+		guard proposal.intent == .insertIntoDestinationIndexPath, let target = coordinator.destinationIndexPath else {
+			return
+		}
+
+		let model = cache.model(with: target.row)
+		delegate?.move(ids, to: .onItem(with: model.id))
+	}
+}
+
+// MARK: - Moving support
+extension ListAdapter {
+
+	func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+		return true
+	}
+
+	func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) { }
 }
 
 // MARK: - Helpers
@@ -291,8 +370,6 @@ extension ListAdapter {
 				preferredElementSize: .large,
 				children: [statusItem, markItem]
 			)
-
-
 
 			let defaultStyleItem = UIAction(
 				title: "Item",

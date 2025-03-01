@@ -57,6 +57,8 @@ class ViewController: UIDocumentViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		delegate?.viewDidChange(state: .didLoad)
+
+		navigationItem.rightBarButtonItem = editButtonItem
 	}
 
 	override func viewDidAppear(_ animated: Bool) {

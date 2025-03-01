@@ -157,16 +157,15 @@ extension UnitPresenter: DropDelegate {
 
 	typealias ID = UUID
 
-	func move(_ id: UUID, to destination: Destination<UUID>) {
-		interactor?.move(id: id, to: destination)
+	func move(_ ids: [UUID], to destination: Destination<UUID>) {
+		interactor?.move(ids: ids, to: destination)
+		if let target = destination.id {
+			view?.expand(target)
+		}
 	}
-
-	func canMove(_ id: UUID) -> Bool {
-		return true
-	}
-
-	func validateMovement(_ id: UUID, to destination: Destination<UUID>) -> Bool {
-		interactor?.validateMovement(id, to: destination) ?? false
+	
+	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
+		interactor?.validateMovement(ids, to: destination) ?? false
 	}
 }
 
