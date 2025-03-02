@@ -29,7 +29,7 @@ class CircleView: NSView {
 	}
 
 	override var intrinsicContentSize: NSSize {
-		.init(width: 6, height: 6)
+		.init(width: 4, height: 4)
 	}
 
 }
