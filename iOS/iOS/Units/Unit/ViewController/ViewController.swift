@@ -73,7 +73,7 @@ class ViewController: UIDocumentViewController {
 			action: #selector(add)
 		)
 
-		addButton.accessibilityIdentifier = "navigation-item-add"
+		addButton.accessibilityIdentifier = "toolbar-item-add"
 
 		toolbarItems = [.flexibleSpace(), addButton]
 		self.navigationController?.setToolbarHidden(false, animated: true)

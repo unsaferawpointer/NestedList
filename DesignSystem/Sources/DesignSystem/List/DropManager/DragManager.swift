@@ -5,6 +5,7 @@
 //  Created by Anton Cherkasov on 03.03.2025.
 //
 
+#if canImport(AppKit)
 import AppKit
 
 final class DragManager { }
@@ -57,3 +58,4 @@ private extension NSPasteboard.PasteboardType {
 
 	static let identifier: Self = .init("dev.zeroindex.ListAdapter.identifier")
 }
+#endif
