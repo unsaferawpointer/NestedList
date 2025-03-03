@@ -59,12 +59,6 @@ class ViewController: UIDocumentViewController {
 		delegate?.viewDidChange(state: .didLoad)
 
 		navigationItem.rightBarButtonItem = editButtonItem
-	}
-
-	override func viewDidAppear(_ animated: Bool) {
-		super.viewDidAppear(animated)
-
-		delegate?.viewDidChange(state: .didAppear)
 
 		let addButton = UIBarButtonItem(
 			title: "Create New",
@@ -76,7 +70,14 @@ class ViewController: UIDocumentViewController {
 		addButton.accessibilityIdentifier = "toolbar-item-add"
 
 		toolbarItems = [.flexibleSpace(), addButton]
-		self.navigationController?.setToolbarHidden(false, animated: true)
+	}
+
+	override func viewDidAppear(_ animated: Bool) {
+		super.viewDidAppear(animated)
+
+		self.navigationController?.setToolbarHidden(false, animated: false)
+
+		delegate?.viewDidChange(state: .didAppear)
 	}
 
 	override func updateContentUnavailableConfiguration(using state: UIContentUnavailableConfigurationState) {
