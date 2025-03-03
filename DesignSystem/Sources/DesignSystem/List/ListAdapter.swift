@@ -71,8 +71,7 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		tableView.dataSource = self
 		tableView.delegate = self
 
-		tableView.registerForDraggedTypes([.identifier, .string])
-		tableView.setDraggingSourceOperationMask(.copy, forLocal: false)
+		DragManager.registerTypes(in: tableView)
 
 		tableView.target = self
 		tableView.doubleAction = #selector(handleDoubleClick(_:))
@@ -142,23 +141,12 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 	// MARK: - Drag And Drop support
 
 	public func outlineView(_ outlineView: NSOutlineView, pasteboardWriterForItem item: Any) -> NSPasteboardWriting? {
-		guard let item = item as? Item else {
+		guard let item = item as? Item, case let .item(id) = item.id else {
 			return nil
 		}
 
 		let pasteboardItem = NSPasteboardItem()
-
-		let encoder = JSONEncoder()
-		guard
-			case let .item(id) = item.id,
-			let data = try? encoder.encode(id)
-		else {
-			return nil
-		}
-
-		pasteboardItem.setData(data, forType: .identifier)
-
-		return pasteboardItem
+		return DragManager.write(id, to: pasteboardItem)
 	}
 
 	public func outlineView(
@@ -192,13 +180,13 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		proposedChildIndex index: Int
 	) -> NSDragOperation {
 
-		let ids = getIdentifiers(from: info)
+		let ids: [ID] = DragManager.identifiers(from: info)
 
 		guard let dropDelegate, let destination = getDestination(proposedItem: item, proposedChildIndex: index) else {
 			return []
 		}
 
-		if isLocal(from: info) {
+		if DragManager.isLocal(from: info, in: outlineView) {
 			guard info.draggingSourceOperationMask == .copy else {
 				let isValid = dropDelegate.validateMovement(ids, to: destination)
 				return isValid ? .private : []
@@ -219,8 +207,8 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 			return false
 		}
 
-		guard !isLocal(from: info) else {
-			let ids = getIdentifiers(from: info)
+		guard !DragManager.isLocal(from: info, in: outlineView) else {
+			let ids: [ID] = DragManager.identifiers(from: info)
 			if info.draggingSourceOperationMask == .copy {
 				dropDelegate.copy(ids, to: destination)
 			} else {
@@ -504,30 +492,6 @@ private extension ListAdapter {
 		}
 	}
 
-	func isLocal(from info: NSDraggingInfo) -> Bool {
-
-		guard let source = info.draggingSource as? NSOutlineView else {
-			return false
-		}
-
-		return source === tableView
-	}
-
-	func getIdentifiers(from info: NSDraggingInfo) -> [ID] {
-
-		guard let pasteboardItems = info.draggingPasteboard.pasteboardItems else {
-			return []
-		}
-
-		let decoder = JSONDecoder()
-
-		return pasteboardItems.compactMap { item in
-			item.data(forType: .identifier)
-		}.compactMap { data in
-			return try? decoder.decode(ID.self, from: data)
-		}
-	}
-
 	func makeCellIfNeeded(for model: Model, in table: NSTableView) -> NSView? {
 
 		typealias Cell = Model.Cell
@@ -557,11 +521,6 @@ private extension ListAdapter {
 		cell?.model = model
 
 	}
-}
-
-private extension NSPasteboard.PasteboardType {
-
-	static let identifier: Self = .init("dev.zeroindex.ListAdapter.identifier")
 }
 
 // MARK: - Nested data structs
