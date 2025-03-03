@@ -85,7 +85,7 @@ extension Parser: ParserProtocol {
 
 			let isMarked = {
 				switch line.prefix {
-				case .exclamationMark:
+				case .asterisk:
 					return true
 				default:
 					return line.annotations.contains(.mark)

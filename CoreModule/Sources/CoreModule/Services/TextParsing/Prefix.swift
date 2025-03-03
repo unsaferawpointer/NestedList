@@ -9,6 +9,5 @@ enum Prefix: Character, CaseIterable {
 	case dash = 			"-"
 	case asterisk = 		"*"
 	case plus = 			"+"
-	case exclamationMark = 	"!"
 	case ex = 				"x"
 }
