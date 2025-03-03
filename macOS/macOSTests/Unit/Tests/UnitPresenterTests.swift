@@ -59,7 +59,7 @@ extension UnitPresenterTests {
 
 	@Test func test_viewDidLoad() {
 		// Act
-		sut.viewDidLoad()
+		sut.viewDidChange(state: .didLoad)
 
 		// Assert
 
