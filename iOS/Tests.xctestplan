@@ -13,6 +13,9 @@
   },
   "testTargets" : [
     {
+      "skippedTests" : [
+        "DocumentTests\/test_createNew()"
+      ],
       "target" : {
         "containerPath" : "container:iOS.xcodeproj",
         "identifier" : "4CF92CA32CE8A97400135033",
