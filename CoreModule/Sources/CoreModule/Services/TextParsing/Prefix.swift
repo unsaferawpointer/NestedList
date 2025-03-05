@@ -10,4 +10,5 @@ enum Prefix: Character, CaseIterable {
 	case asterisk = 		"*"
 	case plus = 			"+"
 	case ex = 				"x"
+	case greaterThan = 		">"
 }

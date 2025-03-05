@@ -128,6 +128,7 @@ private extension ParserTests {
 		let project1 = result[1]
 		#expect(project1.value.style == .section)
 		#expect(project1.value.text == "project 1")
+		#expect(project1.value.isFolded)
 
 		#expect(project1.children.count == 2)
 

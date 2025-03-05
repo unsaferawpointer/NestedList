@@ -16,6 +16,8 @@ public struct Item {
 
 	public var isMarked: Bool
 
+	public var isFolded: Bool
+
 	public var text: String
 
 	public var note: String?
@@ -28,6 +30,7 @@ public struct Item {
 		uuid: UUID = UUID(),
 		isDone: Bool = false,
 		isMarked: Bool = false,
+		isFolded: Bool = false,
 		text: String,
 		note: String? = nil,
 		style: Style
@@ -35,6 +38,7 @@ public struct Item {
 		self.uuid = uuid
 		self.isDone = isDone
 		self.isMarked = isMarked
+		self.isFolded = isFolded
 		self.text = text
 		self.note = note
 		self.style = style

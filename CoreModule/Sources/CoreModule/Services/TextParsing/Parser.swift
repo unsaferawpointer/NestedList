@@ -73,31 +73,17 @@ extension Parser: ParserProtocol {
 				continue
 			}
 
-			let isDone = {
-				switch line.prefix {
-				case .ex:
-					return true
-				default:
-					return line.annotations.contains(.done)
-				}
-
-			}()
-
-			let isMarked = {
-				switch line.prefix {
-				case .asterisk:
-					return true
-				default:
-					return line.annotations.contains(.mark)
-				}
-			}()
+			let isDone = contains(prefix: .ex, orAnnotation: .done, in: line)
+			let isMarked = contains(prefix: .asterisk, orAnnotation: .mark, in: line)
+			let isFolded = contains(prefix: .greaterThan, orAnnotation: .fold, in: line)
 
 			let style: Item.Style = line.hasColon ? .section : .item
 
 			let item = Item(
 				uuid: .init(),
-				isDone: isDone,
-				isMarked: isMarked,
+				isDone: isDone && style == .item,
+				isMarked: isMarked && style == .item,
+				isFolded: isFolded,
 				text: line.text,
 				style: style
 			)
@@ -123,6 +109,17 @@ extension Parser: ParserProtocol {
 }
 
 // MARK: - Helpers
+extension Parser {
+
+	func contains(prefix: Prefix, orAnnotation annotation: Annotation, in line: Line) -> Bool {
+		guard line.prefix == prefix else {
+			return line.annotations.contains(annotation)
+		}
+		return true
+	}
+}
+
+// MARK: - Helpers
 private extension Parser {
 
 	func text(for node: Node<Item>, indent: Int) -> [String] {
@@ -134,10 +131,15 @@ private extension Parser {
 
 		let body = item.text + (item.style == .section ? ":" : "")
 
-		let markAnnotation = node.value.isMarked ? "@" + Annotation.mark.rawValue : ""
-		let doneAnnotation = node.value.isDone ? "@" + Annotation.done.rawValue : ""
+		let isLeaf = node.children.isEmpty
 
-		let line = indentPrefix + [sign, body, doneAnnotation, markAnnotation].filter { !$0.isEmpty }.joined(separator: " ")
+		let markAnnotation = node.value.isMarked && isLeaf ? "@" + Annotation.mark.rawValue : ""
+		let doneAnnotation = node.value.isDone && isLeaf ? "@" + Annotation.done.rawValue : ""
+		let foldAnnotation = node.value.isFolded ? "@" + Annotation.fold.rawValue : ""
+
+		let line = indentPrefix + [sign, body, doneAnnotation, markAnnotation, foldAnnotation]
+			.filter { !$0.isEmpty }
+			.joined(separator: " ")
 
 		var lines = [line]
 		if let note = item.note {
@@ -170,13 +172,10 @@ private extension Parser {
 			// Annotations
 
 			var annotations = Set<Annotation>()
-
-			if trimmed.replace(.done) {
-				annotations.insert(.done)
-			}
-
-			if trimmed.replace(.mark) {
-				annotations.insert(.mark)
+			Annotation.allCases.forEach {
+				if trimmed.replace($0) {
+					annotations.insert($0)
+				}
 			}
 
 			// Colon
@@ -226,7 +225,11 @@ extension Parser {
 enum Annotation: String {
 	case done
 	case mark
+	case fold
 }
+
+// MARK: - CaseIterable
+extension Annotation: CaseIterable { }
 
 // MARK: - Extensions
 
