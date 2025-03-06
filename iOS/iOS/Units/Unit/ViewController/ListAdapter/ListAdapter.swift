@@ -394,7 +394,23 @@ extension ListAdapter {
 				children: [defaultStyleItem, sectionStyleItem]
 			)
 
-			let menu = UIMenu(title: "", children: [newItem, editGroup, statusGroup, groupItem, styleGroup, deleteItem])
+			let moveToRootItem = UIAction(
+				title: "To Root",
+				image: nil
+			) { [weak self] action in
+				self?.delegate?.move([model.id], to: .toRoot)
+			}
+
+			let moveGroup = UIMenu(
+				title: "Move",
+				image: nil,
+				identifier: nil,
+				options: [],
+				preferredElementSize: .large,
+				children: [moveToRootItem]
+			)
+
+			let menu = UIMenu(title: "", children: [newItem, editGroup, statusGroup, groupItem, moveGroup, styleGroup, deleteItem])
 
 			return menu
 		}
