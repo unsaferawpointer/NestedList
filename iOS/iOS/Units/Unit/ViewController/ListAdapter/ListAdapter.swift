@@ -146,6 +146,13 @@ extension ListAdapter: UITableViewDragDelegate {
 
 extension ListAdapter: UITableViewDropDelegate {
 
+	func tableView(_ tableView: UITableView, dragSessionWillBegin session: any UIDragSession) {
+		guard let item = session.items.first, let id = item.localObject as? UUID else {
+			return
+		}
+		cache.collapse(id)
+	}
+
 	func tableView(
 		_ tableView: UITableView,
 		dropSessionDidUpdate session: any UIDropSession,
