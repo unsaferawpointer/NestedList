@@ -158,6 +158,19 @@ extension ListAdapter: UITableViewDropDelegate {
 		dropSessionDidUpdate session: any UIDropSession,
 		withDestinationIndexPath destinationIndexPath: IndexPath?
 	) -> UITableViewDropProposal {
+		let id = session.items.compactMap {
+			$0.localObject as? UUID
+		}.first
+
+		guard let id, let target = destinationIndexPath?.row else {
+			return .init(operation: .cancel)
+		}
+		guard target < cache.count else {
+			return .init(operation: .move, intent: .automatic)
+		}
+		guard id != cache.identifier(for: target) else {
+			return .init(operation: .cancel)
+		}
 		return .init(operation: .move, intent: .automatic)
 	}
 
