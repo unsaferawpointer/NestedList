@@ -331,7 +331,7 @@ extension ListAdapter {
 				title: "", image: nil,
 				identifier: nil,
 				options: [.displayInline],
-				preferredElementSize: .large,
+				preferredElementSize: .medium,
 				children: [cutItem, copyItem, pasteItem]
 			)
 
@@ -387,7 +387,7 @@ extension ListAdapter {
 				children: [defaultStyleItem, sectionStyleItem]
 			)
 
-			let menu = UIMenu(title: "", children: [newItem, editGroup, statusGroup, groupItem, styleGroup, deleteItem])
+			let menu = UIMenu(title: "", children: [groupItem, newItem, editGroup, statusGroup, styleGroup, deleteItem])
 
 			return menu
 		}
