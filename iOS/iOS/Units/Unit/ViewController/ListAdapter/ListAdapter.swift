@@ -31,7 +31,7 @@ final class ListAdapter: NSObject {
 
 	var invalidateState: Bool = false
 
-	var cache = Cache()
+	var cache = ListDataSource()
 
 	// MARK: - Initialization
 
@@ -158,30 +158,12 @@ extension ListAdapter: UITableViewDropDelegate {
 		dropSessionDidUpdate session: any UIDropSession,
 		withDestinationIndexPath destinationIndexPath: IndexPath?
 	) -> UITableViewDropProposal {
-
-		guard let delegate else {
-			return .init(operation: .forbidden)
-		}
-
-		let ids = session.items.compactMap {
-			$0.localObject as? UUID
-		}
-
-		guard let indexPath = destinationIndexPath, indexPath.row < cache.count else {
-			return .init(operation: .forbidden)
-		}
-
-		let model = cache.model(with: indexPath.row)
-
-		guard delegate.validateMovement(ids, to: .onItem(with: model.id)) else {
-			return .init(operation: .cancel)
-		}
-		return .init(operation: .move, intent: .insertIntoDestinationIndexPath)
+		return .init(operation: .move, intent: .automatic)
 	}
 
 	func tableView(_ tableView: UITableView, performDropWith coordinator: any UITableViewDropCoordinator) {
 		let proposal = coordinator.proposal
-		guard proposal.operation == .move else {
+		guard proposal.operation == .move, let target = coordinator.destinationIndexPath else {
 			return
 		}
 
@@ -189,12 +171,16 @@ extension ListAdapter: UITableViewDropDelegate {
 			$0.localObject as? UUID
 		}
 
-		guard proposal.intent == .insertIntoDestinationIndexPath, let target = coordinator.destinationIndexPath else {
+		switch proposal.intent {
+		case .insertAtDestinationIndexPath:
+			let destination = cache.destination(for: target.row)
+			delegate?.move(ids, to: destination)
+		case .insertIntoDestinationIndexPath:
+			let model = cache.model(with: target.row)
+			delegate?.move(ids, to: .onItem(with: model.id))
+		default:
 			return
 		}
-
-		let model = cache.model(with: target.row)
-		delegate?.move(ids, to: .onItem(with: model.id))
 	}
 }
 
@@ -401,23 +387,7 @@ extension ListAdapter {
 				children: [defaultStyleItem, sectionStyleItem]
 			)
 
-			let moveToRootItem = UIAction(
-				title: "To Root",
-				image: nil
-			) { [weak self] action in
-				self?.delegate?.move([model.id], to: .toRoot)
-			}
-
-			let moveGroup = UIMenu(
-				title: "Move",
-				image: nil,
-				identifier: nil,
-				options: [],
-				preferredElementSize: .large,
-				children: [moveToRootItem]
-			)
-
-			let menu = UIMenu(title: "", children: [newItem, editGroup, statusGroup, groupItem, moveGroup, styleGroup, deleteItem])
+			let menu = UIMenu(title: "", children: [newItem, editGroup, statusGroup, groupItem, styleGroup, deleteItem])
 
 			return menu
 		}
