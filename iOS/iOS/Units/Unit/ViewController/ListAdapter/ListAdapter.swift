@@ -44,6 +44,8 @@ final class ListAdapter: NSObject {
 		self.tableView?.dragDelegate = self
 		self.tableView?.dropDelegate = self
 
+		self.tableView?.register(ItemCell.self, forCellReuseIdentifier: "cell")
+
 		self.cache.delegate = self
 
 		self.delegate = delegate
@@ -78,7 +80,7 @@ extension ListAdapter: UITableViewDataSource {
 
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-		let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+		let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! ItemCell
 		cell.indentationWidth = 24
 		cell.layoutMargins.left = 32
 		cell.layoutMargins.right = 32
@@ -210,7 +212,7 @@ extension ListAdapter {
 // MARK: - Helpers
 private extension ListAdapter {
 
-	func updateCell(_ cell: UITableViewCell, with configuration: RowConfiguration) {
+	func updateCell(_ cell: ItemCell, with configuration: RowConfiguration) {
 
 		guard let tableView else {
 			return
@@ -221,15 +223,8 @@ private extension ListAdapter {
 
 		cell.accessoryView = !configuration.isLeaf ? UIImageView(image: image) : nil
 
-		let isPad = UIDevice.current.userInterfaceIdiom == .pad
-
-		let attenuation = isPad ? 0.1 : 0.4
-
-		let interval = tableView.contentSize.width - 240.0
-		let level = Double(configuration.level)
-		let offset = interval - exp(-attenuation * level) * interval
-
-		cell.layoutMargins.left = offset
+		cell.indentationLevel = configuration.level
+		cell.validateIndent()
 	}
 
 	func updateCell(_ cell: UITableViewCell, with model: ItemModel) {
@@ -283,7 +278,7 @@ extension ListAdapter: CacheDelegate {
 	
 
 	func updateCell(indexPath: IndexPath, rowConfiguration: RowConfiguration) {
-		guard let cell = tableView?.cellForRow(at: indexPath) else {
+		guard let cell = tableView?.cellForRow(at: indexPath) as? ItemCell else {
 			assertionFailure("Can't find cell")
 			return
 		}

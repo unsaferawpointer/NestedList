@@ -89,7 +89,6 @@ class ViewController: UIDocumentViewController {
 		} else {
 			self.contentUnavailableConfiguration = nil
 		}
-
 	}
 
 	override func setEditing(_ editing: Bool, animated: Bool) {
@@ -160,8 +159,8 @@ private extension ViewController {
 
 		NSLayoutConstraint.activate(
 			[
-				tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-				tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+				tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+				tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
 				tableView.topAnchor.constraint(equalTo: view.topAnchor),
 				tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
 			]
