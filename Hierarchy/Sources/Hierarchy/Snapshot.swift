@@ -27,8 +27,8 @@ public struct Snapshot<Model: Identifiable> {
 
 	public init(_ base: [Node<Model>]) {
 		self.root = base.map(\.value.id)
-		base.forEach { node in
-			normalize(base: node, parent: nil)
+		base.enumerated().forEach { (index, node) in
+			normalize(base: node, parent: nil, index: index)
 		}
 	}
 
@@ -107,21 +107,22 @@ public extension Snapshot {
 		)
 	}
 
-	func insert(before condition: (Model) -> Model?) -> Snapshot<Model> {
+	func insert(before condition: (Model, Int) -> Model?) -> Snapshot<Model> {
 		let nodes = getNodes()
-		let inserted = insert(in: nodes, before: condition)
+		let inserted = insert(in: nodes, before: condition, level: 0)
 		return Snapshot(inserted)
 	}
 
 	func insert(
 		in nodes: [Node<Model>],
-		before condition: (Model) -> Model?
+		before condition: (Model, Int) -> Model?,
+		level: Int
 	) -> [Node<Model>] {
 
 		var result = [Node<Model>]()
 
 		for child in nodes {
-			guard let model = condition(child.value) else {
+			guard let model = condition(child.value, level) else {
 				result.append(child)
 				continue
 			}
@@ -133,7 +134,7 @@ public extension Snapshot {
 		return result.map {
 			Node(
 				value: $0.value,
-				children: insert(in: $0.children, before: condition)
+				children: insert(in: $0.children, before: condition, level: level + 1)
 			)
 		}
 	}
@@ -189,7 +190,7 @@ public extension Snapshot {
 	}
 
 	func index(for id: ID) -> Int {
-		return storage[unsafe: id].index
+		return storage[unsafe: id].globalIndex
 	}
 
 	func rootItem(at index: Int) -> Model {
@@ -258,7 +259,8 @@ public extension Snapshot {
 			modificated[id] = NodeInfo(
 				model: model,
 				level: info.level,
-				index: info.index,
+				localIndex: info.localIndex,
+				globalIndex: info.globalIndex,
 				parent: info.parent
 			)
 		}
@@ -313,7 +315,7 @@ private extension Snapshot {
 // MARK: - Helpers
 private extension Snapshot {
 
-	mutating func normalize(base: Node<Model>, parent: ID?, level: Int = 0) {
+	mutating func normalize(base: Node<Model>, parent: ID?, index: Int, level: Int = 0) {
 
 		hierarchy[base.id] = base.children.map(\.value.id)
 
@@ -327,12 +329,13 @@ private extension Snapshot {
 		storage[base.id] = NodeInfo(
 			model: base.value,
 			level: level,
-			index: cache.flattened.count - 1,
+			localIndex: index,
+			globalIndex: cache.flattened.count - 1,
 			parent: parent
 		)
 
-		for child in base.children {
-			normalize(base: child, parent: base.id, level: level + 1)
+		for (index, child) in base.children.enumerated() {
+			normalize(base: child, parent: base.id, index: index, level: level + 1)
 		}
 	}
 }

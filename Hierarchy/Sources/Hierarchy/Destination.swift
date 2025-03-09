@@ -14,7 +14,21 @@ public enum Destination<ID> {
 	case onItem(with: ID)
 	case inItem(with: ID, atIndex: Int)
 
-	public var id: ID? {
+	// MARK: - Initialization block
+
+	public init(target: ID?) {
+		if let target {
+			self = .onItem(with: target)
+		} else {
+			self = .toRoot
+		}
+	}
+}
+
+// MARK: - Computed properties
+public extension Destination {
+
+	var id: ID? {
 		switch self {
 		case .toRoot, .inRoot:
 			return nil
@@ -23,26 +37,12 @@ public enum Destination<ID> {
 		}
 	}
 
-	public var index: Int? {
+	var index: Int? {
 		switch self {
-		case .toRoot:
+		case .toRoot, .onItem:
 			return nil
-		case .inRoot(let index):
+		case .inRoot(let index), .inItem(_ , let index):
 			return index
-		case .onItem:
-			return nil
-		case .inItem(_ , let index):
-			return index
-		}
-	}
-
-	// MARK: - Initialization block
-
-	public init(target: ID?) {
-		if let target {
-			self = .onItem(with: target)
-		} else {
-			self = .toRoot
 		}
 	}
 }

@@ -68,13 +68,20 @@ extension UnitPresenter: ListDelegate {
 	}
 }
 
-// MARK: - UnitViewOutput
-extension UnitPresenter: UnitViewOutput {
+// MARK: - ViewDelegate
+extension UnitPresenter: ViewDelegate {
 
-	func viewDidLoad() {
+	func viewDidChange(state: ViewState) {
+		guard case .didLoad = state else {
+			return
+		}
 		interactor?.fetchData()
 		view?.expand(nil)
 	}
+}
+
+// MARK: - UnitViewOutput
+extension UnitPresenter: UnitViewOutput {
 
 	func userCreateNewItem() {
 		guard let interactor else {

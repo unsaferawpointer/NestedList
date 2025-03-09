@@ -61,7 +61,7 @@ extension ItemsFactory: ItemsFactoryProtocol {
 				icon: iconConfiguration,
 				text: textConfiguration
 			),
-			isGroup: level == 0 && item.style == .section,
+			isGroup: item.style == .section,
 			height: item.note != nil ? 36 : nil
 		)
 	}

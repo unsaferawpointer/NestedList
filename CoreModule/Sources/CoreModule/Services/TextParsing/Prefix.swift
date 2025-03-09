@@ -6,7 +6,9 @@
 //
 
 enum Prefix: Character, CaseIterable {
-	case dash = "-"
-	case asterisk = "*"
-	case plus = "+"
+	case dash = 			"-"
+	case asterisk = 		"*"
+	case plus = 			"+"
+	case ex = 				"x"
+	case greaterThan = 		">"
 }

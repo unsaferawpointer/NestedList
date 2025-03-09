@@ -40,6 +40,7 @@ class ViewController: UIDocumentViewController {
 	lazy var tableView: UITableView = {
 		let tableView = UITableView(frame: .zero, style: .plain)
 		tableView.separatorStyle = .none
+		tableView.showsVerticalScrollIndicator = false
 
 		tableView.allowsMultipleSelection = false
 
@@ -57,12 +58,8 @@ class ViewController: UIDocumentViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		delegate?.viewDidChange(state: .didLoad)
-	}
 
-	override func viewDidAppear(_ animated: Bool) {
-		super.viewDidAppear(animated)
-
-		delegate?.viewDidChange(state: .didAppear)
+		navigationItem.rightBarButtonItem = editButtonItem
 
 		let addButton = UIBarButtonItem(
 			title: "Create New",
@@ -71,10 +68,17 @@ class ViewController: UIDocumentViewController {
 			action: #selector(add)
 		)
 
-		addButton.accessibilityIdentifier = "navigation-item-add"
+		addButton.accessibilityIdentifier = "toolbar-item-add"
 
 		toolbarItems = [.flexibleSpace(), addButton]
-		self.navigationController?.setToolbarHidden(false, animated: true)
+	}
+
+	override func viewDidAppear(_ animated: Bool) {
+		super.viewDidAppear(animated)
+
+		self.navigationController?.setToolbarHidden(false, animated: false)
+
+		delegate?.viewDidChange(state: .didAppear)
 	}
 
 	override func updateContentUnavailableConfiguration(using state: UIContentUnavailableConfigurationState) {
@@ -86,7 +90,6 @@ class ViewController: UIDocumentViewController {
 		} else {
 			self.contentUnavailableConfiguration = nil
 		}
-
 	}
 
 	override func setEditing(_ editing: Bool, animated: Bool) {
@@ -157,8 +160,8 @@ private extension ViewController {
 
 		NSLayoutConstraint.activate(
 			[
-				tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-				tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+				tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+				tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
 				tableView.topAnchor.constraint(equalTo: view.topAnchor),
 				tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
 			]

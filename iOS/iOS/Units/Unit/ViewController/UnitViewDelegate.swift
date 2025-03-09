@@ -9,7 +9,7 @@ import Foundation
 import CoreModule
 import DesignSystem
 
-protocol UnitViewDelegate<ID>: DesignSystem.DropDelegate, ViewDelegate {
+protocol UnitViewDelegate<ID>: DropDelegate, ViewDelegate {
 
 	associatedtype ID
 

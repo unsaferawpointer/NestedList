@@ -23,7 +23,7 @@ extension ListAdapter.Identifier: Codable where ID: Codable { }
 
 enum ListModel<Model: CellModel> where Model.ID: Codable {
 	case model(_ value: Model)
-	case spacer(before: Model.ID)
+	case spacer(before: Model.ID, height: SpacerHeight)
 }
 
 // MARK: - Identifiable
@@ -31,12 +31,18 @@ extension ListModel: Identifiable {
 
 	var id: ListAdapter<Model>.Identifier<Model.ID> {
 		switch self {
-		case .model(let value):
+		case let .model(value):
 			return .item(id: value.id)
-		case .spacer(let before):
+		case let .spacer(before, _):
 			return .spacer(before: before)
 		}
 	}
+}
+
+enum SpacerHeight: CGFloat {
+	case small = 4
+	case medium = 8
+	case large = 16
 }
 
 // MARK: - Computed properties
@@ -44,10 +50,10 @@ extension ListModel {
 
 	var height: CGFloat? {
 		switch self {
-		case .model(let value):
+		case let .model(value):
 			return value.height
-		case .spacer:
-			return 24.0
+		case let .spacer(_, height):
+			return height.rawValue
 		}
 	}
 

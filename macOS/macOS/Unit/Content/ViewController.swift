@@ -12,8 +12,7 @@ import DesignSystem
 
 import SwiftUI
 
-protocol UnitViewOutput {
-	func viewDidLoad()
+protocol UnitViewOutput: ViewDelegate {
 
 	func userCreateNewItem()
 	func userDeleteItem()
@@ -111,11 +110,12 @@ class ViewController: NSViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		output?.viewDidLoad()
+		output?.viewDidChange(state: .didLoad)
 	}
 
 	override func viewWillAppear() {
 		super.viewWillAppear()
+		output?.viewDidChange(state: .willAppear)
 		table.sizeLastColumnToFit()
 	}
 }

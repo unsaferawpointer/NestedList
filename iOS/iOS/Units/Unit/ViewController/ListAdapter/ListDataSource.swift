@@ -1,5 +1,5 @@
 //
-//  AdapterCache.swift
+//  ListDataSource.swift
 //  iOS
 //
 //  Created by Anton Cherkasov on 07.01.2025.
@@ -8,7 +8,7 @@
 import Foundation
 import Hierarchy
 
-final class Cache {
+final class ListDataSource {
 
 	var expanded: Set<UUID> = []
 
@@ -19,7 +19,19 @@ final class Cache {
 	weak var delegate: CacheDelegate?
 }
 
-extension Cache {
+extension ListDataSource {
+
+	func destination(for row: Int) -> Destination<UUID> {
+		guard row < list.count else {
+			return .toRoot
+		}
+		let id = list[row]
+		return snapshot.destination(ofItem: id)
+	}
+}
+
+// MARK: - Public interface
+extension ListDataSource {
 
 	var count: Int {
 		return list.count
@@ -32,6 +44,10 @@ extension Cache {
 			isExpanded: expanded.contains(id),
 			isLeaf: snapshot.isLeaf(id: id)
 		)
+	}
+
+	func identifier(for row: Int) -> UUID {
+		return list[row]
 	}
 
 	func model(with index: Int) -> ItemModel {
@@ -53,7 +69,6 @@ extension Cache {
 		for id in updated {
 
 			let oldIndex = oldList.firstIndex(where: { $0 == id })!
-			let newIndex = newList.firstIndex(where: { $0 == id })!
 
 			let oldModel = oldSnapshot.model(with: id)
 			let newModel = newSnapshot.model(with: id)
@@ -69,10 +84,6 @@ extension Cache {
 				isExpanded: expanded.contains(id),
 				isLeaf: newSnapshot.isLeaf(id: id)
 			)
-
-			guard oldIndex == newIndex else {
-				continue
-			}
 
 			if oldModel != newModel {
 				delegate?.updateCell(indexPath: .init(row: oldIndex, section: 0), model: newModel)

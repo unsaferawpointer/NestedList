@@ -168,6 +168,7 @@ extension Node: Hashable where Value: Hashable {
 	public func hash(into hasher: inout Hasher) {
 		hasher.combine(id)
 		hasher.combine(value)
+		hasher.combine(children)
 	}
 }
 

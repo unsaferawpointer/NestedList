@@ -37,6 +37,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 		let documentBrowser = DocumentBrowserViewController()
 		documentBrowser.allowsDocumentCreation = true
+		documentBrowser.allowsPickingMultipleItems = true
 
 		window?.rootViewController = documentBrowser
 		window?.makeKeyAndVisible()

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import DesignSystem
 import Hierarchy
 
 struct RowConfiguration: Equatable {
@@ -30,7 +31,7 @@ final class ListAdapter: NSObject {
 
 	var invalidateState: Bool = false
 
-	var cache = Cache()
+	var cache = ListDataSource()
 
 	// MARK: - Initialization
 
@@ -40,6 +41,10 @@ final class ListAdapter: NSObject {
 
 		self.tableView?.dataSource = self
 		self.tableView?.delegate = self
+		self.tableView?.dragDelegate = self
+		self.tableView?.dropDelegate = self
+
+		self.tableView?.register(ItemCell.self, forCellReuseIdentifier: "cell")
 
 		self.cache.delegate = self
 
@@ -75,7 +80,7 @@ extension ListAdapter: UITableViewDataSource {
 
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-		let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+		let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! ItemCell
 		cell.indentationWidth = 24
 		cell.layoutMargins.left = 32
 		cell.layoutMargins.right = 32
@@ -122,10 +127,92 @@ extension ListAdapter: UITableViewDelegate {
 	}
 }
 
+// MARK: - UITableViewDragDelegate
+extension ListAdapter: UITableViewDragDelegate {
+
+	func tableView(
+		_ tableView: UITableView,
+		itemsForBeginning session: any UIDragSession,
+		at indexPath: IndexPath
+	) -> [UIDragItem] {
+		guard tableView.isEditing else {
+			return []
+		}
+		let model = cache.model(with: indexPath.row)
+		let item = UIDragItem(itemProvider: NSItemProvider())
+		item.localObject = model.id
+		return [item]
+	}
+
+}
+
+extension ListAdapter: UITableViewDropDelegate {
+
+	func tableView(_ tableView: UITableView, dragSessionWillBegin session: any UIDragSession) {
+		guard let item = session.items.first, let id = item.localObject as? UUID else {
+			return
+		}
+		cache.collapse(id)
+	}
+
+	func tableView(
+		_ tableView: UITableView,
+		dropSessionDidUpdate session: any UIDropSession,
+		withDestinationIndexPath destinationIndexPath: IndexPath?
+	) -> UITableViewDropProposal {
+		let id = session.items.compactMap {
+			$0.localObject as? UUID
+		}.first
+
+		guard let id, let target = destinationIndexPath?.row else {
+			return .init(operation: .forbidden)
+		}
+		guard target < cache.count else {
+			return .init(operation: .move, intent: .automatic)
+		}
+		guard id != cache.identifier(for: target) else {
+			return .init(operation: .cancel)
+		}
+		return .init(operation: .move, intent: .automatic)
+	}
+
+	func tableView(_ tableView: UITableView, performDropWith coordinator: any UITableViewDropCoordinator) {
+		let proposal = coordinator.proposal
+		guard proposal.operation == .move, let target = coordinator.destinationIndexPath else {
+			return
+		}
+
+		let ids = coordinator.session.items.compactMap {
+			$0.localObject as? UUID
+		}
+
+		switch proposal.intent {
+		case .insertAtDestinationIndexPath:
+			let destination = cache.destination(for: target.row)
+			delegate?.move(ids, to: destination)
+		case .insertIntoDestinationIndexPath:
+			let model = cache.model(with: target.row)
+			delegate?.move(ids, to: .onItem(with: model.id))
+		default:
+			return
+		}
+	}
+}
+
+// MARK: - Moving support
+extension ListAdapter {
+
+	func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+		return true
+	}
+
+	func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) { }
+}
+
 // MARK: - Helpers
 private extension ListAdapter {
 
-	func updateCell(_ cell: UITableViewCell, with configuration: RowConfiguration) {
+	func updateCell(_ cell: ItemCell, with configuration: RowConfiguration) {
 
 		guard let tableView else {
 			return
@@ -136,15 +223,8 @@ private extension ListAdapter {
 
 		cell.accessoryView = !configuration.isLeaf ? UIImageView(image: image) : nil
 
-		let isPad = UIDevice.current.userInterfaceIdiom == .pad
-
-		let attenuation = isPad ? 0.1 : 0.4
-
-		let interval = tableView.contentSize.width - 240.0
-		let level = Double(configuration.level)
-		let offset = interval - exp(-attenuation * level) * interval
-
-		cell.layoutMargins.left = offset
+		cell.indentationLevel = configuration.level
+		cell.validateIndent()
 	}
 
 	func updateCell(_ cell: UITableViewCell, with model: ItemModel) {
@@ -198,7 +278,7 @@ extension ListAdapter: CacheDelegate {
 	
 
 	func updateCell(indexPath: IndexPath, rowConfiguration: RowConfiguration) {
-		guard let cell = tableView?.cellForRow(at: indexPath) else {
+		guard let cell = tableView?.cellForRow(at: indexPath) as? ItemCell else {
 			assertionFailure("Can't find cell")
 			return
 		}
@@ -259,7 +339,7 @@ extension ListAdapter {
 				title: "", image: nil,
 				identifier: nil,
 				options: [.displayInline],
-				preferredElementSize: .large,
+				preferredElementSize: .medium,
 				children: [cutItem, copyItem, pasteItem]
 			)
 
@@ -292,8 +372,6 @@ extension ListAdapter {
 				children: [statusItem, markItem]
 			)
 
-
-
 			let defaultStyleItem = UIAction(
 				title: "Item",
 				image: nil
@@ -317,7 +395,7 @@ extension ListAdapter {
 				children: [defaultStyleItem, sectionStyleItem]
 			)
 
-			let menu = UIMenu(title: "", children: [newItem, editGroup, statusGroup, groupItem, styleGroup, deleteItem])
+			let menu = UIMenu(title: "", children: [groupItem, newItem, editGroup, statusGroup, styleGroup, deleteItem])
 
 			return menu
 		}

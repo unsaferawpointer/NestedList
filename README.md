@@ -21,6 +21,7 @@ Create and edit nested lists with ease..
 
 My goal is to create an application for reading and editing nested lists in plain-text file format:
 
+version 1.0.0 (deprecated)
 ```
 Section:
 	- Marked Task 0 @mark
@@ -28,6 +29,18 @@ Section:
 		Note for Subtask 0
 		- Completed Subtask 1 @done
 	- Task 1
+		- Subtask 1 0
+```
+
+version 2.0.0
+```
+Section:
+	* Marked Task 0
+		- Subtask 0
+		Note for Subtask 0
+		x Completed Subtask 1
+	- Task 1
+		- Subtask 1 0
 ```
 
 ## Features
@@ -57,7 +70,7 @@ Section:
 
 ## App Store
 
-* App Store | Mac App Store : https://apps.apple.com/us/app/nested-list/id6738434530
+* App Store or Mac App Store : https://apps.apple.com/us/app/nested-list/id6738434530
 
 ## Localization
 
