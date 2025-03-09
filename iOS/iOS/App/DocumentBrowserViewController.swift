@@ -23,8 +23,10 @@ class DocumentBrowserViewController: UIDocumentBrowserViewController, UIDocument
 	// MARK: - UIDocumentBrowserViewControllerDelegate
 
 	// Create a new document.
-	func documentBrowser(_ controller: UIDocumentBrowserViewController,
-						 didRequestDocumentCreationWithHandler importHandler: @escaping (URL?, UIDocumentBrowserViewController.ImportMode) -> Void) {
+	func documentBrowser(
+		_ controller: UIDocumentBrowserViewController,
+		didRequestDocumentCreationWithHandler importHandler: @escaping (URL?, UIDocumentBrowserViewController.ImportMode) -> Void
+	) {
 
 		os_log("==> Creating A New Document.", log: .default, type: .debug)
 
@@ -146,7 +148,14 @@ class DocumentBrowserViewController: UIDocumentBrowserViewController, UIDocument
 				self.transitionController!.loadingProgress = nil
 
 				os_log("==> Document Opened", log: .default, type: .debug)
-				self.present(docNavController, animated: true, completion: nil)
+				if let presented = self.presentedViewController {
+					presented.dismiss(animated: true) {
+						self.present(docNavController, animated: true, completion: nil)
+					}
+				} else {
+					self.present(docNavController, animated: true, completion: nil)
+				}
+
 			}
 		})
 	}
