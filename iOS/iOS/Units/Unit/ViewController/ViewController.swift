@@ -40,6 +40,7 @@ class ViewController: UIDocumentViewController {
 	lazy var tableView: UITableView = {
 		let tableView = UITableView(frame: .zero, style: .plain)
 		tableView.separatorStyle = .none
+		tableView.showsVerticalScrollIndicator = false
 
 		tableView.allowsMultipleSelection = false
 
