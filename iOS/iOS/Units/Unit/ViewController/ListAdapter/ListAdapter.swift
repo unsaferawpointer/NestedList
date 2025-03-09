@@ -165,7 +165,7 @@ extension ListAdapter: UITableViewDropDelegate {
 		}.first
 
 		guard let id, let target = destinationIndexPath?.row else {
-			return .init(operation: .cancel)
+			return .init(operation: .forbidden)
 		}
 		guard target < cache.count else {
 			return .init(operation: .move, intent: .automatic)
