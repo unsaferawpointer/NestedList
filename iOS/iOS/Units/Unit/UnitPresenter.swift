@@ -152,6 +152,14 @@ extension UnitPresenter: UnitViewDelegate {
 	}
 }
 
+// MARK: - ListDelegate
+extension UnitPresenter: ListDelegate {
+
+	func listItemHasBeenDelete(id: UUID) {
+		interactor?.deleteItems([id])
+	}
+}
+
 import UniformTypeIdentifiers
 
 // MARK: - DropDelegate

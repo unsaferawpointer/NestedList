@@ -127,7 +127,15 @@ extension ListAdapter: UITableViewDelegate {
 	}
 
 	func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
-		return .none
+		return .delete
+	}
+
+	func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+		guard editingStyle == .delete else {
+			return
+		}
+		let id = cache.identifier(for: indexPath.row)
+		delegate?.listItemHasBeenDelete(id: id)
 	}
 
 	func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
