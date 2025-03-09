@@ -52,6 +52,14 @@ final class ListAdapter: NSObject {
 	}
 }
 
+// MARK: - Computed properties
+extension ListAdapter {
+
+	var sceneIdentifier: String? {
+		return tableView?.superview?.window?.windowScene?.session.persistentIdentifier
+	}
+}
+
 extension ListAdapter {
 
 	func apply(newSnapshot: Snapshot<ItemModel>) {
@@ -135,11 +143,16 @@ extension ListAdapter: UITableViewDragDelegate {
 		itemsForBeginning session: any UIDragSession,
 		at indexPath: IndexPath
 	) -> [UIDragItem] {
-		guard tableView.isEditing else {
+		guard tableView.isEditing, let delegate else {
 			return []
 		}
+
 		let model = cache.model(with: indexPath.row)
-		let item = UIDragItem(itemProvider: NSItemProvider())
+
+		let string = delegate.string(for: model.id)
+		let itemProvider = NSItemProvider(object: string as NSString)
+
+		let item = UIDragItem(itemProvider: itemProvider)
 		item.localObject = model.id
 		return [item]
 	}
@@ -148,11 +161,23 @@ extension ListAdapter: UITableViewDragDelegate {
 
 extension ListAdapter: UITableViewDropDelegate {
 
+	func tableView(_ tableView: UITableView, canHandle session: any UIDropSession) -> Bool {
+		guard let delegate else {
+			return false
+		}
+		let types = delegate.availableTypes()
+		return session.hasItemsConforming(toTypeIdentifiers: types)
+	}
+
 	func tableView(_ tableView: UITableView, dragSessionWillBegin session: any UIDragSession) {
 		guard let item = session.items.first, let id = item.localObject as? UUID else {
 			return
 		}
 		cache.collapse(id)
+
+		if let sceneIdentifier = tableView.superview?.window?.windowScene?.session.persistentIdentifier {
+			session.localContext = sceneIdentifier
+		}
 	}
 
 	func tableView(
@@ -160,6 +185,13 @@ extension ListAdapter: UITableViewDropDelegate {
 		dropSessionDidUpdate session: any UIDropSession,
 		withDestinationIndexPath destinationIndexPath: IndexPath?
 	) -> UITableViewDropProposal {
+
+		let sessionIdentifier = session.localDragSession?.localContext as? String
+
+		if sessionIdentifier != sceneIdentifier, destinationIndexPath != nil {
+			return .init(operation: .copy, intent: .automatic)
+		}
+
 		let id = session.items.compactMap {
 			$0.localObject as? UUID
 		}.first
@@ -178,6 +210,34 @@ extension ListAdapter: UITableViewDropDelegate {
 
 	func tableView(_ tableView: UITableView, performDropWith coordinator: any UITableViewDropCoordinator) {
 		let proposal = coordinator.proposal
+
+		if proposal.operation == .copy {
+			coordinator.session.loadObjects(ofClass: NSString.self) { [weak self] items in
+				guard let self else {
+					return
+				}
+				guard let strings = items as? [String] else { return }
+
+				switch proposal.intent {
+				case .insertAtDestinationIndexPath:
+					let destination: Destination<UUID> = if let target = coordinator.destinationIndexPath {
+						cache.destination(for: target.row)
+					} else {
+						.toRoot
+					}
+					delegate?.drop(strings, to: destination)
+				case .insertIntoDestinationIndexPath:
+					guard let target = coordinator.destinationIndexPath else {
+						return
+					}
+					let model = cache.model(with: target.row)
+					delegate?.drop(strings, to: .onItem(with: model.id))
+				default:
+					return
+				}
+			}
+		}
+
 		guard proposal.operation == .move, let target = coordinator.destinationIndexPath else {
 			return
 		}
@@ -213,10 +273,6 @@ extension ListAdapter {
 private extension ListAdapter {
 
 	func updateCell(_ cell: ItemCell, with configuration: RowConfiguration) {
-
-		guard let tableView else {
-			return
-		}
 
 		let iconName = configuration.isExpanded ? "chevron.down" : "chevron.right"
 		let image = UIImage(systemName: iconName)

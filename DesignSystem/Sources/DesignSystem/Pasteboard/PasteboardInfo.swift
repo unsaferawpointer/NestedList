@@ -5,9 +5,7 @@
 //  Created by Anton Cherkasov on 15.12.2024.
 //
 
-#if os(macOS)
-
-import AppKit
+import Foundation
 
 public struct PasteboardInfo {
 
@@ -42,11 +40,19 @@ public extension PasteboardInfo {
 		public init(data: [String : Data]) {
 			self.data = data
 		}
+	}
+}
 
-		public init(string: String) {
-			self.data = [NSPasteboard.PasteboardType.string.rawValue: string.data(using: .utf8) ?? Data()]
-		}
+#if os(macOS)
+import Cocoa
+
+public extension PasteboardInfo.Item {
+
+	init(string: String) {
+		self.data = [NSPasteboard.PasteboardType.string.rawValue: string.data(using: .utf8) ?? Data()]
 	}
 }
 
 #endif
+
+

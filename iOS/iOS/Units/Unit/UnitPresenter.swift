@@ -152,6 +152,8 @@ extension UnitPresenter: UnitViewDelegate {
 	}
 }
 
+import UniformTypeIdentifiers
+
 // MARK: - DropDelegate
 extension UnitPresenter: DropDelegate {
 
@@ -167,6 +169,19 @@ extension UnitPresenter: DropDelegate {
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
 		interactor?.validateMovement(ids, to: destination) ?? false
 	}
+
+	func availableTypes() -> [String] {
+		return [UTType.plainText.identifier]
+	}
+
+	func drop(_ strings: [String], to destination: Destination<UUID>) {
+		interactor?.insertStrings(strings, to: destination)
+	}
+
+	func string(for id: UUID) -> String {
+		return interactor?.string(for: id) ?? ""
+	}
+
 }
 
 private extension Item {
