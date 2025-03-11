@@ -30,6 +30,8 @@ final class UnitPresenter {
 
 	private let stringType = NSPasteboard.PasteboardType.string.rawValue
 
+	var settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared
+
 	// MARK: - Cache
 
 	var cache = Cache<Property, Item>()
@@ -64,7 +66,9 @@ extension UnitPresenter: UnitPresenterProtocol {
 extension UnitPresenter: ListDelegate {
 
 	func handleDoubleClick(on item: UUID) {
-		interactor?.toggleStatus(for: item, moveToEnd: false)
+		let completionBehaviour = settingsProvider.state.completionBehaviour
+		let moveToEnd = completionBehaviour == .moveToEnd
+		interactor?.toggleStatus(for: item, moveToEnd: moveToEnd)
 	}
 }
 
@@ -109,7 +113,9 @@ extension UnitPresenter: UnitViewOutput {
 		guard let selection = view?.selection else {
 			return
 		}
-		interactor?.setStatus(status, for: selection, moveToEnd: false)
+		let completionBehaviour = settingsProvider.state.completionBehaviour
+		let moveToEnd = completionBehaviour == .moveToEnd
+		interactor?.setStatus(status, for: selection, moveToEnd: moveToEnd)
 	}
 
 	func userChangedMark(_ mark: Bool) {

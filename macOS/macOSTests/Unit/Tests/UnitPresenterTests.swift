@@ -18,19 +18,23 @@ final class UnitPresenterTests {
 
 	var view: UnitViewMock!
 	var interactor: UnitInteractorMock!
+	var settingsProvider: StateProviderMock<Settings>!
 
 	init() {
 		view = UnitViewMock()
 		interactor = UnitInteractorMock()
+		settingsProvider = StateProviderMock<Settings>()
 		sut = UnitPresenter()
 		sut.view = view
 		sut.interactor = interactor
+		sut.settingsProvider = settingsProvider
 	}
 
 	deinit {
 		sut = nil
 		view = nil
 		interactor = nil
+		settingsProvider = nil
 	}
 }
 
@@ -51,6 +55,44 @@ extension UnitPresenterTests {
 		}
 
 		#expect(snapshot.identifiers.count == 2)
+	}
+}
+
+// MARK: - ListDelegate test-cases
+extension UnitPresenterTests {
+
+	@Test func test_handleDoubleClick() {
+		// Arrange
+		let expectedId: UUID = .random
+		settingsProvider.stubs.state = Settings(completionBehaviour: .regular)
+
+		// Act
+		sut.handleDoubleClick(on: expectedId)
+
+		guard case let .toggleStatus(id, moveToEnd) = interactor.invocations.first else {
+			Issue.record("Expect toggleStatus invocation")
+			return
+		}
+
+		#expect(id == expectedId)
+		#expect(moveToEnd == false)
+	}
+
+	@Test func test_handleDoubleClick_whenCompletionBehaviourIsMoveToEnd() {
+		// Arrange
+		let expectedId: UUID = .random
+		settingsProvider.stubs.state = Settings(completionBehaviour: .moveToEnd)
+
+		// Act
+		sut.handleDoubleClick(on: expectedId)
+
+		guard case let .toggleStatus(id, moveToEnd) = interactor.invocations.first else {
+			Issue.record("Expect toggleStatus invocation")
+			return
+		}
+
+		#expect(id == expectedId)
+		#expect(moveToEnd == true)
 	}
 }
 
@@ -124,6 +166,7 @@ extension UnitPresenterTests {
 	@Test func test_userChangedStatus() {
 		// Arrange
 		view.stubs.selection = [.random, .random]
+		settingsProvider.stubs.state = Settings(completionBehaviour: .regular)
 
 		// Act
 		sut.userChangedStatus(true)
@@ -137,6 +180,25 @@ extension UnitPresenterTests {
 		#expect(status == true)
 		#expect(ids == view.stubs.selection)
 		#expect(moveToEnd == false)
+	}
+
+	@Test func test_userChangedStatus_whenCompletionBehaviourIsMoveToEnd() {
+		// Arrange
+		view.stubs.selection = [.random, .random]
+		settingsProvider.stubs.state = Settings(completionBehaviour: .moveToEnd)
+
+		// Act
+		sut.userChangedStatus(true)
+
+		// Assert
+		guard case let .setStatus(status, ids, moveToEnd) = interactor.invocations[0] else {
+			Issue.record("Expect setStatus invocation")
+			return
+		}
+
+		#expect(status == true)
+		#expect(ids == view.stubs.selection)
+		#expect(moveToEnd == true)
 	}
 
 	@Test func test_userChangedMark() {
