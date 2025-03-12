@@ -122,7 +122,9 @@ extension UnitPresenter: UnitViewOutput {
 		guard let selection = view?.selection else {
 			return
 		}
-		interactor?.setMark(mark, for: selection)
+		let markingBehaviour = settingsProvider.state.markingBehaviour
+		let moveToTop = markingBehaviour == .moveToTop
+		interactor?.setMark(mark, for: selection, moveToTop: moveToTop)
 	}
 
 	func userChangedStyle(_ style: Item.Style) {

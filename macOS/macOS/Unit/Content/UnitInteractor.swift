@@ -20,7 +20,7 @@ protocol UnitInteractorProtocol {
 	func newItem(_ text: String, target: UUID?) -> UUID
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool)
 	func toggleStatus(for id: UUID, moveToEnd: Bool)
-	func setMark(_ isMarked: Bool, for ids: [UUID])
+	func setMark(_ isMarked: Bool, for ids: [UUID], moveToTop: Bool)
 	func setStyle(_ style: Item.Style, for ids: [UUID])
 	func set(text: String, note: String?, for id: UUID)
 	func deleteNote(for ids: [UUID])
@@ -112,9 +112,12 @@ extension UnitInteractor: UnitInteractorProtocol {
 		}
 	}
 
-	func setMark(_ isMarked: Bool, for ids: [UUID]) {
+	func setMark(_ isMarked: Bool, for ids: [UUID], moveToTop: Bool) {
 		storage.modificate { content in
 			content.root.setProperty(\.isMarked, to: isMarked, for: ids, downstream: true)
+			if moveToTop && isMarked {
+				content.root.moveToTop(ids)
+			}
 		}
 	}
 

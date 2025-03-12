@@ -11,10 +11,16 @@ public struct Settings {
 
 	public var completionBehaviour: CompletionBehaviour = .regular
 
+	public var markingBehaviour: MarkingBehaviour = .regular
+
 	// MARK: - Initialization
 
-	public init(completionBehaviour: CompletionBehaviour) {
+	public init(
+		completionBehaviour: CompletionBehaviour,
+		markingBehaviour: MarkingBehaviour
+	) {
 		self.completionBehaviour = completionBehaviour
+		self.markingBehaviour = markingBehaviour
 	}
 }
 

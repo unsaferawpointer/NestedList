@@ -17,16 +17,6 @@ private extension UserDefaults {
 	func setProperty<P: SettingsProperty>(_ property: P) where P.RawValue == Int {
 		setValue(property.rawValue, forKey: P.key)
 	}
-
-	func getObject<T: RawRepresentable>(forKey key: String, as type: T.Type) -> T? where T.RawValue == Int {
-		let rawValue = self.integer(forKey: key)
-		return T(rawValue: rawValue)
-	}
-
-	func setObject<T: RawRepresentable>(_ object: T, forKey key: String) where T.RawValue == Int {
-		setValue(object.rawValue, forKey: key)
-	}
-
 }
 
 public final class SettingsProvider {
@@ -42,7 +32,14 @@ public final class SettingsProvider {
 			guard state != oldValue else {
 				return
 			}
-			defaults.set(state.completionBehaviour.rawValue, forKey: "completion_behaviour")
+
+			defaults.setValuesForKeys(
+				[
+					CompletionBehaviour.key : state.completionBehaviour.rawValue,
+					MarkingBehaviour.key : state.markingBehaviour.rawValue
+				]
+			)
+
 			observations = observations.filter { $0(state) }
 		}
 	}
@@ -54,8 +51,22 @@ public final class SettingsProvider {
 	// MARK: - Initialization
 
 	public init() {
+
 		let completionBehaviour = defaults.getProperty(as: CompletionBehaviour.self)
-		self.state = Settings(completionBehaviour: completionBehaviour ?? .regular)
+		let markingBehaviour = defaults.getProperty(as: MarkingBehaviour.self)
+
+		self.state = Settings(
+			completionBehaviour: completionBehaviour ?? .regular,
+			markingBehaviour: markingBehaviour ?? .regular
+		)
+
+		defaults.register(
+			defaults:
+				[
+					CompletionBehaviour.key: CompletionBehaviour.regular.rawValue,
+					MarkingBehaviour.key: MarkingBehaviour.regular.rawValue
+				]
+		)
 
 		NotificationCenter.default.addObserver(
 			self,
@@ -72,8 +83,12 @@ extension SettingsProvider {
 	func userDefaultsDidChange(_ notification: Notification) {
 		// Реакция на изменение настроек
 		let completionBehaviour = defaults.getProperty(as: CompletionBehaviour.self)
+		let markingBehaviour = defaults.getProperty(as: MarkingBehaviour.self)
 
-		let current = Settings(completionBehaviour: completionBehaviour ?? .regular)
+		let current = Settings(
+			completionBehaviour: completionBehaviour ?? .regular,
+			markingBehaviour: markingBehaviour ?? .regular
+		)
 
 		guard current != state else {
 			return

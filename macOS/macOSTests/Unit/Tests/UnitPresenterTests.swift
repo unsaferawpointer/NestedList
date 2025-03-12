@@ -64,7 +64,7 @@ extension UnitPresenterTests {
 	@Test func test_handleDoubleClick() {
 		// Arrange
 		let expectedId: UUID = .random
-		settingsProvider.stubs.state = Settings(completionBehaviour: .regular)
+		settingsProvider.stubs.state = Settings(completionBehaviour: .regular, markingBehaviour: .regular)
 
 		// Act
 		sut.handleDoubleClick(on: expectedId)
@@ -81,7 +81,7 @@ extension UnitPresenterTests {
 	@Test func test_handleDoubleClick_whenCompletionBehaviourIsMoveToEnd() {
 		// Arrange
 		let expectedId: UUID = .random
-		settingsProvider.stubs.state = Settings(completionBehaviour: .moveToEnd)
+		settingsProvider.stubs.state = Settings(completionBehaviour: .moveToEnd, markingBehaviour: .regular)
 
 		// Act
 		sut.handleDoubleClick(on: expectedId)
@@ -166,7 +166,7 @@ extension UnitPresenterTests {
 	@Test func test_userChangedStatus() {
 		// Arrange
 		view.stubs.selection = [.random, .random]
-		settingsProvider.stubs.state = Settings(completionBehaviour: .regular)
+		settingsProvider.stubs.state = Settings(completionBehaviour: .regular, markingBehaviour: .regular)
 
 		// Act
 		sut.userChangedStatus(true)
@@ -185,7 +185,7 @@ extension UnitPresenterTests {
 	@Test func test_userChangedStatus_whenCompletionBehaviourIsMoveToEnd() {
 		// Arrange
 		view.stubs.selection = [.random, .random]
-		settingsProvider.stubs.state = Settings(completionBehaviour: .moveToEnd)
+		settingsProvider.stubs.state = Settings(completionBehaviour: .moveToEnd, markingBehaviour: .regular)
 
 		// Act
 		sut.userChangedStatus(true)
@@ -204,18 +204,20 @@ extension UnitPresenterTests {
 	@Test func test_userChangedMark() {
 		// Arrange
 		view.stubs.selection = [.random, .random]
+		settingsProvider.stubs.state = Settings(completionBehaviour: .regular, markingBehaviour: .regular)
 
 		// Act
 		sut.userChangedMark(true)
 
 		// Assert
-		guard case let .setMark(isMarked, ids) = interactor.invocations[0] else {
+		guard case let .setMark(isMarked, ids, moveToTop) = interactor.invocations[0] else {
 			Issue.record("Expect setMark invocation")
 			return
 		}
 
 		#expect(isMarked == true)
 		#expect(ids == view.stubs.selection)
+		#expect(moveToTop == false)
 	}
 
 	@Test func test_userChangedStyle() {

@@ -27,6 +27,15 @@ struct SettingsView: View {
 			} label: {
 				Text("Completion behaviour:")
 			}
+			Picker(selection: $model.settings.markingBehaviour) {
+				Text("None")
+					.tag(MarkingBehaviour.regular)
+				Divider()
+				Text("Move Item to Top")
+					.tag(MarkingBehaviour.moveToTop)
+			} label: {
+				Text("Marking behaviour:")
+			}
 		}
 		.padding()
 		.frame(minWidth: 320, maxHeight: .infinity)
