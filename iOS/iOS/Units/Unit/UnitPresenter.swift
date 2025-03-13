@@ -6,10 +6,12 @@
 //
 
 import Foundation
-import Hierarchy
 import UIKit
+
+import Hierarchy
 import CoreModule
 import DesignSystem
+import CoreSettings
 
 protocol UnitPresenterProtocol: AnyObject {
 	func present(_ content: Content)
@@ -22,6 +24,18 @@ final class UnitPresenter {
 	weak var view: UnitView?
 
 	private(set) var factory: ItemsFactoryProtocol = ItemsFactory()
+
+	var settingsProvider: any StateProviderProtocol<Settings>
+
+	// MARK: - Initialization
+
+	init(settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared) {
+		self.settingsProvider = settingsProvider
+
+		settingsProvider.addObservation(for: self) { [weak self] _, settings in
+			self?.interactor?.fetchData()
+		}
+	}
 }
 
 // MARK: - UnitPresenterProtocol
@@ -37,7 +51,8 @@ extension UnitPresenter: UnitPresenterProtocol {
 			.map { info in
 				factory.makeItem(
 					item: info.model,
-					level: info.level
+					level: info.level,
+					sectionStyle: settingsProvider.state.sectionStyle
 				)
 			}
 		view?.display(converted)
@@ -113,11 +128,13 @@ extension UnitPresenter: UnitViewDelegate {
 	}
 
 	func userSetStatus(isDone: Bool, id: UUID) {
-		interactor?.setStatus(isDone, for: id)
+		let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
+		interactor?.setStatus(isDone, for: id, moveToEnd: moveToEnd)
 	}
 
 	func userMark(isMarked: Bool, id: UUID) {
-		interactor?.mark(isMarked, id: id)
+		let moveToTop = settingsProvider.state.markingBehaviour == .moveToTop
+		interactor?.mark(isMarked, id: id, moveToTop: moveToTop)
 	}
 
 	func userSetStyle(style: Item.Style, id: UUID) {

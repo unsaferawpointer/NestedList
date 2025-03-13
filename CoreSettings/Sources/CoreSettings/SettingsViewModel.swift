@@ -1,8 +1,8 @@
 //
 //  SettingsViewModel.swift
-//  Nested List
+//  CoreSettings
 //
-//  Created by Anton Cherkasov on 10.03.2025.
+//  Created by Anton Cherkasov on 13.03.2025.
 //
 
 import Foundation

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreModule
 
 private extension UserDefaults {
 
@@ -21,7 +22,7 @@ private extension UserDefaults {
 
 public final class SettingsProvider {
 
-	public static var shared = SettingsProvider()
+	nonisolated(unsafe) public static var shared = SettingsProvider()
 
 	public typealias State = Settings
 

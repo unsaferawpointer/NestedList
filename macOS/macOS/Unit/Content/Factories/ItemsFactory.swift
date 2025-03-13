@@ -7,8 +7,10 @@
 
 import Foundation
 import AppKit
+
 import DesignSystem
 import CoreModule
+import CoreSettings
 
 protocol ItemsFactoryProtocol {
 	func makeItem(item: Item, level: Int, sectionStyle: SectionStyle) -> ItemModel

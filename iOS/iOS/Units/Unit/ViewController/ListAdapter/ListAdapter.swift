@@ -295,12 +295,16 @@ private extension ListAdapter {
 		let configuration = {
 			var configuration = UIListContentConfiguration.cell()
 
-			configuration.imageProperties.tintColor = model.icon.token.color
-			switch model.icon.name {
-			case .named(let name):
-				configuration.image = UIImage(named: name)
-			case .systemName(let name):
-				configuration.image = UIImage(systemName: name)
+			if let iconConfiguration = model.icon {
+				configuration.imageProperties.tintColor = iconConfiguration.token.color
+				switch iconConfiguration.name {
+				case .named(let name):
+					configuration.image = UIImage(named: name)
+				case .systemName(let name):
+					configuration.image = UIImage(systemName: name)
+				}
+			} else {
+				configuration.image = nil
 			}
 
 			configuration.attributedText = .init(

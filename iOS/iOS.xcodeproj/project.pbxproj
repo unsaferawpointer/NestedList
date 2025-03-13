@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4C6B33832D8377A1006FE722 /* CoreSettings in Frameworks */ = {isa = PBXBuildFile; productRef = 4C6B33822D8377A1006FE722 /* CoreSettings */; };
 		4CF92CEC2CE8CD4300135033 /* Hierarchy in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92CEB2CE8CD4300135033 /* Hierarchy */; };
 		4CF92D112CE8D6DA00135033 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92D102CE8D6DA00135033 /* DesignSystem */; };
 		4CF92D172CE8DDDB00135033 /* CoreModule in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92D162CE8DDDB00135033 /* CoreModule */; };
@@ -74,6 +75,7 @@
 			files = (
 				4CF92D112CE8D6DA00135033 /* DesignSystem in Frameworks */,
 				4CF92D172CE8DDDB00135033 /* CoreModule in Frameworks */,
+				4C6B33832D8377A1006FE722 /* CoreSettings in Frameworks */,
 				4CF92CEC2CE8CD4300135033 /* Hierarchy in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -139,6 +141,7 @@
 				4CF92CEB2CE8CD4300135033 /* Hierarchy */,
 				4CF92D102CE8D6DA00135033 /* DesignSystem */,
 				4CF92D162CE8DDDB00135033 /* CoreModule */,
+				4C6B33822D8377A1006FE722 /* CoreSettings */,
 			);
 			productName = iOS;
 			productReference = 4CF92C852CE8A97300135033 /* iOS.app */;
@@ -619,6 +622,10 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		4C6B33822D8377A1006FE722 /* CoreSettings */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CoreSettings;
+		};
 		4CF92CEB2CE8CD4300135033 /* Hierarchy */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Hierarchy;

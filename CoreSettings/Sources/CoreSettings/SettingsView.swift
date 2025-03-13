@@ -1,22 +1,22 @@
 //
 //  SettingsView.swift
-//  Nested List
+//  CoreSettings
 //
-//  Created by Anton Cherkasov on 10.03.2025.
+//  Created by Anton Cherkasov on 13.03.2025.
 //
 
 import SwiftUI
 import CoreModule
 
-struct SettingsView: View {
+public struct SettingsView: View {
 
 	@ObservedObject var model: SettingsViewModel
 
-	init(provider: SettingsProvider) {
+	public init(provider: SettingsProvider) {
 		self.model = SettingsViewModel(provider: provider)
 	}
 
-	var body: some View {
+	public var body: some View {
 		Form {
 			Section("Customization") {
 				Picker(selection: $model.settings.sectionStyle) {
@@ -53,8 +53,9 @@ struct SettingsView: View {
 			}
 		}
 		.formStyle(.grouped)
-		.padding()
+		#if os(macOS)
 		.frame(minWidth: 480, minHeight: 640, maxHeight: .infinity)
+		#endif
 	}
 }
 

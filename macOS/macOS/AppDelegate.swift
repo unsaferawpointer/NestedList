@@ -31,6 +31,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 import SwiftUI
+import CoreModule
+import CoreSettings
 
 // MARK: - Actions
 extension AppDelegate {

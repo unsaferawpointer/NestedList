@@ -10,6 +10,7 @@ import SwiftUI
 
 import CoreModule
 import DesignSystem
+import CoreSettings
 import Hierarchy
 import UniformTypeIdentifiers
 
@@ -68,9 +69,16 @@ class ViewController: UIDocumentViewController {
 			action: #selector(add)
 		)
 
+		let settingsItem = UIBarButtonItem(
+			title: "Settings",
+			image: .init(systemName: "slider.horizontal.2.square"),
+			target: self,
+			action: #selector(showSettings)
+		)
+
 		addButton.accessibilityIdentifier = "toolbar-item-add"
 
-		toolbarItems = [.flexibleSpace(), addButton]
+		toolbarItems = [settingsItem, .flexibleSpace(), addButton]
 	}
 
 	override func viewDidAppear(_ animated: Bool) {
@@ -105,6 +113,15 @@ private extension ViewController {
 	@objc
 	func add() {
 		delegate?.userTappedCreateButton()
+	}
+
+	@objc
+	func showSettings() {
+		let settings = SettingsView(provider: SettingsProvider.shared)
+		let controller = UIHostingController(rootView: settings)
+		controller.title = "Settings"
+		let navigationController = UINavigationController(rootViewController: controller)
+		present(navigationController, animated: true)
 	}
 }
 

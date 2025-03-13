@@ -5,10 +5,13 @@
       location = "group:README.md">
    </FileRef>
    <FileRef
-      location = "group:CoreModule">
+      location = "group:Hierarchy">
    </FileRef>
    <FileRef
-      location = "group:Hierarchy">
+      location = "group:CoreSettings">
+   </FileRef>
+   <FileRef
+      location = "group:CoreModule">
    </FileRef>
    <FileRef
       location = "group:DesignSystem">
