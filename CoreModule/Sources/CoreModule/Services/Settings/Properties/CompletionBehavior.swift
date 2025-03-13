@@ -1,5 +1,5 @@
 //
-//  CompletionBehaviour.swift
+//  CompletionBehavior.swift
 //  CoreModule
 //
 //  Created by Anton Cherkasov on 11.03.2025.
@@ -7,18 +7,18 @@
 
 import Foundation
 
-public enum CompletionBehaviour: Int {
+public enum CompletionBehavior: Int {
 	case regular = 0
 	case moveToEnd
 }
 
 // MARK: - Hashable
-extension CompletionBehaviour: Hashable { }
+extension CompletionBehavior: Hashable { }
 
 // MARK: - SettingsProperty
-extension CompletionBehaviour: SettingsProperty {
+extension CompletionBehavior: SettingsProperty {
 
 	static var key: String {
-		"completion_behaviour"
+		"completion_behavior"
 	}
 }

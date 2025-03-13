@@ -35,8 +35,9 @@ public final class SettingsProvider {
 
 			defaults.setValuesForKeys(
 				[
-					CompletionBehaviour.key : state.completionBehaviour.rawValue,
-					MarkingBehaviour.key : state.markingBehaviour.rawValue
+					CompletionBehavior.key : state.completionBehaviour.rawValue,
+					MarkingBehavior.key : state.markingBehaviour.rawValue,
+					SectionStyle.key : state.sectionStyle.rawValue
 				]
 			)
 
@@ -52,19 +53,22 @@ public final class SettingsProvider {
 
 	public init() {
 
-		let completionBehaviour = defaults.getProperty(as: CompletionBehaviour.self)
-		let markingBehaviour = defaults.getProperty(as: MarkingBehaviour.self)
+		let completionBehaviour = defaults.getProperty(as: CompletionBehavior.self)
+		let markingBehaviour = defaults.getProperty(as: MarkingBehavior.self)
+		let sectionStyle = defaults.getProperty(as: SectionStyle.self)
 
 		self.state = Settings(
 			completionBehaviour: completionBehaviour ?? .regular,
-			markingBehaviour: markingBehaviour ?? .regular
+			markingBehaviour: markingBehaviour ?? .regular,
+			sectionStyle: sectionStyle ?? .icon
 		)
 
 		defaults.register(
 			defaults:
 				[
-					CompletionBehaviour.key: CompletionBehaviour.regular.rawValue,
-					MarkingBehaviour.key: MarkingBehaviour.regular.rawValue
+					CompletionBehavior.key: CompletionBehavior.regular.rawValue,
+					MarkingBehavior.key: MarkingBehavior.regular.rawValue,
+					SectionStyle.key: SectionStyle.icon.rawValue
 				]
 		)
 
@@ -82,12 +86,14 @@ extension SettingsProvider {
 	@objc
 	func userDefaultsDidChange(_ notification: Notification) {
 		// Реакция на изменение настроек
-		let completionBehaviour = defaults.getProperty(as: CompletionBehaviour.self)
-		let markingBehaviour = defaults.getProperty(as: MarkingBehaviour.self)
+		let completionBehaviour = defaults.getProperty(as: CompletionBehavior.self)
+		let markingBehaviour = defaults.getProperty(as: MarkingBehavior.self)
+		let sectionStyle = defaults.getProperty(as: SectionStyle.self)
 
 		let current = Settings(
 			completionBehaviour: completionBehaviour ?? .regular,
-			markingBehaviour: markingBehaviour ?? .regular
+			markingBehaviour: markingBehaviour ?? .regular,
+			sectionStyle: sectionStyle ?? .icon
 		)
 
 		guard current != state else {

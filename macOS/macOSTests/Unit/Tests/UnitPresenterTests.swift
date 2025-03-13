@@ -44,6 +44,7 @@ extension UnitPresenterTests {
 	@Test func testPresent() {
 		// Arrange
 		let content = makeContent()
+		settingsProvider.stubs.state = .standart
 
 		// Act
 		sut.present(content)
@@ -64,7 +65,7 @@ extension UnitPresenterTests {
 	@Test func test_handleDoubleClick() {
 		// Arrange
 		let expectedId: UUID = .random
-		settingsProvider.stubs.state = Settings(completionBehaviour: .regular, markingBehaviour: .regular)
+		settingsProvider.stubs.state = .standart
 
 		// Act
 		sut.handleDoubleClick(on: expectedId)
@@ -81,7 +82,7 @@ extension UnitPresenterTests {
 	@Test func test_handleDoubleClick_whenCompletionBehaviourIsMoveToEnd() {
 		// Arrange
 		let expectedId: UUID = .random
-		settingsProvider.stubs.state = Settings(completionBehaviour: .moveToEnd, markingBehaviour: .regular)
+		settingsProvider.stubs.state = Settings(completionBehaviour: .moveToEnd)
 
 		// Act
 		sut.handleDoubleClick(on: expectedId)
@@ -166,7 +167,7 @@ extension UnitPresenterTests {
 	@Test func test_userChangedStatus() {
 		// Arrange
 		view.stubs.selection = [.random, .random]
-		settingsProvider.stubs.state = Settings(completionBehaviour: .regular, markingBehaviour: .regular)
+		settingsProvider.stubs.state = .standart
 
 		// Act
 		sut.userChangedStatus(true)
@@ -185,7 +186,7 @@ extension UnitPresenterTests {
 	@Test func test_userChangedStatus_whenCompletionBehaviourIsMoveToEnd() {
 		// Arrange
 		view.stubs.selection = [.random, .random]
-		settingsProvider.stubs.state = Settings(completionBehaviour: .moveToEnd, markingBehaviour: .regular)
+		settingsProvider.stubs.state = Settings(completionBehaviour: .moveToEnd)
 
 		// Act
 		sut.userChangedStatus(true)
@@ -204,7 +205,7 @@ extension UnitPresenterTests {
 	@Test func test_userChangedMark() {
 		// Arrange
 		view.stubs.selection = [.random, .random]
-		settingsProvider.stubs.state = Settings(completionBehaviour: .regular, markingBehaviour: .regular)
+		settingsProvider.stubs.state = .standart
 
 		// Act
 		sut.userChangedMark(true)

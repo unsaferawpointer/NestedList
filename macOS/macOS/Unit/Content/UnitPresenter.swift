@@ -30,11 +30,19 @@ final class UnitPresenter {
 
 	private let stringType = NSPasteboard.PasteboardType.string.rawValue
 
-	var settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared
+	var settingsProvider: any StateProviderProtocol<Settings>
 
 	// MARK: - Cache
 
 	var cache = Cache<Property, Item>()
+
+	init(settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared) {
+		self.settingsProvider = settingsProvider
+
+		settingsProvider.addObservation(for: self) { [weak self] _, settings in
+			self?.interactor?.fetchData()
+		}
+	}
 }
 
 // MARK: - UnitPresenterProtocol
@@ -54,7 +62,8 @@ extension UnitPresenter: UnitPresenterProtocol {
 		let converted = snapshot.map { info in
 			factory.makeItem(
 				item: info.model,
-				level: info.level
+				level: info.level,
+				sectionStyle: settingsProvider.state.sectionStyle
 			)
 		}
 

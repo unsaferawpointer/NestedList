@@ -9,18 +9,22 @@ import Foundation
 
 public struct Settings {
 
-	public var completionBehaviour: CompletionBehaviour = .regular
+	public var completionBehaviour: CompletionBehavior = .regular
 
-	public var markingBehaviour: MarkingBehaviour = .regular
+	public var markingBehaviour: MarkingBehavior = .regular
+
+	public var sectionStyle: SectionStyle = .icon
 
 	// MARK: - Initialization
 
 	public init(
-		completionBehaviour: CompletionBehaviour,
-		markingBehaviour: MarkingBehaviour
+		completionBehaviour: CompletionBehavior = .regular,
+		markingBehaviour: MarkingBehavior = .regular,
+		sectionStyle: SectionStyle = .icon
 	) {
 		self.completionBehaviour = completionBehaviour
 		self.markingBehaviour = markingBehaviour
+		self.sectionStyle = sectionStyle
 	}
 }
 

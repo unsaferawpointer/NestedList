@@ -18,27 +18,43 @@ struct SettingsView: View {
 
 	var body: some View {
 		Form {
-			Picker(selection: $model.settings.completionBehaviour) {
-				Text("None")
-					.tag(CompletionBehaviour.regular)
-				Divider()
-				Text("Move Item to End")
-					.tag(CompletionBehaviour.moveToEnd)
-			} label: {
-				Text("Completion behaviour:")
+			Section("Customization") {
+				Picker(selection: $model.settings.sectionStyle) {
+					Text("None")
+						.tag(SectionStyle.noIcon)
+					Divider()
+					Text("Point")
+						.tag(SectionStyle.point)
+					Text("Icon")
+						.tag(SectionStyle.icon)
+				} label: {
+					Text("Section Style:")
+				}
 			}
-			Picker(selection: $model.settings.markingBehaviour) {
-				Text("None")
-					.tag(MarkingBehaviour.regular)
-				Divider()
-				Text("Move Item to Top")
-					.tag(MarkingBehaviour.moveToTop)
-			} label: {
-				Text("Marking behaviour:")
+
+			Section("Behaviors") {
+				Toggle(isOn: .init(get: {
+					model.settings.completionBehaviour == .moveToEnd
+				}, set: { newValue in
+					model.settings.completionBehaviour = newValue ? .moveToEnd : .regular
+				})) {
+					Text("Move completed items to the end of the list")
+					Text("Enable this option to automatically move a completed item to the end of its parent list. This helps maintain order and focus on current tasks by hiding completed ones at the bottom of the list.")
+				}
+
+				Toggle(isOn: .init(get: {
+					model.settings.markingBehaviour == .moveToTop
+				}, set: { newValue in
+					model.settings.markingBehaviour = newValue ? .moveToTop : .regular
+				})) {
+					Text("Move the marked item to the top")
+					Text("Enable this option to automatically move the marked item to the top of the list. This helps you quickly focus on the current task without searching for it in the list.")
+				}
 			}
 		}
+		.formStyle(.grouped)
 		.padding()
-		.frame(minWidth: 320, maxHeight: .infinity)
+		.frame(minWidth: 480, minHeight: 640, maxHeight: .infinity)
 	}
 }
 
