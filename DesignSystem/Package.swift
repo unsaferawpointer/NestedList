@@ -23,7 +23,6 @@ let package = Package(
 		.testTarget(
 			name: "DesignSystemTests",
 			dependencies: ["DesignSystem"]
-		),
-	],
-	swiftLanguageModes: [.v5]
+		)
+	]
 )
