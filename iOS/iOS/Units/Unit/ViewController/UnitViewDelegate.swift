@@ -9,11 +9,10 @@ import Foundation
 import CoreModule
 import DesignSystem
 
-protocol UnitViewDelegate<ID>: ListDelegate, DropDelegate, ViewDelegate {
+protocol UnitViewDelegate<ID>: ListDelegate, ToolbarDelegate, DropDelegate, ViewDelegate {
 
 	associatedtype ID
 
-	func userTappedCreateButton()
 	func userTappedEditButton(id: ID)
 	func userTappedDeleteButton(ids: [ID])
 	func userTappedAddButton(target: ID)

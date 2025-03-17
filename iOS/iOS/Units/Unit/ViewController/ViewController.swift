@@ -22,6 +22,8 @@ class ViewController: UIDocumentViewController {
 
 	var adapter: ListAdapter?
 
+	var toolbarBuilder: ToolbarBuilder = ToolbarBuilder()
+
 	var listDocument: Document? {
 		self.document as? Document
 	}
@@ -32,6 +34,7 @@ class ViewController: UIDocumentViewController {
 				return
 			}
 			self.delegate = UnitAssembly.build(self, storage: document.storage)
+			self.toolbarBuilder.delegate = delegate
 			self.adapter = ListAdapter(tableView: tableView, delegate: delegate)
 		}
 	}
@@ -59,26 +62,6 @@ class ViewController: UIDocumentViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		delegate?.viewDidChange(state: .didLoad)
-
-		navigationItem.rightBarButtonItem = editButtonItem
-
-		let addButton = UIBarButtonItem(
-			title: "Create New",
-			image: .init(systemName: "plus"),
-			target: self,
-			action: #selector(add)
-		)
-
-		let settingsItem = UIBarButtonItem(
-			title: "Settings",
-			image: .init(systemName: "slider.horizontal.2.square"),
-			target: self,
-			action: #selector(showSettings)
-		)
-
-		addButton.accessibilityIdentifier = "toolbar-item-add"
-
-		toolbarItems = [settingsItem, .flexibleSpace(), addButton]
 	}
 
 	override func viewDidAppear(_ animated: Bool) {
@@ -99,34 +82,23 @@ class ViewController: UIDocumentViewController {
 			self.contentUnavailableConfiguration = nil
 		}
 	}
-
-	override func setEditing(_ editing: Bool, animated: Bool) {
-		super.setEditing(editing, animated: animated)
-
-		tableView.setEditing(editing, animated: animated)
-	}
-}
-
-// MARK: - Helpers
-private extension ViewController {
-
-	@objc
-	func add() {
-		delegate?.userTappedCreateButton()
-	}
-
-	@objc
-	func showSettings() {
-		let settings = SettingsView(provider: SettingsProvider.shared)
-		let controller = UIHostingController(rootView: settings)
-		controller.title = "Settings"
-		let navigationController = UINavigationController(rootViewController: controller)
-		present(navigationController, animated: true)
-	}
 }
 
 // MARK: - DocumentView
 extension ViewController: UnitView {
+
+	func setEditing(_ editingMode: EditingMode?) {
+		self.adapter?.editingMode = editingMode
+	}
+
+	func display(_ toolbar: ToolbarModel) {
+		navigationItem.setRightBarButtonItems(toolbarBuilder.build(items: toolbar.top), animated: true)
+		toolbarItems = toolbarBuilder.build(items: toolbar.bottom)
+	}
+
+	var selection: [UUID] {
+		return adapter?.selection ?? []
+	}
 
 	func display(_ snapshot: Snapshot<ItemModel>) {
 
@@ -140,6 +112,14 @@ extension ViewController: UnitView {
 		let details = DetailsView(item: model, completionHandler: completionHandler)
 		let controller = UIHostingController(rootView: details)
 		present(controller, animated: true)
+	}
+
+	func showSettings() {
+		let settings = SettingsView(provider: SettingsProvider.shared)
+		let controller = UIHostingController(rootView: settings)
+		controller.title = "Settings"
+		let navigationController = UINavigationController(rootViewController: controller)
+		present(navigationController, animated: true)
 	}
 
 	func hideDetails() {

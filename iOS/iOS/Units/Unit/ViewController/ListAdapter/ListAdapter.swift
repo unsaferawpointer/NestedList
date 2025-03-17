@@ -23,15 +23,38 @@ protocol CacheDelegate: AnyObject {
 	func endUpdates()
 }
 
+enum EditingMode {
+	case selection
+	case reordering
+}
+
 final class ListAdapter: NSObject {
 
 	weak var tableView: UITableView?
 
 	var delegate: (any UnitViewDelegate<UUID>)?
 
-	var invalidateState: Bool = false
+	var editingMode: EditingMode? {
+		didSet {
+			tableView?.setEditing(editingMode != nil, animated: true)
+			switch editingMode {
+			case .selection:
+				tableView?.allowsMultipleSelectionDuringEditing = true
+			default:
+				tableView?.allowsMultipleSelectionDuringEditing = false
+			}
+		}
+	}
 
 	var cache = ListDataSource()
+
+	var selection: [UUID] {
+		get {
+			tableView?.indexPathsForSelectedRows?.map { indexPath in
+				cache.identifier(for: indexPath.row)
+			} ?? []
+		}
+	}
 
 	// MARK: - Initialization
 
@@ -107,8 +130,19 @@ extension ListAdapter: UITableViewDataSource {
 extension ListAdapter: UITableViewDelegate {
 
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+		guard !tableView.isEditing else {
+			delegate?.listDidChangeSelection(ids: selection)
+			return
+		}
 		tableView.deselectRow(at: indexPath, animated: true)
 		cache.toggle(indexPath: indexPath)
+	}
+
+	func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+		guard tableView.isEditing else {
+			return
+		}
+		delegate?.listDidChangeSelection(ids: selection)
 	}
 
 	func tableView(
@@ -127,7 +161,7 @@ extension ListAdapter: UITableViewDelegate {
 	}
 
 	func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
-		return .delete
+		return .none
 	}
 
 	func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
@@ -140,6 +174,10 @@ extension ListAdapter: UITableViewDelegate {
 
 	func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
 		return false
+	}
+
+	func tableView(_ tableView: UITableView, shouldBeginMultipleSelectionInteractionAt indexPath: IndexPath) -> Bool {
+		return true
 	}
 }
 
@@ -271,10 +309,11 @@ extension ListAdapter: UITableViewDropDelegate {
 extension ListAdapter {
 
 	func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-		return true
+		return editingMode == .reordering
 	}
 
 	func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) { }
+
 }
 
 // MARK: - Helpers
@@ -295,16 +334,23 @@ private extension ListAdapter {
 		let configuration = {
 			var configuration = UIListContentConfiguration.cell()
 
+			let image: UIImage? = {
+				if let iconConfiguration = model.icon {
+					configuration.imageProperties.tintColor = iconConfiguration.token.color
+					switch iconConfiguration.name {
+					case .named(let name):
+						return UIImage(named: name)
+					case .systemName(let name):
+						return UIImage(systemName: name)
+					}
+				} else {
+					return nil
+				}
+			}()
+			configuration.image = image
+
 			if let iconConfiguration = model.icon {
 				configuration.imageProperties.tintColor = iconConfiguration.token.color
-				switch iconConfiguration.name {
-				case .named(let name):
-					configuration.image = UIImage(named: name)
-				case .systemName(let name):
-					configuration.image = UIImage(systemName: name)
-				}
-			} else {
-				configuration.image = nil
 			}
 
 			configuration.attributedText = .init(

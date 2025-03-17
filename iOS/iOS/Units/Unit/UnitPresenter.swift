@@ -27,6 +27,20 @@ final class UnitPresenter {
 
 	var settingsProvider: any StateProviderProtocol<Settings>
 
+	var toolbarFactory = ToolbarFactory()
+
+	var editingMode: EditingMode? {
+		didSet {
+			let selection = view?.selection ?? []
+			let model = toolbarFactory.build(
+				editingMode: editingMode,
+				selectedCount: selection.count
+			)
+			view?.display(model)
+			view?.setEditing(editingMode)
+		}
+	}
+
 	// MARK: - Initialization
 
 	init(settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared) {
@@ -68,13 +82,32 @@ extension UnitPresenter: ViewDelegate {
 		}
 		interactor?.fetchData()
 		view?.expandAll()
+
+		let toolbar = toolbarFactory.build(editingMode: editingMode, selectedCount: 0)
+		view?.display(toolbar)
 	}
 }
 
-// MARK: - UnitViewDelegate
-extension UnitPresenter: UnitViewDelegate {
+// MARK: - ToolbarDelegate
+extension UnitPresenter: ToolbarDelegate {
 
-	func userTappedCreateButton() {
+	func toolbarDidTapSelect() {
+		editingMode = .selection
+	}
+	
+	func toolbarDidTapReorder() {
+		editingMode = .reordering
+	}
+	
+	func toolbarDidTapSettings() {
+		view?.showSettings()
+	}
+
+	func toolbarDidTapDone() {
+		editingMode = nil
+	}
+
+	func toolbarDidTapAdd() {
 		let model = DetailsView.Model(navigationTitle: "New Item", properties: .init(text: ""))
 		view?.showDetails(with: model) { [weak self] saved, success in
 			self?.view?.hideDetails()
@@ -90,6 +123,27 @@ extension UnitPresenter: UnitViewDelegate {
 			}
 		}
 	}
+
+	func toolbarDidTapDelete() {
+		guard let selection = view?.selection else {
+			return
+		}
+		editingMode = nil
+		interactor?.deleteItems(selection)
+	}
+
+	func toolbarDidTapMarkAsComplete() {
+		guard let selection = view?.selection else {
+			return
+		}
+		editingMode = nil
+		let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
+		interactor?.setStatus(true, for: selection, moveToEnd: moveToEnd)
+	}
+}
+
+// MARK: - UnitViewDelegate
+extension UnitPresenter: UnitViewDelegate {
 	
 	func userTappedEditButton(id: UUID) {
 		guard let item = interactor?.item(for: id) else {
@@ -104,11 +158,11 @@ extension UnitPresenter: UnitViewDelegate {
 			}
 		}
 	}
-	
+
 	func userTappedDeleteButton(ids: [UUID]) {
 		interactor?.deleteItems(ids)
 	}
-	
+
 	func userTappedAddButton(target: UUID) {
 		let model = DetailsView.Model(navigationTitle: "New Item", properties: .init(text: ""))
 		view?.showDetails(with: model) { [weak self] saved, success in
@@ -129,7 +183,7 @@ extension UnitPresenter: UnitViewDelegate {
 
 	func userSetStatus(isDone: Bool, id: UUID) {
 		let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
-		interactor?.setStatus(isDone, for: id, moveToEnd: moveToEnd)
+		interactor?.setStatus(isDone, for: [id], moveToEnd: moveToEnd)
 	}
 
 	func userMark(isMarked: Bool, id: UUID) {
@@ -174,6 +228,14 @@ extension UnitPresenter: ListDelegate {
 
 	func listItemHasBeenDelete(id: UUID) {
 		interactor?.deleteItems([id])
+	}
+
+	func listDidChangeSelection(ids: [UUID]) {
+		let toolbar = toolbarFactory.build(
+			editingMode: editingMode,
+			selectedCount: ids.count
+		)
+		view?.display(toolbar)
 	}
 }
 

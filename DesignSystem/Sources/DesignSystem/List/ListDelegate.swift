@@ -22,5 +22,7 @@ public protocol ListDelegate<ID>: AnyObject {
 	associatedtype ID
 
 	func listItemHasBeenDelete (id: ID)
+
+	func listDidChangeSelection(ids: [ID])
 }
 #endif

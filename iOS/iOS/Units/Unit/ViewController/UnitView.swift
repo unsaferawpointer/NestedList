@@ -11,10 +11,15 @@ import Hierarchy
 protocol UnitView: AnyObject {
 
 	func display(_ snapshot: Snapshot<ItemModel>)
+	func display(_ toolbar: ToolbarModel)
+	func setEditing(_ editingMode: EditingMode?)
 
 	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void)
+	func showSettings()
 	func hideDetails()
 
 	func expand(_ id: UUID)
 	func expandAll()
+
+	var selection: [UUID] { get }
 }
