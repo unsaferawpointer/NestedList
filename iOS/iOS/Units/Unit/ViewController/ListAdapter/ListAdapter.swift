@@ -58,6 +58,8 @@ final class ListAdapter: NSObject {
 		}
 	}
 
+	var menuBuilder = MenuBuilder()
+
 	// MARK: - Initialization
 
 	init(tableView: UITableView?, delegate: (any UnitViewDelegate<UUID>)?) {
@@ -74,6 +76,7 @@ final class ListAdapter: NSObject {
 		self.cache.delegate = self
 
 		self.delegate = delegate
+		self.menuBuilder.delegate = delegate
 	}
 }
 
@@ -416,100 +419,6 @@ extension ListAdapter: CacheDelegate {
 extension ListAdapter {
 
 	func buildContextMenu(for model: ItemModel) -> UIContextMenuConfiguration {
-		return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { suggestedActions in
-
-			let editItem = UIAction(title: "Edit...", image: UIImage(systemName: "pencil")) { [weak self] action in
-				self?.delegate?.userTappedEditButton(id: model.id)
-			}
-
-			let editGroup = UIMenu(
-				title: "", image: nil,
-				identifier: nil,
-				options: [.displayInline],
-				preferredElementSize: .medium,
-				children: [editItem]
-			)
-			editGroup.preferredElementSize = .large
-
-			let newItem = UIAction(title: "New...", image: UIImage(systemName: "plus")) { [weak self] action in
-				self?.delegate?.userTappedAddButton(target: model.id)
-			}
-
-			let cutItem = UIAction(title: "Cut", image: UIImage(systemName: "scissors")) { [weak self] action in
-				self?.delegate?.userTappedCutButton(ids: [model.id])
-			}
-
-			let copyItem = UIAction(title: "Copy", image: UIImage(systemName: "document.on.document")) { [weak self] action in
-				self?.delegate?.userTappedCopyButton(ids: [model.id])
-			}
-
-			let pasteItem = UIAction(title: "Paste", image: UIImage(systemName: "document.on.clipboard")) { [weak self] action in
-				self?.delegate?.userTappedPasteButton(target: model.id)
-			}
-
-			let groupItem = UIMenu(
-				title: "", image: nil,
-				identifier: nil,
-				options: [.displayInline],
-				preferredElementSize: .medium,
-				children: [cutItem, copyItem, pasteItem]
-			)
-
-			let deleteItem = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] action in
-				self?.delegate?.userTappedDeleteButton(ids: [model.id])
-			}
-
-			let statusItem = UIAction(
-				title: "Completed",
-				image: nil
-			) { [weak self] action in
-				self?.delegate?.userSetStatus(isDone: !model.status, id: model.id)
-			}
-			statusItem.state = model.status ? .on : .off
-
-			let markItem = UIAction(
-				title: "Marked",
-				image: nil
-			) { [weak self] action in
-				self?.delegate?.userMark(isMarked: !model.isMarked, id: model.id)
-			}
-			markItem.state = model.isMarked ? .on : .off
-
-			let statusGroup = UIMenu(
-				title: "",
-				image: nil,
-				identifier: nil,
-				options: [.displayInline],
-				preferredElementSize: .large,
-				children: [statusItem, markItem]
-			)
-
-			let defaultStyleItem = UIAction(
-				title: "Item",
-				image: nil
-			) { [weak self] action in
-				self?.delegate?.userSetStyle(style: .item, id: model.id)
-			}
-
-			let sectionStyleItem = UIAction(
-				title: "Section",
-				image: nil
-			) { [weak self] action in
-				self?.delegate?.userSetStyle(style: .section, id: model.id)
-			}
-
-			let styleGroup = UIMenu(
-				title: "Style",
-				image: nil,
-				identifier: nil,
-				options: [],
-				preferredElementSize: .large,
-				children: [defaultStyleItem, sectionStyleItem]
-			)
-
-			let menu = UIMenu(title: "", children: [groupItem, newItem, editGroup, statusGroup, styleGroup, deleteItem])
-
-			return menu
-		}
+		return menuBuilder.buildConfiguration(for: model)
 	}
 }

@@ -8,13 +8,13 @@
 import UIKit
 
 protocol ToolbarDelegate: AnyObject {
-	func toolbarDidTapDone()
-	func toolbarDidTapSelect()
-	func toolbarDidTapReorder()
-	func toolbarDidTapSettings()
-	func toolbarDidTapDelete()
-	func toolbarDidTapMarkAsComplete()
-	func toolbarDidTapAdd()
+	func toolbarDidFinish()
+	func toolbarDidSelect()
+	func toolbarDidReorder()
+	func toolbarDidOpenSettings()
+	func toolbarDidDelete()
+	func toolbarDidMarkAsComplete()
+	func toolbarDidCreateNew()
 }
 
 final class ToolbarBuilder {
@@ -84,15 +84,15 @@ private extension ToolbarBuilder {
 	func buildMoreButton() -> UIBarButtonItem {
 
 		let selectAction = UIAction(title: "Select", image: UIImage(systemName: "checkmark.circle")) { [weak self] _ in
-			self?.delegate?.toolbarDidTapSelect()
+			self?.delegate?.toolbarDidSelect()
 		}
 
 		let reorderAction = UIAction(title: "Reorder", image: UIImage(systemName: "line.3.horizontal")) { [weak self] _ in
-			self?.delegate?.toolbarDidTapReorder()
+			self?.delegate?.toolbarDidReorder()
 		}
 
 		let settingsAction = UIAction(title: "Settings", image: UIImage(systemName: "slider.horizontal.2.square")) { [weak self] _ in
-			self?.delegate?.toolbarDidTapSettings()
+			self?.delegate?.toolbarDidOpenSettings()
 		}
 
 		let primarySubmenu = UIMenu(
@@ -132,21 +132,21 @@ extension ToolbarBuilder {
 
 	@objc
 	func toolbarDidTapDone() {
-		delegate?.toolbarDidTapDone()
+		delegate?.toolbarDidFinish()
 	}
 
 	@objc
 	func toolbarDidTapMarkAsComplete() {
-		delegate?.toolbarDidTapMarkAsComplete()
+		delegate?.toolbarDidMarkAsComplete()
 	}
 
 	@objc
 	func toolbarDidTapDelete() {
-		delegate?.toolbarDidTapDelete()
+		delegate?.toolbarDidDelete()
 	}
 
 	@objc
 	func toolbarDidTapAdd() {
-		delegate?.toolbarDidTapAdd()
+		delegate?.toolbarDidCreateNew()
 	}
 }
