@@ -43,6 +43,8 @@ final class ListAdapter: NSObject {
 			default:
 				tableView?.allowsMultipleSelectionDuringEditing = false
 			}
+			let indexPaths = tableView?.indexPathsForVisibleRows ?? []
+			tableView?.reloadRows(at: indexPaths, with: .none)
 		}
 	}
 
@@ -173,11 +175,7 @@ extension ListAdapter: UITableViewDelegate {
 	}
 
 	func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
-		return false
-	}
-
-	func tableView(_ tableView: UITableView, shouldBeginMultipleSelectionInteractionAt indexPath: IndexPath) -> Bool {
-		return true
+		return editingMode == .selection
 	}
 }
 
@@ -347,7 +345,7 @@ private extension ListAdapter {
 					return nil
 				}
 			}()
-			configuration.image = image
+			configuration.image = (tableView?.isEditing ?? false) && editingMode == .selection ? nil : image
 
 			if let iconConfiguration = model.icon {
 				configuration.imageProperties.tintColor = iconConfiguration.token.color
