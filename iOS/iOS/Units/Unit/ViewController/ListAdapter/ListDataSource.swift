@@ -37,6 +37,10 @@ extension ListDataSource {
 		return list.count
 	}
 
+	func apply(newSnapshot: Snapshot<ItemModel>) {
+		apply(newSnapshot: newSnapshot, newExpanded: expanded)
+	}
+
 	func rowConfiguration(for index: Int) -> RowConfiguration {
 		let id = list[index]
 		return RowConfiguration(
@@ -53,75 +57,6 @@ extension ListDataSource {
 	func model(with index: Int) -> ItemModel {
 		let id = list[index]
 		return snapshot.model(with: id)
-	}
-
-	func apply(newSnapshot: Snapshot<ItemModel>) {
-
-		let oldList = list
-		let oldSnapshot = snapshot
-
-		let newList = newSnapshot.flattened { item in
-			self.expanded.contains(item.id)
-		}.map(\.id)
-
-		let updated = Set(oldList).intersection(newList)
-
-		for id in updated {
-
-			let oldIndex = oldList.firstIndex(where: { $0 == id })!
-
-			let oldModel = oldSnapshot.model(with: id)
-			let newModel = newSnapshot.model(with: id)
-
-			let oldConfiguration = RowConfiguration(
-				level: oldSnapshot.level(for: id),
-				isExpanded: expanded.contains(id),
-				isLeaf: oldSnapshot.isLeaf(id: id)
-			)
-
-			let newConfiguration = RowConfiguration(
-				level: newSnapshot.level(for: id),
-				isExpanded: expanded.contains(id),
-				isLeaf: newSnapshot.isLeaf(id: id)
-			)
-
-			if oldModel != newModel {
-				delegate?.updateCell(indexPath: .init(row: oldIndex, section: 0), model: newModel)
-			}
-
-			if oldConfiguration != newConfiguration {
-				delegate?.updateCell(indexPath: .init(row: oldIndex, section: 0), rowConfiguration: newConfiguration)
-			}
-		}
-
-		self.snapshot = newSnapshot
-		self.list = newList
-
-		animate(oldList: oldList, newList: newList)
-
-	}
-
-	func animate(oldList: [UUID], newList: [UUID]) {
-
-		let diff = newList.difference(from: oldList)
-
-		delegate?.beginUpdates()
-
-		var toRemove = [IndexPath]()
-		var toInsert = [IndexPath]()
-		for change in diff {
-			switch change {
-			case let .remove(offset, _, _):
-				let indexPath = IndexPath(row: offset, section: 0)
-				toRemove.append(indexPath)
-			case let .insert(offset, _, _):
-				let indexPath = IndexPath(row: offset, section: 0)
-				toInsert.append(indexPath)
-			}
-		}
-
-		delegate?.update(deleteRows: toRemove, insertRows: toInsert)
-		delegate?.endUpdates()
 	}
 
 	func toggle(indexPath: IndexPath) {
@@ -160,8 +95,7 @@ extension ListDataSource {
 	}
 
 	func expandAll() {
-		self.expanded = snapshot.nodeIdentifiers
-		apply(newSnapshot: snapshot)
+		apply(newSnapshot: snapshot, newExpanded: snapshot.nodeIdentifiers)
 	}
 
 	func expand(_ id: UUID) {
@@ -185,5 +119,79 @@ extension ListDataSource {
 		}.map(\.id)
 		self.list = newList
 		animate(oldList: oldList, newList: newList)
+	}
+}
+
+// MARK: - Helpers
+private extension ListDataSource {
+
+	func apply(newSnapshot: Snapshot<ItemModel>, newExpanded: Set<UUID>) {
+
+		let oldList = list
+		let oldSnapshot = snapshot
+
+		let newList = newSnapshot.flattened { item in
+			newExpanded.contains(item.id)
+		}.map(\.id)
+
+		let updated = Set(oldList).intersection(newList)
+
+		for id in updated {
+
+			let oldIndex = oldList.firstIndex(where: { $0 == id })!
+
+			let oldModel = oldSnapshot.model(with: id)
+			let newModel = newSnapshot.model(with: id)
+
+			let oldConfiguration = RowConfiguration(
+				level: oldSnapshot.level(for: id),
+				isExpanded: expanded.contains(id),
+				isLeaf: oldSnapshot.isLeaf(id: id)
+			)
+
+			let newConfiguration = RowConfiguration(
+				level: newSnapshot.level(for: id),
+				isExpanded: newExpanded.contains(id),
+				isLeaf: newSnapshot.isLeaf(id: id)
+			)
+
+			if oldModel != newModel {
+				delegate?.updateCell(indexPath: .init(row: oldIndex, section: 0), model: newModel)
+			}
+
+			if oldConfiguration != newConfiguration {
+				delegate?.updateCell(indexPath: .init(row: oldIndex, section: 0), rowConfiguration: newConfiguration)
+			}
+		}
+
+		self.snapshot = newSnapshot
+		self.expanded = newExpanded
+		self.list = newList
+
+		animate(oldList: oldList, newList: newList)
+
+	}
+
+	func animate(oldList: [UUID], newList: [UUID]) {
+
+		let diff = newList.difference(from: oldList)
+
+		delegate?.beginUpdates()
+
+		var toRemove = [IndexPath]()
+		var toInsert = [IndexPath]()
+		for change in diff {
+			switch change {
+			case let .remove(offset, _, _):
+				let indexPath = IndexPath(row: offset, section: 0)
+				toRemove.append(indexPath)
+			case let .insert(offset, _, _):
+				let indexPath = IndexPath(row: offset, section: 0)
+				toInsert.append(indexPath)
+			}
+		}
+
+		delegate?.update(deleteRows: toRemove, insertRows: toInsert)
+		delegate?.endUpdates()
 	}
 }
