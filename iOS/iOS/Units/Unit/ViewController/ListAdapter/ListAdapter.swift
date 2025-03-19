@@ -23,11 +23,6 @@ protocol CacheDelegate: AnyObject {
 	func endUpdates()
 }
 
-enum EditingMode {
-	case selection
-	case reordering
-}
-
 final class ListAdapter: NSObject {
 
 	weak var tableView: UITableView?
@@ -37,14 +32,8 @@ final class ListAdapter: NSObject {
 	var editingMode: EditingMode? {
 		didSet {
 			tableView?.setEditing(editingMode != nil, animated: true)
-			switch editingMode {
-			case .selection:
-				tableView?.allowsMultipleSelectionDuringEditing = true
-			default:
-				tableView?.allowsMultipleSelectionDuringEditing = false
-			}
-			let indexPaths = tableView?.indexPathsForVisibleRows ?? []
-			tableView?.reloadRows(at: indexPaths, with: .none)
+			tableView?.allowsMultipleSelectionDuringEditing = editingMode?.allowSelection ?? false
+			tableView?.reloadData()
 		}
 	}
 
