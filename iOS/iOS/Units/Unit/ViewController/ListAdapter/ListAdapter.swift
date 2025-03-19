@@ -179,7 +179,7 @@ extension ListAdapter: UITableViewDragDelegate {
 		itemsForBeginning session: any UIDragSession,
 		at indexPath: IndexPath
 	) -> [UIDragItem] {
-		guard tableView.isEditing, let delegate else {
+		guard editingMode == .reordering, let delegate else {
 			return []
 		}
 
