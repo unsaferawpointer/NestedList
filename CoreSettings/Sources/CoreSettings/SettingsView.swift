@@ -18,20 +18,6 @@ public struct SettingsView: View {
 
 	public var body: some View {
 		Form {
-			Section("Customization") {
-				Picker(selection: $model.settings.sectionStyle) {
-					Text("None")
-						.tag(SectionStyle.noIcon)
-					Divider()
-					Text("Point")
-						.tag(SectionStyle.point)
-					Text("Icon")
-						.tag(SectionStyle.icon)
-				} label: {
-					Text("Section Style:")
-				}
-			}
-
 			Section("Behaviors") {
 				Toggle(isOn: .init(get: {
 					model.settings.completionBehaviour == .moveToEnd
