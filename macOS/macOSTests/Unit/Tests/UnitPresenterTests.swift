@@ -8,6 +8,7 @@
 import Testing
 import Foundation
 import CoreModule
+import CoreSettings
 @testable import Nested_List
 
 final class UnitPresenterTests {
@@ -24,10 +25,9 @@ final class UnitPresenterTests {
 		view = UnitViewMock()
 		interactor = UnitInteractorMock()
 		settingsProvider = StateProviderMock<Settings>()
-		sut = UnitPresenter()
+		sut = UnitPresenter(settingsProvider: settingsProvider)
 		sut.view = view
 		sut.interactor = interactor
-		sut.settingsProvider = settingsProvider
 	}
 
 	deinit {

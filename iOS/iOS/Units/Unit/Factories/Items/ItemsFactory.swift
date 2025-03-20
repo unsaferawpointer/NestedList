@@ -62,8 +62,10 @@ extension ItemsFactory: ItemsFactoryProtocol {
 				nil
 			case .icon:
 				IconConfiguration(
-					name: .systemName("doc.text"),
-					token: item.isMarked && !item.isDone ? .yellow : .tertiary
+					name: .named("custom.text.page"),
+					appearence: .hierarchical(
+						token: item.isMarked && !item.isDone ? .yellow : .tertiary
+					)
 				)
 			case .point:
 				IconConfiguration(

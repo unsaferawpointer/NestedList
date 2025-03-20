@@ -8,13 +8,18 @@
 public struct IconConfiguration {
 
 	public var name: IconName
-	public var token: ColorToken
+	public var appearence: IconAppearence
 
 	// MARK: - Initialization
 
 	public init(name: IconName, token: ColorToken) {
 		self.name = name
-		self.token = token
+		self.appearence = .monochrome(token: token)
+	}
+
+	public init(name: IconName, appearence: IconAppearence) {
+		self.name = name
+		self.appearence = appearence
 	}
 }
 

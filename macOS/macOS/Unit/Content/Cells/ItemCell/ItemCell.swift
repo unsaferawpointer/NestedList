@@ -152,8 +152,11 @@ private extension ItemCell {
 			case .systemName(let name):
 				NSImage(systemSymbolName: name, accessibilityDescription: nil)
 			}
-			iconView.image = image
-			iconView.contentTintColor = iconConfiguration.token.value
+
+			let symbolConfiguration = iconConfiguration.appearence.configuration
+			iconView.image = image?
+				.withSymbolConfiguration(symbolConfiguration)
+			iconView.contentTintColor = iconConfiguration.appearence.tint
 		} else {
 			iconView.isHidden = true
 		}

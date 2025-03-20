@@ -102,6 +102,33 @@ struct ItemsFactoryTests {
 		#expect(result.configuration.text.colorToken == .primary)
 		#expect(!result.configuration.text.strikethrough)
 		#expect(result.configuration.point == nil)
+		#expect(result.configuration.icon?.name == .named("custom.text.page"))
+		#expect(result.configuration.icon?.appearence == .hierarchical(token: .tertiary))
+	}
+
+	@Test func makeSection_whenStyleIsIconAndMarked() {
+		// Arrange
+		let sut = ItemsFactory()
+
+		let item = Item(
+			uuid: .random,
+			isDone: false,
+			isMarked: true,
+			text: .random,
+			style: .section
+		)
+
+		// Act
+		let result = sut.makeItem(item: item, level: 0, sectionStyle: .icon)
+
+		// Assert
+		#expect(result.isGroup)
+		#expect(result.value.title == item.text)
+		#expect(result.configuration.text.colorToken == .primary)
+		#expect(!result.configuration.text.strikethrough)
+		#expect(result.configuration.point == nil)
+		#expect(result.configuration.icon?.name == .named("custom.text.page"))
+		#expect(result.configuration.icon?.appearence == .hierarchical(token: .yellow))
 	}
 
 	@Test func makeSection_whenStyleIsPoint() {

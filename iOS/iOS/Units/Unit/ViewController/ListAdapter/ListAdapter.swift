@@ -326,21 +326,25 @@ private extension ListAdapter {
 
 			let image: UIImage? = {
 				if let iconConfiguration = model.icon {
-					configuration.imageProperties.tintColor = iconConfiguration.token.color
+					let symbolConfiguration = iconConfiguration.appearence.configuration
 					switch iconConfiguration.name {
 					case .named(let name):
-						return UIImage(named: name)
+						return UIImage(named: name)?
+							.applyingSymbolConfiguration(symbolConfiguration)
 					case .systemName(let name):
-						return UIImage(systemName: name)
+						return UIImage(systemName: name)?
+							.applyingSymbolConfiguration(symbolConfiguration)
 					}
 				} else {
 					return nil
 				}
 			}()
-			configuration.image = (tableView?.isEditing ?? false) && editingMode == .selection ? nil : image
+			configuration.image = (tableView?.isEditing ?? false) && editingMode == .selection
+				? nil
+				: image
 
 			if let iconConfiguration = model.icon {
-				configuration.imageProperties.tintColor = iconConfiguration.token.color
+				configuration.imageProperties.tintColor = iconConfiguration.appearence.tint
 			}
 
 			configuration.attributedText = .init(
