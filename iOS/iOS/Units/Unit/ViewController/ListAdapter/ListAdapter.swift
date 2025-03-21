@@ -69,14 +69,6 @@ final class ListAdapter: NSObject {
 	}
 }
 
-// MARK: - Computed properties
-extension ListAdapter {
-
-	var sceneIdentifier: String? {
-		return tableView?.superview?.window?.windowScene?.session.persistentIdentifier
-	}
-}
-
 extension ListAdapter {
 
 	func apply(newSnapshot: Snapshot<ItemModel>) {
@@ -195,13 +187,13 @@ extension ListAdapter: UITableViewDragDelegate {
 
 }
 
+// MARK: - UITableViewDropDelegate
 extension ListAdapter: UITableViewDropDelegate {
 
 	func tableView(_ tableView: UITableView, canHandle session: any UIDropSession) -> Bool {
-		guard let delegate else {
+		guard let types = delegate?.availableTypes() else {
 			return false
 		}
-		let types = delegate.availableTypes()
 		return session.hasItemsConforming(toTypeIdentifiers: types)
 	}
 
@@ -222,22 +214,19 @@ extension ListAdapter: UITableViewDropDelegate {
 		withDestinationIndexPath destinationIndexPath: IndexPath?
 	) -> UITableViewDropProposal {
 
-		let sessionIdentifier = session.localDragSession?.localContext as? String
-
-		if sessionIdentifier != sceneIdentifier, destinationIndexPath != nil {
+		guard isLocal(session: session) else {
 			return .init(operation: .copy, intent: .automatic)
 		}
 
-		let id = session.items.compactMap {
-			$0.localObject as? UUID
-		}.first
-
-		guard let id, let target = destinationIndexPath?.row else {
-			return .init(operation: .forbidden)
-		}
-		guard target < cache.count else {
+		guard let target = destinationIndexPath?.row, target < cache.count else {
 			return .init(operation: .move, intent: .automatic)
 		}
+
+		let id = session.identifiers.first
+
+		assert(session.identifiers.count <= 1, "Adapter cant support multi-selection")
+
+		// MARK: - You can't drop a cell on itself
 		guard id != cache.identifier(for: target) else {
 			return .init(operation: .cancel)
 		}
@@ -245,50 +234,40 @@ extension ListAdapter: UITableViewDropDelegate {
 	}
 
 	func tableView(_ tableView: UITableView, performDropWith coordinator: any UITableViewDropCoordinator) {
+
 		let proposal = coordinator.proposal
 
-		if proposal.operation == .copy {
+		switch proposal.operation {
+		case .copy:
 			coordinator.session.loadObjects(ofClass: NSString.self) { [weak self] items in
 				guard let self else {
 					return
 				}
 				guard let strings = items as? [String] else { return }
 
-				switch proposal.intent {
-				case .insertAtDestinationIndexPath:
-					let destination: Destination<UUID> = if let target = coordinator.destinationIndexPath {
-						cache.destination(for: target.row)
-					} else {
-						.toRoot
-					}
-					delegate?.drop(strings, to: destination)
-				case .insertIntoDestinationIndexPath:
-					guard let target = coordinator.destinationIndexPath else {
-						return
-					}
-					let model = cache.model(with: target.row)
-					delegate?.drop(strings, to: .onItem(with: model.id))
-				default:
-					return
-				}
+				let destination = destination(
+					for: proposal.intent,
+					destinationIndexPath: coordinator.destinationIndexPath
+				)
+				delegate?.drop(strings, to: destination)
 			}
-		}
+		case .move:
+			let ids = coordinator.session.identifiers
+			guard let target = coordinator.destinationIndexPath else {
+				delegate?.move(ids, to: .toRoot)
+				return
+			}
 
-		guard proposal.operation == .move, let target = coordinator.destinationIndexPath else {
-			return
-		}
-
-		let ids = coordinator.session.items.compactMap {
-			$0.localObject as? UUID
-		}
-
-		switch proposal.intent {
-		case .insertAtDestinationIndexPath:
-			let destination = cache.destination(for: target.row)
-			delegate?.move(ids, to: destination)
-		case .insertIntoDestinationIndexPath:
-			let model = cache.model(with: target.row)
-			delegate?.move(ids, to: .onItem(with: model.id))
+			switch proposal.intent {
+			case .insertAtDestinationIndexPath:
+				let destination = cache.destination(for: target.row)
+				delegate?.move(ids, to: destination)
+			case .insertIntoDestinationIndexPath:
+				let model = cache.model(with: target.row)
+				delegate?.move(ids, to: .onItem(with: model.id))
+			default:
+				return
+			}
 		default:
 			return
 		}
@@ -304,6 +283,45 @@ extension ListAdapter {
 
 	func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) { }
 
+}
+
+// MARK: - Drag And Drop Support
+extension ListAdapter {
+
+	var sceneIdentifier: String? {
+		return tableView?.window?.windowScene?
+			.session.persistentIdentifier
+	}
+
+	func isLocal(session: any UIDropSession) -> Bool {
+		guard let sceneIdentifier, let sessionIdentifier = session.localDragSession?.localContext as? String else {
+			return false
+		}
+		return sessionIdentifier == sceneIdentifier
+	}
+
+	func storeIdentifier(to session: any UIDragSession) {
+		session.localContext = sceneIdentifier
+	}
+
+	func destination(for intent: UITableViewDropProposal.Intent, destinationIndexPath: IndexPath?) -> Destination<UUID> {
+		switch intent {
+		case .insertAtDestinationIndexPath:
+			return if let target = destinationIndexPath {
+				cache.destination(for: target.row)
+			} else {
+				.toRoot
+			}
+		case .insertIntoDestinationIndexPath:
+			guard let target = destinationIndexPath else {
+				fatalError()
+			}
+			let model = cache.model(with: target.row)
+			return .onItem(with: model.id)
+		default:
+			return .toRoot
+		}
+	}
 }
 
 // MARK: - Helpers
@@ -323,7 +341,6 @@ private extension ListAdapter {
 	func updateCell(_ cell: UITableViewCell, with model: ItemModel) {
 		let configuration = {
 			var configuration = UIListContentConfiguration.cell()
-
 			let image: UIImage? = {
 				if let iconConfiguration = model.icon {
 					let symbolConfiguration = iconConfiguration.appearence.configuration
@@ -413,5 +430,14 @@ extension ListAdapter {
 
 	func buildContextMenu(for model: ItemModel) -> UIContextMenuConfiguration {
 		return menuBuilder.buildConfiguration(for: model)
+	}
+}
+
+fileprivate extension UIDropSession {
+
+	var identifiers: [UUID] {
+		return items.compactMap {
+			$0.localObject as? UUID
+		}
 	}
 }
