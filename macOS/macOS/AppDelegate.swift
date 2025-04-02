@@ -28,5 +28,35 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
 		return true
 	}
+}
 
+import SwiftUI
+import CoreModule
+import CoreSettings
+
+// MARK: - Actions
+extension AppDelegate {
+
+	@IBAction
+	func showPreferences(_ sender: Any) {
+
+		let id = NSUserInterfaceItemIdentifier("dev.zeroindex.NestedList.settings-window")
+
+		let window = {
+			if let window = NSApp.windows.first(where: { $0.identifier == id }) {
+				return window
+			} else {
+				let viewController = NSHostingController(rootView: SettingsView(provider: .shared))
+				let window = NSWindow(contentViewController: viewController)
+				window.identifier = id
+				window.title = "Settings"
+				_ = NSWindowController(window: window)
+				return window
+			}
+		}()
+
+		window.center()
+		window.makeKeyAndOrderFront(nil)
+		NSApp.activate(ignoringOtherApps: true)
+	}
 }

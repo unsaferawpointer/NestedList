@@ -13,7 +13,7 @@ struct ItemModel {
 
 	var uuid: UUID
 
-	var icon: IconConfiguration
+	var icon: IconConfiguration?
 
 	var title: TextConfiguration
 

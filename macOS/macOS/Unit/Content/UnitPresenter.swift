@@ -6,9 +6,11 @@
 //
 
 import Foundation
+
 import CoreModule
 import DesignSystem
 import Hierarchy
+import CoreSettings
 
 import AppKit
 
@@ -30,9 +32,19 @@ final class UnitPresenter {
 
 	private let stringType = NSPasteboard.PasteboardType.string.rawValue
 
+	var settingsProvider: any StateProviderProtocol<Settings>
+
 	// MARK: - Cache
 
 	var cache = Cache<Property, Item>()
+
+	init(settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared) {
+		self.settingsProvider = settingsProvider
+
+		settingsProvider.addObservation(for: self) { [weak self] _, settings in
+			self?.interactor?.fetchData()
+		}
+	}
 }
 
 // MARK: - UnitPresenterProtocol
@@ -52,7 +64,8 @@ extension UnitPresenter: UnitPresenterProtocol {
 		let converted = snapshot.map { info in
 			factory.makeItem(
 				item: info.model,
-				level: info.level
+				level: info.level,
+				sectionStyle: settingsProvider.state.sectionStyle
 			)
 		}
 
@@ -64,7 +77,9 @@ extension UnitPresenter: UnitPresenterProtocol {
 extension UnitPresenter: ListDelegate {
 
 	func handleDoubleClick(on item: UUID) {
-		interactor?.toggleStatus(for: item, moveToEnd: false)
+		let completionBehaviour = settingsProvider.state.completionBehaviour
+		let moveToEnd = completionBehaviour == .moveToEnd
+		interactor?.toggleStatus(for: item, moveToEnd: moveToEnd)
 	}
 }
 
@@ -109,14 +124,18 @@ extension UnitPresenter: UnitViewOutput {
 		guard let selection = view?.selection else {
 			return
 		}
-		interactor?.setStatus(status, for: selection, moveToEnd: false)
+		let completionBehaviour = settingsProvider.state.completionBehaviour
+		let moveToEnd = completionBehaviour == .moveToEnd
+		interactor?.setStatus(status, for: selection, moveToEnd: moveToEnd)
 	}
 
 	func userChangedMark(_ mark: Bool) {
 		guard let selection = view?.selection else {
 			return
 		}
-		interactor?.setMark(mark, for: selection)
+		let markingBehaviour = settingsProvider.state.markingBehaviour
+		let moveToTop = markingBehaviour == .moveToTop
+		interactor?.setMark(mark, for: selection, moveToTop: moveToTop)
 	}
 
 	func userChangedStyle(_ style: Item.Style) {

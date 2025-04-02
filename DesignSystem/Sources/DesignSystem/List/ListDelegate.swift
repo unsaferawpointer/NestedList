@@ -15,3 +15,14 @@ public protocol ListDelegate<ID>: AnyObject {
 	func handleDoubleClick(on item: ID)
 }
 #endif
+
+#if os(iOS)
+public protocol ListDelegate<ID>: AnyObject {
+
+	associatedtype ID
+
+	func listItemHasBeenDelete (id: ID)
+
+	func listDidChangeSelection(ids: [ID])
+}
+#endif

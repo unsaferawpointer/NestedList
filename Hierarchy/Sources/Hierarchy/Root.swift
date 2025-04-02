@@ -232,6 +232,24 @@ public extension Root {
 			moveItems(with: items.map(\.id), to: .onItem(with: container.id))
 		}
 	}
+
+	func moveToTop(_ ids: [ID]) {
+		let moved = ids.compactMap {
+			cache[$0]
+		}
+
+		let grouped = Dictionary<Node<Value>?, [Node<Value>]>(grouping: moved) { item in
+			return item.parent
+		}
+
+		for (container, items) in grouped {
+			guard let container else {
+				moveItems(with: items.map(\.id), to: .inRoot(atIndex: 0))
+				continue
+			}
+			moveItems(with: items.map(\.id), to: .inItem(with: container.id, atIndex: 0))
+		}
+	}
 }
 
 // MARK: - Equatable

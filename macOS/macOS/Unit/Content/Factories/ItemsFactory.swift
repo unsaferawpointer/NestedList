@@ -7,11 +7,13 @@
 
 import Foundation
 import AppKit
+
 import DesignSystem
 import CoreModule
+import CoreSettings
 
 protocol ItemsFactoryProtocol {
-	func makeItem(item: Item, level: Int) -> ItemModel
+	func makeItem(item: Item, level: Int, sectionStyle: SectionStyle) -> ItemModel
 }
 
 final class ItemsFactory { }
@@ -19,7 +21,7 @@ final class ItemsFactory { }
 // MARK: - ItemsFactoryProtocol
 extension ItemsFactory: ItemsFactoryProtocol {
 
-	func makeItem(item: Item, level: Int) -> ItemModel {
+	func makeItem(item: Item, level: Int, sectionStyle: SectionStyle) -> ItemModel {
 
 		let textConfiguration: TextConfiguration = switch item.style {
 		case .item:
@@ -40,17 +42,21 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		case .item:
 			PointConfiguration(color: item.isMarked && !item.isDone ? .yellow : .quaternary)
 		case .section:
-			nil
+			sectionStyle == .point
+			? PointConfiguration(color: item.isMarked && !item.isDone ? .yellow : .quaternary)
+			: nil
 		}
 
 		let iconConfiguration: IconConfiguration? = switch item.style {
 		case .item:
 			nil
 		case .section:
-			IconConfiguration(
-				name: .systemName("doc.text"),
-				token: item.isMarked && !item.isDone ? .yellow : .tertiary
+			sectionStyle == .icon
+			? IconConfiguration(
+				name: .named("custom.text.page"),
+				appearence: .hierarchical(token: item.isMarked && !item.isDone ? .yellow : .tertiary)
 			)
+			: nil
 		}
 
 		return ItemModel(

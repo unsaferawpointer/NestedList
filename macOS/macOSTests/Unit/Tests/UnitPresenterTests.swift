@@ -8,6 +8,7 @@
 import Testing
 import Foundation
 import CoreModule
+import CoreSettings
 @testable import Nested_List
 
 final class UnitPresenterTests {
@@ -18,11 +19,13 @@ final class UnitPresenterTests {
 
 	var view: UnitViewMock!
 	var interactor: UnitInteractorMock!
+	var settingsProvider: StateProviderMock<Settings>!
 
 	init() {
 		view = UnitViewMock()
 		interactor = UnitInteractorMock()
-		sut = UnitPresenter()
+		settingsProvider = StateProviderMock<Settings>()
+		sut = UnitPresenter(settingsProvider: settingsProvider)
 		sut.view = view
 		sut.interactor = interactor
 	}
@@ -31,6 +34,7 @@ final class UnitPresenterTests {
 		sut = nil
 		view = nil
 		interactor = nil
+		settingsProvider = nil
 	}
 }
 
@@ -40,6 +44,7 @@ extension UnitPresenterTests {
 	@Test func testPresent() {
 		// Arrange
 		let content = makeContent()
+		settingsProvider.stubs.state = .standart
 
 		// Act
 		sut.present(content)
@@ -51,6 +56,44 @@ extension UnitPresenterTests {
 		}
 
 		#expect(snapshot.identifiers.count == 2)
+	}
+}
+
+// MARK: - ListDelegate test-cases
+extension UnitPresenterTests {
+
+	@Test func test_handleDoubleClick() {
+		// Arrange
+		let expectedId: UUID = .random
+		settingsProvider.stubs.state = .standart
+
+		// Act
+		sut.handleDoubleClick(on: expectedId)
+
+		guard case let .toggleStatus(id, moveToEnd) = interactor.invocations.first else {
+			Issue.record("Expect toggleStatus invocation")
+			return
+		}
+
+		#expect(id == expectedId)
+		#expect(moveToEnd == false)
+	}
+
+	@Test func test_handleDoubleClick_whenCompletionBehaviourIsMoveToEnd() {
+		// Arrange
+		let expectedId: UUID = .random
+		settingsProvider.stubs.state = Settings(completionBehaviour: .moveToEnd)
+
+		// Act
+		sut.handleDoubleClick(on: expectedId)
+
+		guard case let .toggleStatus(id, moveToEnd) = interactor.invocations.first else {
+			Issue.record("Expect toggleStatus invocation")
+			return
+		}
+
+		#expect(id == expectedId)
+		#expect(moveToEnd == true)
 	}
 }
 
@@ -124,6 +167,7 @@ extension UnitPresenterTests {
 	@Test func test_userChangedStatus() {
 		// Arrange
 		view.stubs.selection = [.random, .random]
+		settingsProvider.stubs.state = .standart
 
 		// Act
 		sut.userChangedStatus(true)
@@ -139,21 +183,42 @@ extension UnitPresenterTests {
 		#expect(moveToEnd == false)
 	}
 
+	@Test func test_userChangedStatus_whenCompletionBehaviourIsMoveToEnd() {
+		// Arrange
+		view.stubs.selection = [.random, .random]
+		settingsProvider.stubs.state = Settings(completionBehaviour: .moveToEnd)
+
+		// Act
+		sut.userChangedStatus(true)
+
+		// Assert
+		guard case let .setStatus(status, ids, moveToEnd) = interactor.invocations[0] else {
+			Issue.record("Expect setStatus invocation")
+			return
+		}
+
+		#expect(status == true)
+		#expect(ids == view.stubs.selection)
+		#expect(moveToEnd == true)
+	}
+
 	@Test func test_userChangedMark() {
 		// Arrange
 		view.stubs.selection = [.random, .random]
+		settingsProvider.stubs.state = .standart
 
 		// Act
 		sut.userChangedMark(true)
 
 		// Assert
-		guard case let .setMark(isMarked, ids) = interactor.invocations[0] else {
+		guard case let .setMark(isMarked, ids, moveToTop) = interactor.invocations[0] else {
 			Issue.record("Expect setMark invocation")
 			return
 		}
 
 		#expect(isMarked == true)
 		#expect(ids == view.stubs.selection)
+		#expect(moveToTop == false)
 	}
 
 	@Test func test_userChangedStyle() {

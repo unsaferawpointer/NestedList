@@ -29,5 +29,8 @@ public protocol DropDelegate<ID>: AnyObject {
 
 	func move(_ ids: [ID], to destination: Destination<ID>)
 	func validateMovement(_ ids: [ID], to destination: Destination<ID>) -> Bool
+	func drop(_ strings: [String], to destination: Destination<ID>)
+	func string(for id: ID) -> String
+	func availableTypes() -> [String]
 }
 #endif

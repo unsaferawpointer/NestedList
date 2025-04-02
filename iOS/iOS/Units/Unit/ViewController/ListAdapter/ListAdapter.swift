@@ -29,9 +29,25 @@ final class ListAdapter: NSObject {
 
 	var delegate: (any UnitViewDelegate<UUID>)?
 
-	var invalidateState: Bool = false
+	var editingMode: EditingMode? {
+		didSet {
+			tableView?.setEditing(editingMode != nil, animated: true)
+			tableView?.allowsMultipleSelectionDuringEditing = editingMode?.allowSelection ?? false
+			tableView?.reloadData()
+		}
+	}
 
 	var cache = ListDataSource()
+
+	var selection: [UUID] {
+		get {
+			tableView?.indexPathsForSelectedRows?.map { indexPath in
+				cache.identifier(for: indexPath.row)
+			} ?? []
+		}
+	}
+
+	var menuBuilder = MenuBuilder()
 
 	// MARK: - Initialization
 
@@ -49,6 +65,7 @@ final class ListAdapter: NSObject {
 		self.cache.delegate = self
 
 		self.delegate = delegate
+		self.menuBuilder.delegate = delegate
 	}
 }
 
@@ -99,8 +116,19 @@ extension ListAdapter: UITableViewDataSource {
 extension ListAdapter: UITableViewDelegate {
 
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+		guard !tableView.isEditing else {
+			delegate?.listDidChangeSelection(ids: selection)
+			return
+		}
 		tableView.deselectRow(at: indexPath, animated: true)
 		cache.toggle(indexPath: indexPath)
+	}
+
+	func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+		guard tableView.isEditing else {
+			return
+		}
+		delegate?.listDidChangeSelection(ids: selection)
 	}
 
 	func tableView(
@@ -122,8 +150,16 @@ extension ListAdapter: UITableViewDelegate {
 		return .none
 	}
 
+	func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+		guard editingStyle == .delete else {
+			return
+		}
+		let id = cache.identifier(for: indexPath.row)
+		delegate?.listItemHasBeenDelete(id: id)
+	}
+
 	func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
-		return false
+		return editingMode == .selection
 	}
 }
 
@@ -135,24 +171,41 @@ extension ListAdapter: UITableViewDragDelegate {
 		itemsForBeginning session: any UIDragSession,
 		at indexPath: IndexPath
 	) -> [UIDragItem] {
-		guard tableView.isEditing else {
+		guard editingMode == .reordering, let delegate else {
 			return []
 		}
+
 		let model = cache.model(with: indexPath.row)
-		let item = UIDragItem(itemProvider: NSItemProvider())
+
+		let string = delegate.string(for: model.id)
+		let itemProvider = NSItemProvider(object: string as NSString)
+
+		let item = UIDragItem(itemProvider: itemProvider)
 		item.localObject = model.id
 		return [item]
 	}
 
 }
 
+// MARK: - UITableViewDropDelegate
 extension ListAdapter: UITableViewDropDelegate {
+
+	func tableView(_ tableView: UITableView, canHandle session: any UIDropSession) -> Bool {
+		guard let types = delegate?.availableTypes() else {
+			return false
+		}
+		return session.hasItemsConforming(toTypeIdentifiers: types)
+	}
 
 	func tableView(_ tableView: UITableView, dragSessionWillBegin session: any UIDragSession) {
 		guard let item = session.items.first, let id = item.localObject as? UUID else {
 			return
 		}
 		cache.collapse(id)
+
+		if let sceneIdentifier = tableView.superview?.window?.windowScene?.session.persistentIdentifier {
+			session.localContext = sceneIdentifier
+		}
 	}
 
 	func tableView(
@@ -160,16 +213,20 @@ extension ListAdapter: UITableViewDropDelegate {
 		dropSessionDidUpdate session: any UIDropSession,
 		withDestinationIndexPath destinationIndexPath: IndexPath?
 	) -> UITableViewDropProposal {
-		let id = session.items.compactMap {
-			$0.localObject as? UUID
-		}.first
 
-		guard let id, let target = destinationIndexPath?.row else {
-			return .init(operation: .forbidden)
+		guard isLocal(session: session) else {
+			return .init(operation: .copy, intent: .automatic)
 		}
-		guard target < cache.count else {
+
+		guard let target = destinationIndexPath?.row, target < cache.count else {
 			return .init(operation: .move, intent: .automatic)
 		}
+
+		let id = session.identifiers.first
+
+		assert(session.identifiers.count <= 1, "Adapter cant support multi-selection")
+
+		// MARK: - You can't drop a cell on itself
 		guard id != cache.identifier(for: target) else {
 			return .init(operation: .cancel)
 		}
@@ -177,22 +234,40 @@ extension ListAdapter: UITableViewDropDelegate {
 	}
 
 	func tableView(_ tableView: UITableView, performDropWith coordinator: any UITableViewDropCoordinator) {
+
 		let proposal = coordinator.proposal
-		guard proposal.operation == .move, let target = coordinator.destinationIndexPath else {
-			return
-		}
 
-		let ids = coordinator.session.items.compactMap {
-			$0.localObject as? UUID
-		}
+		switch proposal.operation {
+		case .copy:
+			coordinator.session.loadObjects(ofClass: NSString.self) { [weak self] items in
+				guard let self else {
+					return
+				}
+				guard let strings = items as? [String] else { return }
 
-		switch proposal.intent {
-		case .insertAtDestinationIndexPath:
-			let destination = cache.destination(for: target.row)
-			delegate?.move(ids, to: destination)
-		case .insertIntoDestinationIndexPath:
-			let model = cache.model(with: target.row)
-			delegate?.move(ids, to: .onItem(with: model.id))
+				let destination = destination(
+					for: proposal.intent,
+					destinationIndexPath: coordinator.destinationIndexPath
+				)
+				delegate?.drop(strings, to: destination)
+			}
+		case .move:
+			let ids = coordinator.session.identifiers
+			guard let target = coordinator.destinationIndexPath else {
+				delegate?.move(ids, to: .toRoot)
+				return
+			}
+
+			switch proposal.intent {
+			case .insertAtDestinationIndexPath:
+				let destination = cache.destination(for: target.row)
+				delegate?.move(ids, to: destination)
+			case .insertIntoDestinationIndexPath:
+				let model = cache.model(with: target.row)
+				delegate?.move(ids, to: .onItem(with: model.id))
+			default:
+				return
+			}
 		default:
 			return
 		}
@@ -203,20 +278,56 @@ extension ListAdapter: UITableViewDropDelegate {
 extension ListAdapter {
 
 	func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-		return true
+		return editingMode == .reordering
 	}
 
 	func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) { }
+
+}
+
+// MARK: - Drag And Drop Support
+extension ListAdapter {
+
+	var sceneIdentifier: String? {
+		return tableView?.window?.windowScene?
+			.session.persistentIdentifier
+	}
+
+	func isLocal(session: any UIDropSession) -> Bool {
+		guard let sceneIdentifier, let sessionIdentifier = session.localDragSession?.localContext as? String else {
+			return false
+		}
+		return sessionIdentifier == sceneIdentifier
+	}
+
+	func storeIdentifier(to session: any UIDragSession) {
+		session.localContext = sceneIdentifier
+	}
+
+	func destination(for intent: UITableViewDropProposal.Intent, destinationIndexPath: IndexPath?) -> Destination<UUID> {
+		switch intent {
+		case .insertAtDestinationIndexPath:
+			return if let target = destinationIndexPath {
+				cache.destination(for: target.row)
+			} else {
+				.toRoot
+			}
+		case .insertIntoDestinationIndexPath:
+			guard let target = destinationIndexPath else {
+				fatalError()
+			}
+			let model = cache.model(with: target.row)
+			return .onItem(with: model.id)
+		default:
+			return .toRoot
+		}
+	}
 }
 
 // MARK: - Helpers
 private extension ListAdapter {
 
 	func updateCell(_ cell: ItemCell, with configuration: RowConfiguration) {
-
-		guard let tableView else {
-			return
-		}
 
 		let iconName = configuration.isExpanded ? "chevron.down" : "chevron.right"
 		let image = UIImage(systemName: iconName)
@@ -230,13 +341,27 @@ private extension ListAdapter {
 	func updateCell(_ cell: UITableViewCell, with model: ItemModel) {
 		let configuration = {
 			var configuration = UIListContentConfiguration.cell()
+			let image: UIImage? = {
+				if let iconConfiguration = model.icon {
+					let symbolConfiguration = iconConfiguration.appearence.configuration
+					switch iconConfiguration.name {
+					case .named(let name):
+						return UIImage(named: name)?
+							.applyingSymbolConfiguration(symbolConfiguration)
+					case .systemName(let name):
+						return UIImage(systemName: name)?
+							.applyingSymbolConfiguration(symbolConfiguration)
+					}
+				} else {
+					return nil
+				}
+			}()
+			configuration.image = (tableView?.isEditing ?? false) && editingMode == .selection
+				? nil
+				: image
 
-			configuration.imageProperties.tintColor = model.icon.token.color
-			switch model.icon.name {
-			case .named(let name):
-				configuration.image = UIImage(named: name)
-			case .systemName(let name):
-				configuration.image = UIImage(systemName: name)
+			if let iconConfiguration = model.icon {
+				configuration.imageProperties.tintColor = iconConfiguration.appearence.tint
 			}
 
 			configuration.attributedText = .init(
@@ -304,100 +429,15 @@ extension ListAdapter: CacheDelegate {
 extension ListAdapter {
 
 	func buildContextMenu(for model: ItemModel) -> UIContextMenuConfiguration {
-		return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { suggestedActions in
+		return menuBuilder.buildConfiguration(for: model)
+	}
+}
 
-			let editItem = UIAction(title: "Edit...", image: UIImage(systemName: "pencil")) { [weak self] action in
-				self?.delegate?.userTappedEditButton(id: model.id)
-			}
+fileprivate extension UIDropSession {
 
-			let editGroup = UIMenu(
-				title: "", image: nil,
-				identifier: nil,
-				options: [.displayInline],
-				preferredElementSize: .medium,
-				children: [editItem]
-			)
-			editGroup.preferredElementSize = .large
-
-			let newItem = UIAction(title: "New...", image: UIImage(systemName: "plus")) { [weak self] action in
-				self?.delegate?.userTappedAddButton(target: model.id)
-			}
-
-			let cutItem = UIAction(title: "Cut", image: UIImage(systemName: "scissors")) { [weak self] action in
-				self?.delegate?.userTappedCutButton(ids: [model.id])
-			}
-
-			let copyItem = UIAction(title: "Copy", image: UIImage(systemName: "document.on.document")) { [weak self] action in
-				self?.delegate?.userTappedCopyButton(ids: [model.id])
-			}
-
-			let pasteItem = UIAction(title: "Paste", image: UIImage(systemName: "document.on.clipboard")) { [weak self] action in
-				self?.delegate?.userTappedPasteButton(target: model.id)
-			}
-
-			let groupItem = UIMenu(
-				title: "", image: nil,
-				identifier: nil,
-				options: [.displayInline],
-				preferredElementSize: .medium,
-				children: [cutItem, copyItem, pasteItem]
-			)
-
-			let deleteItem = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] action in
-				self?.delegate?.userTappedDeleteButton(ids: [model.id])
-			}
-
-			let statusItem = UIAction(
-				title: "Completed",
-				image: nil
-			) { [weak self] action in
-				self?.delegate?.userSetStatus(isDone: !model.status, id: model.id)
-			}
-			statusItem.state = model.status ? .on : .off
-
-			let markItem = UIAction(
-				title: "Marked",
-				image: nil
-			) { [weak self] action in
-				self?.delegate?.userMark(isMarked: !model.isMarked, id: model.id)
-			}
-			markItem.state = model.isMarked ? .on : .off
-
-			let statusGroup = UIMenu(
-				title: "",
-				image: nil,
-				identifier: nil,
-				options: [.displayInline],
-				preferredElementSize: .large,
-				children: [statusItem, markItem]
-			)
-
-			let defaultStyleItem = UIAction(
-				title: "Item",
-				image: nil
-			) { [weak self] action in
-				self?.delegate?.userSetStyle(style: .item, id: model.id)
-			}
-
-			let sectionStyleItem = UIAction(
-				title: "Section",
-				image: nil
-			) { [weak self] action in
-				self?.delegate?.userSetStyle(style: .section, id: model.id)
-			}
-
-			let styleGroup = UIMenu(
-				title: "Style",
-				image: nil,
-				identifier: nil,
-				options: [],
-				preferredElementSize: .large,
-				children: [defaultStyleItem, sectionStyleItem]
-			)
-
-			let menu = UIMenu(title: "", children: [groupItem, newItem, editGroup, statusGroup, styleGroup, deleteItem])
-
-			return menu
+	var identifiers: [UUID] {
+		return items.compactMap {
+			$0.localObject as? UUID
 		}
 	}
 }
