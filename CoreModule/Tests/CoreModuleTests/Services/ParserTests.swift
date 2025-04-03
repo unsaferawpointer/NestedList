@@ -43,7 +43,7 @@ extension ParserTests {
 		}.joined(separator: "\n")
 
 		// Assert
-		let reference = load(file: "reference").dropLast() // Drop last new line
+		let reference = load(file: "reference").dropLast()
 		#expect(reference.count == document.count)
 		#expect(document == reference)
 	}

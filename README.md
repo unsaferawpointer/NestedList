@@ -34,7 +34,7 @@ Section:
 
 version 2.0.0
 ```
-Section:
+- Section:
 	* Marked Task 0
 		- Subtask 0
 		Note for Subtask 0

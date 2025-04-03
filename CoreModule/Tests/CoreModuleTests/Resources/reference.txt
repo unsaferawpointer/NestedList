@@ -1,10 +1,10 @@
-project 0:
+- project 0 :
 Note 0
-	- item 0 0 @mark
+	* item 0 0
 	Note 0 0
 	- item 0 1
-		- item 0 1 0 @done
+		x item 0 1 0
 		Note 0 1 0
-project 1: @fold
+> project 1 :
 	- item 1 0
 	- item 1 1
