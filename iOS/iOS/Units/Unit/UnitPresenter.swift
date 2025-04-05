@@ -41,6 +41,10 @@ final class UnitPresenter {
 		}
 	}
 
+	// MARK: - Cache
+
+	var cache = Cache<Property, Item>()
+
 	// MARK: - Initialization
 
 	init(settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared) {
@@ -60,6 +64,10 @@ extension UnitPresenter: UnitPresenterProtocol {
 		var snapshot = Snapshot(content.root.nodes)
 		snapshot.validate(keyPath: \.isDone)
 		snapshot.validate(keyPath: \.isMarked)
+
+		cache.store(.isDone, keyPath: \.isDone, equalsTo: true, from: snapshot)
+		cache.store(.isMarked, keyPath: \.isMarked, equalsTo: true, from: snapshot)
+		cache.store(.isSection, keyPath: \.style, equalsTo: .section, from: snapshot)
 
 		let converted = snapshot
 			.map { info in
@@ -132,70 +140,62 @@ extension UnitPresenter: ToolbarDelegate {
 // MARK: - MenuDelegate
 extension UnitPresenter: MenuDelegate {
 
-	func menuDidEdit(id: UUID) {
-		guard let item = interactor?.item(for: id) else {
+	func menuDidSelect<T>(item: T, with selection: [UUID]) where T : RawRepresentable, T.RawValue == String {
+		guard let menuIdentifier = ElementIdentifier(rawValue: item.rawValue) else {
 			return
 		}
-		let model = DetailsView.Model(navigationTitle: "Edit Item", properties: item.details)
-		view?.showDetails(with: model) { [weak self] saved, success in
-			self?.view?.hideDetails()
-			if success {
-				let note = saved.description.isEmpty ? nil : saved.description
-				self?.interactor?.set(saved.text, note: note, isMarked: saved.isMarked, style: saved.style, for: id)
+
+		switch menuIdentifier {
+		case .edit:
+			guard let id = selection.first, let item = interactor?.item(for: id) else {
+				return
 			}
+			let model = DetailsView.Model(navigationTitle: "Edit Item", properties: item.details)
+			view?.showDetails(with: model) { [weak self] saved, success in
+				self?.view?.hideDetails()
+				if success {
+					let note = saved.description.isEmpty ? nil : saved.description
+					self?.interactor?.set(saved.text, note: note, isMarked: saved.isMarked, style: saved.style, for: id)
+				}
+			}
+		case .new:
+			createNew(target: selection.first)
+		case .cut:
+			guard let first = selection.first, let interactor else {
+				return
+			}
+			let string = interactor.string(for: first)
+			UIPasteboard.general.string = string
+			interactor.deleteItems(selection)
+		case .copy:
+			guard let first = selection.first, let interactor else {
+				return
+			}
+			let string = interactor.string(for: first)
+			UIPasteboard.general.string = string
+		case .paste:
+			guard let string = UIPasteboard.general.string, let target = selection.first else {
+				return
+			}
+			interactor?.insertStrings([string], to: .onItem(with: target))
+		case .delete:
+			interactor?.deleteItems(selection)
+		case .completed:
+			let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
+			let newValue = !(cache.validate(.isDone, other: selection) ?? false)
+			interactor?.setStatus(newValue, for: selection, moveToEnd: moveToEnd)
+		case .marked:
+			let moveToTop = settingsProvider.state.markingBehaviour == .moveToTop
+			let newValue = !(cache.validate(.isMarked, other: selection) ?? false)
+			interactor?.mark(newValue, ids: selection, moveToTop: moveToTop)
+		case .style:
+			guard let id = selection.first else {
+				return
+			}
+			let newValue = !(cache.validate(.isSection, other: selection) ?? false)
+			interactor?.setStyle(newValue ? .section : .item, for: id)
 		}
 	}
-	
-	func menuDidDelete(ids: [UUID]) {
-		interactor?.deleteItems(ids)
-	}
-	
-	func menuDidAdd(target: UUID) {
-		createNew(target: target)
-	}
-	
-	func menuDidSetStatus(isDone: Bool, id: UUID) {
-		let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
-		interactor?.setStatus(isDone, for: [id], moveToEnd: moveToEnd)
-	}
-	
-	func menuDidMark(isMarked: Bool, id: UUID) {
-		let moveToTop = settingsProvider.state.markingBehaviour == .moveToTop
-		interactor?.mark(isMarked, id: id, moveToTop: moveToTop)
-	}
-	
-	func menuDidSetStyle(style: CoreModule.Item.Style, id: UUID) {
-		interactor?.setStyle(style, for: id)
-	}
-	
-	func menuDidCut(ids: [UUID]) {
-		guard let first = ids.first, let interactor else {
-			return
-		}
-		let string = interactor.string(for: first)
-
-		UIPasteboard.general.string = string
-
-		interactor.deleteItems(ids)
-	}
-	
-	func menuDidPaste(target: UUID) {
-		guard let string = UIPasteboard.general.string else {
-			return
-		}
-		interactor?.insertStrings([string], to: .onItem(with: target))
-	}
-	
-	func menuDidCopy(ids: [UUID]) {
-		guard let first = ids.first, let interactor else {
-			return
-		}
-		let string = interactor.string(for: first)
-
-		UIPasteboard.general.string = string
-	}
-	
-
 }
 
 // MARK: - UnitViewDelegate
@@ -271,6 +271,13 @@ private extension UnitPresenter {
 			}
 		}
 	}
+}
+
+enum Property: Hashable {
+	case isDone
+	case isMarked
+	case isItem
+	case isSection
 }
 
 private extension Item {

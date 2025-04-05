@@ -81,7 +81,8 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			title: titleConfiguration,
 			subtitle: subtitleConfiguration,
 			status: item.isDone,
-			isMarked: item.isMarked
+			isMarked: item.isMarked,
+			isSection: item.style == .section
 		)
 	}
 }

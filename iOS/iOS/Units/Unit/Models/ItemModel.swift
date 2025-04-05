@@ -22,6 +22,8 @@ struct ItemModel {
 	var status: Bool
 
 	var isMarked: Bool
+
+	var isSection: Bool
 }
 
 // MARK: - Identifiable
