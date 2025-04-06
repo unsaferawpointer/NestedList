@@ -25,6 +25,8 @@ final class UnitPresenter {
 
 	private(set) var factory: ItemsFactoryProtocol = ItemsFactory()
 
+	private(set) var menuFactory = MenuFactory()
+
 	var settingsProvider: any StateProviderProtocol<Settings>
 
 	var toolbarFactory = ToolbarFactory()
@@ -217,7 +219,7 @@ extension UnitPresenter: ListDelegate {
 	}
 
 	func menu(for ids: [UUID]) -> [MenuElement] {
-		return MenuFactory.build(
+		menuFactory.build(
 			isCompleted: cache.validate(.isDone, other: ids),
 			isMarked: cache.validate(.isMarked, other: ids),
 			isSection: cache.validate(.isSection, other: ids)

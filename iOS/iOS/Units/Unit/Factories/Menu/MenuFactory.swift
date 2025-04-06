@@ -7,12 +7,15 @@
 
 import DesignSystem
 
-final class MenuFactory { }
+final class MenuFactory {
+
+	var localization: MenuLocalizationProtocol = MenuLocalization()
+}
 
 // MARK: - Public interface
 extension MenuFactory {
 
-	static func build(isCompleted: Bool?, isMarked: Bool?, isSection: Bool?) -> [MenuElement] {
+	func build(isCompleted: Bool?, isMarked: Bool?, isSection: Bool?) -> [MenuElement] {
 		return
 		[
 			.init(
@@ -22,39 +25,14 @@ extension MenuFactory {
 					size: .medium,
 					items:
 						[
-							.init(
-								id: ElementIdentifier.cut.rawValue,
-								title: "Cut",
-								icon: .systemName("scissors"),
-								content: .item(state: .off, attributes: [])
-							),
-							.init(
-								id: ElementIdentifier.copy.rawValue,
-								title: "Copy",
-								icon: .systemName("document.on.document"),
-								content: .item(state: .off, attributes: [])
-							),
-							.init(
-								id: ElementIdentifier.paste.rawValue,
-								title: "Paste",
-								icon: .systemName("document.on.clipboard"),
-								content: .item(state: .off, attributes: [])
-							)
+							buildItem(id: .cut, title: localization.cutItemTitle, iconName: "scissors"),
+							buildItem(id: .copy, title: localization.copyItemTitle, iconName: "document.on.document"),
+							buildItem(id: .paste, title: localization.pasteItemTitle, iconName: "document.on.clipboard")
 						]
 				)
 			),
-			.init(
-				id: ElementIdentifier.edit.rawValue,
-				title: "Edit...",
-				icon: .systemName("pencil"),
-				content: .item(state: .off, attributes: [])
-			),
-			.init(
-				id: ElementIdentifier.new.rawValue,
-				title: "New...",
-				icon: .systemName("plus"),
-				content: .item(state: .off, attributes: [])
-			),
+			buildItem(id: .edit, title: localization.editItemTitle, iconName: "pencil"),
+			buildItem(id: .new, title: localization.newItemTitle, iconName: "plus"),
 			.init(
 				id: "",
 				content: .menu(
@@ -62,31 +40,33 @@ extension MenuFactory {
 					size: .automatic,
 					items:
 						[
-							.init(
-								id: ElementIdentifier.completed.rawValue,
-								title: "Completed",
-								content: .item(state: isCompleted.state, attributes: [])
-							),
-							.init(
-								id: ElementIdentifier.marked.rawValue,
-								title: "Marked",
-								content: .item(state: isMarked.state, attributes: [])
-							),
-							.init(
-								id: ElementIdentifier.style.rawValue,
-								title: "Section",
-								content: .item(state: isSection.state, attributes: [])
-							)
+							buildItem(id: .completed, title: localization.completedItemTitle, state: isCompleted.state),
+							buildItem(id: .marked, title: localization.markedItemTitle, state: isMarked.state),
+							buildItem(id: .style, title: localization.sectionItemTitle, state: isSection.state)
 						]
 				)
 			),
-			.init(
-				id: ElementIdentifier.delete.rawValue,
-				title: "Delete",
-				icon: .systemName("trash"),
-				content: .item(state: .off, attributes: [.destructive])
-			)
+			buildItem(id: .delete, title: localization.deleteItemTitle, iconName: "trash", attributes: [.destructive])
 		]
+	}
+}
+
+// MARK: - Helpers
+private extension MenuFactory {
+
+	func buildItem(
+		id: ElementIdentifier,
+		title: String,
+		iconName: String = "",
+		state: ControlState = .off,
+		attributes: MenuElement.Attributes = []
+	) -> MenuElement {
+		return MenuElement(
+			id: id.rawValue,
+			title: title,
+			icon: .systemName(iconName),
+			content: .item(state: state, attributes: attributes)
+		)
 	}
 }
 
