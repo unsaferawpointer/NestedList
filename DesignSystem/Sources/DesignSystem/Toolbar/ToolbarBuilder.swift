@@ -45,7 +45,7 @@ public extension ToolbarBuilder {
 					title: item.title,
 					image: item.icon?.image,
 					primaryAction: action,
-					menu: MenuBuilder.build(from: items, delegate: delegate)
+					menu: MenuBuilder.build(from: items, with: nil, delegate: delegate)
 				)
 				result.isEnabled = item.isEnabled
 				return result
