@@ -12,7 +12,10 @@ protocol ToolbarFactoryProtocol {
 	func build(editingMode: EditingMode?, selectedCount: Int) -> ToolbarModel
 }
 
-final class ToolbarFactory { }
+final class ToolbarFactory {
+
+	var localization: ToolbarLocalizationProtocol = ToolbarLocalization()
+}
 
 // MARK: - BottomToolbarFactoryProtocol
 extension ToolbarFactory: ToolbarFactoryProtocol {
@@ -31,7 +34,7 @@ extension ToolbarFactory {
 
 	func buildTop(editingMode: EditingMode?) -> [ToolbarItem] {
 		guard editingMode == nil else {
-			return [ .init(id: ElementIdentifier.done.rawValue, title: "Done", icon: nil, content: .regular)]
+			return [.init(id: ElementIdentifier.done.rawValue, title: localization.doneItemTitle)]
 		}
 
 		return [
@@ -44,19 +47,19 @@ extension ToolbarFactory {
 						[
 							.init(
 								id: ElementIdentifier.select.rawValue,
-								title: "Select",
+								title: localization.selectItemTitle,
 								icon: .systemName("checkmark.circle"),
 								content: .item(state: .off, attributes: [])
 							),
 							.init(
 								id: ElementIdentifier.reorder.rawValue,
-								title: "Reorder",
+								title: localization.reorderItemTitle,
 								icon: .systemName("line.3.horizontal"),
 								content: .item(state: .off, attributes: [])
 							),
 							.init(
 								id: ElementIdentifier.settings.rawValue,
-								title: "Settings",
+								title: localization.settingsItemTitle,
 								icon: .systemName("slider.horizontal.2.square"),
 								content: .item(state: .off, attributes: [])
 							)
