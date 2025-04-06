@@ -24,5 +24,7 @@ public protocol ListDelegate<ID>: AnyObject {
 	func listItemHasBeenDelete (id: ID)
 
 	func listDidChangeSelection(ids: [ID])
+
+	func menu(for ids: [ID]) -> [MenuElement]
 }
 #endif

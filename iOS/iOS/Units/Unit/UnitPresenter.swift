@@ -140,8 +140,8 @@ extension UnitPresenter: ToolbarDelegate {
 // MARK: - MenuDelegate
 extension UnitPresenter: MenuDelegate {
 
-	func menuDidSelect<T>(item: T, with selection: [UUID]) where T : RawRepresentable, T.RawValue == String {
-		guard let menuIdentifier = ElementIdentifier(rawValue: item.rawValue) else {
+	func menuDidSelect(item: String, with selection: [UUID]) {
+		guard let menuIdentifier = ElementIdentifier(rawValue: item) else {
 			return
 		}
 
@@ -214,6 +214,14 @@ extension UnitPresenter: ListDelegate {
 			selectedCount: ids.count
 		)
 		view?.display(toolbar)
+	}
+
+	func menu(for ids: [UUID]) -> [MenuElement] {
+		return MenuFactory.build(
+			isCompleted: cache.validate(.isDone, other: ids),
+			isMarked: cache.validate(.isMarked, other: ids),
+			isSection: cache.validate(.isSection, other: ids)
+		)
 	}
 }
 

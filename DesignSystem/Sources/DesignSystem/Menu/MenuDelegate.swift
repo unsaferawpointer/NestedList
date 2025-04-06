@@ -9,5 +9,5 @@ public protocol MenuDelegate<ID>: AnyObject {
 
 	associatedtype ID: Hashable
 
-	func menuDidSelect<T: RawRepresentable>(item: T, with selection: [ID]) where T.RawValue == String
+	func menuDidSelect(item: String, with selection: [ID])
 }

@@ -25,3 +25,22 @@ public extension IconName {
 		}
 	}
 }
+
+#if canImport(UIKit)
+
+import UIKit
+
+// MARK: - Computed properties
+public extension IconName {
+
+	var image: UIImage? {
+		switch self {
+		case let .systemName(value):
+			UIImage(systemName: value)
+		case let .named(value):
+			UIImage(named: value)
+		}
+	}
+}
+
+#endif

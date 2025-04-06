@@ -32,7 +32,7 @@ extension MenuBuilder {
 		return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { suggestedActions in
 
 			let editItem = UIAction(title: "Edit...", image: UIImage(systemName: "pencil")) { [weak self] action in
-				self?.delegate?.menuDidSelect(item: ElementIdentifier.edit, with: [model.id])
+				self?.delegate?.menuDidSelect(item: ElementIdentifier.edit.rawValue, with: [model.id])
 			}
 
 			let editGroup = UIMenu(
@@ -45,19 +45,19 @@ extension MenuBuilder {
 			editGroup.preferredElementSize = .large
 
 			let new = UIAction(title: "New...", image: UIImage(systemName: "plus")) { [weak self] action in
-				self?.delegate?.menuDidSelect(item: ElementIdentifier.new, with: [model.id])
+				self?.delegate?.menuDidSelect(item: ElementIdentifier.new.rawValue, with: [model.id])
 			}
 
 			let cut = UIAction(title: "Cut", image: UIImage(systemName: "scissors")) { [weak self] action in
-				self?.delegate?.menuDidSelect(item: ElementIdentifier.cut, with: [model.id])
+				self?.delegate?.menuDidSelect(item: ElementIdentifier.cut.rawValue, with: [model.id])
 			}
 
 			let copy = UIAction(title: "Copy", image: UIImage(systemName: "document.on.document")) { [weak self] action in
-				self?.delegate?.menuDidSelect(item: ElementIdentifier.copy, with: [model.id])
+				self?.delegate?.menuDidSelect(item: ElementIdentifier.copy.rawValue, with: [model.id])
 			}
 
 			let paste = UIAction(title: "Paste", image: UIImage(systemName: "document.on.clipboard")) { [weak self] action in
-				self?.delegate?.menuDidSelect(item: ElementIdentifier.paste, with: [model.id])
+				self?.delegate?.menuDidSelect(item: ElementIdentifier.paste.rawValue, with: [model.id])
 			}
 
 			let groupItem = UIMenu(
@@ -69,14 +69,14 @@ extension MenuBuilder {
 			)
 
 			let delete = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] action in
-				self?.delegate?.menuDidSelect(item: ElementIdentifier.delete, with: [model.id])
+				self?.delegate?.menuDidSelect(item: ElementIdentifier.delete.rawValue, with: [model.id])
 			}
 
 			let statusItem = UIAction(
 				title: "Completed",
 				image: nil
 			) { [weak self] action in
-				self?.delegate?.menuDidSelect(item: ElementIdentifier.completed, with: [model.id])
+				self?.delegate?.menuDidSelect(item: ElementIdentifier.completed.rawValue, with: [model.id])
 			}
 			statusItem.state = model.status ? .on : .off
 
@@ -84,7 +84,7 @@ extension MenuBuilder {
 				title: "Marked",
 				image: nil
 			) { [weak self] action in
-				self?.delegate?.menuDidSelect(item: ElementIdentifier.marked, with: [model.id])
+				self?.delegate?.menuDidSelect(item: ElementIdentifier.marked.rawValue, with: [model.id])
 			}
 			marked.state = model.isMarked ? .on : .off
 
@@ -101,7 +101,7 @@ extension MenuBuilder {
 				title: "Section",
 				image: nil
 			) { [weak self] action in
-				self?.delegate?.menuDidSelect(item: ElementIdentifier.style, with: [model.id])
+				self?.delegate?.menuDidSelect(item: ElementIdentifier.style.rawValue, with: [model.id])
 			}
 			style.state = model.isSection ? .on : .off
 

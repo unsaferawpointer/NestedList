@@ -429,7 +429,16 @@ extension ListAdapter: CacheDelegate {
 extension ListAdapter {
 
 	func buildContextMenu(for model: ItemModel) -> UIContextMenuConfiguration {
-		return menuBuilder.buildConfiguration(for: model)
+		guard let delegate else {
+			fatalError("Delegate is nil")
+		}
+		return UIContextMenuConfiguration(actionProvider:  { _ in
+			return DesignSystem.MenuBuilder.build(
+				from: delegate.menu(for: [model.id]),
+				with: [model.id],
+				delegate: delegate
+			)
+		})
 	}
 }
 
