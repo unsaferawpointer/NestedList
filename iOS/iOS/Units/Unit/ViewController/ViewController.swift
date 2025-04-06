@@ -22,7 +22,7 @@ class ViewController: UIDocumentViewController {
 
 	var adapter: ListAdapter?
 
-	var toolbarBuilder: ToolbarBuilder = ToolbarBuilder()
+	var toolbarBuilder: ToolbarBuilder<UUID> = ToolbarBuilder<UUID>()
 
 	var listDocument: Document? {
 		self.document as? Document
@@ -34,7 +34,6 @@ class ViewController: UIDocumentViewController {
 				return
 			}
 			self.delegate = UnitAssembly.build(self, storage: document.storage)
-			self.toolbarBuilder.delegate = delegate
 			self.adapter = ListAdapter(tableView: tableView, delegate: delegate)
 		}
 	}
@@ -92,8 +91,10 @@ extension ViewController: UnitView {
 	}
 
 	func display(_ toolbar: ToolbarModel) {
-		navigationItem.setRightBarButtonItems(toolbarBuilder.build(items: toolbar.top), animated: true)
-		toolbarItems = toolbarBuilder.build(items: toolbar.bottom)
+		let topItems = DesignSystem.ToolbarBuilder.build(from: toolbar.top, delegate: delegate)
+		navigationItem.setRightBarButtonItems(topItems, animated: true)
+
+		toolbarItems = DesignSystem.ToolbarBuilder.build(from: toolbar.bottom, delegate: delegate)
 	}
 
 	var selection: [UUID] {

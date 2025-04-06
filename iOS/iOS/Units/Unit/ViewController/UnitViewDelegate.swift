@@ -9,4 +9,4 @@ import Foundation
 import CoreModule
 import DesignSystem
 
-protocol UnitViewDelegate<ID>: ListDelegate, ToolbarDelegate, MenuDelegate, DropDelegate, ViewDelegate { }
+protocol UnitViewDelegate<ID>: ListDelegate, InteractionDelegate, DropDelegate, ViewDelegate { }

@@ -98,58 +98,19 @@ extension UnitPresenter: ViewDelegate {
 	}
 }
 
-// MARK: - ToolbarDelegate
-extension UnitPresenter: ToolbarDelegate {
+// MARK: - InteractionDelegate
+extension UnitPresenter: InteractionDelegate {
 
-	func toolbarDidSelect() {
-		editingMode = .selection
-	}
-	
-	func toolbarDidReorder() {
-		editingMode = .reordering
-	}
-	
-	func toolbarDidOpenSettings() {
-		view?.showSettings()
-	}
-
-	func toolbarDidFinish() {
-		editingMode = nil
-	}
-
-	func toolbarDidCreateNew() {
-		createNew(target: nil)
-	}
-
-	func toolbarDidDelete() {
-		guard let selection = view?.selection else {
-			return
-		}
-		editingMode = nil
-		interactor?.deleteItems(selection)
-	}
-
-	func toolbarDidMarkAsComplete() {
-		guard let selection = view?.selection else {
-			return
-		}
-		editingMode = nil
-		let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
-		interactor?.setStatus(true, for: selection, moveToEnd: moveToEnd)
-	}
-}
-
-// MARK: - MenuDelegate
-extension UnitPresenter: MenuDelegate {
-
-	func menuDidSelect(item: String, with selection: [UUID]) {
+	func userDidSelect(item: String, with selection: [UUID]?) {
 		guard let menuIdentifier = ElementIdentifier(rawValue: item) else {
 			return
 		}
 
+		let currentSelection = selection ?? view?.selection
+
 		switch menuIdentifier {
 		case .edit:
-			guard let id = selection.first, let item = interactor?.item(for: id) else {
+			guard let id = currentSelection?.first, let item = interactor?.item(for: id) else {
 				return
 			}
 			let model = DetailsView.Model(navigationTitle: "Edit Item", properties: item.details)
@@ -161,41 +122,49 @@ extension UnitPresenter: MenuDelegate {
 				}
 			}
 		case .new:
-			createNew(target: selection.first)
+			createNew(target: currentSelection?.first)
 		case .cut:
-			guard let first = selection.first, let interactor else {
+			guard let first = currentSelection?.first, let interactor else {
 				return
 			}
 			let string = interactor.string(for: first)
 			UIPasteboard.general.string = string
-			interactor.deleteItems(selection)
+			interactor.deleteItems(currentSelection ?? [])
 		case .copy:
-			guard let first = selection.first, let interactor else {
+			guard let first = currentSelection?.first, let interactor else {
 				return
 			}
 			let string = interactor.string(for: first)
 			UIPasteboard.general.string = string
 		case .paste:
-			guard let string = UIPasteboard.general.string, let target = selection.first else {
+			guard let string = UIPasteboard.general.string, let target = currentSelection?.first else {
 				return
 			}
 			interactor?.insertStrings([string], to: .onItem(with: target))
 		case .delete:
-			interactor?.deleteItems(selection)
+			interactor?.deleteItems(currentSelection ?? [])
 		case .completed:
 			let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
-			let newValue = !(cache.validate(.isDone, other: selection) ?? false)
-			interactor?.setStatus(newValue, for: selection, moveToEnd: moveToEnd)
+			let newValue = !(cache.validate(.isDone, other: currentSelection ?? []) ?? false)
+			interactor?.setStatus(newValue, for: currentSelection ?? [], moveToEnd: moveToEnd)
 		case .marked:
 			let moveToTop = settingsProvider.state.markingBehaviour == .moveToTop
-			let newValue = !(cache.validate(.isMarked, other: selection) ?? false)
-			interactor?.mark(newValue, ids: selection, moveToTop: moveToTop)
+			let newValue = !(cache.validate(.isMarked, other: currentSelection ?? []) ?? false)
+			interactor?.mark(newValue, ids: currentSelection ?? [], moveToTop: moveToTop)
 		case .style:
-			guard let id = selection.first else {
+			guard let id = currentSelection?.first else {
 				return
 			}
-			let newValue = !(cache.validate(.isSection, other: selection) ?? false)
+			let newValue = !(cache.validate(.isSection, other: currentSelection ?? []) ?? false)
 			interactor?.setStyle(newValue ? .section : .item, for: id)
+		case .select:
+			editingMode = .selection
+		case .reorder:
+			editingMode = .reordering
+		case .settings:
+			view?.showSettings()
+		case .done:
+			editingMode = nil
 		}
 	}
 }

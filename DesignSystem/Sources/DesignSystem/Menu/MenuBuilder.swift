@@ -14,10 +14,18 @@ import UIKit
 // MARK: - Public interface
 public extension MenuBuilder {
 
-	static func build(from elements: [MenuElement], with selection: [ID], delegate: (any MenuDelegate<ID>)?) -> UIMenu {
+	static func build(from elements: [MenuElement], with selection: [ID], delegate: (any InteractionDelegate<ID>)?) -> UIMenu {
 		UIMenu(
 			children: elements.map {
 				buildElement(from: $0, with: selection, delegate: delegate)
+			}
+		)
+	}
+
+	static func build(from elements: [MenuElement], delegate: (any InteractionDelegate<ID>)?) -> UIMenu {
+		UIMenu(
+			children: elements.map {
+				buildElement(from: $0, delegate: delegate)
 			}
 		)
 	}
@@ -26,7 +34,19 @@ public extension MenuBuilder {
 // MARK: - Helpers
 private extension MenuBuilder {
 
-	static func buildElement(from model: MenuElement, with selection: [ID], delegate: (any MenuDelegate<ID>)?) -> UIMenuElement {
+	static func buildElement(from model: MenuElement, with selection: [ID], delegate: (any InteractionDelegate<ID>)?) -> UIMenuElement {
+		buildElement(from: model) { [weak delegate] in
+			delegate?.userDidSelect(item: model.id, with: selection)
+		}
+	}
+
+	static func buildElement(from model: MenuElement, delegate: (any InteractionDelegate<ID>)?) -> UIMenuElement {
+		buildElement(from: model) { [weak delegate] in
+			delegate?.userDidSelect(item: model.id, with: nil)
+		}
+	}
+
+	static func buildElement(from model: MenuElement, action: @escaping () -> Void) -> UIMenuElement {
 		return switch model.content {
 		case let .menu(options, size, items):
 			UIMenu(
@@ -35,7 +55,7 @@ private extension MenuBuilder {
 				options: options.value,
 				preferredElementSize: size.value,
 				children: items.map { element in
-					buildElement(from: element, with: selection, delegate: delegate)
+					buildElement(from: element, action: action)
 				}
 			)
 		case let .item(state, attributes):
@@ -46,7 +66,7 @@ private extension MenuBuilder {
 				attributes: attributes.value,
 				state: state.value
 			) { _ in
-				delegate?.menuDidSelect(item: model.id, with: selection)
+				action()
 			}
 		}
 	}

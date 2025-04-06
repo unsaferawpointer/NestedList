@@ -47,8 +47,6 @@ final class ListAdapter: NSObject {
 		}
 	}
 
-	var menuBuilder = MenuBuilder()
-
 	// MARK: - Initialization
 
 	init(tableView: UITableView?, delegate: (any UnitViewDelegate<UUID>)?) {
@@ -65,7 +63,6 @@ final class ListAdapter: NSObject {
 		self.cache.delegate = self
 
 		self.delegate = delegate
-		self.menuBuilder.delegate = delegate
 	}
 }
 
