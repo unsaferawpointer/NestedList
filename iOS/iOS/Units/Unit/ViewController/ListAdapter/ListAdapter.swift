@@ -37,6 +37,8 @@ final class ListAdapter: NSObject {
 		}
 	}
 
+	private var feedbackGenerator: UIImpactFeedbackGenerator?
+
 	var cache = ListDataSource()
 
 	var selection: [UUID] {
@@ -198,6 +200,12 @@ extension ListAdapter: UITableViewDropDelegate {
 		guard let item = session.items.first, let id = item.localObject as? UUID else {
 			return
 		}
+
+		// Тактильный отклик при перемещении элемента
+		feedbackGenerator = UIImpactFeedbackGenerator(style: .heavy)
+		feedbackGenerator?.prepare()
+		feedbackGenerator?.impactOccurred()
+
 		cache.collapse(id)
 
 		if let sceneIdentifier = tableView.superview?.window?.windowScene?.session.persistentIdentifier {
@@ -228,6 +236,14 @@ extension ListAdapter: UITableViewDropDelegate {
 			return .init(operation: .cancel)
 		}
 		return .init(operation: .move, intent: .automatic)
+	}
+
+	func tableView(_ tableView: UITableView, dragSessionDidEnd session: any UIDragSession) {
+		// Завершаем работу генератора
+		feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
+		feedbackGenerator?.prepare()
+		feedbackGenerator?.impactOccurred()
+		feedbackGenerator = nil
 	}
 
 	func tableView(_ tableView: UITableView, performDropWith coordinator: any UITableViewDropCoordinator) {
