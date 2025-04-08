@@ -36,7 +36,10 @@ final class UnitPresenter {
 			let selection = view?.selection ?? []
 			let model = toolbarFactory.build(
 				editingMode: editingMode,
-				selectedCount: selection.count
+				selectedCount: selection.count,
+				isCompleted: cache.validate(.isDone, other: selection),
+				isMarked: cache.validate(.isMarked, other: selection),
+				isSection: cache.validate(.isSection, other: selection)
 			)
 			view?.display(model)
 			view?.setEditing(editingMode)
@@ -93,7 +96,13 @@ extension UnitPresenter: ViewDelegate {
 		interactor?.fetchData()
 		view?.expandAll()
 
-		let toolbar = toolbarFactory.build(editingMode: editingMode, selectedCount: 0)
+		let toolbar = toolbarFactory.build(
+			editingMode: editingMode,
+			selectedCount: 0,
+			isCompleted: cache.validate(.isDone, other: view?.selection ?? []),
+			isMarked: cache.validate(.isMarked, other: view?.selection ?? []),
+			isSection: cache.validate(.isSection, other: view?.selection ?? [])
+		)
 		view?.display(toolbar)
 	}
 }
@@ -110,6 +119,7 @@ extension UnitPresenter: InteractionDelegate {
 
 		switch menuIdentifier {
 		case .edit:
+			editingMode = nil
 			guard let id = currentSelection?.first, let item = interactor?.item(for: id) else {
 				return
 			}
@@ -122,8 +132,10 @@ extension UnitPresenter: InteractionDelegate {
 				}
 			}
 		case .new:
+			editingMode = nil
 			createNew(target: currentSelection?.first)
 		case .cut:
+			editingMode = nil
 			guard let first = currentSelection?.first, let interactor else {
 				return
 			}
@@ -131,27 +143,33 @@ extension UnitPresenter: InteractionDelegate {
 			UIPasteboard.general.string = string
 			interactor.deleteItems(currentSelection ?? [])
 		case .copy:
+			editingMode = nil
 			guard let first = currentSelection?.first, let interactor else {
 				return
 			}
 			let string = interactor.string(for: first)
 			UIPasteboard.general.string = string
 		case .paste:
+			editingMode = nil
 			guard let string = UIPasteboard.general.string, let target = currentSelection?.first else {
 				return
 			}
 			interactor?.insertStrings([string], to: .onItem(with: target))
 		case .delete:
+			editingMode = nil
 			interactor?.deleteItems(currentSelection ?? [])
 		case .completed:
+			editingMode = nil
 			let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
 			let newValue = !(cache.validate(.isDone, other: currentSelection ?? []) ?? false)
 			interactor?.setStatus(newValue, for: currentSelection ?? [], moveToEnd: moveToEnd)
 		case .marked:
+			editingMode = nil
 			let moveToTop = settingsProvider.state.markingBehaviour == .moveToTop
 			let newValue = !(cache.validate(.isMarked, other: currentSelection ?? []) ?? false)
 			interactor?.mark(newValue, ids: currentSelection ?? [], moveToTop: moveToTop)
 		case .style:
+			editingMode = nil
 			guard let id = currentSelection?.first else {
 				return
 			}
@@ -182,7 +200,10 @@ extension UnitPresenter: ListDelegate {
 	func listDidChangeSelection(ids: [UUID]) {
 		let toolbar = toolbarFactory.build(
 			editingMode: editingMode,
-			selectedCount: ids.count
+			selectedCount: ids.count,
+			isCompleted: cache.validate(.isDone, other: ids),
+			isMarked: cache.validate(.isMarked, other: ids),
+			isSection: cache.validate(.isSection, other: ids)
 		)
 		view?.display(toolbar)
 	}

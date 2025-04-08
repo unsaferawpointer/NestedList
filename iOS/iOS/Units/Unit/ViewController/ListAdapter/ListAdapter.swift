@@ -407,7 +407,6 @@ extension ListAdapter: CacheDelegate {
 
 	func updateCell(indexPath: IndexPath, model: ItemModel) {
 		guard let cell = tableView?.cellForRow(at: indexPath) else {
-			assertionFailure("Can't find cell")
 			return
 		}
 

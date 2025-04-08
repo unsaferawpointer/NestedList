@@ -9,7 +9,7 @@ import Foundation
 import DesignSystem
 
 protocol ToolbarFactoryProtocol {
-	func build(editingMode: EditingMode?, selectedCount: Int) -> ToolbarModel
+	func build(editingMode: EditingMode?, selectedCount: Int, isCompleted: Bool?, isMarked: Bool?, isSection: Bool?) -> ToolbarModel
 }
 
 final class ToolbarFactory {
@@ -20,10 +20,16 @@ final class ToolbarFactory {
 // MARK: - BottomToolbarFactoryProtocol
 extension ToolbarFactory: ToolbarFactoryProtocol {
 
-	func build(editingMode: EditingMode?, selectedCount: Int) -> ToolbarModel {
+	func build(editingMode: EditingMode?, selectedCount: Int, isCompleted: Bool?, isMarked: Bool?, isSection: Bool?) -> ToolbarModel {
 
 		let top = buildTop(editingMode: editingMode)
-		let bottom = buildBottom(editingMode: editingMode, selectedCount: selectedCount)
+		let bottom = buildBottom(
+			editingMode: editingMode,
+			selectedCount: selectedCount,
+			isCompleted: isCompleted,
+			isMarked: isMarked,
+			isSection: isSection
+		)
 
 		return ToolbarModel(top: top, bottom: bottom)
 	}
@@ -69,11 +75,59 @@ extension ToolbarFactory {
 		]
 	}
 
-	func buildBottom(editingMode: EditingMode?, selectedCount: Int) -> [ToolbarItem] {
+	func buildBottom(editingMode: EditingMode?, selectedCount: Int, isCompleted: Bool?, isMarked: Bool?, isSection: Bool?) -> [ToolbarItem] {
 
 		let isEmpty = selectedCount == 0
 
 		let statusTitle = String(localized: "\(selectedCount)-toolbar-status", table: "UnitLocalizable")
+
+		let items: [MenuElement] =
+		[
+			.init(
+				id: "",
+				content: .menu(
+					options: [.inline],
+					size: .medium,
+					items:
+						[
+							.init(id: ElementIdentifier.cut.rawValue, title: "Cut", icon: .systemName("scissors"), content: .item(state: .off, attributes: [])),
+							.init(id: ElementIdentifier.copy.rawValue, title: "Copy", icon: .systemName("document.on.document"), content: .item(state: .off, attributes: [])),
+							.init(id: ElementIdentifier.paste.rawValue, title: "Paste", icon: .systemName("document.on.clipboard"), content: .item(state: .off, attributes: []))
+						]
+				)
+			),
+			.init(
+				id: ElementIdentifier.completed.rawValue,
+				title: "Completed",
+				content: .item(state: isCompleted.state, attributes: [])
+			),
+			.init(
+				id: ElementIdentifier.marked.rawValue,
+				title: "Marked",
+				content: .item(state: isMarked.state, attributes: [])
+			),
+			.init(
+				id: ElementIdentifier.style.rawValue,
+				title: "Section",
+				content: .item(state: isSection.state, attributes: [])
+			),
+			.init(
+				id: "",
+				content: .menu(
+					options: .inline,
+					size: .large,
+					items:
+						[
+							.init(
+								id: ElementIdentifier.delete.rawValue,
+								title: "Delete",
+								icon: .systemName("trash"),
+								content: .item(state: .off, attributes: [.destructive])
+							)
+						]
+				)
+			)
+		]
 
 		return switch editingMode {
 		case .selection:
@@ -82,7 +136,7 @@ extension ToolbarFactory {
 				.init(id: "", title: "", content: .flexible),
 				.init(id: "", title: "", content: .status(text: statusTitle)),
 				.init(id: "", title: "", content: .flexible),
-				.init(id: ElementIdentifier.delete.rawValue, title: "", icon: .systemName("trash"), isEnabled: !isEmpty)
+				.init(id: ElementIdentifier.delete.rawValue, title: "", icon: .systemName("ellipsis.circle"), content: .menu(items: items), isEnabled: !isEmpty)
 			]
 		case .reordering:
 			[]
@@ -91,6 +145,16 @@ extension ToolbarFactory {
 				.init(id: "", title: "", content: .flexible),
 				.init(id: ElementIdentifier.new.rawValue, title: "", icon: .systemName("plus"))
 			]
+		}
+	}
+}
+
+fileprivate extension Optional<Bool> {
+
+	var state: ControlState {
+		switch self {
+		case .none:					.mixed
+		case .some(let wrapped):	wrapped ? .on : .off
 		}
 	}
 }
