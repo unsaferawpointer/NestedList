@@ -1,5 +1,5 @@
 //
-//  UnitPresenter.swift
+//  ContentPresenter.swift
 //  macOS
 //
 //  Created by Anton Cherkasov on 16.11.2024.
@@ -14,15 +14,15 @@ import CoreSettings
 
 import AppKit
 
-protocol UnitPresenterProtocol: AnyObject {
+protocol ContentPresenterProtocol: AnyObject {
 	func present(_ content: Content)
 }
 
-final class UnitPresenter {
+final class ContentPresenter {
 
 	// MARK: - DI
 
-	var interactor: UnitInteractorProtocol?
+	var interactor: ContentInteractorProtocol?
 
 	weak var view: UnitView?
 
@@ -47,8 +47,8 @@ final class UnitPresenter {
 	}
 }
 
-// MARK: - UnitPresenterProtocol
-extension UnitPresenter: UnitPresenterProtocol {
+// MARK: - ContentPresenterProtocol
+extension ContentPresenter: ContentPresenterProtocol {
 
 	func present(_ content: Content) {
 
@@ -74,7 +74,7 @@ extension UnitPresenter: UnitPresenterProtocol {
 }
 
 // MARK: - ListDelegate
-extension UnitPresenter: ListDelegate {
+extension ContentPresenter: ListDelegate {
 
 	func handleDoubleClick(on item: UUID) {
 		let completionBehaviour = settingsProvider.state.completionBehaviour
@@ -84,7 +84,7 @@ extension UnitPresenter: ListDelegate {
 }
 
 // MARK: - ViewDelegate
-extension UnitPresenter: ViewDelegate {
+extension ContentPresenter: ViewDelegate {
 
 	func viewDidChange(state: ViewState) {
 		guard case .didLoad = state else {
@@ -96,7 +96,7 @@ extension UnitPresenter: ViewDelegate {
 }
 
 // MARK: - UnitViewOutput
-extension UnitPresenter: UnitViewOutput {
+extension ContentPresenter: UnitViewOutput {
 
 	func userCreateNewItem() {
 		guard let interactor else {
@@ -234,7 +234,7 @@ extension UnitPresenter: UnitViewOutput {
 }
 
 // MARK: - DropDelelgate
-extension UnitPresenter: DropDelegate {
+extension ContentPresenter: DropDelegate {
 
 	typealias ID = UUID
 
@@ -267,7 +267,7 @@ extension UnitPresenter: DropDelegate {
 }
 
 // MARK: - DragDelegate
-extension UnitPresenter: DragDelegate {
+extension ContentPresenter: DragDelegate {
 
 	func write(ids: [UUID], to pasteboard: any PasteboardProtocol) {
 		guard let strings = interactor?.strings(for: ids) else {
@@ -285,7 +285,7 @@ extension UnitPresenter: DragDelegate {
 }
 
 // MARK: - CellDelegate
-extension UnitPresenter: CellDelegate {
+extension ContentPresenter: CellDelegate {
 
 	typealias Model = ItemModel
 
@@ -302,7 +302,7 @@ extension UnitPresenter: CellDelegate {
 		interactor?.set(text: newValue.title, note: note, for: id)
 	}
 }
-extension UnitPresenter {
+extension ContentPresenter {
 
 	func validateStatus() -> Bool? {
 		guard let selection = view?.selection, !selection.isEmpty else {

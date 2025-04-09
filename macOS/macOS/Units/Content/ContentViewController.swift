@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  ContentViewController.swift
 //  macOS
 //
 //  Created by Anton Cherkasov on 16.11.2024.
@@ -35,7 +35,7 @@ protocol UnitView: AnyObject, ListSupportable {
 	func display(_ snapshot: Snapshot<ItemModel>)
 }
 
-class ViewController: NSViewController {
+class ContentViewController: NSViewController {
 
 	var adapter: ListAdapter<ItemModel>?
 
@@ -85,7 +85,7 @@ class ViewController: NSViewController {
 
 	// MARK: - Initialization
 
-	init(configure: (ViewController) -> Void) {
+	init(configure: (ContentViewController) -> Void) {
 		super.init(nibName: nil, bundle: nil)
 		configure(self)
 		self.adapter = ListAdapter<ItemModel>(tableView: table)
@@ -121,7 +121,7 @@ class ViewController: NSViewController {
 }
 
 // MARK: - UnitView
-extension ViewController: UnitView {
+extension ContentViewController: UnitView {
 
 	func display(_ snapshot: Snapshot<ItemModel>) {
 		adapter?.apply(snapshot)
@@ -130,7 +130,7 @@ extension ViewController: UnitView {
 }
 
 // MARK: - ListSupportable
-extension ViewController: ListSupportable {
+extension ContentViewController: ListSupportable {
 
 	var selection: [UUID] {
 		adapter?.effectiveSelection ?? []
@@ -154,7 +154,7 @@ extension ViewController: ListSupportable {
 }
 
 // MARK: - Helpers
-private extension ViewController {
+private extension ContentViewController {
 
 	func configureUserInterface() {
 
@@ -177,7 +177,7 @@ private extension ViewController {
 }
 
 // MARK: - MenuSupportable
-extension ViewController: MenuSupportable {
+extension ContentViewController: MenuSupportable {
 
 	@IBAction
 	func newItem(_ sender: NSMenuItem) {
@@ -225,7 +225,7 @@ extension ViewController: MenuSupportable {
 }
 
 // MARK: - NSMenuItemValidation
-extension ViewController: NSMenuItemValidation {
+extension ContentViewController: NSMenuItemValidation {
 
 	func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
 

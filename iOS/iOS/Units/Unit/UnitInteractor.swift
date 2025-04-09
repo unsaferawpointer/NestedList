@@ -1,5 +1,5 @@
 //
-//  UnitInteractor.swift
+//  ContentInteractor.swift
 //  iOS
 //
 //  Created by Anton Cherkasov on 22.11.2024.
@@ -47,7 +47,7 @@ final class UnitInteractor {
 	}
 }
 
-// MARK: - UnitInteractorProtocol
+// MARK: - ContentInteractorProtocol
 extension UnitInteractor: UnitInteractorProtocol {
 
 	func fetchData() {

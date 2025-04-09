@@ -1,5 +1,5 @@
 //
-//  UnitInteractor.swift
+//  ContentInteractor.swift
 //  macOS
 //
 //  Created by Anton Cherkasov on 16.11.2024.
@@ -9,7 +9,7 @@ import Foundation
 import Hierarchy
 import CoreModule
 
-protocol UnitInteractorProtocol {
+protocol ContentInteractorProtocol {
 	func fetchData()
 
 	func move(_ ids: [UUID], to destination: Destination<UUID>)
@@ -31,11 +31,11 @@ protocol UnitInteractorProtocol {
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>)
 }
 
-final class UnitInteractor {
+final class ContentInteractor {
 
 	private let storage: DocumentStorage<Content>
 
-	weak var presenter: UnitPresenterProtocol?
+	weak var presenter: ContentPresenterProtocol?
 
 	// MARK: - Initialization
 
@@ -50,8 +50,8 @@ final class UnitInteractor {
 	}
 }
 
-// MARK: - UnitInteractorProtocol
-extension UnitInteractor: UnitInteractorProtocol {
+// MARK: - ContentInteractorProtocol
+extension ContentInteractor: ContentInteractorProtocol {
 
 	func fetchData() {
 		presenter?.present(storage.state)

@@ -13,7 +13,7 @@ import CoreSettings
 
 final class UnitPresenterTests {
 
-	var sut: UnitPresenter!
+	var sut: ContentPresenter!
 
 	// MARK: - DI
 
@@ -25,7 +25,7 @@ final class UnitPresenterTests {
 		view = UnitViewMock()
 		interactor = UnitInteractorMock()
 		settingsProvider = StateProviderMock<Settings>()
-		sut = UnitPresenter(settingsProvider: settingsProvider)
+		sut = ContentPresenter(settingsProvider: settingsProvider)
 		sut.view = view
 		sut.interactor = interactor
 	}
@@ -38,7 +38,7 @@ final class UnitPresenterTests {
 	}
 }
 
-// MARK: - UnitPresenterProtocol test-cases
+// MARK: - ContentPresenterProtocol test-cases
 extension UnitPresenterTests {
 
 	@Test func testPresent() {

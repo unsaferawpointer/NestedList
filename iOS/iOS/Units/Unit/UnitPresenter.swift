@@ -1,5 +1,5 @@
 //
-//  UnitPresenter.swift
+//  ContentPresenter.swift
 //  iOS
 //
 //  Created by Anton Cherkasov on 22.11.2024.
@@ -61,7 +61,7 @@ final class UnitPresenter {
 	}
 }
 
-// MARK: - UnitPresenterProtocol
+// MARK: - ContentPresenterProtocol
 extension UnitPresenter: UnitPresenterProtocol {
 
 	func present(_ content: Content) {

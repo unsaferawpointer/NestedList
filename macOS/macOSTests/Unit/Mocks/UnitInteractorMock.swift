@@ -15,8 +15,8 @@ final class UnitInteractorMock {
 	var stubs = Stubs()
 }
 
-// MARK: - UnitInteractorProtocol
-extension UnitInteractorMock: UnitInteractorProtocol {
+// MARK: - ContentInteractorProtocol
+extension UnitInteractorMock: ContentInteractorProtocol {
 
 	func fetchData() {
 		invocations.append(.fetchData)
