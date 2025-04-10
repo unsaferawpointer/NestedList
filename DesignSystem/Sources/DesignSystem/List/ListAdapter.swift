@@ -290,8 +290,10 @@ public extension ListAdapter {
 			}
 		}
 
+		let first = transformed.first?.id
+
 		let converted = Snapshot(transformed).insert { model, level -> ListModel<Model>? in
-			guard model.isGroup, case let .model(value) = model else {
+			guard model.isGroup, case let .model(value) = model, model.id != first else {
 				return nil
 			}
 			return .spacer(before: value.id, height: level == 0 ? .large : .small)
