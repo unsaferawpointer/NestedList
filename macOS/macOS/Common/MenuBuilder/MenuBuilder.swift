@@ -23,64 +23,45 @@ extension MenuBuilder: MenuBuilderProtocol {
 		menu.addItem(
 			{
 				let item = NSMenuItem()
+				item.identifier = .init(elementIdentifier: .newItem)
 				item.title = "New Item"
-				item.action = #selector(MenuSupportable.newItem(_:))
+				item.action = #selector(MenuSupportable.menuDidClickedItem(_:))
 				item.keyEquivalent = "t"
 				item.image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)
 				return item
 			}()
 		)
 		menu.addItem(.separator())
-		menu.addItem(
-			withTitle: "Completed",
-			action: #selector(MenuSupportable.toggleStatus(_:)),
-			keyEquivalent: "\r"
-		)
-		menu.addItem(
-			withTitle: "Marked",
-			action: #selector(MenuSupportable.toggleMark(_:)),
-			keyEquivalent: ""
-		)
-		menu.addItem(.separator())
-		menu.addItem(
-			withTitle: "Add Note",
-			action: #selector(MenuSupportable.addNote(_:)),
-			keyEquivalent: ""
-		)
-		menu.addItem(
-			withTitle: "Delete Note",
-			action: #selector(MenuSupportable.deleteNote(_:)),
-			keyEquivalent: ""
-		)
-		menu.addItem(.separator())
+		if #available(macOS 14.0, *) {
+			menu.addItem(NSMenuItem.sectionHeader(title: "Properties"))
+		}
 		menu.addItem(
 			{
 				let item = NSMenuItem()
-				item.title = "Style"
-				item.submenu = {
-					let menu = NSMenu()
-					menu.addItem(
-						{
-							let item = NSMenuItem()
-							item.title = "Item"
-							item.action = #selector(MenuSupportable.setItemStyle(_:))
-							item.keyEquivalent = ""
-							item.tag = 0
-							return item
-						}()
-					)
-					menu.addItem(
-						{
-							let item = NSMenuItem()
-							item.title = "Section"
-							item.action = #selector(MenuSupportable.setItemStyle(_:))
-							item.keyEquivalent = ""
-							item.tag = 1
-							return item
-						}()
-					)
-					return menu
-				}()
+				item.identifier = .init(elementIdentifier: .completed)
+				item.title = "Strikethrough"
+				item.action = #selector(MenuSupportable.menuDidClickedItem(_:))
+				item.keyEquivalent = "\r"
+				return item
+			}()
+		)
+		menu.addItem(
+			{
+				let item = NSMenuItem()
+				item.identifier = .init(elementIdentifier: .marked)
+				item.title = "Marked"
+				item.action = #selector(MenuSupportable.menuDidClickedItem(_:))
+				item.keyEquivalent = ""
+				return item
+			}()
+		)
+		menu.addItem(
+			{
+				let item = NSMenuItem()
+				item.identifier = .init(elementIdentifier: .section)
+				item.title = "Section"
+				item.action = #selector(MenuSupportable.menuDidClickedItem(_:))
+				item.keyEquivalent = ""
 				return item
 			}()
 		)
@@ -88,8 +69,20 @@ extension MenuBuilder: MenuBuilderProtocol {
 		menu.addItem(
 			{
 				let item = NSMenuItem()
+				item.identifier = .init(elementIdentifier: .note)
+				item.title = "Note"
+				item.action = #selector(MenuSupportable.menuDidClickedItem(_:))
+				item.keyEquivalent = ""
+				return item
+			}()
+		)
+		menu.addItem(.separator())
+		menu.addItem(
+			{
+				let item = NSMenuItem()
+				item.identifier = .init(elementIdentifier: .delete)
 				item.title = "Delete"
-				item.action = #selector(MenuSupportable.deleteItem(_:))
+				item.action = #selector(MenuSupportable.menuDidClickedItem(_:))
 				item.keyEquivalent = "\u{0008}"
 				item.image = NSImage(systemSymbolName: "trash", accessibilityDescription: nil)
 				return item

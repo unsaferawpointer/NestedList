@@ -23,8 +23,7 @@ protocol ContentInteractorProtocol {
 	func setMark(_ isMarked: Bool, for ids: [UUID], moveToTop: Bool)
 	func setStyle(_ style: Item.Style, for ids: [UUID])
 	func set(text: String, note: String?, for id: UUID)
-	func deleteNote(for ids: [UUID])
-	func addNote(for ids: [UUID])
+	func set(note: String?, for ids: [UUID])
 	func deleteItems(_ ids: [UUID])
 
 	func strings(for ids: [UUID]) -> [String]
@@ -170,16 +169,9 @@ extension ContentInteractor: ContentInteractorProtocol {
 		}
 	}
 
-	func deleteNote(for ids: [UUID]) {
+	func set(note: String?, for ids: [UUID]) {
 		storage.modificate { content in
-			content.root.setProperty(\.note, to: nil, for: ids)
+			content.root.setProperty(\.note, to: note, for: ids)
 		}
 	}
-
-	func addNote(for ids: [UUID]) {
-		storage.modificate { content in
-			content.root.setProperty(\.note, to: "", for: ids)
-		}
-	}
-
 }

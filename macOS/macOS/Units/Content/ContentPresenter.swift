@@ -36,7 +36,7 @@ final class ContentPresenter {
 
 	// MARK: - Cache
 
-	var cache = Cache<Property, Item>()
+	private(set) var cache = Cache<Property, Item>()
 
 	init(settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared) {
 		self.settingsProvider = settingsProvider
@@ -58,8 +58,8 @@ extension ContentPresenter: ContentPresenterProtocol {
 
 		cache.store(.isDone, keyPath: \.isDone, equalsTo: true, from: snapshot)
 		cache.store(.isMarked, keyPath: \.isMarked, equalsTo: true, from: snapshot)
-		cache.store(.isItem, keyPath: \.style, equalsTo: .item, from: snapshot)
 		cache.store(.isSection, keyPath: \.style, equalsTo: .section, from: snapshot)
+		cache.store(.hasNote, keyPath: \.note, notEqualsTo: nil, from: snapshot)
 
 		let converted = snapshot.map { info in
 			factory.makeItem(
@@ -98,138 +98,128 @@ extension ContentPresenter: ViewDelegate {
 // MARK: - UnitViewOutput
 extension ContentPresenter: UnitViewOutput {
 
-	func userCreateNewItem() {
-		guard let interactor else {
+	func userDidClickedItem(with id: ElementIdentifier) {
+
+		guard let selection = view?.selection, let interactor else {
 			return
 		}
 
-		let first = view?.selection.first
-		let id = interactor.newItem("New...", target: first)
+		switch id {
+		case .newItem:
+			let first = view?.selection.first
+			let id = interactor.newItem("New...", target: first)
 
-		view?.scroll(to: id)
-		if let first {
-			view?.expand([first])
+			view?.scroll(to: id)
+			if let first {
+				view?.expand([first])
+			}
+			view?.focus(on: id, key: "title")
+		case .completed:
+			let completionBehaviour = settingsProvider.state.completionBehaviour
+			let moveToEnd = completionBehaviour == .moveToEnd
+			let status = cache.validate(.isDone, other: selection) ?? true
+			interactor.setStatus(!status, for: selection, moveToEnd: moveToEnd)
+		case .marked:
+			let markingBehaviour = settingsProvider.state.markingBehaviour
+			let moveToTop = markingBehaviour == .moveToTop
+			let mark = cache.validate(.isMarked, other: selection) ?? true
+			interactor.setMark(!mark, for: selection, moveToTop: moveToTop)
+		case .section:
+			let isSection = cache.validate(.isSection, other: selection) ?? true
+			interactor.setStyle(!isSection ? .section : .item, for: selection)
+		case .note:
+			let hasNote = cache.validate(.hasNote, other: selection) ?? true
+			interactor.set(note: !hasNote ? "New note..." : nil, for: selection)
+			if !hasNote, let first = selection.first {
+				view?.focus(on: first, key: "subtitle")
+			}
+		case .delete:
+			interactor.deleteItems(selection)
+		case .cut:
+			guard let selection = view?.selection, !selection.isEmpty else {
+				return
+			}
+
+			let strings = interactor.strings(for: selection)
+
+			let items = strings.map { string in
+				PasteboardInfo.Item(string: string)
+			}
+
+			let info = PasteboardInfo(items: items)
+
+			let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
+			pasteboard.setInfo(info, clearContents: true)
+			interactor.deleteItems(selection)
+		case .copy:
+			guard let selection = view?.selection, !selection.isEmpty else {
+				return
+			}
+
+			let strings = interactor.strings(for: selection)
+
+			let items = strings.map { string in
+				PasteboardInfo.Item(string: string)
+			}
+
+			let info = PasteboardInfo(items: items)
+
+			let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
+			pasteboard.setInfo(info, clearContents: true)
+		case .paste:
+			let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
+
+			guard
+				let info = pasteboard.getInfo()
+			else {
+				return
+			}
+
+			let destination: Destination<UUID> = if let first = view?.selection.first {
+				.onItem(with: first)
+			} else {
+				.toRoot
+			}
+
+			let strings = info.items.compactMap { item in
+				item.data[stringType]
+			}.compactMap { data in
+				String(data: data, encoding: .utf8)
+			}
+
+			interactor.insertStrings(strings, to: destination)
+		default:
+			fatalError()
 		}
-		view?.focus(on: id, key: "title")
 	}
 
-	func userDeleteItem() {
+	func state(for menuItem: ElementIdentifier) -> ControlState {
 		guard let selection = view?.selection else {
-			return
+			return .off
 		}
-		interactor?.deleteItems(selection)
+		return switch menuItem {
+		case .completed:
+			cache.validate(.isDone, other: selection).state
+		case .marked:
+			cache.validate(.isMarked, other: selection).state
+		case .section:
+			cache.validate(.isSection, other: selection).state
+		case .note:
+			cache.validate(.hasNote, other: selection).state
+		default:
+			.off
+		}
 	}
 
-	func userChangedStatus(_ status: Bool) {
-		guard let selection = view?.selection else {
-			return
+	func validate(menuItem id: ElementIdentifier) -> Bool {
+		switch id {
+		case .paste:
+			let types = Set([stringType])
+			let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
+			return pasteboard.contains(types)
+		default:
+			return view?.selection.isEmpty == false
 		}
-		let completionBehaviour = settingsProvider.state.completionBehaviour
-		let moveToEnd = completionBehaviour == .moveToEnd
-		interactor?.setStatus(status, for: selection, moveToEnd: moveToEnd)
-	}
-
-	func userChangedMark(_ mark: Bool) {
-		guard let selection = view?.selection else {
-			return
-		}
-		let markingBehaviour = settingsProvider.state.markingBehaviour
-		let moveToTop = markingBehaviour == .moveToTop
-		interactor?.setMark(mark, for: selection, moveToTop: moveToTop)
-	}
-
-	func userChangedStyle(_ style: Item.Style) {
-		guard let selection = view?.selection else {
-			return
-		}
-		interactor?.setStyle(style, for: selection)
-	}
-
-	func pasteIsAvailable() -> Bool {
-		let types = Set([stringType])
-		let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
-		return pasteboard.contains(types)
-	}
-
-	func userCopyItems() {
-		guard
-			let selection = view?.selection, !selection.isEmpty,
-			let strings = interactor?.strings(for: selection)
-		else {
-			return
-		}
-
-		let items = strings.map { string in
-			PasteboardInfo.Item(string: string)
-		}
-
-		let info = PasteboardInfo(items: items)
-
-		let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
-		pasteboard.setInfo(info, clearContents: true)
-	}
-
-	func userPaste() {
-
-		let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
-
-		guard
-			let info = pasteboard.getInfo()
-		else {
-			return
-		}
-
-		let destination: Destination<UUID> = if let first = view?.selection.first {
-			.onItem(with: first)
-		} else {
-			.toRoot
-		}
-
-		let strings = info.items.compactMap { item in
-			item.data[stringType]
-		}.compactMap { data in
-			String(data: data, encoding: .utf8)
-		}
-
-		interactor?.insertStrings(strings, to: destination)
-	}
-
-	func userCut() {
-		guard
-			let selection = view?.selection, !selection.isEmpty,
-			let strings = interactor?.strings(for: selection)
-		else {
-			return
-		}
-
-		let items = strings.map { string in
-			PasteboardInfo.Item(string: string)
-		}
-
-		let info = PasteboardInfo(items: items)
-
-		let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
-		pasteboard.setInfo(info, clearContents: true)
-		interactor?.deleteItems(selection)
-	}
-
-	func userAddNote() {
-		guard
-			let selection = view?.selection, let first = selection.first
-		else {
-			return
-		}
-		interactor?.addNote(for: [first])
-		view?.focus(on: first, key: "subtitle")
-	}
-
-	func userDeleteNote() {
-		guard
-			let selection = view?.selection, !selection.isEmpty
-		else {
-			return
-		}
-		interactor?.deleteNote(for: selection)
 	}
 }
 
@@ -336,4 +326,15 @@ enum Property: Hashable {
 	case isMarked
 	case isItem
 	case isSection
+	case hasNote
+}
+
+extension Optional<Bool> {
+
+	var state: ControlState {
+		switch self {
+		case .none:					.mixed
+		case .some(let wrapped):	wrapped ? .on : .off
+		}
+	}
 }

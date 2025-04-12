@@ -28,3 +28,21 @@ public extension ControlState {
 }
 
 #endif
+
+#if canImport(AppKit)
+
+import AppKit
+
+// MARK: - Computed properties
+public extension ControlState {
+
+	var value: NSControl.StateValue {
+		switch self {
+		case .off:		.off
+		case .on:		.on
+		case .mixed:	.mixed
+		}
+	}
+}
+
+#endif

@@ -14,21 +14,9 @@ import SwiftUI
 
 protocol UnitViewOutput: ViewDelegate {
 
-	func userCreateNewItem()
-	func userDeleteItem()
-	func userChangedStatus(_ status: Bool)
-	func userChangedMark(_ status: Bool)
-	func userChangedStyle(_ style: Item.Style)
-	func userAddNote()
-	func userDeleteNote()
-	func userCopyItems()
-	func userPaste()
-	func userCut()
-
-	func validateStatus() -> Bool?
-	func validateMark() -> Bool?
-	func validateStyle(_ style: Item.Style) -> Bool?
-	func pasteIsAvailable() -> Bool
+	func userDidClickedItem(with id: ElementIdentifier)
+	func validate(menuItem id: ElementIdentifier) -> Bool
+	func state(for menuItem: ElementIdentifier) -> ControlState
 }
 
 protocol UnitView: AnyObject, ListSupportable {
@@ -179,48 +167,29 @@ private extension ContentViewController {
 // MARK: - MenuSupportable
 extension ContentViewController: MenuSupportable {
 
+	func menuDidClickedItem(_ sender: NSMenuItem) {
+		guard let rawValue = sender.identifier?.rawValue else {
+			return
+		}
+		let id = ElementIdentifier(rawValue: rawValue)
+		output?.userDidClickedItem(with: id)
+	}
+
 	@IBAction
 	func newItem(_ sender: NSMenuItem) {
-		output?.userCreateNewItem()
-	}
-
-	func toggleStatus(_ sender: NSMenuItem) {
-		let enabled = sender.state == .on
-		output?.userChangedStatus(!enabled)
-	}
-
-	func toggleMark(_ sender: NSMenuItem) {
-		let enabled = sender.state == .on
-		output?.userChangedMark(!enabled)
-	}
-
-	func setItemStyle(_ sender: NSMenuItem) {
-		let style = Item.Style(rawValue: sender.tag) ?? .item
-		output?.userChangedStyle(style)
-	}
-
-	func addNote(_ sender: NSMenuItem) {
-		output?.userAddNote()
-	}
-
-	func deleteNote(_ sender: NSMenuItem) {
-		output?.userDeleteNote()
-	}
-
-	func deleteItem(_ sender: NSMenuItem) {
-		output?.userDeleteItem()
+		output?.userDidClickedItem(with: .newItem)
 	}
 
 	func copy(_ sender: NSMenuItem) {
-		output?.userCopyItems()
+		output?.userDidClickedItem(with: .copy)
 	}
 
 	func paste(_ sender: NSMenuItem) {
-		output?.userPaste()
+		output?.userDidClickedItem(with: .paste)
 	}
 
 	func cut(_ sender: NSMenuItem) {
-		output?.userCut()
+		output?.userDidClickedItem(with: .cut)
 	}
 }
 
@@ -229,53 +198,62 @@ extension ContentViewController: NSMenuItemValidation {
 
 	func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
 
-		switch menuItem.action {
-			case #selector(newItem):
-			return true
-		case #selector(toggleStatus):
-
-			let status = output?.validateStatus()
-
-			switch status {
-			case .some(let value):
-				menuItem.state = value ? .on : .off
-			case .none:
-				menuItem.state = .mixed
-			}
-
-			return adapter?.effectiveSelection.count ?? 0 > 0
-		case #selector(toggleMark(_:)):
-			let markStatus = output?.validateMark()
-
-			switch markStatus {
-			case .some(let value):
-				menuItem.state = value ? .on : .off
-			case .none:
-				menuItem.state = .mixed
-			}
-
-			return adapter?.effectiveSelection.count ?? 0 > 0
-		case #selector(setItemStyle(_:)):
-
-			let style = Item.Style(rawValue: menuItem.tag) ?? .item
-			let status = output?.validateStyle(style)
-
-			switch status {
-			case .some(let value):
-				menuItem.state = value ? .on : .off
-			case .none:
-				menuItem.state = .mixed
-			}
-
-			return adapter?.effectiveSelection.count ?? 0 > 0
-		case #selector(addNote(_:)), #selector(deleteNote(_:)):
-			return adapter?.effectiveSelection.count ?? 0 > 0
-		case #selector(deleteItem), #selector(copy(_:)), #selector(cut(_:)):
-			return adapter?.effectiveSelection.count ?? 0 > 0
-		case #selector(paste(_:)):
-			return output?.pasteIsAvailable() ?? false
-		default:
+		guard let rawValue = menuItem.identifier?.rawValue, let output else {
 			return false
 		}
+
+		let id = ElementIdentifier(rawValue: rawValue)
+
+		menuItem.state = output.state(for: id).value
+		return output.validate(menuItem: id)
+
+//		switch menuItem.action {
+//			case #selector(newItem):
+//			return true
+//		case #selector(toggleStatus):
+//
+//			let status = output?.validateStatus()
+//
+//			switch status {
+//			case .some(let value):
+//				menuItem.state = value ? .on : .off
+//			case .none:
+//				menuItem.state = .mixed
+//			}
+//
+//			return adapter?.effectiveSelection.count ?? 0 > 0
+//		case #selector(toggleMark(_:)):
+//			let markStatus = output?.validateMark()
+//
+//			switch markStatus {
+//			case .some(let value):
+//				menuItem.state = value ? .on : .off
+//			case .none:
+//				menuItem.state = .mixed
+//			}
+//
+//			return adapter?.effectiveSelection.count ?? 0 > 0
+//		case #selector(setItemStyle(_:)):
+//
+//			let style = Item.Style(rawValue: menuItem.tag) ?? .item
+//			let status = output?.validateStyle(style)
+//
+//			switch status {
+//			case .some(let value):
+//				menuItem.state = value ? .on : .off
+//			case .none:
+//				menuItem.state = .mixed
+//			}
+//
+//			return adapter?.effectiveSelection.count ?? 0 > 0
+//		case #selector(addNote(_:)), #selector(deleteNote(_:)):
+//			return adapter?.effectiveSelection.count ?? 0 > 0
+//		case #selector(deleteItem), #selector(copy(_:)), #selector(cut(_:)):
+//			return adapter?.effectiveSelection.count ?? 0 > 0
+//		case #selector(paste(_:)):
+//			return output?.pasteIsAvailable() ?? false
+//		default:
+//			return false
+//		}
 	}
 }
