@@ -17,7 +17,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 			item.title = "Editor"
 			item.submenu = MenuBuilder.build()
 
-			menu.insertItem(item, at: 2)
+			menu.insertItem(item, at: 3)
 		}
 	}
 

@@ -19,7 +19,7 @@ protocol ContentInteractorProtocol {
 
 	func newItem(_ text: String, target: UUID?) -> UUID
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool)
-	func toggleStatus(for id: UUID, moveToEnd: Bool)
+	func toggleStrikethrough(for id: UUID, moveToEnd: Bool)
 	func setMark(_ isMarked: Bool, for ids: [UUID], moveToTop: Bool)
 	func setStyle(_ style: Item.Style, for ids: [UUID])
 	func set(text: String, note: String?, for id: UUID)
@@ -101,7 +101,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 		}
 	}
 
-	func toggleStatus(for id: UUID, moveToEnd: Bool) {
+	func toggleStrikethrough(for id: UUID, moveToEnd: Bool) {
 		storage.modificate { content in
 			let status = content.root.node(with: id)?.value.isDone ?? false
 			content.root.setProperty(\.isDone, to: !status, for: [id], downstream: true)

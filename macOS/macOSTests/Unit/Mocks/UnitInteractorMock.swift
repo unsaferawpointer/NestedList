@@ -49,7 +49,7 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 		invocations.append(.setStatus(status, ids: ids, moveToEnd: moveToEnd))
 	}
 
-	func toggleStatus(for id: UUID, moveToEnd: Bool) {
+	func toggleStrikethrough(for id: UUID, moveToEnd: Bool) {
 		invocations.append(.toggleStatus(id: id, moveToEnd: moveToEnd))
 	}
 

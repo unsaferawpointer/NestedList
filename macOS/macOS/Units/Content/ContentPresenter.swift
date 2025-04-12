@@ -28,6 +28,8 @@ final class ContentPresenter {
 
 	private(set) var factory: ItemsFactoryProtocol = ItemsFactory()
 
+	private(set) var localization: ContentLocalizationProtocol
+
 	// MARK: - Constants
 
 	private let stringType = NSPasteboard.PasteboardType.string.rawValue
@@ -38,8 +40,12 @@ final class ContentPresenter {
 
 	private(set) var cache = Cache<Property, Item>()
 
-	init(settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared) {
+	init(
+		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared,
+		localization: ContentLocalizationProtocol = ContentLocalization()
+	) {
 		self.settingsProvider = settingsProvider
+		self.localization = localization
 
 		settingsProvider.addObservation(for: self) { [weak self] _, settings in
 			self?.interactor?.fetchData()
@@ -79,7 +85,7 @@ extension ContentPresenter: ListDelegate {
 	func handleDoubleClick(on item: UUID) {
 		let completionBehaviour = settingsProvider.state.completionBehaviour
 		let moveToEnd = completionBehaviour == .moveToEnd
-		interactor?.toggleStatus(for: item, moveToEnd: moveToEnd)
+		interactor?.toggleStrikethrough(for: item, moveToEnd: moveToEnd)
 	}
 }
 
@@ -158,7 +164,7 @@ private extension ContentPresenter {
 			return
 		}
 		let first = selection.first
-		let id = interactor.newItem("New...", target: first)
+		let id = interactor.newItem(localization.newItemText, target: first)
 
 		view?.scroll(to: id)
 		if let first {
@@ -183,7 +189,7 @@ private extension ContentPresenter {
 
 	func toggleNote(for ids: [UUID]) {
 		let hasNote = cache.validate(.hasNote, other: ids) ?? true
-		interactor?.set(note: !hasNote ? "New note..." : nil, for: ids)
+		interactor?.set(note: !hasNote ? localization.newNoteText : nil, for: ids)
 		if !hasNote, let first = ids.first {
 			view?.focus(on: first, key: "subtitle")
 		}
