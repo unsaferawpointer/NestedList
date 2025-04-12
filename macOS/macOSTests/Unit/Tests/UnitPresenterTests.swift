@@ -126,7 +126,7 @@ extension UnitPresenterTests {
 		interactor.stubs.newItem = .random
 
 		// Act
-		sut.userDidClickedItem(with: .newItem)
+		sut.menuItemClicked(.newItem)
 
 		// Assert
 		guard case let .scroll(id) = view.invocations[0] else {
@@ -155,7 +155,7 @@ extension UnitPresenterTests {
 		view.stubs.selection = [.random, .random]
 
 		// Act
-		sut.userDidClickedItem(with: .delete)
+		sut.menuItemClicked(.delete)
 
 		// Assert
 		guard case let .deleteItems(ids) = interactor.invocations[0] else {
@@ -182,7 +182,7 @@ extension UnitPresenterTests {
 		view?.clear()
 
 		// Act
-		sut.userDidClickedItem(with: .completed)
+		sut.menuItemClicked(.completed)
 
 		// Assert
 		guard case let .setStatus(status, ids, moveToEnd) = interactor.invocations[0] else {
@@ -212,7 +212,7 @@ extension UnitPresenterTests {
 		view?.clear()
 
 		// Act
-		sut.userDidClickedItem(with: .completed)
+		sut.menuItemClicked(.completed)
 
 		// Assert
 		guard case let .setStatus(status, ids, moveToEnd) = interactor.invocations[0] else {
@@ -242,7 +242,7 @@ extension UnitPresenterTests {
 		interactor.clear()
 
 		// Act
-		sut.userDidClickedItem(with: .marked)
+		sut.menuItemClicked(.marked)
 
 		// Assert
 		guard case let .setMark(isMarked, ids, moveToTop) = interactor.invocations[0] else {
@@ -270,7 +270,7 @@ extension UnitPresenterTests {
 
 		interactor.clear()
 		// Act
-		sut.userDidClickedItem(with: .section)
+		sut.menuItemClicked(.section)
 
 		// Assert
 		guard case let .setStyle(style, ids) = interactor.invocations[0] else {
@@ -299,7 +299,7 @@ extension UnitPresenterTests {
 		view?.clear()
 
 		// Act
-		sut.userDidClickedItem(with: .note)
+		sut.menuItemClicked(.note)
 
 		// Assert
 		guard case let .setNote(note, ids) = interactor.invocations[0] else {
@@ -338,7 +338,7 @@ extension UnitPresenterTests {
 		view?.clear()
 
 		// Act
-		sut.userDidClickedItem(with: .note)
+		sut.menuItemClicked(.note)
 
 		// Assert
 		guard case let .setNote(note, ids) = interactor.invocations[0] else {

@@ -20,12 +20,14 @@ extension MenuBuilder: MenuBuilderProtocol {
 
 		let menu = NSMenu(title: "Editor")
 
+		let action = #selector(ContentViewController.menuItemClicked(_:))
+
 		menu.addItem(
 			{
 				let item = NSMenuItem()
 				item.identifier = .init(elementIdentifier: .newItem)
 				item.title = "New Item"
-				item.action = #selector(MenuSupportable.menuDidClickedItem(_:))
+				item.action = action
 				item.keyEquivalent = "t"
 				item.image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)
 				return item
@@ -40,7 +42,7 @@ extension MenuBuilder: MenuBuilderProtocol {
 				let item = NSMenuItem()
 				item.identifier = .init(elementIdentifier: .completed)
 				item.title = "Strikethrough"
-				item.action = #selector(MenuSupportable.menuDidClickedItem(_:))
+				item.action = action
 				item.keyEquivalent = "\r"
 				return item
 			}()
@@ -50,7 +52,7 @@ extension MenuBuilder: MenuBuilderProtocol {
 				let item = NSMenuItem()
 				item.identifier = .init(elementIdentifier: .marked)
 				item.title = "Marked"
-				item.action = #selector(MenuSupportable.menuDidClickedItem(_:))
+				item.action = action
 				item.keyEquivalent = ""
 				return item
 			}()
@@ -60,7 +62,7 @@ extension MenuBuilder: MenuBuilderProtocol {
 				let item = NSMenuItem()
 				item.identifier = .init(elementIdentifier: .section)
 				item.title = "Section"
-				item.action = #selector(MenuSupportable.menuDidClickedItem(_:))
+				item.action = action
 				item.keyEquivalent = ""
 				return item
 			}()
@@ -71,7 +73,7 @@ extension MenuBuilder: MenuBuilderProtocol {
 				let item = NSMenuItem()
 				item.identifier = .init(elementIdentifier: .note)
 				item.title = "Note"
-				item.action = #selector(MenuSupportable.menuDidClickedItem(_:))
+				item.action = action
 				item.keyEquivalent = ""
 				return item
 			}()
@@ -82,7 +84,7 @@ extension MenuBuilder: MenuBuilderProtocol {
 				let item = NSMenuItem()
 				item.identifier = .init(elementIdentifier: .delete)
 				item.title = "Delete"
-				item.action = #selector(MenuSupportable.menuDidClickedItem(_:))
+				item.action = action
 				item.keyEquivalent = "\u{0008}"
 				item.image = NSImage(systemSymbolName: "trash", accessibilityDescription: nil)
 				return item
