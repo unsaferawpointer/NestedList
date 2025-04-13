@@ -64,6 +64,54 @@
           }
         }
       }
+    },
+    "empty-view-placeholder-secondary-text" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To add a new item, tap the '+' button"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нажмите '+', чтобы добавить новый пункт"
+          }
+        }
+      }
+    },
+    "empty-view-placeholder-text" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Items"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Список пуст"
+          }
+        }
+      }
+    },
+    "settings-viewcontroller-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

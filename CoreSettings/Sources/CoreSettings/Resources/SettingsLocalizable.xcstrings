@@ -1,0 +1,91 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "behaviors-section-title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Behaviors"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поведение"
+          }
+        }
+      }
+    },
+    "marking-behavior-description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable this option to automatically move the marked item to the top of the list. This helps you quickly focus on the current task without searching for it in the list."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Включите эту опцию, чтобы помеченный элемент автоматически перемещался в начало списка. Это поможет быстро сфокусироваться на текущей задаче без поиска в списке."
+          }
+        }
+      }
+    },
+    "marking-behavior-text" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move the marked item to the top"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перемещать помеченные элементы в начало"
+          }
+        }
+      }
+    },
+    "strikethrough-behavior-description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable this option to automatically move a completed item to the end of its parent list. This helps maintain order and focus on current tasks by hiding completed ones at the bottom of the list."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Включите эту опцию, чтобы завершенные элементы автоматически перемещались в конец списка. Это помогает поддерживать порядок и фокусироваться на текущих задачах, скрывая выполненные внизу списка."
+          }
+        }
+      }
+    },
+    "strikethrough-behavior-text" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move completed items to the end of the list"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перемещать выполненные элементы в конец списка"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

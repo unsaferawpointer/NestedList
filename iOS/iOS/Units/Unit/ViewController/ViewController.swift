@@ -74,8 +74,8 @@ class ViewController: UIDocumentViewController {
 	override func updateContentUnavailableConfiguration(using state: UIContentUnavailableConfigurationState) {
 		if adapter?.isEmpty ?? true {
 			var configuration = UIContentUnavailableConfiguration.empty()
-			configuration.text = "No items"
-			configuration.secondaryText = "To add a new item, tap the '+' button."
+			configuration.text = String(localized: "empty-view-placeholder-text", table: "UnitLocalizable")
+			configuration.secondaryText = String(localized: "empty-view-placeholder-secondary-text", table: "UnitLocalizable")
 			self.contentUnavailableConfiguration = configuration
 		} else {
 			self.contentUnavailableConfiguration = nil
@@ -118,7 +118,7 @@ extension ViewController: UnitView {
 	func showSettings() {
 		let settings = SettingsView(provider: SettingsProvider.shared)
 		let controller = UIHostingController(rootView: settings)
-		controller.title = "Settings"
+		controller.title = String(localized: "settings-viewcontroller-title", table: "UnitLocalizable")
 		let navigationController = UINavigationController(rootViewController: controller)
 		present(navigationController, animated: true)
 	}
