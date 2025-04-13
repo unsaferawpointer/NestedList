@@ -40,7 +40,7 @@ extension MenuFactory {
 					size: .automatic,
 					items:
 						[
-							buildItem(id: .completed, title: localization.completedItemTitle, state: isCompleted.state),
+							buildItem(id: .completed, title: localization.strikethroughItemTitle, state: isCompleted.state),
 							buildItem(id: .marked, title: localization.markedItemTitle, state: isMarked.state),
 							buildItem(id: .style, title: localization.sectionItemTitle, state: isSection.state)
 						]

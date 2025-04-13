@@ -11,7 +11,7 @@ protocol MenuLocalizationProtocol {
 	var pasteItemTitle: String { get }
 	var editItemTitle: String { get }
 	var newItemTitle: String { get }
-	var completedItemTitle: String { get }
+	var strikethroughItemTitle: String { get }
 	var markedItemTitle: String { get }
 	var sectionItemTitle: String { get }
 	var deleteItemTitle: String { get }
@@ -42,8 +42,8 @@ extension MenuLocalization: MenuLocalizationProtocol {
 		String(localized: "new_menu_item_title", table: "MenuLocalizable")
 	}
 	
-	var completedItemTitle: String {
-		String(localized: "completed_menu_item_title", table: "MenuLocalizable")
+	var strikethroughItemTitle: String {
+		String(localized: "strikethrough_menu_item_title", table: "MenuLocalizable")
 	}
 	
 	var markedItemTitle: String {

@@ -90,25 +90,39 @@ extension ToolbarFactory {
 					size: .medium,
 					items:
 						[
-							.init(id: ElementIdentifier.cut.rawValue, title: "Cut", icon: .systemName("scissors"), content: .item(state: .off, attributes: [])),
-							.init(id: ElementIdentifier.copy.rawValue, title: "Copy", icon: .systemName("document.on.document"), content: .item(state: .off, attributes: [])),
-							.init(id: ElementIdentifier.paste.rawValue, title: "Paste", icon: .systemName("document.on.clipboard"), content: .item(state: .off, attributes: []))
+							.init(
+								id: ElementIdentifier.cut.rawValue,
+								title: localization.cutItemTitle, icon: .systemName("scissors"),
+								content: .item(state: .off, attributes: [])
+							),
+							.init(
+								id: ElementIdentifier.copy.rawValue,
+								title: localization.copyItemTitle,
+								icon: .systemName("document.on.document"),
+								content: .item(state: .off, attributes: [])
+							),
+							.init(
+								id: ElementIdentifier.paste.rawValue,
+								title: localization.pasteItemTitle,
+								icon: .systemName("document.on.clipboard"),
+								content: .item(state: .off, attributes: [])
+							)
 						]
 				)
 			),
 			.init(
 				id: ElementIdentifier.completed.rawValue,
-				title: "Completed",
+				title: localization.strikethroughItemTitle,
 				content: .item(state: isCompleted.state, attributes: [])
 			),
 			.init(
 				id: ElementIdentifier.marked.rawValue,
-				title: "Marked",
+				title: localization.markedItemTitle,
 				content: .item(state: isMarked.state, attributes: [])
 			),
 			.init(
 				id: ElementIdentifier.style.rawValue,
-				title: "Section",
+				title: localization.sectionItemTitle,
 				content: .item(state: isSection.state, attributes: [])
 			),
 			.init(
@@ -120,7 +134,7 @@ extension ToolbarFactory {
 						[
 							.init(
 								id: ElementIdentifier.delete.rawValue,
-								title: "Delete",
+								title: localization.deleteItemTitle,
 								icon: .systemName("trash"),
 								content: .item(state: .off, attributes: [.destructive])
 							)

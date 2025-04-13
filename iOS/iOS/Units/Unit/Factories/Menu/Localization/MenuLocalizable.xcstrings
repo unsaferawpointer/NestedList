@@ -1,22 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "completed_menu_item_title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Completed"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Завершено"
-          }
-        }
-      }
-    },
     "copy_menu_item_title" : {
       "localizations" : {
         "en" : {
@@ -141,6 +125,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Секция"
+          }
+        }
+      }
+    },
+    "strikethrough_menu_item_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strikethrough"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зачеркнуто"
           }
         }
       }
