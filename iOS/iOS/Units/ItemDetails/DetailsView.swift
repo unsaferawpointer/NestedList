@@ -57,14 +57,15 @@ extension DetailsView: View {
 					}
 					.tint(.accentColor)
 					.accessibilityIdentifier("toggle-is-marked")
-					Picker(selection: $model.properties.style) {
-						Text("Item")
-							.tag(Item.Style.item)
+					Toggle(isOn: .init(get: {
+						model.properties.style == .section
+					}, set: { newValue in
+						model.properties.style = newValue ? .section : .item
+					})) {
 						Text("Section")
-							.tag(Item.Style.section)
-					} label: {
-						Text("Style")
 					}
+					.tint(.accentColor)
+					.accessibilityIdentifier("toggle-is-section")
 				}
 			}
 			.formStyle(.automatic)
