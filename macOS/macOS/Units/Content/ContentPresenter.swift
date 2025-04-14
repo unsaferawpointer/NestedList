@@ -176,19 +176,19 @@ private extension ContentPresenter {
 	func toggleStrikethrough(for ids: [UUID]) {
 		let completionBehaviour = settingsProvider.state.completionBehaviour
 		let moveToEnd = completionBehaviour == .moveToEnd
-		let status = cache.validate(.isDone, other: ids) ?? true
+		let status = cache.validate(.isDone, other: ids) ?? false
 		interactor?.setStatus(!status, for: ids, moveToEnd: moveToEnd)
 	}
 
 	func toggleMark(for ids: [UUID]) {
 		let markingBehaviour = settingsProvider.state.markingBehaviour
 		let moveToTop = markingBehaviour == .moveToTop
-		let mark = cache.validate(.isMarked, other: ids) ?? true
+		let mark = cache.validate(.isMarked, other: ids) ?? false
 		interactor?.setMark(!mark, for: ids, moveToTop: moveToTop)
 	}
 
 	func toggleNote(for ids: [UUID]) {
-		let hasNote = cache.validate(.hasNote, other: ids) ?? true
+		let hasNote = cache.validate(.hasNote, other: ids) ?? false
 		interactor?.set(note: !hasNote ? localization.newNoteText : nil, for: ids)
 		if !hasNote, let first = ids.first {
 			view?.focus(on: first, key: "subtitle")
