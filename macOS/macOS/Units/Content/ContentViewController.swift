@@ -76,6 +76,7 @@ class ContentViewController: NSViewController {
 		self.adapter?.cellDelegate = cellDelegate
 		self.adapter?.dragDelegate = dragDelegate
 		self.adapter?.delegate = listDelegate
+		self.adapter?.menu = MenuBuilder.build()
 	}
 
 	@available(*, unavailable, message: "Use init(storage:)")
@@ -149,8 +150,6 @@ private extension ContentViewController {
 		table.addTableColumn(column)
 
 		scrollview.documentView = table
-
-		table.menu = MenuBuilder.build()
 	}
 
 	func configureConstraints() {
