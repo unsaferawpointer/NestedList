@@ -174,6 +174,21 @@ extension ContentViewController {
 	func newItem(_ sender: NSMenuItem) {
 		output?.menuItemClicked(.newItem)
 	}
+
+	@IBAction
+	func cut(_ sender: NSMenuItem) {
+		output?.menuItemClicked(.cut)
+	}
+
+	@IBAction
+	func copy(_ sender: NSMenuItem) {
+		output?.menuItemClicked(.copy)
+	}
+
+	@IBAction
+	func paste(_ sender: NSMenuItem) {
+		output?.menuItemClicked(.paste)
+	}
 }
 
 // MARK: - NSMenuItemValidation
