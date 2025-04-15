@@ -170,11 +170,8 @@ extension UnitPresenter: InteractionDelegate {
 			interactor?.mark(newValue, ids: currentSelection ?? [], moveToTop: moveToTop)
 		case .style:
 			editingMode = nil
-			guard let id = currentSelection?.first else {
-				return
-			}
 			let newValue = !(cache.validate(.isSection, other: currentSelection ?? []) ?? false)
-			interactor?.setStyle(newValue ? .section : .item, for: id)
+			interactor?.setStyle(newValue ? .section : .item, for: currentSelection ?? [])
 		case .select:
 			editingMode = .selection
 		case .reorder:
