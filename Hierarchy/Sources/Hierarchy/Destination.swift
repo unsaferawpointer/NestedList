@@ -25,24 +25,42 @@ public enum Destination<ID> {
 	}
 }
 
+// MARK: - Public interface
+public extension Destination {
+
+	func relative(to root: ID?) -> Destination<ID> {
+		guard let root else {
+			return self
+		}
+		switch self {
+		case .toRoot:
+			return .onItem(with: root)
+		case .inRoot(let index):
+			return .inItem(with: root, atIndex: index)
+		default:
+			return self
+		}
+	}
+}
+
 // MARK: - Computed properties
 public extension Destination {
 
 	var id: ID? {
 		switch self {
-		case .toRoot, .inRoot:
-			return nil
 		case .onItem(let id), .inItem(let id, _):
 			return id
+		default:
+			return nil
 		}
 	}
 
 	var index: Int? {
 		switch self {
-		case .toRoot, .onItem:
-			return nil
 		case .inRoot(let index), .inItem(_ , let index):
 			return index
+		default:
+			return nil
 		}
 	}
 }

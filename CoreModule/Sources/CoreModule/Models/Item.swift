@@ -33,7 +33,7 @@ public struct Item {
 		isFolded: Bool = false,
 		text: String,
 		note: String? = nil,
-		style: Style
+		style: Style = .item
 	) {
 		self.uuid = uuid
 		self.isDone = isDone

@@ -11,12 +11,17 @@ import Hierarchy
 @testable import Nested_List
 
 final class UnitInteractorMock {
+
 	private(set) var invocations: [Action] = []
 	var stubs = Stubs()
+
+	func clear() {
+		invocations.removeAll()
+	}
 }
 
-// MARK: - UnitInteractorProtocol
-extension UnitInteractorMock: UnitInteractorProtocol {
+// MARK: - ContentInteractorProtocol
+extension UnitInteractorMock: ContentInteractorProtocol {
 
 	func fetchData() {
 		invocations.append(.fetchData)
@@ -44,7 +49,7 @@ extension UnitInteractorMock: UnitInteractorProtocol {
 		invocations.append(.setStatus(status, ids: ids, moveToEnd: moveToEnd))
 	}
 
-	func toggleStatus(for id: UUID, moveToEnd: Bool) {
+	func toggleStrikethrough(for id: UUID, moveToEnd: Bool) {
 		invocations.append(.toggleStatus(id: id, moveToEnd: moveToEnd))
 	}
 
@@ -57,17 +62,13 @@ extension UnitInteractorMock: UnitInteractorProtocol {
 	}
 	
 	func set(text: String, note: String?, for id: UUID) {
-		invocations.append(.set(text: text, note: note, id: id))
+		invocations.append(.setText(text: text, note: note, id: id))
 	}
-	
-	func deleteNote(for ids: [UUID]) {
-		invocations.append(.deleteNote(ids: ids))
+
+	func set(note: String?, for ids: [UUID]) {
+		invocations.append(.setNote(note: note, ids: ids))
 	}
-	
-	func addNote(for ids: [UUID]) {
-		invocations.append(.addNote(ids: ids))
-	}
-	
+
 	func deleteItems(_ ids: [UUID]) {
 		invocations.append(.deleteItems(ids))
 	}
@@ -96,9 +97,8 @@ extension UnitInteractorMock {
 		case toggleStatus(id: UUID, moveToEnd: Bool)
 		case setMark(_ isMarked: Bool, ids: [UUID], moveToTop: Bool)
 		case setStyle(_ style: Item.Style, ids: [UUID])
-		case set(text: String, note: String?, id: UUID)
-		case deleteNote(ids: [UUID])
-		case addNote(ids: [UUID])
+		case setText(text: String, note: String?, id: UUID)
+		case setNote(note: String?, ids: [UUID])
 		case deleteItems(_ ids: [UUID])
 		case strings(_ ids: [UUID])
 		case insertStrings(_ strings: [String], destination: Destination<UUID>)

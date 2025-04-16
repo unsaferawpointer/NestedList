@@ -1,5 +1,5 @@
 //
-//  UnitInteractor.swift
+//  ContentInteractor.swift
 //  macOS
 //
 //  Created by Anton Cherkasov on 16.11.2024.
@@ -9,7 +9,7 @@ import Foundation
 import Hierarchy
 import CoreModule
 
-protocol UnitInteractorProtocol {
+protocol ContentInteractorProtocol {
 	func fetchData()
 
 	func move(_ ids: [UUID], to destination: Destination<UUID>)
@@ -19,23 +19,22 @@ protocol UnitInteractorProtocol {
 
 	func newItem(_ text: String, target: UUID?) -> UUID
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool)
-	func toggleStatus(for id: UUID, moveToEnd: Bool)
+	func toggleStrikethrough(for id: UUID, moveToEnd: Bool)
 	func setMark(_ isMarked: Bool, for ids: [UUID], moveToTop: Bool)
 	func setStyle(_ style: Item.Style, for ids: [UUID])
 	func set(text: String, note: String?, for id: UUID)
-	func deleteNote(for ids: [UUID])
-	func addNote(for ids: [UUID])
+	func set(note: String?, for ids: [UUID])
 	func deleteItems(_ ids: [UUID])
 
 	func strings(for ids: [UUID]) -> [String]
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>)
 }
 
-final class UnitInteractor {
+final class ContentInteractor {
 
 	private let storage: DocumentStorage<Content>
 
-	weak var presenter: UnitPresenterProtocol?
+	weak var presenter: ContentPresenterProtocol?
 
 	// MARK: - Initialization
 
@@ -50,8 +49,8 @@ final class UnitInteractor {
 	}
 }
 
-// MARK: - UnitInteractorProtocol
-extension UnitInteractor: UnitInteractorProtocol {
+// MARK: - ContentInteractorProtocol
+extension ContentInteractor: ContentInteractorProtocol {
 
 	func fetchData() {
 		presenter?.present(storage.state)
@@ -102,7 +101,7 @@ extension UnitInteractor: UnitInteractorProtocol {
 		}
 	}
 
-	func toggleStatus(for id: UUID, moveToEnd: Bool) {
+	func toggleStrikethrough(for id: UUID, moveToEnd: Bool) {
 		storage.modificate { content in
 			let status = content.root.node(with: id)?.value.isDone ?? false
 			content.root.setProperty(\.isDone, to: !status, for: [id], downstream: true)
@@ -170,16 +169,9 @@ extension UnitInteractor: UnitInteractorProtocol {
 		}
 	}
 
-	func deleteNote(for ids: [UUID]) {
+	func set(note: String?, for ids: [UUID]) {
 		storage.modificate { content in
-			content.root.setProperty(\.note, to: nil, for: ids)
+			content.root.setProperty(\.note, to: note, for: ids)
 		}
 	}
-
-	func addNote(for ids: [UUID]) {
-		storage.modificate { content in
-			content.root.setProperty(\.note, to: "", for: ids)
-		}
-	}
-
 }

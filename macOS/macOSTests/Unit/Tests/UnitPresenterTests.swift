@@ -7,13 +7,14 @@
 
 import Testing
 import Foundation
+import Hierarchy
 import CoreModule
 import CoreSettings
 @testable import Nested_List
 
 final class UnitPresenterTests {
 
-	var sut: UnitPresenter!
+	var sut: ContentPresenter!
 
 	// MARK: - DI
 
@@ -25,7 +26,7 @@ final class UnitPresenterTests {
 		view = UnitViewMock()
 		interactor = UnitInteractorMock()
 		settingsProvider = StateProviderMock<Settings>()
-		sut = UnitPresenter(settingsProvider: settingsProvider)
+		sut = ContentPresenter(settingsProvider: settingsProvider)
 		sut.view = view
 		sut.interactor = interactor
 	}
@@ -38,7 +39,7 @@ final class UnitPresenterTests {
 	}
 }
 
-// MARK: - UnitPresenterProtocol test-cases
+// MARK: - ContentPresenterProtocol test-cases
 extension UnitPresenterTests {
 
 	@Test func testPresent() {
@@ -125,7 +126,7 @@ extension UnitPresenterTests {
 		interactor.stubs.newItem = .random
 
 		// Act
-		sut.userCreateNewItem()
+		sut.menuItemClicked(.newItem)
 
 		// Assert
 		guard case let .scroll(id) = view.invocations[0] else {
@@ -154,7 +155,7 @@ extension UnitPresenterTests {
 		view.stubs.selection = [.random, .random]
 
 		// Act
-		sut.userDeleteItem()
+		sut.menuItemClicked(.delete)
 
 		// Assert
 		guard case let .deleteItems(ids) = interactor.invocations[0] else {
@@ -166,11 +167,22 @@ extension UnitPresenterTests {
 
 	@Test func test_userChangedStatus() {
 		// Arrange
-		view.stubs.selection = [.random, .random]
+		let firstId = UUID()
+		let secondId = UUID()
+
+		view.stubs.selection = [firstId, secondId]
 		settingsProvider.stubs.state = .standart
 
+		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, isDone: false, text: .random))
+		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, isDone: false, text: .random))
+
+		sut.present(.init(nodes: [firstNode, secondNode]))
+
+		interactor.clear()
+		view?.clear()
+
 		// Act
-		sut.userChangedStatus(true)
+		sut.menuItemClicked(.completed)
 
 		// Assert
 		guard case let .setStatus(status, ids, moveToEnd) = interactor.invocations[0] else {
@@ -185,11 +197,22 @@ extension UnitPresenterTests {
 
 	@Test func test_userChangedStatus_whenCompletionBehaviourIsMoveToEnd() {
 		// Arrange
-		view.stubs.selection = [.random, .random]
+		let firstId = UUID()
+		let secondId = UUID()
+
+		view.stubs.selection = [firstId, secondId]
 		settingsProvider.stubs.state = Settings(completionBehaviour: .moveToEnd)
 
+		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, isDone: false, text: .random))
+		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, isDone: false, text: .random))
+
+		sut.present(.init(nodes: [firstNode, secondNode]))
+
+		interactor.clear()
+		view?.clear()
+
 		// Act
-		sut.userChangedStatus(true)
+		sut.menuItemClicked(.completed)
 
 		// Assert
 		guard case let .setStatus(status, ids, moveToEnd) = interactor.invocations[0] else {
@@ -204,11 +227,22 @@ extension UnitPresenterTests {
 
 	@Test func test_userChangedMark() {
 		// Arrange
+
+		let firstId = UUID()
+		let secondId = UUID()
+
 		view.stubs.selection = [.random, .random]
 		settingsProvider.stubs.state = .standart
 
+		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, isMarked: false, text: .random))
+		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, isMarked: false, text: .random))
+
+		sut.present(.init(nodes: [firstNode, secondNode]))
+
+		interactor.clear()
+
 		// Act
-		sut.userChangedMark(true)
+		sut.menuItemClicked(.marked)
 
 		// Assert
 		guard case let .setMark(isMarked, ids, moveToTop) = interactor.invocations[0] else {
@@ -223,10 +257,20 @@ extension UnitPresenterTests {
 
 	@Test func test_userChangedStyle() {
 		// Arrange
-		view.stubs.selection = [.random, .random]
+		let firstId = UUID()
+		let secondId = UUID()
 
+		view.stubs.selection = [firstId, secondId]
+		settingsProvider.stubs.state = .standart
+
+		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random, style: .item))
+		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random, style: .item))
+
+		sut.present(.init(nodes: [firstNode, secondNode]))
+
+		interactor.clear()
 		// Act
-		sut.userChangedStyle(.section)
+		sut.menuItemClicked(.section)
 
 		// Assert
 		guard case let .setStyle(style, ids) = interactor.invocations[0] else {
@@ -240,20 +284,32 @@ extension UnitPresenterTests {
 
 	@Test func test_userAddNote() {
 		// Arrange
-		let first: UUID = .random
-		view.stubs.selection = [first, .random]
+		let firstId = UUID()
+		let secondId = UUID()
+
+		view.stubs.selection = [firstId, secondId]
+		settingsProvider.stubs.state = .standart
+
+		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random))
+		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
+
+		sut.present(.init(nodes: [firstNode, secondNode]))
+
+		interactor.clear()
+		view?.clear()
 
 		// Act
-		sut.userAddNote()
+		sut.menuItemClicked(.note)
 
 		// Assert
-		guard case let .addNote(ids) = interactor.invocations[0] else {
+		guard case let .setNote(note, ids) = interactor.invocations[0] else {
 			Issue.record("Expect addNote invocation")
 			return
 		}
 
+		#expect(note != nil)
 		#expect(interactor.invocations.count == 1)
-		#expect(ids == [first])
+		#expect(ids == [firstId, secondId])
 
 		#expect(view.invocations.count == 1)
 		guard case let .focus(id, key) = view.invocations[0] else {
@@ -261,23 +317,36 @@ extension UnitPresenterTests {
 			return
 		}
 
-		#expect(id == first)
+		#expect(id == firstId)
 		#expect(key == "subtitle")
 	}
 
 	@Test func test_userDeleteNote() {
 		// Arrange
-		view.stubs.selection = [.random, .random]
+		let firstId = UUID()
+		let secondId = UUID()
+
+		view.stubs.selection = [firstId, secondId]
+		settingsProvider.stubs.state = .standart
+
+		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random, note: .random))
+		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
+
+		sut.present(.init(nodes: [firstNode, secondNode]))
+
+		interactor.clear()
+		view?.clear()
 
 		// Act
-		sut.userDeleteNote()
+		sut.menuItemClicked(.note)
 
 		// Assert
-		guard case let .deleteNote(ids) = interactor.invocations[0] else {
+		guard case let .setNote(note, ids) = interactor.invocations[0] else {
 			Issue.record("Expect deleteNote invocation")
 			return
 		}
 
+		#expect(note == nil)
 		#expect(ids == view.stubs.selection)
 	}
 }

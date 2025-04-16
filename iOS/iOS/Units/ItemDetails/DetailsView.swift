@@ -14,6 +14,8 @@ struct DetailsView {
 
 	var completionHandler: (Properties, Bool) -> Void
 
+	let strings = DetailsLocalization()
+
 	var isValid: Bool {
 		return !model.properties.text.isEmpty
 	}
@@ -35,49 +37,54 @@ extension DetailsView: View {
 		NavigationStack {
 			Form {
 				Section {
-					TextField("", text: $model.properties.text, prompt: Text("Enter text"))
+					TextField(
+						"",
+						text: $model.properties.text,
+						prompt: Text(strings.textfieldPlaceholder)
+					)
 						.font(.body)
 						.foregroundStyle(.primary)
 						.focused($isFocused)
 						.accessibilityIdentifier("textfield-title")
-					TextField("Note to Item...", text: $model.properties.description, axis: .vertical)
+					TextField(strings.notePlaceholder, text: $model.properties.description, axis: .vertical)
 						.font(.callout)
 						.foregroundStyle(.secondary)
 						.accessibilityIdentifier("textfield-description")
 				} footer: {
 					if !isValid {
-						Text("Text is empty")
+						Text(strings.warningText)
 							.foregroundStyle(.red)
 							.accessibilityIdentifier("label-hint")
 					}
 				}
-				Section("Properties") {
+				Section(strings.propertiesSectionTitle) {
 					Toggle(isOn: $model.properties.isMarked) {
-						Text("Marked")
+						Text(strings.markToggleTitle)
 					}
 					.tint(.accentColor)
 					.accessibilityIdentifier("toggle-is-marked")
-					Picker(selection: $model.properties.style) {
-						Text("Item")
-							.tag(Item.Style.item)
-						Text("Section")
-							.tag(Item.Style.section)
-					} label: {
-						Text("Style")
+					Toggle(isOn: .init(get: {
+						model.properties.style == .section
+					}, set: { newValue in
+						model.properties.style = newValue ? .section : .item
+					})) {
+						Text(strings.sectionToggleTitle)
 					}
+					.tint(.accentColor)
+					.accessibilityIdentifier("toggle-is-section")
 				}
 			}
 			.formStyle(.automatic)
 			.toolbar {
 				ToolbarItem(placement: .cancellationAction) {
-					Button("Cancel", role: .cancel) {
+					Button(strings.cancelButtonTitle, role: .cancel) {
 						completionHandler(model.properties, false)
 					}
 					.accessibilityIdentifier("button-cancel")
 				}
 
 				ToolbarItem(placement: .confirmationAction) {
-					Button("Save", role: .none) {
+					Button(strings.saveButtonTitle, role: .none) {
 						completionHandler(model.properties, true)
 					}
 					.disabled(!isValid)
@@ -116,4 +123,5 @@ extension DetailsView {
 		properties: .init(text: ""))) { _, _ in
 
 	}
+		.environment(\.locale, .init(identifier: "ru_RU"))
 }

@@ -127,17 +127,24 @@ private extension Parser {
 
 		let indentPrefix = Array(repeating: format.indent.value, count: indent).joined()
 
-		let sign = (item.style == .item) ? String(Prefix.dash.rawValue) : ""
+		let prefixSign: Prefix = {
+			guard item.style == .item else {
+				return item.isFolded ? .greaterThan : .dash
+			}
 
-		let body = item.text + (item.style == .section ? ":" : "")
+			return switch (item.isDone, item.isMarked) {
+			case (true, _): 		.ex
+			case (false, true): 	.asterisk
+			default: 				.dash
+			}
+		}()
 
-		let isLeaf = node.children.isEmpty
+		let trailingSign = switch item.style {
+			case .section: ":"
+			case .item: ""
+		}
 
-		let markAnnotation = node.value.isMarked && isLeaf ? "@" + Annotation.mark.rawValue : ""
-		let doneAnnotation = node.value.isDone && isLeaf ? "@" + Annotation.done.rawValue : ""
-		let foldAnnotation = node.value.isFolded ? "@" + Annotation.fold.rawValue : ""
-
-		let line = indentPrefix + [sign, body, doneAnnotation, markAnnotation, foldAnnotation]
+		let line = indentPrefix + [String(prefixSign.rawValue), item.text, trailingSign]
 			.filter { !$0.isEmpty }
 			.joined(separator: " ")
 

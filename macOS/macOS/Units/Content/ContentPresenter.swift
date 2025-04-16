@@ -1,5 +1,5 @@
 //
-//  UnitPresenter.swift
+//  ContentPresenter.swift
 //  macOS
 //
 //  Created by Anton Cherkasov on 16.11.2024.
@@ -14,19 +14,21 @@ import CoreSettings
 
 import AppKit
 
-protocol UnitPresenterProtocol: AnyObject {
+protocol ContentPresenterProtocol: AnyObject {
 	func present(_ content: Content)
 }
 
-final class UnitPresenter {
+final class ContentPresenter {
 
 	// MARK: - DI
 
-	var interactor: UnitInteractorProtocol?
+	var interactor: ContentInteractorProtocol?
 
 	weak var view: UnitView?
 
 	private(set) var factory: ItemsFactoryProtocol = ItemsFactory()
+
+	private(set) var localization: ContentLocalizationProtocol
 
 	// MARK: - Constants
 
@@ -36,10 +38,14 @@ final class UnitPresenter {
 
 	// MARK: - Cache
 
-	var cache = Cache<Property, Item>()
+	private(set) var cache = Cache<Property, Item>()
 
-	init(settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared) {
+	init(
+		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared,
+		localization: ContentLocalizationProtocol = ContentLocalization()
+	) {
 		self.settingsProvider = settingsProvider
+		self.localization = localization
 
 		settingsProvider.addObservation(for: self) { [weak self] _, settings in
 			self?.interactor?.fetchData()
@@ -47,8 +53,8 @@ final class UnitPresenter {
 	}
 }
 
-// MARK: - UnitPresenterProtocol
-extension UnitPresenter: UnitPresenterProtocol {
+// MARK: - ContentPresenterProtocol
+extension ContentPresenter: ContentPresenterProtocol {
 
 	func present(_ content: Content) {
 
@@ -58,8 +64,8 @@ extension UnitPresenter: UnitPresenterProtocol {
 
 		cache.store(.isDone, keyPath: \.isDone, equalsTo: true, from: snapshot)
 		cache.store(.isMarked, keyPath: \.isMarked, equalsTo: true, from: snapshot)
-		cache.store(.isItem, keyPath: \.style, equalsTo: .item, from: snapshot)
 		cache.store(.isSection, keyPath: \.style, equalsTo: .section, from: snapshot)
+		cache.store(.hasNote, keyPath: \.note, notEqualsTo: nil, from: snapshot)
 
 		let converted = snapshot.map { info in
 			factory.makeItem(
@@ -74,17 +80,17 @@ extension UnitPresenter: UnitPresenterProtocol {
 }
 
 // MARK: - ListDelegate
-extension UnitPresenter: ListDelegate {
+extension ContentPresenter: ListDelegate {
 
 	func handleDoubleClick(on item: UUID) {
 		let completionBehaviour = settingsProvider.state.completionBehaviour
 		let moveToEnd = completionBehaviour == .moveToEnd
-		interactor?.toggleStatus(for: item, moveToEnd: moveToEnd)
+		interactor?.toggleStrikethrough(for: item, moveToEnd: moveToEnd)
 	}
 }
 
 // MARK: - ViewDelegate
-extension UnitPresenter: ViewDelegate {
+extension ContentPresenter: ViewDelegate {
 
 	func viewDidChange(state: ViewState) {
 		guard case .didLoad = state else {
@@ -96,15 +102,69 @@ extension UnitPresenter: ViewDelegate {
 }
 
 // MARK: - UnitViewOutput
-extension UnitPresenter: UnitViewOutput {
+extension ContentPresenter: UnitViewOutput {
 
-	func userCreateNewItem() {
-		guard let interactor else {
+	func menuItemClicked(_ item: ElementIdentifier) {
+		guard let selection = view?.selection else {
 			return
 		}
 
-		let first = view?.selection.first
-		let id = interactor.newItem("New...", target: first)
+		switch item {
+		case .newItem:		newItem(in: selection)
+		case .completed:	toggleStrikethrough(for: selection)
+		case .marked:		toggleMark(for: selection)
+		case .section:		toggleStyle(for: selection)
+		case .note:			toggleNote(for: selection)
+		case .delete:		delete(ids: selection)
+		case .cut:			cut(ids: selection)
+		case .copy:			copy(ids: selection)
+		case .paste:		paste(ids: selection)
+		default:
+			fatalError("Undefined menu item: \(item)")
+		}
+	}
+	
+	func validateMenuItem(_ item: ElementIdentifier) -> Bool {
+		switch item {
+		case .newItem:
+			return true
+		case .paste:
+			let types = Set([stringType])
+			let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
+			return pasteboard.contains(types)
+		default:
+			return view?.selection.isEmpty == false
+		}
+	}
+	
+	func stateForMenuItem(_ item: ElementIdentifier) -> ControlState {
+		guard let selection = view?.selection else {
+			return .off
+		}
+		return switch item {
+		case .completed:
+			cache.validate(.isDone, other: selection).state
+		case .marked:
+			cache.validate(.isMarked, other: selection).state
+		case .section:
+			cache.validate(.isSection, other: selection).state
+		case .note:
+			cache.validate(.hasNote, other: selection).state
+		default:
+			.off
+		}
+	}
+}
+
+// MARK: - Helpers
+private extension ContentPresenter {
+
+	func newItem(in selection: [UUID]) {
+		guard let interactor else {
+			return
+		}
+		let first = selection.first
+		let id = interactor.newItem(localization.newItemText, target: first)
 
 		view?.scroll(to: id)
 		if let first {
@@ -113,51 +173,71 @@ extension UnitPresenter: UnitViewOutput {
 		view?.focus(on: id, key: "title")
 	}
 
-	func userDeleteItem() {
-		guard let selection = view?.selection else {
-			return
-		}
-		interactor?.deleteItems(selection)
-	}
-
-	func userChangedStatus(_ status: Bool) {
-		guard let selection = view?.selection else {
-			return
-		}
+	func toggleStrikethrough(for ids: [UUID]) {
 		let completionBehaviour = settingsProvider.state.completionBehaviour
 		let moveToEnd = completionBehaviour == .moveToEnd
-		interactor?.setStatus(status, for: selection, moveToEnd: moveToEnd)
+		let status = cache.validate(.isDone, other: ids) ?? false
+		interactor?.setStatus(!status, for: ids, moveToEnd: moveToEnd)
 	}
 
-	func userChangedMark(_ mark: Bool) {
-		guard let selection = view?.selection else {
-			return
-		}
+	func toggleMark(for ids: [UUID]) {
 		let markingBehaviour = settingsProvider.state.markingBehaviour
 		let moveToTop = markingBehaviour == .moveToTop
-		interactor?.setMark(mark, for: selection, moveToTop: moveToTop)
+		let mark = cache.validate(.isMarked, other: ids) ?? false
+		interactor?.setMark(!mark, for: ids, moveToTop: moveToTop)
 	}
 
-	func userChangedStyle(_ style: Item.Style) {
-		guard let selection = view?.selection else {
-			return
+	func toggleNote(for ids: [UUID]) {
+		let hasNote = cache.validate(.hasNote, other: ids) ?? false
+		interactor?.set(note: !hasNote ? localization.newNoteText : nil, for: ids)
+		if !hasNote, let first = ids.first {
+			view?.focus(on: first, key: "subtitle")
 		}
-		interactor?.setStyle(style, for: selection)
 	}
 
-	func pasteIsAvailable() -> Bool {
-		let types = Set([stringType])
-		let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
-		return pasteboard.contains(types)
+	func toggleStyle(for ids: [UUID]) {
+		let isSection = cache.validate(.isSection, other: ids) ?? true
+		interactor?.setStyle(!isSection ? .section : .item, for: ids)
 	}
 
-	func userCopyItems() {
+	func delete(ids: [UUID]) {
+		interactor?.deleteItems(ids)
+	}
+}
+
+// MARK: - Support Pasteboard
+private extension ContentPresenter {
+
+	func cut(ids: [UUID]) {
 		guard
-			let selection = view?.selection, !selection.isEmpty,
-			let strings = interactor?.strings(for: selection)
+			let selection = view?.selection,
+			let interactor, !selection.isEmpty
 		else {
 			return
 		}
+
+		let strings = interactor.strings(for: selection)
+
+		let items = strings.map { string in
+			PasteboardInfo.Item(string: string)
+		}
+
+		let info = PasteboardInfo(items: items)
+
+		let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
+		pasteboard.setInfo(info, clearContents: true)
+		interactor.deleteItems(selection)
+	}
+
+	func copy(ids: [UUID]) {
+		guard
+			let selection = view?.selection,
+			let interactor, !selection.isEmpty
+		else {
+			return
+		}
+
+		let strings = interactor.strings(for: selection)
 
 		let items = strings.map { string in
 			PasteboardInfo.Item(string: string)
@@ -169,8 +249,7 @@ extension UnitPresenter: UnitViewOutput {
 		pasteboard.setInfo(info, clearContents: true)
 	}
 
-	func userPaste() {
-
+	func paste(ids: [UUID]) {
 		let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
 
 		guard
@@ -193,48 +272,10 @@ extension UnitPresenter: UnitViewOutput {
 
 		interactor?.insertStrings(strings, to: destination)
 	}
-
-	func userCut() {
-		guard
-			let selection = view?.selection, !selection.isEmpty,
-			let strings = interactor?.strings(for: selection)
-		else {
-			return
-		}
-
-		let items = strings.map { string in
-			PasteboardInfo.Item(string: string)
-		}
-
-		let info = PasteboardInfo(items: items)
-
-		let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
-		pasteboard.setInfo(info, clearContents: true)
-		interactor?.deleteItems(selection)
-	}
-
-	func userAddNote() {
-		guard
-			let selection = view?.selection, let first = selection.first
-		else {
-			return
-		}
-		interactor?.addNote(for: [first])
-		view?.focus(on: first, key: "subtitle")
-	}
-
-	func userDeleteNote() {
-		guard
-			let selection = view?.selection, !selection.isEmpty
-		else {
-			return
-		}
-		interactor?.deleteNote(for: selection)
-	}
 }
 
 // MARK: - DropDelelgate
-extension UnitPresenter: DropDelegate {
+extension ContentPresenter: DropDelegate {
 
 	typealias ID = UUID
 
@@ -267,7 +308,7 @@ extension UnitPresenter: DropDelegate {
 }
 
 // MARK: - DragDelegate
-extension UnitPresenter: DragDelegate {
+extension ContentPresenter: DragDelegate {
 
 	func write(ids: [UUID], to pasteboard: any PasteboardProtocol) {
 		guard let strings = interactor?.strings(for: ids) else {
@@ -285,7 +326,7 @@ extension UnitPresenter: DragDelegate {
 }
 
 // MARK: - CellDelegate
-extension UnitPresenter: CellDelegate {
+extension ContentPresenter: CellDelegate {
 
 	typealias Model = ItemModel
 
@@ -302,7 +343,7 @@ extension UnitPresenter: CellDelegate {
 		interactor?.set(text: newValue.title, note: note, for: id)
 	}
 }
-extension UnitPresenter {
+extension ContentPresenter {
 
 	func validateStatus() -> Bool? {
 		guard let selection = view?.selection, !selection.isEmpty else {
@@ -331,43 +372,20 @@ extension UnitPresenter {
 	}
 }
 
-final class Cache<Property: Hashable, Model: Identifiable> {
-
-	private var storage: [Property: Set<Model.ID>] = [:]
-
-	func store<T: Equatable>(_ property: Property, keyPath: KeyPath<Model, T>, equalsTo value: T, from snapshot: Snapshot<Model>) {
-		storage[property] = snapshot.satisfy { model in
-			model[keyPath: keyPath] == value
-		}
-	}
-
-	func validate(_ property: Property, other: [Model.ID]) -> Bool? {
-		guard let stored = storage[property] else {
-			return nil
-		}
-		return validate(in: stored, with: other)
-	}
-}
-
-// MARK: - Helpers
-private extension Cache {
-
-	func validate(in cache: Set<Model.ID>, with other: [Model.ID]) -> Bool? {
-		let count = Set(other).intersection(cache).count
-		switch count {
-		case 0:
-			return false
-		case other.count:
-			return true
-		default:
-			return nil
-		}
-	}
-}
-
 enum Property: Hashable {
 	case isDone
 	case isMarked
 	case isItem
 	case isSection
+	case hasNote
+}
+
+extension Optional<Bool> {
+
+	var state: ControlState {
+		switch self {
+		case .none:					.mixed
+		case .some(let wrapped):	wrapped ? .on : .off
+		}
+	}
 }

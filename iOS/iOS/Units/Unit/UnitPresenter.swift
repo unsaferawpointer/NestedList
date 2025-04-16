@@ -1,5 +1,5 @@
 //
-//  UnitPresenter.swift
+//  ContentPresenter.swift
 //  iOS
 //
 //  Created by Anton Cherkasov on 22.11.2024.
@@ -25,6 +25,8 @@ final class UnitPresenter {
 
 	private(set) var factory: ItemsFactoryProtocol = ItemsFactory()
 
+	private(set) var menuFactory = MenuFactory()
+
 	var settingsProvider: any StateProviderProtocol<Settings>
 
 	var toolbarFactory = ToolbarFactory()
@@ -34,12 +36,19 @@ final class UnitPresenter {
 			let selection = view?.selection ?? []
 			let model = toolbarFactory.build(
 				editingMode: editingMode,
-				selectedCount: selection.count
+				selectedCount: selection.count,
+				isCompleted: cache.validate(.isDone, other: selection),
+				isMarked: cache.validate(.isMarked, other: selection),
+				isSection: cache.validate(.isSection, other: selection)
 			)
 			view?.display(model)
 			view?.setEditing(editingMode)
 		}
 	}
+
+	// MARK: - Cache
+
+	var cache = Cache<Property, Item>()
 
 	// MARK: - Initialization
 
@@ -52,7 +61,7 @@ final class UnitPresenter {
 	}
 }
 
-// MARK: - UnitPresenterProtocol
+// MARK: - ContentPresenterProtocol
 extension UnitPresenter: UnitPresenterProtocol {
 
 	func present(_ content: Content) {
@@ -60,6 +69,10 @@ extension UnitPresenter: UnitPresenterProtocol {
 		var snapshot = Snapshot(content.root.nodes)
 		snapshot.validate(keyPath: \.isDone)
 		snapshot.validate(keyPath: \.isMarked)
+
+		cache.store(.isDone, keyPath: \.isDone, equalsTo: true, from: snapshot)
+		cache.store(.isMarked, keyPath: \.isMarked, equalsTo: true, from: snapshot)
+		cache.store(.isSection, keyPath: \.style, equalsTo: .section, from: snapshot)
 
 		let converted = snapshot
 			.map { info in
@@ -83,119 +96,92 @@ extension UnitPresenter: ViewDelegate {
 		interactor?.fetchData()
 		view?.expandAll()
 
-		let toolbar = toolbarFactory.build(editingMode: editingMode, selectedCount: 0)
+		let toolbar = toolbarFactory.build(
+			editingMode: editingMode,
+			selectedCount: 0,
+			isCompleted: cache.validate(.isDone, other: view?.selection ?? []),
+			isMarked: cache.validate(.isMarked, other: view?.selection ?? []),
+			isSection: cache.validate(.isSection, other: view?.selection ?? [])
+		)
 		view?.display(toolbar)
 	}
 }
 
-// MARK: - ToolbarDelegate
-extension UnitPresenter: ToolbarDelegate {
+// MARK: - InteractionDelegate
+extension UnitPresenter: InteractionDelegate {
 
-	func toolbarDidSelect() {
-		editingMode = .selection
-	}
-	
-	func toolbarDidReorder() {
-		editingMode = .reordering
-	}
-	
-	func toolbarDidOpenSettings() {
-		view?.showSettings()
-	}
-
-	func toolbarDidFinish() {
-		editingMode = nil
-	}
-
-	func toolbarDidCreateNew() {
-		createNew(target: nil)
-	}
-
-	func toolbarDidDelete() {
-		guard let selection = view?.selection else {
+	func userDidSelect(item: String, with selection: [UUID]?) {
+		guard let menuIdentifier = ElementIdentifier(rawValue: item) else {
 			return
 		}
-		editingMode = nil
-		interactor?.deleteItems(selection)
-	}
 
-	func toolbarDidMarkAsComplete() {
-		guard let selection = view?.selection else {
-			return
-		}
-		editingMode = nil
-		let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
-		interactor?.setStatus(true, for: selection, moveToEnd: moveToEnd)
-	}
-}
+		let currentSelection = selection ?? view?.selection
 
-// MARK: - MenuDelegate
-extension UnitPresenter: MenuDelegate {
-
-	func menuDidEdit(id: UUID) {
-		guard let item = interactor?.item(for: id) else {
-			return
-		}
-		let model = DetailsView.Model(navigationTitle: "Edit Item", properties: item.details)
-		view?.showDetails(with: model) { [weak self] saved, success in
-			self?.view?.hideDetails()
-			if success {
-				let note = saved.description.isEmpty ? nil : saved.description
-				self?.interactor?.set(saved.text, note: note, isMarked: saved.isMarked, style: saved.style, for: id)
+		switch menuIdentifier {
+		case .edit:
+			editingMode = nil
+			guard let id = currentSelection?.first, let item = interactor?.item(for: id) else {
+				return
 			}
+			let model = DetailsView.Model(navigationTitle: "Edit Item", properties: item.details)
+			view?.showDetails(with: model) { [weak self] saved, success in
+				self?.view?.hideDetails()
+				if success {
+					let note = saved.description.isEmpty ? nil : saved.description
+					self?.interactor?.set(saved.text, note: note, isMarked: saved.isMarked, style: saved.style, for: id)
+				}
+			}
+		case .new:
+			editingMode = nil
+			createNew(target: currentSelection?.first)
+		case .cut:
+			editingMode = nil
+			guard let interactor else {
+				return
+			}
+			let string = interactor.string(for: currentSelection ?? [])
+			UIPasteboard.general.string = string
+			interactor.deleteItems(currentSelection ?? [])
+		case .copy:
+			editingMode = nil
+			guard let interactor else {
+				return
+			}
+			let string = interactor.string(for: currentSelection ?? [])
+			UIPasteboard.general.string = string
+		case .paste:
+			editingMode = nil
+			guard let string = UIPasteboard.general.string, let target = currentSelection?.first else {
+				return
+			}
+			interactor?.insertStrings([string], to: .onItem(with: target))
+		case .delete:
+			editingMode = nil
+			interactor?.deleteItems(currentSelection ?? [])
+		case .completed:
+			editingMode = nil
+			let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
+			let newValue = !(cache.validate(.isDone, other: currentSelection ?? []) ?? false)
+			interactor?.setStatus(newValue, for: currentSelection ?? [], moveToEnd: moveToEnd)
+		case .marked:
+			editingMode = nil
+			let moveToTop = settingsProvider.state.markingBehaviour == .moveToTop
+			let newValue = !(cache.validate(.isMarked, other: currentSelection ?? []) ?? false)
+			interactor?.mark(newValue, ids: currentSelection ?? [], moveToTop: moveToTop)
+		case .style:
+			editingMode = nil
+			let newValue = !(cache.validate(.isSection, other: currentSelection ?? []) ?? false)
+			interactor?.setStyle(newValue ? .section : .item, for: currentSelection ?? [])
+		case .select:
+			editingMode = .selection
+		case .reorder:
+			editingMode = .reordering
+		case .settings:
+			view?.showSettings()
+		case .done:
+			editingMode = nil
 		}
 	}
-	
-	func menuDidDelete(ids: [UUID]) {
-		interactor?.deleteItems(ids)
-	}
-	
-	func menuDidAdd(target: UUID) {
-		createNew(target: target)
-	}
-	
-	func menuDidSetStatus(isDone: Bool, id: UUID) {
-		let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
-		interactor?.setStatus(isDone, for: [id], moveToEnd: moveToEnd)
-	}
-	
-	func menuDidMark(isMarked: Bool, id: UUID) {
-		let moveToTop = settingsProvider.state.markingBehaviour == .moveToTop
-		interactor?.mark(isMarked, id: id, moveToTop: moveToTop)
-	}
-	
-	func menuDidSetStyle(style: CoreModule.Item.Style, id: UUID) {
-		interactor?.setStyle(style, for: id)
-	}
-	
-	func menuDidCut(ids: [UUID]) {
-		guard let first = ids.first, let interactor else {
-			return
-		}
-		let string = interactor.string(for: first)
-
-		UIPasteboard.general.string = string
-
-		interactor.deleteItems(ids)
-	}
-	
-	func menuDidPaste(target: UUID) {
-		guard let string = UIPasteboard.general.string else {
-			return
-		}
-		interactor?.insertStrings([string], to: .onItem(with: target))
-	}
-	
-	func menuDidCopy(ids: [UUID]) {
-		guard let first = ids.first, let interactor else {
-			return
-		}
-		let string = interactor.string(for: first)
-
-		UIPasteboard.general.string = string
-	}
-	
-
 }
 
 // MARK: - UnitViewDelegate
@@ -211,9 +197,20 @@ extension UnitPresenter: ListDelegate {
 	func listDidChangeSelection(ids: [UUID]) {
 		let toolbar = toolbarFactory.build(
 			editingMode: editingMode,
-			selectedCount: ids.count
+			selectedCount: ids.count,
+			isCompleted: cache.validate(.isDone, other: ids),
+			isMarked: cache.validate(.isMarked, other: ids),
+			isSection: cache.validate(.isSection, other: ids)
 		)
 		view?.display(toolbar)
+	}
+
+	func menu(for ids: [UUID]) -> [MenuElement] {
+		menuFactory.build(
+			isCompleted: cache.validate(.isDone, other: ids),
+			isMarked: cache.validate(.isMarked, other: ids),
+			isSection: cache.validate(.isSection, other: ids)
+		)
 	}
 }
 
@@ -244,7 +241,7 @@ extension UnitPresenter: DropDelegate {
 	}
 
 	func string(for id: UUID) -> String {
-		return interactor?.string(for: id) ?? ""
+		return interactor?.string(for: [id]) ?? ""
 	}
 
 }
@@ -271,6 +268,13 @@ private extension UnitPresenter {
 			}
 		}
 	}
+}
+
+enum Property: Hashable {
+	case isDone
+	case isMarked
+	case isItem
+	case isSection
 }
 
 private extension Item {

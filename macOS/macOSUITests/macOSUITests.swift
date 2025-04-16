@@ -9,35 +9,109 @@ import XCTest
 
 final class macOSUITests: XCTestCase {
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+	override func setUpWithError() throws {
+		continueAfterFailure = false
+	}
 
-        // In UI tests it is usually best to stop immediately when a failure occurs.
-        continueAfterFailure = false
+	override func tearDownWithError() throws { }
+}
 
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
-    }
+// MARK: - Common cases
+extension macOSUITests {
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
+	func test_createNewAnyTimes() {
+		// Arrange
+		let app = AppPage(app: XCUIApplication())
+		app.launch()
+		app.closeAll()
 
-    @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
-        app.launch()
+		// Act
+		for _ in 0..<3 {
+			app.press("n", modifierFlags: .command)
+		}
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
+		// Assert
+		XCTAssertEqual(app.windows().count, 3)
+	}
 
-    @MainActor
-    func testLaunchPerformance() throws {
-        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
-            // This measures how long it takes to launch your application.
-            measure(metrics: [XCTApplicationLaunchMetric()]) {
-                XCUIApplication().launch()
-            }
-        }
-    }
+	func test_createNew() {
+		// Arrange
+		let app = AppPage(app: XCUIApplication())
+		app.launch()
+		app.closeAll()
+
+		// Act
+		app.newDoc()
+
+		let window = app.firstWindow()
+		let doc = DocumentPage(window: window)
+
+		// Assert
+		XCTAssertTrue(doc.checkTitle("Untitled"))
+	}
+
+	func test_open() {
+		// Arrange
+		let app = AppPage(app: XCUIApplication())
+		app.launch()
+		app.closeAll()
+
+		// Act
+		app.press("o", modifierFlags: .command)
+
+		// Assert
+		XCTAssertTrue(app.windows()["open-panel"].exists)
+	}
+
+	func test_save_whenDocumentIsNew() {
+		// Arrange
+		let app = prepareApp()
+
+		let window = app.firstWindow()
+		let doc = DocumentPage(window: window)
+
+		// Act
+		app.press("s", modifierFlags: .command)
+
+		XCTAssertTrue(doc.savePanelExists())
+		doc.clickSavePanelCancleButton()
+	}
+
+	func test_saveAs() {
+		// Arrange
+		let app = prepareApp()
+
+		let window = app.firstWindow()
+		let doc = DocumentPage(window: window)
+
+		// Act
+		app.press("s", modifierFlags: [.option, .command, .shift])
+
+		XCTAssertTrue(doc.savePanelExists())
+		doc.clickSavePanelCancleButton()
+	}
+
+	func test_close() {
+		// Arrange
+		let app = prepareApp()
+
+		app.press("w", modifierFlags: .command)
+
+		XCTAssertFalse(app.firstWindow().exists)
+	}
+}
+
+// MARK: - Helpers
+private extension macOSUITests {
+
+	func prepareApp() -> AppPage {
+		let app = AppPage(app: XCUIApplication())
+
+		app.launch()
+		app.closeAll()
+
+		app.newDoc()
+
+		return app
+	}
 }

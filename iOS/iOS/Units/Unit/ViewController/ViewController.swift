@@ -22,7 +22,7 @@ class ViewController: UIDocumentViewController {
 
 	var adapter: ListAdapter?
 
-	var toolbarBuilder: ToolbarBuilder = ToolbarBuilder()
+	var toolbarBuilder: ToolbarBuilder<UUID> = ToolbarBuilder<UUID>()
 
 	var listDocument: Document? {
 		self.document as? Document
@@ -34,7 +34,6 @@ class ViewController: UIDocumentViewController {
 				return
 			}
 			self.delegate = UnitAssembly.build(self, storage: document.storage)
-			self.toolbarBuilder.delegate = delegate
 			self.adapter = ListAdapter(tableView: tableView, delegate: delegate)
 		}
 	}
@@ -75,8 +74,8 @@ class ViewController: UIDocumentViewController {
 	override func updateContentUnavailableConfiguration(using state: UIContentUnavailableConfigurationState) {
 		if adapter?.isEmpty ?? true {
 			var configuration = UIContentUnavailableConfiguration.empty()
-			configuration.text = "No items"
-			configuration.secondaryText = "To add a new item, tap the '+' button."
+			configuration.text = String(localized: "empty-view-placeholder-text", table: "UnitLocalizable")
+			configuration.secondaryText = String(localized: "empty-view-placeholder-secondary-text", table: "UnitLocalizable")
 			self.contentUnavailableConfiguration = configuration
 		} else {
 			self.contentUnavailableConfiguration = nil
@@ -92,8 +91,10 @@ extension ViewController: UnitView {
 	}
 
 	func display(_ toolbar: ToolbarModel) {
-		navigationItem.setRightBarButtonItems(toolbarBuilder.build(items: toolbar.top), animated: true)
-		toolbarItems = toolbarBuilder.build(items: toolbar.bottom)
+		let topItems = DesignSystem.ToolbarBuilder.build(from: toolbar.top, delegate: delegate)
+		navigationItem.setRightBarButtonItems(topItems, animated: true)
+
+		toolbarItems = DesignSystem.ToolbarBuilder.build(from: toolbar.bottom, delegate: delegate)
 	}
 
 	var selection: [UUID] {
@@ -117,7 +118,7 @@ extension ViewController: UnitView {
 	func showSettings() {
 		let settings = SettingsView(provider: SettingsProvider.shared)
 		let controller = UIHostingController(rootView: settings)
-		controller.title = "Settings"
+		controller.title = String(localized: "settings-viewcontroller-title", table: "UnitLocalizable")
 		let navigationController = UINavigationController(rootViewController: controller)
 		present(navigationController, animated: true)
 	}

@@ -12,20 +12,22 @@ public struct SettingsView: View {
 
 	@ObservedObject var model: SettingsViewModel
 
+	let localization = SettingsLocalization()
+
 	public init(provider: SettingsProvider) {
 		self.model = SettingsViewModel(provider: provider)
 	}
 
 	public var body: some View {
 		Form {
-			Section("Behaviors") {
+			Section(localization.behaviorsSectionTitle) {
 				Toggle(isOn: .init(get: {
 					model.settings.completionBehaviour == .moveToEnd
 				}, set: { newValue in
 					model.settings.completionBehaviour = newValue ? .moveToEnd : .regular
 				})) {
-					Text("Move completed items to the end of the list")
-					Text("Enable this option to automatically move a completed item to the end of its parent list. This helps maintain order and focus on current tasks by hiding completed ones at the bottom of the list.")
+					Text(localization.strikethroughBehaviourText)
+					Text(localization.strikethroughBehaviourDescription)
 				}
 
 				Toggle(isOn: .init(get: {
@@ -33,8 +35,8 @@ public struct SettingsView: View {
 				}, set: { newValue in
 					model.settings.markingBehaviour = newValue ? .moveToTop : .regular
 				})) {
-					Text("Move the marked item to the top")
-					Text("Enable this option to automatically move the marked item to the top of the list. This helps you quickly focus on the current task without searching for it in the list.")
+					Text(localization.markingBehaviourText)
+					Text(localization.markingBehaviourDescription)
 				}
 			}
 		}

@@ -1,5 +1,5 @@
 //
-//  UnitInteractor.swift
+//  ContentInteractor.swift
 //  iOS
 //
 //  Created by Anton Cherkasov on 22.11.2024.
@@ -16,12 +16,12 @@ protocol UnitInteractorProtocol {
 	func newItem(_ text: String, note: String?, isMarked: Bool, style: Item.Style, target: UUID?) -> UUID
 	func deleteItems(_ ids: [UUID])
 	func setStatus(_ isDone: Bool, for ids: [UUID], moveToEnd: Bool)
-	func mark(_ isMarked: Bool, id: UUID, moveToTop: Bool)
-	func setStyle(_ style: Item.Style, for id: UUID)
+	func mark(_ isMarked: Bool, ids: [UUID], moveToTop: Bool)
+	func setStyle(_ style: Item.Style, for ids: [UUID])
 	func set(_ text: String, note: String?, isMarked: Bool, style: Item.Style, for id: UUID)
 	func item(for id: UUID) -> Item
 
-	func string(for id: UUID) -> String
+	func string(for ids: [UUID]) -> String
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>)
 
 	func move(ids: [UUID], to destination: Destination<UUID>)
@@ -47,7 +47,7 @@ final class UnitInteractor {
 	}
 }
 
-// MARK: - UnitInteractorProtocol
+// MARK: - ContentInteractorProtocol
 extension UnitInteractor: UnitInteractorProtocol {
 
 	func fetchData() {
@@ -85,18 +85,18 @@ extension UnitInteractor: UnitInteractorProtocol {
 		}
 	}
 
-	func mark(_ isMarked: Bool, id: UUID, moveToTop: Bool) {
+	func mark(_ isMarked: Bool, ids: [UUID], moveToTop: Bool) {
 		storage.modificate { content in
-			content.root.setProperty(\.isMarked, to: isMarked, for: [id], downstream: true)
+			content.root.setProperty(\.isMarked, to: isMarked, for: ids, downstream: true)
 			if moveToTop && isMarked {
-				content.root.moveToTop([id])
+				content.root.moveToTop(ids)
 			}
 		}
 	}
 
-	func setStyle(_ style: Item.Style, for id: UUID) {
+	func setStyle(_ style: Item.Style, for ids: [UUID]) {
 		storage.modificate { content in
-			content.root.setProperty(\.style, to: style, for: [id])
+			content.root.setProperty(\.style, to: style, for: ids)
 		}
 	}
 
@@ -109,15 +109,24 @@ extension UnitInteractor: UnitInteractorProtocol {
 		}
 	}
 
-	func string(for id: UUID) -> String {
+	func string(for ids: [UUID]) -> String {
 
-		guard let node = storage.state.root.node(with: id) else {
-			fatalError("Can`t find node with id = \(id)")
+		let cache = Set(ids)
+
+		let nodes = storage.state.root.nodes(with: ids)
+		let copied = nodes.map { node in
+			node.map { $0 }
+		}
+
+		copied.forEach { node in
+			node.deleteDescendants(with: cache)
 		}
 
 		let parser = Parser()
 
-		return parser.format(node)
+		return copied.map { node in
+			parser.format(node)
+		}.joined(separator: "\n")
 	}
 
 	func insertStrings(_ strings: [String], to destination: Hierarchy.Destination<UUID>) {

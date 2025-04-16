@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  ContentViewController.swift
 //  macOS
 //
 //  Created by Anton Cherkasov on 16.11.2024.
@@ -12,30 +12,13 @@ import DesignSystem
 
 import SwiftUI
 
-protocol UnitViewOutput: ViewDelegate {
-
-	func userCreateNewItem()
-	func userDeleteItem()
-	func userChangedStatus(_ status: Bool)
-	func userChangedMark(_ status: Bool)
-	func userChangedStyle(_ style: Item.Style)
-	func userAddNote()
-	func userDeleteNote()
-	func userCopyItems()
-	func userPaste()
-	func userCut()
-
-	func validateStatus() -> Bool?
-	func validateMark() -> Bool?
-	func validateStyle(_ style: Item.Style) -> Bool?
-	func pasteIsAvailable() -> Bool
-}
+protocol UnitViewOutput: ViewDelegate, MenuDelegate { }
 
 protocol UnitView: AnyObject, ListSupportable {
 	func display(_ snapshot: Snapshot<ItemModel>)
 }
 
-class ViewController: NSViewController {
+class ContentViewController: NSViewController {
 
 	var adapter: ListAdapter<ItemModel>?
 
@@ -85,7 +68,7 @@ class ViewController: NSViewController {
 
 	// MARK: - Initialization
 
-	init(configure: (ViewController) -> Void) {
+	init(configure: (ContentViewController) -> Void) {
 		super.init(nibName: nil, bundle: nil)
 		configure(self)
 		self.adapter = ListAdapter<ItemModel>(tableView: table)
@@ -93,6 +76,7 @@ class ViewController: NSViewController {
 		self.adapter?.cellDelegate = cellDelegate
 		self.adapter?.dragDelegate = dragDelegate
 		self.adapter?.delegate = listDelegate
+		self.adapter?.menu = MenuBuilder.build()
 	}
 
 	@available(*, unavailable, message: "Use init(storage:)")
@@ -121,7 +105,7 @@ class ViewController: NSViewController {
 }
 
 // MARK: - UnitView
-extension ViewController: UnitView {
+extension ContentViewController: UnitView {
 
 	func display(_ snapshot: Snapshot<ItemModel>) {
 		adapter?.apply(snapshot)
@@ -130,7 +114,7 @@ extension ViewController: UnitView {
 }
 
 // MARK: - ListSupportable
-extension ViewController: ListSupportable {
+extension ContentViewController: ListSupportable {
 
 	var selection: [UUID] {
 		adapter?.effectiveSelection ?? []
@@ -154,7 +138,7 @@ extension ViewController: ListSupportable {
 }
 
 // MARK: - Helpers
-private extension ViewController {
+private extension ContentViewController {
 
 	func configureUserInterface() {
 
@@ -166,8 +150,6 @@ private extension ViewController {
 		table.addTableColumn(column)
 
 		scrollview.documentView = table
-
-		table.menu = MenuBuilder.build()
 	}
 
 	func configureConstraints() {
@@ -176,106 +158,51 @@ private extension ViewController {
 	}
 }
 
-// MARK: - MenuSupportable
-extension ViewController: MenuSupportable {
+// MARK: - Interaction Delegate
+extension ContentViewController {
+
+	@objc
+	func menuItemClicked(_ sender: NSMenuItem) {
+		guard let rawValue = sender.identifier?.rawValue else {
+			return
+		}
+		let id = ElementIdentifier(rawValue: rawValue)
+		output?.menuItemClicked(id)
+	}
 
 	@IBAction
 	func newItem(_ sender: NSMenuItem) {
-		output?.userCreateNewItem()
+		output?.menuItemClicked(.newItem)
 	}
 
-	func toggleStatus(_ sender: NSMenuItem) {
-		let enabled = sender.state == .on
-		output?.userChangedStatus(!enabled)
-	}
-
-	func toggleMark(_ sender: NSMenuItem) {
-		let enabled = sender.state == .on
-		output?.userChangedMark(!enabled)
-	}
-
-	func setItemStyle(_ sender: NSMenuItem) {
-		let style = Item.Style(rawValue: sender.tag) ?? .item
-		output?.userChangedStyle(style)
-	}
-
-	func addNote(_ sender: NSMenuItem) {
-		output?.userAddNote()
-	}
-
-	func deleteNote(_ sender: NSMenuItem) {
-		output?.userDeleteNote()
-	}
-
-	func deleteItem(_ sender: NSMenuItem) {
-		output?.userDeleteItem()
-	}
-
-	func copy(_ sender: NSMenuItem) {
-		output?.userCopyItems()
-	}
-
-	func paste(_ sender: NSMenuItem) {
-		output?.userPaste()
-	}
-
+	@IBAction
 	func cut(_ sender: NSMenuItem) {
-		output?.userCut()
+		output?.menuItemClicked(.cut)
+	}
+
+	@IBAction
+	func copy(_ sender: NSMenuItem) {
+		output?.menuItemClicked(.copy)
+	}
+
+	@IBAction
+	func paste(_ sender: NSMenuItem) {
+		output?.menuItemClicked(.paste)
 	}
 }
 
 // MARK: - NSMenuItemValidation
-extension ViewController: NSMenuItemValidation {
+extension ContentViewController: NSMenuItemValidation {
 
 	func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
 
-		switch menuItem.action {
-			case #selector(newItem):
-			return true
-		case #selector(toggleStatus):
-
-			let status = output?.validateStatus()
-
-			switch status {
-			case .some(let value):
-				menuItem.state = value ? .on : .off
-			case .none:
-				menuItem.state = .mixed
-			}
-
-			return adapter?.effectiveSelection.count ?? 0 > 0
-		case #selector(toggleMark(_:)):
-			let markStatus = output?.validateMark()
-
-			switch markStatus {
-			case .some(let value):
-				menuItem.state = value ? .on : .off
-			case .none:
-				menuItem.state = .mixed
-			}
-
-			return adapter?.effectiveSelection.count ?? 0 > 0
-		case #selector(setItemStyle(_:)):
-
-			let style = Item.Style(rawValue: menuItem.tag) ?? .item
-			let status = output?.validateStyle(style)
-
-			switch status {
-			case .some(let value):
-				menuItem.state = value ? .on : .off
-			case .none:
-				menuItem.state = .mixed
-			}
-
-			return adapter?.effectiveSelection.count ?? 0 > 0
-		case #selector(addNote(_:)), #selector(deleteNote(_:)):
-			return adapter?.effectiveSelection.count ?? 0 > 0
-		case #selector(deleteItem), #selector(copy(_:)), #selector(cut(_:)):
-			return adapter?.effectiveSelection.count ?? 0 > 0
-		case #selector(paste(_:)):
-			return output?.pasteIsAvailable() ?? false
-		default:
+		guard let rawValue = menuItem.identifier?.rawValue, let output else {
 			return false
 		}
+
+		let id = ElementIdentifier(rawValue: rawValue)
+
+		menuItem.state = output.stateForMenuItem(id).value
+		return output.validateMenuItem(id)
 	}
 }

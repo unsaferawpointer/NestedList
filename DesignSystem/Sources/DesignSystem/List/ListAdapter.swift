@@ -16,6 +16,7 @@ import UIKit
 #if os(macOS)
 public final class ListAdapter<Model: CellModel>: NSObject,
 												  NSOutlineViewDataSource,
+												  NSMenuDelegate,
 												  NSOutlineViewDelegate where Model.ID: Codable {
 
 	public typealias ID = Model.ID
@@ -25,6 +26,15 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 	weak var tableView: NSOutlineView?
 
 	private var animator = ListAnimator<InternalModel>()
+
+	// MARK: - Public Properties
+
+	public weak var menu: NSMenu? {
+		didSet {
+			tableView?.menu = menu
+			tableView?.menu?.delegate = self
+		}
+	}
 
 	// MARK: - Delegates
 
@@ -261,6 +271,21 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 		delegate?.handleDoubleClick(on: id)
 	}
+
+	// MARK: - Menu Support
+
+	public func menuNeedsUpdate(_ menu: NSMenu) {
+		let clickedRow = tableView?.clickedRow ?? -1
+		guard clickedRow != -1, let item = tableView?.item(atRow: clickedRow) as? Item else {
+			return
+		}
+
+		let model = snapshot.model(with: item.id)
+		guard !model.isDecoration else {
+			menu.cancelTracking()
+			return
+		}
+	}
 }
 
 // MARK: - Support selection
@@ -290,8 +315,10 @@ public extension ListAdapter {
 			}
 		}
 
+		let first = transformed.first?.id
+
 		let converted = Snapshot(transformed).insert { model, level -> ListModel<Model>? in
-			guard model.isGroup, case let .model(value) = model else {
+			guard model.isGroup, case let .model(value) = model, model.id != first else {
 				return nil
 			}
 			return .spacer(before: value.id, height: level == 0 ? .large : .small)

@@ -13,6 +13,10 @@ import Hierarchy
 final class UnitViewMock {
 	private(set) var invocations: [Action] = []
 	var stubs = Stubs()
+
+	func clear() {
+		invocations.removeAll()
+	}
 }
 
 // MARK: - UnitView
