@@ -21,7 +21,7 @@ protocol UnitInteractorProtocol {
 	func set(_ text: String, note: String?, isMarked: Bool, style: Item.Style, for id: UUID)
 	func item(for id: UUID) -> Item
 
-	func string(for id: UUID) -> String
+	func string(for ids: [UUID]) -> String
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>)
 
 	func move(ids: [UUID], to destination: Destination<UUID>)
@@ -109,15 +109,24 @@ extension UnitInteractor: UnitInteractorProtocol {
 		}
 	}
 
-	func string(for id: UUID) -> String {
+	func string(for ids: [UUID]) -> String {
 
-		guard let node = storage.state.root.node(with: id) else {
-			fatalError("Can`t find node with id = \(id)")
+		let cache = Set(ids)
+
+		let nodes = storage.state.root.nodes(with: ids)
+		let copied = nodes.map { node in
+			node.map { $0 }
+		}
+
+		copied.forEach { node in
+			node.deleteDescendants(with: cache)
 		}
 
 		let parser = Parser()
 
-		return parser.format(node)
+		return copied.map { node in
+			parser.format(node)
+		}.joined(separator: "\n")
 	}
 
 	func insertStrings(_ strings: [String], to destination: Hierarchy.Destination<UUID>) {

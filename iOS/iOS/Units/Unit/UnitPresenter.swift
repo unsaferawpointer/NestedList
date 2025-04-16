@@ -136,18 +136,18 @@ extension UnitPresenter: InteractionDelegate {
 			createNew(target: currentSelection?.first)
 		case .cut:
 			editingMode = nil
-			guard let first = currentSelection?.first, let interactor else {
+			guard let interactor else {
 				return
 			}
-			let string = interactor.string(for: first)
+			let string = interactor.string(for: currentSelection ?? [])
 			UIPasteboard.general.string = string
 			interactor.deleteItems(currentSelection ?? [])
 		case .copy:
 			editingMode = nil
-			guard let first = currentSelection?.first, let interactor else {
+			guard let interactor else {
 				return
 			}
-			let string = interactor.string(for: first)
+			let string = interactor.string(for: currentSelection ?? [])
 			UIPasteboard.general.string = string
 		case .paste:
 			editingMode = nil
@@ -241,7 +241,7 @@ extension UnitPresenter: DropDelegate {
 	}
 
 	func string(for id: UUID) -> String {
-		return interactor?.string(for: id) ?? ""
+		return interactor?.string(for: [id]) ?? ""
 	}
 
 }
