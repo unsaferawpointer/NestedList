@@ -330,7 +330,7 @@ extension UnitPresenterTests {
 		settingsProvider.stubs.state = .standart
 
 		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random, note: .random))
-		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
+		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random, note: .random))
 
 		sut.present(.init(nodes: [firstNode, secondNode]))
 
