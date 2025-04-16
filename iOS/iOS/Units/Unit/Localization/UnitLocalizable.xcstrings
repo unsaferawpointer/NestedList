@@ -65,6 +65,22 @@
         }
       }
     },
+    "edit_item_navigation_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Item"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Редактирование"
+          }
+        }
+      }
+    },
     "empty-view-placeholder-secondary-text" : {
       "localizations" : {
         "en" : {
@@ -93,6 +109,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Список пуст"
+          }
+        }
+      }
+    },
+    "new_item_navigation_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Item"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Новый пункт"
           }
         }
       }
