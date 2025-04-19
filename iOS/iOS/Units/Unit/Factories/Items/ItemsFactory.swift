@@ -54,7 +54,7 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		case .item:
 			IconConfiguration(
 				name: .named("point"),
-				token: item.isMarked && !item.isDone ? .yellow : .quaternary
+				appearence: .hierarchical(token: item.isMarked && !item.isDone ? .yellow : .quaternary)
 			)
 		case .section:
 			IconConfiguration(
