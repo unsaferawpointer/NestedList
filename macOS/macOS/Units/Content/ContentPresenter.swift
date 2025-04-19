@@ -68,10 +68,15 @@ extension ContentPresenter: ContentPresenterProtocol {
 		cache.store(.hasNote, keyPath: \.note, notEqualsTo: nil, from: snapshot)
 
 		let converted = snapshot.map { info in
-			factory.makeItem(
+
+			let isGroup = (content.root.node(with: info.model.id)?.children ?? []).contains { node in
+				node.value.style == .section
+			}
+
+			return factory.makeItem(
 				item: info.model,
 				level: info.level,
-				sectionStyle: settingsProvider.state.sectionStyle
+				isGroup: isGroup
 			)
 		}
 

@@ -13,18 +13,14 @@ public struct Settings {
 
 	public var markingBehaviour: MarkingBehavior = .regular
 
-	public var sectionStyle: SectionStyle = .icon
-
 	// MARK: - Initialization
 
 	public init(
 		completionBehaviour: CompletionBehavior = .regular,
-		markingBehaviour: MarkingBehavior = .regular,
-		sectionStyle: SectionStyle = .icon
+		markingBehaviour: MarkingBehavior = .regular
 	) {
 		self.completionBehaviour = completionBehaviour
 		self.markingBehaviour = markingBehaviour
-		self.sectionStyle = sectionStyle
 	}
 }
 

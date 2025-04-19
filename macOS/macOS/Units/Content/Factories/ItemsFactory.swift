@@ -13,7 +13,7 @@ import CoreModule
 import CoreSettings
 
 protocol ItemsFactoryProtocol {
-	func makeItem(item: Item, level: Int, sectionStyle: SectionStyle) -> ItemModel
+	func makeItem(item: Item, level: Int, isGroup: Bool) -> ItemModel
 }
 
 final class ItemsFactory { }
@@ -21,7 +21,7 @@ final class ItemsFactory { }
 // MARK: - ItemsFactoryProtocol
 extension ItemsFactory: ItemsFactoryProtocol {
 
-	func makeItem(item: Item, level: Int, sectionStyle: SectionStyle) -> ItemModel {
+	func makeItem(item: Item, level: Int, isGroup: Bool) -> ItemModel {
 
 		let textConfiguration: TextConfiguration = switch item.style {
 		case .item:
@@ -42,21 +42,17 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		case .item:
 			PointConfiguration(color: item.isMarked && !item.isDone ? .yellow : .quaternary)
 		case .section:
-			sectionStyle == .point
-			? PointConfiguration(color: item.isMarked && !item.isDone ? .yellow : .quaternary)
-			: nil
+			nil
 		}
 
 		let iconConfiguration: IconConfiguration? = switch item.style {
 		case .item:
 			nil
 		case .section:
-			sectionStyle == .icon
-			? IconConfiguration(
-				name: level == 0 ? .named("custom.folder.fill") : .named("custom.document.on.document.fill"),
-				appearence: .hierarchical(token: item.isMarked && !item.isDone ? .yellow : level == 0 ? .cyan : .gray)
+			IconConfiguration(
+				name: isGroup ? .named("custom.document.on.document.fill") : .named("custom.text.document.fill"),
+				appearence: .hierarchical(token: item.isMarked && !item.isDone ? .yellow : .gray)
 			)
-			: nil
 		}
 
 		return ItemModel(

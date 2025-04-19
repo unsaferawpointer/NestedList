@@ -12,8 +12,7 @@ extension Settings {
 	static var standart: Self {
 		return .init(
 			completionBehaviour: .regular,
-			markingBehaviour: .regular,
-			sectionStyle: .icon
+			markingBehaviour: .regular
 		)
 	}
 }

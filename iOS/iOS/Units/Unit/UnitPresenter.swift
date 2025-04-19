@@ -76,10 +76,15 @@ extension UnitPresenter: UnitPresenterProtocol {
 
 		let converted = snapshot
 			.map { info in
-				factory.makeItem(
+
+				let isGroup = (content.root.node(with: info.model.id)?.children ?? []).contains { node in
+					node.value.style == .section
+				}
+
+				return factory.makeItem(
 					item: info.model,
 					level: info.level,
-					sectionStyle: settingsProvider.state.sectionStyle
+					isGroup: isGroup
 				)
 			}
 		view?.display(converted)
