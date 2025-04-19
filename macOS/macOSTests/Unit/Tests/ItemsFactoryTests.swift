@@ -82,7 +82,7 @@ struct ItemsFactoryTests {
 		#expect(result.configuration.point?.color == .quaternary)
 	}
 
-	@Test func makeSection_whenStyleIsIcon() {
+	@Test func makeSection_whenStyleIsIconAndLevelEqualsZero() {
 		// Arrange
 		let sut = ItemsFactory()
 
@@ -102,8 +102,32 @@ struct ItemsFactoryTests {
 		#expect(result.configuration.text.colorToken == .primary)
 		#expect(!result.configuration.text.strikethrough)
 		#expect(result.configuration.point == nil)
-		#expect(result.configuration.icon?.name == .named("custom.text.page"))
-		#expect(result.configuration.icon?.appearence == .hierarchical(token: .tertiary))
+		#expect(result.configuration.icon?.name == .named("custom.folder.fill"))
+		#expect(result.configuration.icon?.appearence == .hierarchical(token: .cyan))
+	}
+
+	@Test func makeSection_whenStyleIsIconAndLevelIsGreaterThanZero() {
+		// Arrange
+		let sut = ItemsFactory()
+
+		let item = Item(
+			uuid: .random,
+			isDone: false,
+			text: .random,
+			style: .section
+		)
+
+		// Act
+		let result = sut.makeItem(item: item, level: 1, sectionStyle: .icon)
+
+		// Assert
+		#expect(result.isGroup)
+		#expect(result.value.title == item.text)
+		#expect(result.configuration.text.colorToken == .primary)
+		#expect(!result.configuration.text.strikethrough)
+		#expect(result.configuration.point == nil)
+		#expect(result.configuration.icon?.name == .named("custom.document.on.document.fill"))
+		#expect(result.configuration.icon?.appearence == .hierarchical(token: .gray))
 	}
 
 	@Test func makeSection_whenStyleIsIconAndMarked() {
@@ -127,7 +151,7 @@ struct ItemsFactoryTests {
 		#expect(result.configuration.text.colorToken == .primary)
 		#expect(!result.configuration.text.strikethrough)
 		#expect(result.configuration.point == nil)
-		#expect(result.configuration.icon?.name == .named("custom.text.page"))
+		#expect(result.configuration.icon?.name == .named("custom.folder.fill"))
 		#expect(result.configuration.icon?.appearence == .hierarchical(token: .yellow))
 	}
 

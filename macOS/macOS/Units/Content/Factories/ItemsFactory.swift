@@ -53,8 +53,8 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		case .section:
 			sectionStyle == .icon
 			? IconConfiguration(
-				name: .named("custom.text.page"),
-				appearence: .hierarchical(token: item.isMarked && !item.isDone ? .yellow : .tertiary)
+				name: level == 0 ? .named("custom.folder.fill") : .named("custom.document.on.document.fill"),
+				appearence: .hierarchical(token: item.isMarked && !item.isDone ? .yellow : level == 0 ? .cyan : .gray)
 			)
 			: nil
 		}
