@@ -13,14 +13,18 @@ public struct Settings {
 
 	public var markingBehaviour: MarkingBehavior = .regular
 
+	public var iconColor: IconColor = .neutral
+
 	// MARK: - Initialization
 
 	public init(
 		completionBehaviour: CompletionBehavior = .regular,
-		markingBehaviour: MarkingBehavior = .regular
+		markingBehaviour: MarkingBehavior = .regular,
+		iconColor: IconColor = .neutral
 	) {
 		self.completionBehaviour = completionBehaviour
 		self.markingBehaviour = markingBehaviour
+		self.iconColor = iconColor
 	}
 }
 

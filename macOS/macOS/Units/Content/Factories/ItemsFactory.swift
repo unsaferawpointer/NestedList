@@ -13,7 +13,7 @@ import CoreModule
 import CoreSettings
 
 protocol ItemsFactoryProtocol {
-	func makeItem(item: Item, level: Int, isGroup: Bool) -> ItemModel
+	func makeItem(item: Item, level: Int, isGroup: Bool, iconColor: IconColor) -> ItemModel
 }
 
 final class ItemsFactory { }
@@ -21,7 +21,7 @@ final class ItemsFactory { }
 // MARK: - ItemsFactoryProtocol
 extension ItemsFactory: ItemsFactoryProtocol {
 
-	func makeItem(item: Item, level: Int, isGroup: Bool) -> ItemModel {
+	func makeItem(item: Item, level: Int, isGroup: Bool, iconColor: IconColor) -> ItemModel {
 
 		let textConfiguration: TextConfiguration = switch item.style {
 		case .item:
@@ -51,7 +51,7 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		case .section:
 			IconConfiguration(
 				name: isGroup ? .named("custom.document.on.document.fill") : .named("custom.text.document.fill"),
-				appearence: .hierarchical(token: item.isMarked && !item.isDone ? .yellow : .gray)
+				appearence: .hierarchical(token: item.isMarked && !item.isDone ? .yellow : iconColor.color)
 			)
 		}
 

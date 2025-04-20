@@ -24,7 +24,7 @@ struct ItemsFactoryTests {
 		)
 
 		// Act
-		let result = sut.makeItem(item: item, level: 0, isGroup: false)
+		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup == false)
@@ -47,7 +47,7 @@ struct ItemsFactoryTests {
 		)
 
 		// Act
-		let result = sut.makeItem(item: item, level: 0, isGroup: false)
+		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup == false)
@@ -71,7 +71,7 @@ struct ItemsFactoryTests {
 		)
 
 		// Act
-		let result = sut.makeItem(item: item, level: 0, isGroup: false)
+		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup == false)
@@ -82,7 +82,7 @@ struct ItemsFactoryTests {
 		#expect(result.configuration.point?.color == .quaternary)
 	}
 
-	@Test func makeSection_whenStyleIsIconAndLevelEqualsZero() {
+	@Test func makeSection_whenTintColorIsAccent() {
 		// Arrange
 		let sut = ItemsFactory()
 
@@ -94,7 +94,7 @@ struct ItemsFactoryTests {
 		)
 
 		// Act
-		let result = sut.makeItem(item: item, level: 0, isGroup: false)
+		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .accent)
 
 		// Assert
 		#expect(result.isGroup)
@@ -103,7 +103,7 @@ struct ItemsFactoryTests {
 		#expect(!result.configuration.text.strikethrough)
 		#expect(result.configuration.point == nil)
 		#expect(result.configuration.icon?.name == .named("custom.text.document.fill"))
-		#expect(result.configuration.icon?.appearence == .hierarchical(token: .gray))
+		#expect(result.configuration.icon?.appearence == .hierarchical(token: .accent))
 	}
 
 	@Test func makeSection_whenSectionIsGroup() {
@@ -118,7 +118,7 @@ struct ItemsFactoryTests {
 		)
 
 		// Act
-		let result = sut.makeItem(item: item, level: 1, isGroup: true)
+		let result = sut.makeItem(item: item, level: 1, isGroup: true, iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup)
@@ -143,7 +143,7 @@ struct ItemsFactoryTests {
 		)
 
 		// Act
-		let result = sut.makeItem(item: item, level: 0, isGroup: false)
+		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup)
@@ -167,7 +167,7 @@ struct ItemsFactoryTests {
 		)
 
 		// Act
-		let result = sut.makeItem(item: item, level: 0, isGroup: false)
+		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup)
@@ -190,7 +190,7 @@ struct ItemsFactoryTests {
 		)
 
 		// Act
-		let result = sut.makeItem(item: item, level: 0, isGroup: false)
+		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup)

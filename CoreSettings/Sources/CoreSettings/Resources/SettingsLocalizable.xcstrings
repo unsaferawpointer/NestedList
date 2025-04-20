@@ -1,6 +1,23 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "accent-section-icon-color-name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accent"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Акцент"
+          }
+        }
+      }
+    },
     "behaviors-section-title" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -52,6 +69,40 @@
         }
       }
     },
+    "neutral-section-icon-color-name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neutral"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нейтральный"
+          }
+        }
+      }
+    },
+    "section-icons-color-title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Section Icons Color:"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цвет иконки секции"
+          }
+        }
+      }
+    },
     "strikethrough-behavior-description" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -82,6 +133,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Перемещать выполненные элементы в конец списка"
+          }
+        }
+      }
+    },
+    "style-section-title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Style"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стиль"
           }
         }
       }

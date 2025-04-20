@@ -36,8 +36,9 @@ public final class SettingsProvider {
 
 			defaults.setValuesForKeys(
 				[
-					CompletionBehavior.key : state.completionBehaviour.rawValue,
-					MarkingBehavior.key : state.markingBehaviour.rawValue
+					CompletionBehavior.key: state.completionBehaviour.rawValue,
+					MarkingBehavior.key: state.markingBehaviour.rawValue,
+					IconColor.key: state.iconColor.rawValue
 				]
 			)
 
@@ -55,17 +56,20 @@ public final class SettingsProvider {
 
 		let completionBehaviour = defaults.getProperty(as: CompletionBehavior.self)
 		let markingBehaviour = defaults.getProperty(as: MarkingBehavior.self)
+		let iconColor = defaults.getProperty(as: IconColor.self)
 
 		self.state = Settings(
 			completionBehaviour: completionBehaviour ?? .regular,
-			markingBehaviour: markingBehaviour ?? .regular
+			markingBehaviour: markingBehaviour ?? .regular,
+			iconColor: iconColor ?? .neutral
 		)
 
 		defaults.register(
 			defaults:
 				[
 					CompletionBehavior.key: CompletionBehavior.regular.rawValue,
-					MarkingBehavior.key: MarkingBehavior.regular.rawValue
+					MarkingBehavior.key: MarkingBehavior.regular.rawValue,
+					IconColor.key: IconColor.neutral.rawValue
 				]
 		)
 
@@ -85,10 +89,12 @@ extension SettingsProvider {
 		// Реакция на изменение настроек
 		let completionBehaviour = defaults.getProperty(as: CompletionBehavior.self)
 		let markingBehaviour = defaults.getProperty(as: MarkingBehavior.self)
+		let iconColor = defaults.getProperty(as: IconColor.self)
 
 		let current = Settings(
 			completionBehaviour: completionBehaviour ?? .regular,
-			markingBehaviour: markingBehaviour ?? .regular
+			markingBehaviour: markingBehaviour ?? .regular,
+			iconColor: iconColor ?? .neutral
 		)
 
 		guard current != state else {

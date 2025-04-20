@@ -84,7 +84,8 @@ extension UnitPresenter: UnitPresenterProtocol {
 				return factory.makeItem(
 					item: info.model,
 					level: info.level,
-					isGroup: isGroup
+					isGroup: isGroup,
+					iconColor: settingsProvider.state.iconColor
 				)
 			}
 		view?.display(converted)
