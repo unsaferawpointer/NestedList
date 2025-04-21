@@ -20,6 +20,7 @@ protocol UnitView: AnyObject {
 
 	func expand(_ id: UUID)
 	func expandAll()
+	func collapseAll()
 
 	var selection: [UUID] { get }
 }

@@ -22,4 +22,7 @@ enum ElementIdentifier: String {
 	case reorder
 	case settings
 	case done
+
+	case expandAll
+	case collapseAll
 }

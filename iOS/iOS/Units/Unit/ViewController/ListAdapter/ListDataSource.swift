@@ -98,6 +98,11 @@ extension ListDataSource {
 		apply(newSnapshot: snapshot, newExpanded: snapshot.nodeIdentifiers)
 	}
 
+	func collapseAll() {
+		expanded.removeAll()
+		apply(newSnapshot: snapshot)
+	}
+
 	func expand(_ id: UUID) {
 		expanded.insert(id)
 		guard let index = list.firstIndex(of: id) else {

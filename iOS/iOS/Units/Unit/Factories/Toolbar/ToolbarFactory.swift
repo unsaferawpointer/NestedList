@@ -52,16 +52,46 @@ extension ToolbarFactory {
 					items:
 						[
 							.init(
-								id: ElementIdentifier.select.rawValue,
-								title: localization.selectItemTitle,
-								icon: .systemName("checkmark.circle"),
-								content: .item(state: .off, attributes: [])
+								id: "",
+								content: .menu(
+									options: .inline,
+									size: .large,
+									items:
+										[
+											.init(
+												id: ElementIdentifier.select.rawValue,
+												title: localization.selectItemTitle,
+												icon: .systemName("checkmark.circle"),
+												content: .item(state: .off, attributes: [])
+											),
+											.init(
+												id: ElementIdentifier.reorder.rawValue,
+												title: localization.reorderItemTitle,
+												icon: .systemName("line.3.horizontal"),
+												content: .item(state: .off, attributes: [])
+											)
+										]
+								)
 							),
 							.init(
-								id: ElementIdentifier.reorder.rawValue,
-								title: localization.reorderItemTitle,
-								icon: .systemName("line.3.horizontal"),
-								content: .item(state: .off, attributes: [])
+								id: "",
+								content: .menu(
+									options: .inline,
+									size: .large,
+									items:
+										[
+											.init(
+												id: ElementIdentifier.expandAll.rawValue,
+												title: localization.expandAllItemTitle,
+												content: .item(state: .off, attributes: [])
+											),
+											.init(
+												id: ElementIdentifier.collapseAll.rawValue,
+												title: localization.collapseAllItemTitle,
+												content: .item(state: .off, attributes: [])
+											)
+										]
+								)
 							),
 							.init(
 								id: ElementIdentifier.settings.rawValue,

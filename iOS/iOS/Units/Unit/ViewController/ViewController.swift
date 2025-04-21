@@ -135,6 +135,10 @@ extension ViewController: UnitView {
 		adapter?.expandAll()
 	}
 
+	func collapseAll() {
+		adapter?.collapseAll()
+	}
+
 }
 
 // MARK: - Helpers

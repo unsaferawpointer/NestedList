@@ -186,6 +186,10 @@ extension UnitPresenter: InteractionDelegate {
 			view?.showSettings()
 		case .done:
 			editingMode = nil
+		case .expandAll:
+			view?.expandAll()
+		case .collapseAll:
+			view?.collapseAll()
 		}
 	}
 }

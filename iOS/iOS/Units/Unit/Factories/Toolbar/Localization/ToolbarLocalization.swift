@@ -10,6 +10,8 @@ protocol ToolbarLocalizationProtocol {
 	var reorderItemTitle: String { get }
 	var settingsItemTitle: String { get }
 	var doneItemTitle: String { get }
+	var expandAllItemTitle: String { get }
+	var collapseAllItemTitle: String { get }
 
 	var cutItemTitle: String { get }
 	var copyItemTitle: String { get }
@@ -67,5 +69,13 @@ extension ToolbarLocalization: ToolbarLocalizationProtocol {
 
 	var deleteItemTitle: String {
 		String(localized: "delete_menu_item_title", table: "ToolbarLocalizable")
+	}
+
+	var expandAllItemTitle: String {
+		String(localized: "expand_all_menu_item_title", table: "ToolbarLocalizable")
+	}
+
+	var collapseAllItemTitle: String {
+		String(localized: "collapse_all_menu_item_title", table: "ToolbarLocalizable")
 	}
 }

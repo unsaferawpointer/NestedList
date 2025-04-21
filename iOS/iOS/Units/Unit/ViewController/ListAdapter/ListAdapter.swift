@@ -82,6 +82,10 @@ extension ListAdapter {
 		cache.expandAll()
 	}
 
+	func collapseAll() {
+		cache.collapseAll()
+	}
+
 	var isEmpty: Bool {
 		cache.list.isEmpty
 	}
