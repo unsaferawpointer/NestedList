@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DesignSystem
 
 public enum IconColor: Int {
 	case neutral = 0
@@ -22,8 +23,6 @@ extension IconColor: SettingsProperty {
 		"section_icon_color"
 	}
 }
-
-import DesignSystem
 
 public extension IconColor {
 

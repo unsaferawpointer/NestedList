@@ -13,13 +13,16 @@ let package = Package(
 			targets: ["CoreSettings"]
 		)
 	],
-	dependencies: [.package(path: "../CoreModule")],
+	dependencies: [.package(path: "../CoreModule"), .package(path: "../DesignSystem")],
 	targets: [
 		// Targets are the basic building blocks of a package, defining a module or a test suite.
 		// Targets can depend on other targets in this package and products from dependencies.
 		.target(
 			name: "CoreSettings",
-			dependencies: [.product(name: "CoreModule", package: "CoreModule")],
+			dependencies: [
+				.product(name: "CoreModule", package: "CoreModule"),
+				.product(name: "DesignSystem", package: "DesignSystem")
+			],
 			resources: [.process("Resources/SettingsLocalizable.xcstrings")]
 		),
 		.testTarget(
