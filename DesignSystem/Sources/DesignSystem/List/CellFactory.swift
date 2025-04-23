@@ -5,6 +5,7 @@
 //  Created by Anton Cherkasov on 23.04.2025.
 //
 
+#if canImport(AppKit)
 import AppKit
 
 final class CellFactory { }
@@ -37,3 +38,4 @@ extension CellFactory {
 		cell?.model = model
 	}
 }
+#endif
