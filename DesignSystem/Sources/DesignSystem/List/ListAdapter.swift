@@ -110,37 +110,21 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 	}
 
 	public func outlineView(_ outlineView: NSOutlineView, isItemExpandable item: Any) -> Bool {
-		guard let item = item as? Item else {
-			return false
-		}
-		return snapshot.numberOfChildren(ofItem: item.id) > 0
+		let id = internalId(for: item)
+		return snapshot.numberOfChildren(ofItem: id) > 0
 	}
 
 	// MARK: - NSOutlineViewDelegate
 
 	public func outlineView(_ outlineView: NSOutlineView, viewFor tableColumn: NSTableColumn?, item: Any) -> NSView? {
-		guard let item = item as? Item else {
+		guard case let .model(value) = internalModel(for: item) else {
 			return nil
 		}
-
-		let model = snapshot.model(with: item.id)
-
-		switch model {
-		case .model(let value):
-			return makeCellIfNeeded(for: value, in: outlineView)
-		case .spacer:
-			return nil
-		}
+		return CellFactory.makeCellIfNeeded(for: value, in: tableView, delegate: cellDelegate)
 	}
 
 	public func outlineView(_ outlineView: NSOutlineView, heightOfRowByItem item: Any) -> CGFloat {
-		guard let item = item as? Item else {
-			return NSView.noIntrinsicMetric
-		}
-
-		let model = snapshot.model(with: item.id)
-
-		switch model {
+		switch internalModel(for: item) {
 		case .model(let value):
 			return value.height ?? NSView.noIntrinsicMetric
 		case .spacer(_, let height):
@@ -151,12 +135,10 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 	// MARK: - Drag And Drop support
 
 	public func outlineView(_ outlineView: NSOutlineView, pasteboardWriterForItem item: Any) -> NSPasteboardWriting? {
-		guard let item = item as? Item, case let .item(id) = item.id else {
+		guard let id = identifier(for: item) else {
 			return nil
 		}
-
-		let pasteboardItem = NSPasteboardItem()
-		return DragManager.write(id, to: pasteboardItem)
+		return DragManager.write(id, to: NSPasteboardItem())
 	}
 
 	public func outlineView(
@@ -328,45 +310,24 @@ public extension ListAdapter {
 	}
 
 	func scroll(to id: ID) {
-		guard let tableView, let item = cache[.item(id: id)] else {
+		guard let item = cache[.item(id: id)] else {
 			return
 		}
-		let row = tableView.row(forItem: item)
-		guard row >= 0 else {
-			return
-		}
-
-		NSAnimationContext.runAnimationGroup { context in
-			context.allowsImplicitAnimation = true
-			tableView.scrollRowToVisible(row)
-		}
+		tableView?.scroll(to: item)
 	}
 
 	func select(_ id: ID) {
-		guard let tableView, let item = cache[.item(id: id)] else {
+		guard let item = cache[.item(id: id)] else {
 			return
 		}
-		let row = tableView.row(forItem: item)
-		guard row >= 0 else {
-			return
-		}
-
-		tableView.selectRowIndexes(.init(integer: row), byExtendingSelection: false)
+		tableView?.select(item)
 	}
 
 	func expand(_ ids: [ID]?) {
-
-		guard let ids else {
-			tableView?.animator().expandItem(nil, expandChildren: true)
-			return
+		let items = ids?.compactMap {
+			cache[.item(id: $0)]
 		}
-
-		NSAnimationContext.runAnimationGroup { context in
-			let items = ids.compactMap { cache[.item(id: $0)] }
-			for item in items {
-				tableView?.animator().expandItem(item)
-			}
-		}
+		tableView?.expand(items)
 	}
 
 	func focus(on id: ID, with key: String) {
@@ -380,6 +341,30 @@ public extension ListAdapter {
 
 // MARK: - Helpers
 private extension ListAdapter {
+
+	func internalModel(for item: Any) -> InternalModel {
+		guard let item = item as? Item else {
+			fatalError("Invalid item type")
+		}
+		return snapshot.model(with: item.id)
+	}
+
+	func internalId(for item: Any) -> InternalModel.ID {
+		guard let item = item as? Item else {
+			fatalError("Invalid item type")
+		}
+		return item.id
+	}
+
+	func identifier(for item: Any) -> ID? {
+		guard
+			let item = item as? Item,
+			case let .item(id) = item.id
+		else {
+			return nil
+		}
+		return id
+	}
 
 	func apply(_ new: Snapshot<InternalModel>) {
 
@@ -421,7 +406,7 @@ private extension ListAdapter {
 			}
 			switch newModel {
 			case .model(let value):
-				configureRow(with: value, at: row)
+				CellFactory.configureCell(with: value, at: row, in: tableView)
 			case .spacer:
 				continue
 			}
@@ -517,36 +502,6 @@ private extension ListAdapter {
 		default:
 			fatalError()
 		}
-	}
-
-	func makeCellIfNeeded(for model: Model, in table: NSTableView) -> NSView? {
-
-		typealias Cell = Model.Cell
-
-		let id = NSUserInterfaceItemIdentifier(Cell.reuseIdentifier)
-		var view = table.makeView(withIdentifier: id, owner: self) as? Cell
-		if view == nil {
-			view = Cell(model)
-			view?.identifier = id
-			view?.delegate = cellDelegate
-			return view
-		}
-		view?.model = model
-		view?.delegate = cellDelegate
-		return view
-	}
-
-	func configureRow<T: CellModel>(with model: T, at row: Int) {
-
-		typealias Cell = T.Cell
-
-		guard let tableView else {
-			return
-		}
-
-		let cell = tableView.view(atColumn: 0, row: row, makeIfNecessary: false) as? Cell
-		cell?.model = model
-
 	}
 }
 
