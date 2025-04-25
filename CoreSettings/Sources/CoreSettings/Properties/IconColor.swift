@@ -11,6 +11,7 @@ import DesignSystem
 public enum IconColor: Int {
 	case neutral = 0
 	case accent
+	case multicolor
 }
 
 // MARK: - Hashable
@@ -26,10 +27,11 @@ extension IconColor: SettingsProperty {
 
 public extension IconColor {
 
-	var color: ColorToken {
+	var color: ColorToken? {
 		switch self {
 		case .neutral:		.gray
 		case .accent:		.accent
+		case .multicolor:	nil
 		}
 	}
 }

@@ -22,7 +22,7 @@ public extension IconAppearence {
 
 	var configuration: NSImage.SymbolConfiguration {
 		switch self {
-		case let .monochrome(token):
+		case .monochrome:
 			.preferringMonochrome()
 		case let .hierarchical(token):
 			.init(hierarchicalColor: token.value)
@@ -38,7 +38,7 @@ public extension IconAppearence {
 		case let .monochrome(token):
 			token.value
 		default:
-			nil
+			.controlAccentColor
 		}
 	}
 

@@ -61,4 +61,10 @@ struct SettingsLocalization {
 		table: "SettingsLocalizable",
 		bundle: .module
 	)
+
+	let multicolorSectionIconsColorDescription = String(
+		localized: "multicolor-section-icon-color-name",
+		table: "SettingsLocalizable",
+		bundle: .module
+	)
 }
