@@ -53,12 +53,12 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		let iconAppearence: IconAppearence = {
 			switch (item.isDone, item.isMarked) {
 			case (true, _):
-				return .hierarchical(token: .disabledText)
+				return .monochrome(token: .disabledText)
 			case (false, true):
-				return .hierarchical(token: .yellow)
+				return .monochrome(token: .yellow)
 			case (false, false):
 				guard let color = iconColor.color else {
-					return .multicolor
+					return .monochrome(token: .primary)
 				}
 				return .hierarchical(token: color)
 			}
@@ -72,7 +72,7 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			)
 		case .section:
 			IconConfiguration(
-				name: isGroup ? .named("custom.document.on.document.fill") : .named("custom.text.document.fill"),
+				name: isGroup ? .systemName("document.on.document") : .systemName("text.document"),
 				appearence: iconAppearence
 			)
 		}

@@ -69,23 +69,6 @@
         }
       }
     },
-    "multicolor-section-icon-color-name" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Multicolor"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Мультицветный"
-          }
-        }
-      }
-    },
     "neutral-section-icon-color-name" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -99,6 +82,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Нейтральный"
+          }
+        }
+      }
+    },
+    "primary-section-icon-color-name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Primary"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Основной"
           }
         }
       }
