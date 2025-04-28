@@ -352,65 +352,16 @@ extension ListAdapter {
 private extension ListAdapter {
 
 	func updateCell(_ cell: ItemCell, with configuration: RowConfiguration) {
-
-		let iconName = configuration.isExpanded ? "chevron.down" : "chevron.right"
-		let image = UIImage(systemName: iconName)
-
-		cell.accessoryView = !configuration.isLeaf ? UIImageView(image: image) : nil
-
-		cell.indentationLevel = configuration.level
-		cell.validateIndent()
+		CellFactory.updateCell(cell, with: configuration)
 	}
 
 	func updateCell(_ cell: UITableViewCell, with model: ItemModel) {
-		let configuration = {
-			var configuration = UIListContentConfiguration.cell()
-			let image: UIImage? = {
-				if let iconConfiguration = model.icon {
-					let symbolConfiguration = iconConfiguration.appearence.configuration
-					switch iconConfiguration.name {
-					case .named(let name):
-						return UIImage(named: name)?
-							.applyingSymbolConfiguration(symbolConfiguration)
-					case .systemName(let name):
-						return UIImage(systemName: name)?
-							.applyingSymbolConfiguration(symbolConfiguration)
-					}
-				} else {
-					return nil
-				}
-			}()
-			configuration.image = (tableView?.isEditing ?? false) && editingMode == .selection
-				? nil
-				: image
-
-			if let iconConfiguration = model.icon {
-				configuration.imageProperties.tintColor = iconConfiguration.appearence.tint
-			}
-
-			configuration.attributedText = .init(
-				string: model.title.text,
-				textColor: model.title.colorToken.color,
-				strikethrough: model.title.strikethrough
-			)
-
-			configuration.textProperties.font = .preferredFont(forTextStyle: model.title.style)
-
-			if let subtitleConfiguration = model.subtitle {
-				configuration.secondaryTextProperties.font = .preferredFont(forTextStyle: subtitleConfiguration.style)
-				configuration.secondaryTextProperties.color = subtitleConfiguration.colorToken.color
-				configuration.secondaryText = subtitleConfiguration.text
-			} else {
-				configuration.secondaryText = nil
-				configuration.secondaryText = nil
-			}
-
-			configuration.secondaryText = model.subtitle?.text
-
-			return configuration
-		}()
-
-		cell.contentConfiguration = configuration
+		CellFactory.updateCell(
+			cell,
+			with: model,
+			editingMode: editingMode,
+			in: tableView
+		)
 	}
 }
 
