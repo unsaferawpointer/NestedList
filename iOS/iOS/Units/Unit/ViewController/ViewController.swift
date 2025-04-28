@@ -28,6 +28,8 @@ class ViewController: UIDocumentViewController {
 		self.document as? Document
 	}
 
+	var undoRedoItems: [UIBarButtonItem] = []
+
 	override var document: UIDocument? {
 		didSet {
 			guard let document = listDocument else {
@@ -60,6 +62,7 @@ class ViewController: UIDocumentViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		undoRedoItems = undoRedoItemGroup.barButtonItems
 		delegate?.viewDidChange(state: .didLoad)
 	}
 
@@ -91,10 +94,10 @@ extension ViewController: UnitView {
 	}
 
 	func display(_ toolbar: ToolbarModel) {
-		let topItems = DesignSystem.ToolbarBuilder.build(from: toolbar.top, delegate: delegate)
+		let topItems = DesignSystem.ToolbarBuilder.build(from: toolbar.top, delegate: delegate) ?? []
 		navigationItem.setRightBarButtonItems(topItems, animated: true)
 
-		toolbarItems = DesignSystem.ToolbarBuilder.build(from: toolbar.bottom, delegate: delegate)
+		toolbarItems = undoRedoItems + (DesignSystem.ToolbarBuilder.build(from: toolbar.bottom, delegate: delegate) ?? [])
 	}
 
 	var selection: [UUID] {
