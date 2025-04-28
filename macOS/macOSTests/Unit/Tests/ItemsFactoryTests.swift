@@ -102,8 +102,8 @@ struct ItemsFactoryTests {
 		#expect(result.configuration.text.colorToken == .primary)
 		#expect(!result.configuration.text.strikethrough)
 		#expect(result.configuration.point == nil)
-		#expect(result.configuration.icon?.name == .named("custom.text.document.fill"))
-		#expect(result.configuration.icon?.appearence == .hierarchical(token: .accent))
+		#expect(result.configuration.icon?.name == .systemName("text.document"))
+		#expect(result.configuration.icon?.appearence == .monochrome(token: .accent))
 	}
 
 	@Test func makeSection_whenSectionIsGroup() {
@@ -126,8 +126,8 @@ struct ItemsFactoryTests {
 		#expect(result.configuration.text.colorToken == .primary)
 		#expect(!result.configuration.text.strikethrough)
 		#expect(result.configuration.point == nil)
-		#expect(result.configuration.icon?.name == .named("custom.document.on.document.fill"))
-		#expect(result.configuration.icon?.appearence == .hierarchical(token: .gray))
+		#expect(result.configuration.icon?.name == .systemName("folder"))
+		#expect(result.configuration.icon?.appearence == .monochrome(token: .gray))
 	}
 
 	@Test func makeSection_whenStyleIsIconAndMarked() {
@@ -151,7 +151,7 @@ struct ItemsFactoryTests {
 		#expect(result.configuration.text.colorToken == .primary)
 		#expect(!result.configuration.text.strikethrough)
 		#expect(result.configuration.point == nil)
-		#expect(result.configuration.icon?.name == .named("custom.text.document.fill"))
+		#expect(result.configuration.icon?.name == .systemName("text.document"))
 		#expect(result.configuration.icon?.appearence == .hierarchical(token: .yellow))
 	}
 

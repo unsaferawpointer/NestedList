@@ -55,12 +55,21 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			case (true, _):
 				return .monochrome(token: .disabledText)
 			case (false, true):
-				return .monochrome(token: .yellow)
+				return .hierarchical(token: .yellow)
 			case (false, false):
 				guard let color = iconColor.color else {
-					return .monochrome(token: .primary)
+					return .multicolor
 				}
-				return .hierarchical(token: color)
+				return .monochrome(token: color)
+			}
+		}()
+
+		let icon: IconName = {
+			switch iconColor {
+			case .multicolor:
+				isGroup ? .named("custom.folder.fill") : .named("custom.text.document.fill")
+			default:
+				isGroup ? .systemName("folder") : .systemName("text.document")
 			}
 		}()
 
@@ -72,7 +81,7 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			)
 		case .section:
 			IconConfiguration(
-				name: isGroup ? .systemName("document.on.document") : .systemName("text.document"),
+				name: icon,
 				appearence: iconAppearence
 			)
 		}

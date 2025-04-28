@@ -45,8 +45,10 @@ public struct SettingsView: View {
 						.tag(IconColor.neutral)
 					Text(localization.accentSectionIconsColorDescription)
 						.tag(IconColor.accent)
-					Text(localization.multicolorSectionIconsColorDescription)
+					Text(localization.primarySectionIconsColorDescription)
 						.tag(IconColor.primary)
+					Text(localization.multicolorSectionIconsColorDescription)
+						.tag(IconColor.multicolor)
 				} label: {
 					Text(localization.sectionIconsColorTitle)
 				}
