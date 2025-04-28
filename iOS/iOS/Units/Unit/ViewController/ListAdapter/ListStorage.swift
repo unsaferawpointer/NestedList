@@ -8,18 +8,24 @@
 import Foundation
 import Hierarchy
 
-final class ListDataSource {
-
-	var expanded: Set<UUID> = []
-
-	var snapshot = Snapshot<ItemModel>()
-
-	var list: [UUID] = []
+final class ListStorage {
 
 	weak var delegate: CacheDelegate?
+
+	// MARK: - State
+
+	private var expanded: Set<UUID> = []
+
+	private var list: [UUID] = []
+
+	// MARK: - Snapshots
+
+	private var snapshot = Snapshot<ItemModel>()
+
+	private var backup: Snapshot<ItemModel>?
 }
 
-extension ListDataSource {
+extension ListStorage {
 
 	func destination(for row: Int) -> Destination<UUID> {
 		guard row < list.count else {
@@ -28,10 +34,83 @@ extension ListDataSource {
 		let id = list[row]
 		return snapshot.destination(ofItem: id)
 	}
+
+	var isEmpty: Bool {
+		return list.isEmpty
+	}
+}
+
+// MARK: - Moving support
+extension ListStorage {
+
+	func beginMovement(for id: ItemModel.ID) {
+		// Save current state
+		self.backup = snapshot
+
+		let modificated = modificate { root in
+			root.deleteItem(id)
+		}
+		apply(newSnapshot: modificated)
+	}
+
+	@discardableResult
+	func endMovement(for id: ItemModel.ID, to destination: Destination<ItemModel.ID>) -> Destination<ItemModel.ID> {
+		defer {
+			self.backup = nil
+		}
+		guard let backup else {
+			fatalError("Incosistent state")
+		}
+		// Same location
+		if
+			backup.parent(for: id)?.id == destination.id,
+			let rawIndex = destination.index,
+			backup.localIndex(for: id) < rawIndex + 1
+		{
+			let shiftedDestination = destination.shifted(by: 1)
+
+			let modificated = modificate { root in
+				let node = Node(value: backup.model(with: id))
+				root.insertItems(from: [node], to: destination)
+			}
+
+			apply(newSnapshot: modificated)
+
+			return shiftedDestination
+		}
+
+		let modificated = modificate { root in
+			let node = Node(value: backup.model(with: id))
+			root.insertItems(from: [node], to: destination)
+		}
+		apply(newSnapshot: modificated)
+
+		return destination
+	}
+
+	func cancelMovement() {
+		guard let backup else {
+			return
+		}
+		self.snapshot = backup
+		apply(newSnapshot: backup)
+		self.backup = nil
+	}
+}
+
+// MARK: - Helpers
+private extension ListStorage {
+
+	func modificate(_ block: (Root<ItemModel>) -> Void) -> Snapshot<ItemModel> {
+		let nodes = snapshot.getNodes()
+		let root = Root<ItemModel>(hierarchy: nodes)
+		block(root)
+		return Snapshot(root.nodes)
+	}
 }
 
 // MARK: - Public interface
-extension ListDataSource {
+extension ListStorage {
 
 	var count: Int {
 		return list.count
@@ -128,7 +207,7 @@ extension ListDataSource {
 }
 
 // MARK: - Helpers
-private extension ListDataSource {
+private extension ListStorage {
 
 	func apply(newSnapshot: Snapshot<ItemModel>, newExpanded: Set<UUID>) {
 

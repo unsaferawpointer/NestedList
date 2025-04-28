@@ -380,7 +380,7 @@ private extension ListAdapter {
 			let oldModel = old.model(with: id)
 			let newModel = new.model(with: id)
 
-			let oldIndex = old.index(for: id)
+			let oldIndex = old.globalIndex(for: id)
 
 			guard oldModel.height != newModel.height else {
 				continue

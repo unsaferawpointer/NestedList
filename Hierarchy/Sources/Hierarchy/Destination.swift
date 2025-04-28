@@ -41,6 +41,17 @@ public extension Destination {
 			return self
 		}
 	}
+
+	func shifted(by offset: Int) -> Destination<ID> {
+		switch self {
+		case .inRoot(atIndex: let index):
+			return .inRoot(atIndex: index + offset)
+		case .inItem(with: let id, atIndex: let index):
+			return .inItem(with: id, atIndex: index + offset)
+		default:
+			return self
+		}
+	}
 }
 
 // MARK: - Computed properties

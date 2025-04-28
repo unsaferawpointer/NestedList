@@ -39,12 +39,12 @@ final class ListAdapter: NSObject {
 
 	private var feedbackGenerator: UIImpactFeedbackGenerator?
 
-	var cache = ListDataSource()
+	private let storage = ListStorage()
 
 	var selection: [UUID] {
 		get {
 			tableView?.indexPathsForSelectedRows?.map { indexPath in
-				cache.identifier(for: indexPath.row)
+				storage.identifier(for: indexPath.row)
 			} ?? []
 		}
 	}
@@ -62,7 +62,7 @@ final class ListAdapter: NSObject {
 
 		self.tableView?.register(ItemCell.self, forCellReuseIdentifier: "cell")
 
-		self.cache.delegate = self
+		self.storage.delegate = self
 
 		self.delegate = delegate
 	}
@@ -71,23 +71,23 @@ final class ListAdapter: NSObject {
 extension ListAdapter {
 
 	func apply(newSnapshot: Snapshot<ItemModel>) {
-		cache.apply(newSnapshot: newSnapshot)
+		storage.apply(newSnapshot: newSnapshot)
 	}
 
 	func expand(_ id: UUID) {
-		cache.expand(id)
+		storage.expand(id)
 	}
 
 	func expandAll() {
-		cache.expandAll()
+		storage.expandAll()
 	}
 
 	func collapseAll() {
-		cache.collapseAll()
+		storage.collapseAll()
 	}
 
 	var isEmpty: Bool {
-		cache.list.isEmpty
+		storage.isEmpty
 	}
 }
 
@@ -95,7 +95,7 @@ extension ListAdapter {
 extension ListAdapter: UITableViewDataSource {
 
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		return cache.count
+		return storage.count
 	}
 
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -105,10 +105,10 @@ extension ListAdapter: UITableViewDataSource {
 		cell.layoutMargins.left = 32
 		cell.layoutMargins.right = 32
 
-		let model = cache.model(with: indexPath.row)
+		let model = storage.model(with: indexPath.row)
 		updateCell(cell, with: model)
 
-		let configuration = cache.rowConfiguration(for: indexPath.row)
+		let configuration = storage.rowConfiguration(for: indexPath.row)
 		updateCell(cell, with: configuration)
 
 		return cell
@@ -124,7 +124,7 @@ extension ListAdapter: UITableViewDelegate {
 			return
 		}
 		tableView.deselectRow(at: indexPath, animated: true)
-		cache.toggle(indexPath: indexPath)
+		storage.toggle(indexPath: indexPath)
 	}
 
 	func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
@@ -144,7 +144,7 @@ extension ListAdapter: UITableViewDelegate {
 			return nil
 		}
 
-		let model = cache.model(with: indexPath.row)
+		let model = storage.model(with: indexPath.row)
 
 		return buildContextMenu(for: model)
 	}
@@ -157,7 +157,7 @@ extension ListAdapter: UITableViewDelegate {
 		guard editingStyle == .delete else {
 			return
 		}
-		let id = cache.identifier(for: indexPath.row)
+		let id = storage.identifier(for: indexPath.row)
 		delegate?.listItemHasBeenDelete(id: id)
 	}
 
@@ -178,7 +178,7 @@ extension ListAdapter: UITableViewDragDelegate {
 			return []
 		}
 
-		let model = cache.model(with: indexPath.row)
+		let model = storage.model(with: indexPath.row)
 
 		let string = delegate.string(for: model.id)
 		let itemProvider = NSItemProvider(object: string as NSString)
@@ -205,16 +205,16 @@ extension ListAdapter: UITableViewDropDelegate {
 			return
 		}
 
+		if let sceneIdentifier = tableView.superview?.window?.windowScene?.session.persistentIdentifier {
+			session.localContext = sceneIdentifier
+		}
+
 		// Тактильный отклик при перемещении элемента
 		feedbackGenerator = UIImpactFeedbackGenerator(style: .heavy)
 		feedbackGenerator?.prepare()
 		feedbackGenerator?.impactOccurred()
 
-		cache.collapse(id)
-
-		if let sceneIdentifier = tableView.superview?.window?.windowScene?.session.persistentIdentifier {
-			session.localContext = sceneIdentifier
-		}
+		storage.beginMovement(for: id)
 	}
 
 	func tableView(
@@ -227,7 +227,7 @@ extension ListAdapter: UITableViewDropDelegate {
 			return .init(operation: .copy, intent: .automatic)
 		}
 
-		guard let target = destinationIndexPath?.row, target < cache.count else {
+		guard let target = destinationIndexPath?.row, target < storage.count else {
 			return .init(operation: .move, intent: .automatic)
 		}
 
@@ -236,7 +236,7 @@ extension ListAdapter: UITableViewDropDelegate {
 		assert(session.identifiers.count <= 1, "Adapter cant support multi-selection")
 
 		// MARK: - You can't drop a cell on itself
-		guard id != cache.identifier(for: target) else {
+		guard id != storage.identifier(for: target) else {
 			return .init(operation: .cancel)
 		}
 		return .init(operation: .move, intent: .automatic)
@@ -248,6 +248,7 @@ extension ListAdapter: UITableViewDropDelegate {
 		feedbackGenerator?.prepare()
 		feedbackGenerator?.impactOccurred()
 		feedbackGenerator = nil
+		storage.cancelMovement()
 	}
 
 	func tableView(_ tableView: UITableView, performDropWith coordinator: any UITableViewDropCoordinator) {
@@ -269,19 +270,25 @@ extension ListAdapter: UITableViewDropDelegate {
 				delegate?.drop(strings, to: destination)
 			}
 		case .move:
-			let ids = coordinator.session.identifiers
+			guard let id = coordinator.session.identifiers.first else {
+				return
+			}
+
 			guard let target = coordinator.destinationIndexPath else {
-				delegate?.move(ids, to: .toRoot)
+				storage.endMovement(for: id, to: .toRoot)
+				delegate?.move([id], to: .toRoot)
 				return
 			}
 
 			switch proposal.intent {
 			case .insertAtDestinationIndexPath:
-				let destination = cache.destination(for: target.row)
-				delegate?.move(ids, to: destination)
+				let destination = storage.destination(for: target.row)
+				let newDestination = self.storage.endMovement(for: id, to: destination)
+				self.delegate?.move([id], to: newDestination)
 			case .insertIntoDestinationIndexPath:
-				let model = cache.model(with: target.row)
-				delegate?.move(ids, to: .onItem(with: model.id))
+				let model = storage.model(with: target.row)
+				self.storage.endMovement(for: id, to: .onItem(with: model.id))
+				self.delegate?.move([id], to: .onItem(with: model.id))
 			default:
 				return
 			}
@@ -325,7 +332,7 @@ extension ListAdapter {
 		switch intent {
 		case .insertAtDestinationIndexPath:
 			return if let target = destinationIndexPath {
-				cache.destination(for: target.row)
+				storage.destination(for: target.row)
 			} else {
 				.toRoot
 			}
@@ -333,7 +340,7 @@ extension ListAdapter {
 			guard let target = destinationIndexPath else {
 				fatalError()
 			}
-			let model = cache.model(with: target.row)
+			let model = storage.model(with: target.row)
 			return .onItem(with: model.id)
 		default:
 			return .toRoot
@@ -433,7 +440,7 @@ extension ListAdapter: CacheDelegate {
 
 	func update(deleteRows: [IndexPath], insertRows: [IndexPath]) {
 		tableView?.deleteRows(at: deleteRows, with: .fade)
-		tableView?.insertRows(at: insertRows, with: .fade)
+		tableView?.insertRows(at: insertRows, with: .middle)
 	}
 
 	func endUpdates() {
