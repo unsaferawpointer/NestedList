@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreModule
 
 public struct Settings {
 
@@ -15,16 +16,20 @@ public struct Settings {
 
 	public var iconColor: IconColor = .neutral
 
+	public var lastOnboardingVersion: OnboardingVersion?
+
 	// MARK: - Initialization
 
 	public init(
 		completionBehaviour: CompletionBehavior = .regular,
 		markingBehaviour: MarkingBehavior = .regular,
-		iconColor: IconColor = .neutral
+		iconColor: IconColor = .neutral,
+		lastOnboardingVersion: OnboardingVersion?
 	) {
 		self.completionBehaviour = completionBehaviour
 		self.markingBehaviour = markingBehaviour
 		self.iconColor = iconColor
+		self.lastOnboardingVersion = lastOnboardingVersion
 	}
 }
 

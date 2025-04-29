@@ -15,7 +15,18 @@ private extension UserDefaults {
 		return P(rawValue: rawValue)
 	}
 
+	func getProperty<P: SettingsProperty>(as type: P.Type) -> P? where P.RawValue == String {
+		guard let rawValue = string(forKey: P.key) else {
+			return nil
+		}
+		return P(rawValue: rawValue)
+	}
+
 	func setProperty<P: SettingsProperty>(_ property: P) where P.RawValue == Int {
+		setValue(property.rawValue, forKey: P.key)
+	}
+
+	func setProperty<P: SettingsProperty>(_ property: P) where P.RawValue == String {
 		setValue(property.rawValue, forKey: P.key)
 	}
 }
@@ -57,11 +68,13 @@ public final class SettingsProvider {
 		let completionBehaviour = defaults.getProperty(as: CompletionBehavior.self)
 		let markingBehaviour = defaults.getProperty(as: MarkingBehavior.self)
 		let iconColor = defaults.getProperty(as: IconColor.self)
+		let lastOnboardingVersion = defaults.getProperty(as: OnboardingVersion.self)
 
 		self.state = Settings(
 			completionBehaviour: completionBehaviour ?? .regular,
 			markingBehaviour: markingBehaviour ?? .regular,
-			iconColor: iconColor ?? .neutral
+			iconColor: iconColor ?? .neutral,
+			lastOnboardingVersion: lastOnboardingVersion
 		)
 
 		defaults.register(
@@ -90,11 +103,13 @@ extension SettingsProvider {
 		let completionBehaviour = defaults.getProperty(as: CompletionBehavior.self)
 		let markingBehaviour = defaults.getProperty(as: MarkingBehavior.self)
 		let iconColor = defaults.getProperty(as: IconColor.self)
+		let lastOnboardingVersion = defaults.getProperty(as: OnboardingVersion.self)
 
 		let current = Settings(
 			completionBehaviour: completionBehaviour ?? .regular,
 			markingBehaviour: markingBehaviour ?? .regular,
-			iconColor: iconColor ?? .neutral
+			iconColor: iconColor ?? .neutral,
+			lastOnboardingVersion: lastOnboardingVersion
 		)
 
 		guard current != state else {

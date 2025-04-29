@@ -7,6 +7,7 @@ The scene delegate for the main browser for this application.
 
 import UIKit
 import os.log
+import CoreSettings
 
 @available(iOS 13.0, *)
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -41,6 +42,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 		window?.rootViewController = documentBrowser
 		window?.makeKeyAndVisible()
+
+		if let onboardingViewController = OnboardingAssembly.build(settingsProvider: .shared) {
+			documentBrowser.present(onboardingViewController, animated: true)
+		}
 
         // Mark this session's userInfo as the main document browser so you can find it among multiple sessions.
         session.userInfo = [SceneDelegate.documentBrowserIdentifierKey: "main browser"]

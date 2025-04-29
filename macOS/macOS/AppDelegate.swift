@@ -6,11 +6,31 @@
 //
 
 import Cocoa
+import DesignSystem
 
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
 
+	var onboardingWindow: NSWindow?
+
 	func applicationDidFinishLaunching(_ aNotification: Notification) {
+		prepareMenu()
+		showOnboardingIfNeeded()
+	}
+
+	func applicationWillTerminate(_ aNotification: Notification) {
+		// Insert code here to tear down your application
+	}
+
+	func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
+		return true
+	}
+}
+
+// MARK: - Helpers
+private extension AppDelegate {
+
+	func prepareMenu() {
 		if let menu = NSApplication.shared.mainMenu {
 
 			let item = NSMenuItem()
@@ -21,12 +41,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		}
 	}
 
-	func applicationWillTerminate(_ aNotification: Notification) {
-		// Insert code here to tear down your application
-	}
-
-	func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
-		return true
+	func showOnboardingIfNeeded() {
+		guard let window = OnboardingAssembly.build(settingsProvider: .shared) else {
+			return
+		}
+		self.onboardingWindow = window
+//		window.makeKeyAndOrderFront(nil)
+		window.center()
+		NSApp.runModal(for: window)
 	}
 }
 
