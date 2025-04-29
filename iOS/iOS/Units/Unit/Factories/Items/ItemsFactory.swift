@@ -27,15 +27,15 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			TextConfiguration(
 				text: item.text,
 				style: .body,
-				colorToken: item.isDone ? .disabledText : .primary,
-				strikethrough: item.isDone
+				colorToken: item.isStrikethrough ? .disabledText : .primary,
+				strikethrough: item.isStrikethrough
 			)
 		case .section:
 			TextConfiguration(
 				text: item.text,
 				style: .headline,
-				colorToken: item.isDone ? .disabledText : .primary,
-				strikethrough: item.isDone
+				colorToken: item.isStrikethrough ? .disabledText : .primary,
+				strikethrough: item.isStrikethrough
 			)
 		}
 
@@ -51,7 +51,7 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		}
 
 		let iconAppearence: IconAppearence = {
-			switch (item.isDone, item.isMarked) {
+			switch (item.isStrikethrough, item.isMarked) {
 			case (true, _):
 				return .monochrome(token: .disabledText)
 			case (false, true):
@@ -77,7 +77,7 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		case .item:
 			IconConfiguration(
 				name: .named("point"),
-				appearence: .hierarchical(token: item.isMarked && !item.isDone ? .yellow : .quaternary)
+				appearence: .hierarchical(token: item.isMarked && !item.isStrikethrough ? .yellow : .quaternary)
 			)
 		case .section:
 			IconConfiguration(
@@ -91,7 +91,7 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			icon: iconConfiguration,
 			title: titleConfiguration,
 			subtitle: subtitleConfiguration,
-			status: item.isDone,
+			status: item.isStrikethrough,
 			isMarked: item.isMarked,
 			isSection: item.style == .section
 		)

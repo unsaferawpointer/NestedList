@@ -59,10 +59,10 @@ extension ContentPresenter: ContentPresenterProtocol {
 	func present(_ content: Content) {
 
 		var snapshot = Snapshot(content.root.nodes)
-		snapshot.validate(keyPath: \.isDone)
+		snapshot.validate(keyPath: \.isStrikethrough)
 		snapshot.validate(keyPath: \.isMarked)
 
-		cache.store(.isDone, keyPath: \.isDone, equalsTo: true, from: snapshot)
+		cache.store(.isStrikethrough, keyPath: \.isStrikethrough, equalsTo: true, from: snapshot)
 		cache.store(.isMarked, keyPath: \.isMarked, equalsTo: true, from: snapshot)
 		cache.store(.isSection, keyPath: \.style, equalsTo: .section, from: snapshot)
 		cache.store(.hasNote, keyPath: \.note, notEqualsTo: nil, from: snapshot)
@@ -149,7 +149,7 @@ extension ContentPresenter: UnitViewOutput {
 		}
 		return switch item {
 		case .completed:
-			cache.validate(.isDone, other: selection).state
+			cache.validate(.isStrikethrough, other: selection).state
 		case .marked:
 			cache.validate(.isMarked, other: selection).state
 		case .section:
@@ -182,7 +182,7 @@ private extension ContentPresenter {
 	func toggleStrikethrough(for ids: [UUID]) {
 		let completionBehaviour = settingsProvider.state.completionBehaviour
 		let moveToEnd = completionBehaviour == .moveToEnd
-		let status = cache.validate(.isDone, other: ids) ?? false
+		let status = cache.validate(.isStrikethrough, other: ids) ?? false
 		interactor?.setStatus(!status, for: ids, moveToEnd: moveToEnd)
 	}
 
@@ -355,7 +355,7 @@ extension ContentPresenter {
 		guard let selection = view?.selection, !selection.isEmpty else {
 			return false
 		}
-		return cache.validate(.isDone, other: selection)
+		return cache.validate(.isStrikethrough, other: selection)
 	}
 
 	func validateMark() -> Bool? {
@@ -379,7 +379,7 @@ extension ContentPresenter {
 }
 
 enum Property: Hashable {
-	case isDone
+	case isStrikethrough
 	case isMarked
 	case isItem
 	case isSection

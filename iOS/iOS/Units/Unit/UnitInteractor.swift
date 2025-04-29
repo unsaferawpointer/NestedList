@@ -15,7 +15,7 @@ protocol UnitInteractorProtocol {
 	@discardableResult
 	func newItem(_ text: String, note: String?, isMarked: Bool, style: Item.Style, target: UUID?) -> UUID
 	func deleteItems(_ ids: [UUID])
-	func setStatus(_ isDone: Bool, for ids: [UUID], moveToEnd: Bool)
+	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool)
 	func mark(_ isMarked: Bool, ids: [UUID], moveToTop: Bool)
 	func setStyle(_ style: Item.Style, for ids: [UUID])
 	func set(_ text: String, note: String?, isMarked: Bool, style: Item.Style, for id: UUID)
@@ -76,10 +76,10 @@ extension UnitInteractor: UnitInteractorProtocol {
 		}
 	}
 
-	func setStatus(_ isDone: Bool, for ids: [UUID], moveToEnd: Bool) {
+	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool) {
 		storage.modificate { content in
-			content.root.setProperty(\.isDone, to: isDone, for: ids, downstream: true)
-			if moveToEnd && isDone {
+			content.root.setProperty(\.isStrikethrough, to: isStrikethrough, for: ids, downstream: true)
+			if moveToEnd && isStrikethrough {
 				content.root.moveToEnd(ids)
 			}
 		}

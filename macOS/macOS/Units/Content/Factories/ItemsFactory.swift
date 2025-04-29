@@ -27,26 +27,26 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		case .item:
 			TextConfiguration(
 				style: .body,
-				colorToken: item.isDone ? .disabledText : .primary,
-				strikethrough: item.isDone
+				colorToken: item.isStrikethrough ? .disabledText : .primary,
+				strikethrough: item.isStrikethrough
 			)
 		case .section:
 			TextConfiguration(
 				style: .headline,
-				colorToken: item.isDone ? .disabledText : .primary,
-				strikethrough: item.isDone
+				colorToken: item.isStrikethrough ? .disabledText : .primary,
+				strikethrough: item.isStrikethrough
 			)
 		}
 
 		let pointConfiguration: PointConfiguration? = switch item.style {
 		case .item:
-			PointConfiguration(color: item.isMarked && !item.isDone ? .yellow : .quaternary)
+			PointConfiguration(color: item.isMarked && !item.isStrikethrough ? .yellow : .quaternary)
 		case .section:
 			nil
 		}
 
 		let iconAppearence: IconAppearence = {
-			switch (item.isDone, item.isMarked) {
+			switch (item.isStrikethrough, item.isMarked) {
 			case (true, _):
 				return .monochrome(token: .disabledText)
 			case (false, true):

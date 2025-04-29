@@ -17,7 +17,7 @@ struct ItemsFactoryTests {
 
 		let item = Item(
 			uuid: .random,
-			isDone: false,
+			isStrikethrough: false,
 			text: .random,
 			note: .random,
 			style: .item
@@ -41,7 +41,7 @@ struct ItemsFactoryTests {
 
 		let item = Item(
 			uuid: .random,
-			isDone: true,
+			isStrikethrough: true,
 			text: .random,
 			style: .item
 		)
@@ -64,7 +64,7 @@ struct ItemsFactoryTests {
 
 		let item = Item(
 			uuid: .random,
-			isDone: true,
+			isStrikethrough: true,
 			isMarked: true,
 			text: .random,
 			style: .item
@@ -88,7 +88,7 @@ struct ItemsFactoryTests {
 
 		let item = Item(
 			uuid: .random,
-			isDone: false,
+			isStrikethrough: false,
 			text: .random,
 			style: .section
 		)
@@ -112,7 +112,7 @@ struct ItemsFactoryTests {
 
 		let item = Item(
 			uuid: .random,
-			isDone: false,
+			isStrikethrough: false,
 			text: .random,
 			style: .section
 		)
@@ -136,7 +136,7 @@ struct ItemsFactoryTests {
 
 		let item = Item(
 			uuid: .random,
-			isDone: false,
+			isStrikethrough: false,
 			isMarked: true,
 			text: .random,
 			style: .section
@@ -161,7 +161,7 @@ struct ItemsFactoryTests {
 
 		let item = Item(
 			uuid: .random,
-			isDone: true,
+			isStrikethrough: true,
 			text: .random,
 			style: .section
 		)
@@ -183,7 +183,7 @@ struct ItemsFactoryTests {
 
 		let item = Item(
 			uuid: .random,
-			isDone: true,
+			isStrikethrough: true,
 			isMarked: true,
 			text: .random,
 			style: .section

@@ -72,7 +72,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 			node.map { item in
 				Item(
 					uuid: .random,
-					isDone: item.isDone,
+					isStrikethrough: item.isStrikethrough,
 					text: item.text,
 					style: item.style
 				)
@@ -94,7 +94,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool) {
 		storage.modificate { content in
-			content.root.setProperty(\.isDone, to: status, for: ids, downstream: true)
+			content.root.setProperty(\.isStrikethrough, to: status, for: ids, downstream: true)
 			if moveToEnd && status {
 				content.root.moveToEnd(ids)
 			}
@@ -103,8 +103,8 @@ extension ContentInteractor: ContentInteractorProtocol {
 
 	func toggleStrikethrough(for id: UUID, moveToEnd: Bool) {
 		storage.modificate { content in
-			let status = content.root.node(with: id)?.value.isDone ?? false
-			content.root.setProperty(\.isDone, to: !status, for: [id], downstream: true)
+			let status = content.root.node(with: id)?.value.isStrikethrough ?? false
+			content.root.setProperty(\.isStrikethrough, to: !status, for: [id], downstream: true)
 			if moveToEnd && status == false {
 				content.root.moveToEnd([id])
 			}

@@ -173,8 +173,8 @@ extension UnitPresenterTests {
 		view.stubs.selection = [firstId, secondId]
 		settingsProvider.stubs.state = .standart
 
-		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, isDone: false, text: .random))
-		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, isDone: false, text: .random))
+		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, isStrikethrough: false, text: .random))
+		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, isStrikethrough: false, text: .random))
 
 		sut.present(.init(nodes: [firstNode, secondNode]))
 
@@ -203,8 +203,8 @@ extension UnitPresenterTests {
 		view.stubs.selection = [firstId, secondId]
 		settingsProvider.stubs.state = Settings(completionBehaviour: .moveToEnd)
 
-		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, isDone: false, text: .random))
-		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, isDone: false, text: .random))
+		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, isStrikethrough: false, text: .random))
+		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, isStrikethrough: false, text: .random))
 
 		sut.present(.init(nodes: [firstNode, secondNode]))
 
