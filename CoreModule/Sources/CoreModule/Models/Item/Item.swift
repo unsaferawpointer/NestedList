@@ -12,28 +12,24 @@ public struct Item {
 
 	public var uuid: UUID
 
-	public var properties: Properties
+	public var text: String
+
+	public var note: String?
+
+	public var options: ItemOptions
 
 	// MARK: - Initialization
 
 	public init(
 		uuid: UUID = UUID(),
-		isStrikethrough: Bool = false,
-		isMarked: Bool = false,
-		isFolded: Bool = false,
 		text: String,
 		note: String? = nil,
-		style: Style = .item
+		options: ItemOptions = []
 	) {
 		self.uuid = uuid
-		self.properties = Properties(
-			isStrikethrough: isStrikethrough,
-			isMarked: isMarked,
-			isFolded: isFolded,
-			text: text,
-			note: note,
-			style: style
-		)
+		self.text = text
+		self.note = note
+		self.options = options
 	}
 }
 
@@ -45,60 +41,71 @@ extension Item: Identifiable {
 	}
 }
 
+// MARK: - Public Interface
+public extension Item {
+
+	func copy(with newId: UUID = .init()) -> Item {
+		return Item(
+			uuid: newId,
+			text: text,
+			note: note,
+			options: options
+		)
+	}
+}
+
 // MARK: - Computed properties
 public extension Item {
 
 	var isStrikethrough: Bool {
 		get {
-			properties.isStrikethrough
+			options.contains(.strikethrough)
 		}
 		set {
-			properties.isStrikethrough = newValue
+			if newValue {
+				options.insert(.strikethrough)
+			} else {
+				options.remove(.strikethrough)
+			}
 		}
 	}
 
 	var isMarked: Bool {
 		get {
-			properties.isMarked
+			options.contains(.marked)
 		}
 		set {
-			properties.isMarked = newValue
+			if newValue {
+				options.insert(.marked)
+			} else {
+				options.remove(.marked)
+			}
 		}
 	}
 
 	var isFolded: Bool {
 		get {
-			properties.isFolded
+			options.contains(.folded)
 		}
 		set {
-			properties.isFolded = newValue
-		}
-	}
-
-	var text: String {
-		get {
-			properties.text
-		}
-		set {
-			properties.text = newValue
-		}
-	}
-
-	var note: String? {
-		get {
-			properties.note
-		}
-		set {
-			properties.note = newValue
+			if newValue {
+				options.insert(.folded)
+			} else {
+				options.remove(.folded)
+			}
 		}
 	}
 
 	var style: Style {
 		get {
-			properties.style
+			options.contains(.section) ? .section : .item
 		}
 		set {
-			properties.style = newValue
+			if newValue == .section {
+				options.insert(.section)
+			} else {
+				options.remove(.section)
+			}
 		}
 	}
 }

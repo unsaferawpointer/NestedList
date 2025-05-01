@@ -17,10 +17,8 @@ struct ItemsFactoryTests {
 
 		let item = Item(
 			uuid: .random,
-			isStrikethrough: false,
 			text: .random,
-			note: .random,
-			style: .item
+			note: .random
 		)
 
 		// Act
@@ -39,12 +37,7 @@ struct ItemsFactoryTests {
 		// Arrange
 		let sut = ItemsFactory()
 
-		let item = Item(
-			uuid: .random,
-			isStrikethrough: true,
-			text: .random,
-			style: .item
-		)
+		let item = Item(text: .random, options: [.strikethrough])
 
 		// Act
 		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .neutral)
@@ -62,13 +55,7 @@ struct ItemsFactoryTests {
 		// Arrange
 		let sut = ItemsFactory()
 
-		let item = Item(
-			uuid: .random,
-			isStrikethrough: true,
-			isMarked: true,
-			text: .random,
-			style: .item
-		)
+		let item = Item(text: .random, options: [.strikethrough, .marked])
 
 		// Act
 		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .neutral)
@@ -86,12 +73,7 @@ struct ItemsFactoryTests {
 		// Arrange
 		let sut = ItemsFactory()
 
-		let item = Item(
-			uuid: .random,
-			isStrikethrough: false,
-			text: .random,
-			style: .section
-		)
+		let item = Item(text: .random, options: [.section])
 
 		// Act
 		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .accent)
@@ -110,12 +92,7 @@ struct ItemsFactoryTests {
 		// Arrange
 		let sut = ItemsFactory()
 
-		let item = Item(
-			uuid: .random,
-			isStrikethrough: false,
-			text: .random,
-			style: .section
-		)
+		let item = Item(text: .random, options: [.section])
 
 		// Act
 		let result = sut.makeItem(item: item, level: 1, isGroup: true, iconColor: .neutral)
@@ -134,13 +111,7 @@ struct ItemsFactoryTests {
 		// Arrange
 		let sut = ItemsFactory()
 
-		let item = Item(
-			uuid: .random,
-			isStrikethrough: false,
-			isMarked: true,
-			text: .random,
-			style: .section
-		)
+		let item = Item(text: .random, options: [.marked, .section])
 
 		// Act
 		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .neutral)
@@ -159,12 +130,7 @@ struct ItemsFactoryTests {
 		// Arrange
 		let sut = ItemsFactory()
 
-		let item = Item(
-			uuid: .random,
-			isStrikethrough: true,
-			text: .random,
-			style: .section
-		)
+		let item = Item(text: .random, options: [.strikethrough, .section])
 
 		// Act
 		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .neutral)
@@ -181,13 +147,7 @@ struct ItemsFactoryTests {
 		// Arrange
 		let sut = ItemsFactory()
 
-		let item = Item(
-			uuid: .random,
-			isStrikethrough: true,
-			isMarked: true,
-			text: .random,
-			style: .section
-		)
+		let item = Item(text: .random, options: [.strikethrough, .marked, .section])
 
 		// Act
 		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .neutral)

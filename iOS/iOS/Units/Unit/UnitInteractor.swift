@@ -55,7 +55,14 @@ extension UnitInteractor: UnitInteractorProtocol {
 	}
 
 	func newItem(_ text: String, note: String?, isMarked: Bool, style: Item.Style, target: UUID?) -> UUID {
-		let new = Item(uuid: UUID(), isMarked: isMarked, text: text, note: note, style: style)
+		var options = ItemOptions()
+		if isMarked {
+			options.insert(.marked)
+		}
+		if style == .section {
+			options.insert(.section)
+		}
+		let new = Item(uuid: UUID(), text: text, note: note, options: options)
 		let destination = Destination(target: target)
 		storage.modificate { content in
 			content.root.insertItems(with: [new], to: destination)

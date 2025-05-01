@@ -173,8 +173,8 @@ extension UnitPresenterTests {
 		view.stubs.selection = [firstId, secondId]
 		settingsProvider.stubs.state = .standart
 
-		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, isStrikethrough: false, text: .random))
-		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, isStrikethrough: false, text: .random))
+		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random))
+		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
 
 		sut.present(.init(nodes: [firstNode, secondNode]))
 
@@ -203,8 +203,8 @@ extension UnitPresenterTests {
 		view.stubs.selection = [firstId, secondId]
 		settingsProvider.stubs.state = Settings(completionBehaviour: .moveToEnd)
 
-		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, isStrikethrough: false, text: .random))
-		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, isStrikethrough: false, text: .random))
+		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random))
+		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
 
 		sut.present(.init(nodes: [firstNode, secondNode]))
 
@@ -234,8 +234,8 @@ extension UnitPresenterTests {
 		view.stubs.selection = [.random, .random]
 		settingsProvider.stubs.state = .standart
 
-		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, isMarked: false, text: .random))
-		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, isMarked: false, text: .random))
+		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random))
+		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
 
 		sut.present(.init(nodes: [firstNode, secondNode]))
 
@@ -263,8 +263,8 @@ extension UnitPresenterTests {
 		view.stubs.selection = [firstId, secondId]
 		settingsProvider.stubs.state = .standart
 
-		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random, style: .item))
-		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random, style: .item))
+		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random))
+		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
 
 		sut.present(.init(nodes: [firstNode, secondNode]))
 

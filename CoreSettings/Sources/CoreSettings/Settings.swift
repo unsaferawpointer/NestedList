@@ -24,7 +24,7 @@ public struct Settings {
 		completionBehaviour: CompletionBehavior = .regular,
 		markingBehaviour: MarkingBehavior = .regular,
 		iconColor: IconColor = .neutral,
-		lastOnboardingVersion: OnboardingVersion?
+		lastOnboardingVersion: OnboardingVersion? = nil
 	) {
 		self.completionBehaviour = completionBehaviour
 		self.markingBehaviour = markingBehaviour

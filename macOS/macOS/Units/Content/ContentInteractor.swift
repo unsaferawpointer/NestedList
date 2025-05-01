@@ -70,12 +70,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 		let nodes = storage.state.root.nodes(with: ids)
 		let copied = nodes.map { node in
 			node.map { item in
-				Item(
-					uuid: .random,
-					isStrikethrough: item.isStrikethrough,
-					text: item.text,
-					style: item.style
-				)
+				item.copy()
 			}
 		}
 		storage.modificate { content in
@@ -84,7 +79,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 	}
 
 	func newItem(_ text: String, target: UUID?) -> UUID {
-		let new = Item(uuid: .random, text: text, style: .item)
+		let new = Item(uuid: .random, text: text)
 		let destination = Destination(target: target)
 		storage.modificate { content in
 			content.root.insertItems(with: [new], to: destination)

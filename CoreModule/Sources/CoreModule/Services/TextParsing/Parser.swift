@@ -79,14 +79,26 @@ extension Parser: ParserProtocol {
 
 			let style: Item.Style = line.hasColon ? .section : .item
 
+			var options: ItemOptions = []
+			if isStrikethrough && style == .item {
+				options.insert(.strikethrough)
+			}
+			if isMarked && style == .item {
+				options.insert(.marked)
+			}
+			if isFolded {
+				options.insert(.folded)
+			}
+			if style == .section {
+				options.insert(.section)
+			}
+
 			let item = Item(
 				uuid: .init(),
-				isStrikethrough: isStrikethrough && style == .item,
-				isMarked: isMarked && style == .item,
-				isFolded: isFolded,
 				text: line.text,
-				style: style
+				options: options
 			)
+
 			let node = Node<Model>(value: item)
 			previous = node
 
