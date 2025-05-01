@@ -1,0 +1,14 @@
+{
+  "content" : {
+    "root" : [
+      {
+        "value" : {
+          "options" : 1,
+          "text" : "item 1",
+          "uuid" : "BE912955-2CE4-4C95-8379-48984DDF9F5C"
+        }
+      }
+    ]
+  },
+  "version" : "1.0.0"
+}

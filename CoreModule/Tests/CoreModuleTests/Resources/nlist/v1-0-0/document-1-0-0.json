@@ -1,0 +1,47 @@
+{
+  "content" : {
+    "items" : [
+      {
+        "children" : [
+          {
+            "children" : [
+              {
+                "value" : {
+                  "options" : 0,
+                  "text" : "item 0 0 0",
+                  "note" : "note 0 0 0",
+                  "uuid" : "4F1F2E4A-9688-4288-9C24-FDBBE7D9E584"
+                }
+              }
+            ],
+            "value" : {
+              "options" : 0,
+              "text" : "item 0 0",
+              "uuid" : "CFC579A2-0780-41D0-A714-B837F04AB629"
+            }
+          }
+        ],
+        "value" : {
+          "options" : 4,
+          "text" : "item 0",
+          "uuid" : "7D851F9C-BD99-4EA2-AB6E-BB73B861C93B"
+        }
+      },
+      {
+        "value" : {
+          "options" : 1,
+          "text" : "item 1",
+          "uuid" : "BE912955-2CE4-4C95-8379-48984DDF9F5C"
+        }
+      },
+      {
+        "value" : {
+          "options" : 3,
+          "text" : "item 2",
+          "uuid" : "1476302F-8127-4B18-834D-A1A1E2485588"
+        }
+      }
+    ]
+  },
+  "version" : "1.0.0"
+}
