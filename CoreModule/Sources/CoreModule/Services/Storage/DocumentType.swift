@@ -7,6 +7,7 @@
 
 import Foundation
 
-enum DocumentType: String {
+public enum DocumentType: String {
 	case text = "public.plain-text"
+	case nlist = "com.zeroindex.nested-list.outline"
 }

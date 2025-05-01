@@ -30,7 +30,7 @@ class DocumentBrowserViewController: UIDocumentBrowserViewController, UIDocument
 
 		os_log("==> Creating A New Document.", log: .default, type: .debug)
 
-		let url = FileManager.default.temporaryDirectory.appendingPathComponent("NewDocument.txt")
+		let url = FileManager.default.temporaryDirectory.appendingPathComponent("NewDocument.nlist")
 
 		let doc = Document(fileURL: url)
 

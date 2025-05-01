@@ -1,5 +1,5 @@
 //
-//  DataProvider.swift
+//  TextDataProvider.swift
 //  CoreModule
 //
 //  Created by Anton Cherkasov on 16.11.2024.
@@ -8,7 +8,7 @@
 import Foundation
 
 /// Data provider of board document
-public final class DataProvider {
+public final class TextDataProvider {
 
 	private let parser: ParserProtocol
 
@@ -18,7 +18,7 @@ public final class DataProvider {
 }
 
 // MARK: - ContentProvider
-extension DataProvider: ContentProvider {
+extension TextDataProvider: ContentProvider {
 
 	public func data(ofType typeName: String, content: Content) throws -> Data {
 
