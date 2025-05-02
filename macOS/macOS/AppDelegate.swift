@@ -46,7 +46,6 @@ private extension AppDelegate {
 			return
 		}
 		self.onboardingWindow = window
-//		window.makeKeyAndOrderFront(nil)
 		window.center()
 		NSApp.runModal(for: window)
 	}

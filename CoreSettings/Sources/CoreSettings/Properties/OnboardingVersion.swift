@@ -17,7 +17,7 @@ public struct OnboardingVersion {
 	}
 }
 
-extension OnboardingVersion {
+public extension OnboardingVersion {
 
 	var version: Version? {
 		return Version(rawValue: rawValue)

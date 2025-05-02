@@ -49,7 +49,8 @@ public final class SettingsProvider {
 				[
 					CompletionBehavior.key: state.completionBehaviour.rawValue,
 					MarkingBehavior.key: state.markingBehaviour.rawValue,
-					IconColor.key: state.iconColor.rawValue
+					IconColor.key: state.iconColor.rawValue,
+					OnboardingVersion.key: state.lastOnboardingVersion?.rawValue
 				]
 			)
 
