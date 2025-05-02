@@ -29,7 +29,7 @@
 			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>com.zeroindex.nested-list.outline</string>
+				<string>com.zeroindex.nested-list.doc</string>
 			</array>
 			<key>NSUbiquitousDocumentUserActivityType</key>
 			<string>com.zeroindex.NestedList.editing</string>
@@ -87,7 +87,7 @@
 			<key>UTTypeIconFiles</key>
 			<array/>
 			<key>UTTypeIdentifier</key>
-			<string>com.zeroindex.nested-list.outline</string>
+			<string>com.zeroindex.nested-list.doc</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
