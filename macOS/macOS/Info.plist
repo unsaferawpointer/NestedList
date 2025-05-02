@@ -27,7 +27,7 @@
 			<string>Default</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>com.zeroindex.nested-list.doc</string>
+				<string>dev.zeroindex.nested-list.doc</string>
 			</array>
 			<key>NSDocumentClass</key>
 			<string>$(PRODUCT_MODULE_NAME).Document</string>
@@ -66,7 +66,7 @@
 			<key>UTTypeIcons</key>
 			<dict/>
 			<key>UTTypeIdentifier</key>
-			<string>com.zeroindex.nested-list.doc</string>
+			<string>dev.zeroindex.nested-list.doc</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>

@@ -16,7 +16,7 @@
 				<string>public.plain-text</string>
 			</array>
 			<key>NSUbiquitousDocumentUserActivityType</key>
-			<string>com.zeroindex.NestedList.editing</string>
+			<string>dev.zeroindex.NestedList.editing</string>
 			<key>UIDocumentClass</key>
 			<string>$(PRODUCT_MODULE_NAME).Document</string>
 		</dict>
@@ -29,10 +29,10 @@
 			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>com.zeroindex.nested-list.doc</string>
+				<string>dev.zeroindex.nested-list.doc</string>
 			</array>
 			<key>NSUbiquitousDocumentUserActivityType</key>
-			<string>com.zeroindex.NestedList.editing</string>
+			<string>dev.zeroindex.NestedList.editing</string>
 			<key>UIDocumentClass</key>
 			<string>$(PRODUCT_MODULE_NAME).Document</string>
 		</dict>
@@ -87,7 +87,7 @@
 			<key>UTTypeIconFiles</key>
 			<array/>
 			<key>UTTypeIdentifier</key>
-			<string>com.zeroindex.nested-list.doc</string>
+			<string>dev.zeroindex.nested-list.doc</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>

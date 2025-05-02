@@ -9,7 +9,7 @@ import Foundation
 
 public enum DocumentType: String {
 	case text = "public.plain-text"
-	case nlist = "com.zeroindex.nested-list.doc"
+	case nlist = "dev.zeroindex.nested-list.doc"
 }
 
 // MARK: - Computed properties
