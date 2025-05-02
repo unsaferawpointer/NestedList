@@ -35,14 +35,7 @@ extension CellFactory {
 			let image: UIImage? = {
 				if let iconConfiguration = model.icon {
 					let symbolConfiguration = iconConfiguration.appearence.configuration
-					switch iconConfiguration.name {
-					case .named(let name):
-						return UIImage(named: name)?
-							.applyingSymbolConfiguration(symbolConfiguration)
-					case .systemName(let name):
-						return UIImage(systemName: name)?
-							.applyingSymbolConfiguration(symbolConfiguration)
-					}
+					return iconConfiguration.name?.image?.applyingSymbolConfiguration(symbolConfiguration)
 				} else {
 					return nil
 				}

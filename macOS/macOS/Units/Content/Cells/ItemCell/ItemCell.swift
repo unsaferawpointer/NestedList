@@ -146,12 +146,7 @@ private extension ItemCell {
 
 		if let iconConfiguration = configuration.icon {
 			iconView.isHidden = false
-			let image: NSImage? = switch iconConfiguration.name {
-			case .named(let name):
-				NSImage(named: name)
-			case .systemName(let name):
-				NSImage(systemSymbolName: name, accessibilityDescription: nil)
-			}
+			let image = iconConfiguration.name.image
 
 			let symbolConfiguration = iconConfiguration.appearence.configuration
 			iconView.image = image?

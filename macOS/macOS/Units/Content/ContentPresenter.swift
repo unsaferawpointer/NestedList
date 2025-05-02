@@ -64,13 +64,18 @@ extension ContentPresenter: ContentPresenterProtocol {
 
 		cache.store(.isStrikethrough, keyPath: \.isStrikethrough, equalsTo: true, from: snapshot)
 		cache.store(.isMarked, keyPath: \.isMarked, equalsTo: true, from: snapshot)
-		cache.store(.isSection, keyPath: \.style, equalsTo: .section, from: snapshot)
+		cache.store(property: .isSection, from: snapshot) { item in
+			guard case .section = item.style else {
+				return false
+			}
+			return true
+		}
 		cache.store(.hasNote, keyPath: \.note, notEqualsTo: nil, from: snapshot)
 
 		let converted = snapshot.map { info in
 
 			let isGroup = (content.root.node(with: info.model.id)?.children ?? []).contains { node in
-				node.value.style == .section
+				node.value.style.isSection
 			}
 
 			return factory.makeItem(
@@ -203,7 +208,7 @@ private extension ContentPresenter {
 
 	func toggleStyle(for ids: [UUID]) {
 		let isSection = cache.validate(.isSection, other: ids) ?? true
-		interactor?.setStyle(!isSection ? .section : .item, for: ids)
+		interactor?.setStyle(!isSection ? .section(icon: nil) : .item, for: ids)
 	}
 
 	func delete(ids: [UUID]) {

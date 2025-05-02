@@ -7,17 +7,17 @@
 
 public struct IconConfiguration {
 
-	public var name: IconName
+	public var name: SemanticImage?
 	public var appearence: IconAppearence
 
 	// MARK: - Initialization
 
-	public init(name: IconName, token: ColorToken) {
+	public init(name: SemanticImage, token: ColorToken) {
 		self.name = name
 		self.appearence = .monochrome(token: token)
 	}
 
-	public init(name: IconName, appearence: IconAppearence) {
+	public init(name: SemanticImage, appearence: IconAppearence) {
 		self.name = name
 		self.appearence = appearence
 	}

@@ -23,6 +23,12 @@ public extension Cache {
 		}
 	}
 
+	func store(property: Property, from snapshot: Snapshot<Model>, condition: (Model) -> Bool) {
+		storage[property] = snapshot.satisfy { model in
+			condition(model)
+		}
+	}
+
 	func store<T: Equatable>(_ property: Property, keyPath: KeyPath<Model, T>, notEqualsTo value: T, from snapshot: Snapshot<Model>) {
 		storage[property] = snapshot.satisfy { model in
 			model[keyPath: keyPath] != value

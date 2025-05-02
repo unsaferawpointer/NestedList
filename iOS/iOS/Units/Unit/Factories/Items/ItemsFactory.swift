@@ -64,24 +64,15 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			}
 		}()
 
-		let icon: IconName = {
-			switch iconColor {
-			case .multicolor:
-				isGroup ? .named("custom.folder.fill") : .named("custom.text.document.fill")
-			default:
-				isGroup ? .systemName("folder") : .systemName("text.document")
-			}
-		}()
-
 		let iconConfiguration: IconConfiguration? = switch item.style {
 		case .item:
 			IconConfiguration(
-				name: .named("point"),
+				name: item.style.icon ?? .folder,
 				appearence: .hierarchical(token: item.isMarked && !item.isStrikethrough ? .yellow : .quaternary)
 			)
 		case .section:
 			IconConfiguration(
-				name: icon,
+				name: item.style.icon ?? .folder,
 				appearence: iconAppearence
 			)
 		}
@@ -93,7 +84,22 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			subtitle: subtitleConfiguration,
 			status: item.isStrikethrough,
 			isMarked: item.isMarked,
-			isSection: item.style == .section
+			isSection: item.style.isSection
 		)
+	}
+}
+
+extension ItemStyle {
+
+	var icon: SemanticImage? {
+		switch self {
+		case .item:
+			return .point
+		case let .section(icon):
+			guard let rawValue = icon?.rawValue else {
+				return nil
+			}
+			return SemanticImage(rawValue: rawValue)
+		}
 	}
 }

@@ -77,26 +77,24 @@ extension Parser: ParserProtocol {
 			let isMarked = contains(prefix: .asterisk, orAnnotation: .mark, in: line)
 			let isFolded = contains(prefix: .greaterThan, orAnnotation: .fold, in: line)
 
-			let style: Item.Style = line.hasColon ? .section : .item
-
 			var options: ItemOptions = []
-			if isStrikethrough && style == .item {
+			if isStrikethrough && !line.hasColon {
 				options.insert(.strikethrough)
 			}
-			if isMarked && style == .item {
+			if isMarked && !line.hasColon {
 				options.insert(.marked)
 			}
 			if isFolded {
 				options.insert(.folded)
 			}
-			if style == .section {
-				options.insert(.section)
-			}
 
 			let item = Item(
 				uuid: .init(),
 				text: line.text,
-				options: options
+				options: options,
+				style: line.hasColon
+				? .section(icon: .init(rawValue: 11))
+					: .item
 			)
 
 			let node = Node<Model>(value: item)

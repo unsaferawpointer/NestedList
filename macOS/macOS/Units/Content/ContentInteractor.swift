@@ -21,7 +21,7 @@ protocol ContentInteractorProtocol {
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool)
 	func toggleStrikethrough(for id: UUID, moveToEnd: Bool)
 	func setMark(_ isMarked: Bool, for ids: [UUID], moveToTop: Bool)
-	func setStyle(_ style: Item.Style, for ids: [UUID])
+	func setStyle(_ style: ItemStyle, for ids: [UUID])
 	func set(text: String, note: String?, for id: UUID)
 	func set(note: String?, for ids: [UUID])
 	func deleteItems(_ ids: [UUID])
@@ -115,7 +115,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 		}
 	}
 
-	func setStyle(_ style: CoreModule.Item.Style, for ids: [UUID]) {
+	func setStyle(_ style: ItemStyle, for ids: [UUID]) {
 		storage.modificate { content in
 			content.root.setProperty(\.style, to: style, for: ids, downstream: false)
 		}

@@ -59,23 +59,10 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			}
 		}()
 
-		let icon: IconName = {
-			switch iconColor {
-			case .multicolor:
-				isGroup ? .named("custom.folder.fill") : .named("custom.text.document.fill")
-			default:
-				isGroup ? .systemName("folder") : .systemName("text.document")
-			}
-		}()
-
-		let iconConfiguration: IconConfiguration? = switch item.style {
-		case .item:
+		let iconConfiguration: IconConfiguration? = if let iconName = item.style.icon {
+			IconConfiguration(name: iconName, appearence: iconAppearence)
+		} else {
 			nil
-		case .section:
-			IconConfiguration(
-				name: icon,
-				appearence: iconAppearence
-			)
 		}
 
 		return ItemModel(
@@ -86,8 +73,23 @@ extension ItemsFactory: ItemsFactoryProtocol {
 				icon: iconConfiguration,
 				text: textConfiguration
 			),
-			isGroup: item.style == .section,
+			isGroup: item.style.isSection,
 			height: item.note != nil ? 36 : nil
 		)
+	}
+}
+
+extension ItemStyle {
+
+	var icon: SemanticImage? {
+		switch self {
+		case .item:
+			return .point
+		case let .section(icon):
+			guard let rawValue = icon?.rawValue else {
+				return nil
+			}
+			return SemanticImage(rawValue: rawValue)
+		}
 	}
 }

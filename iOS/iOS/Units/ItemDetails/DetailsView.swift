@@ -64,9 +64,9 @@ extension DetailsView: View {
 					.tint(.accentColor)
 					.accessibilityIdentifier("toggle-is-marked")
 					Toggle(isOn: .init(get: {
-						model.properties.style == .section
+						model.properties.style.isSection
 					}, set: { newValue in
-						model.properties.style = newValue ? .section : .item
+						model.properties.style = newValue ? .section(icon: nil) : .item
 					})) {
 						Text(strings.sectionToggleTitle)
 					}
@@ -113,7 +113,7 @@ extension DetailsView {
 		var text: String
 		var description: String = ""
 		var isMarked: Bool = false
-		var style: Item.Style = .item
+		var style: ItemStyle = .item
 	}
 }
 

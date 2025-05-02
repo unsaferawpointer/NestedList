@@ -18,18 +18,22 @@ public struct Item {
 
 	public var options: ItemOptions
 
+	public var style: ItemStyle
+
 	// MARK: - Initialization
 
 	public init(
 		uuid: UUID = UUID(),
 		text: String,
 		note: String? = nil,
-		options: ItemOptions = []
+		options: ItemOptions = [],
+		style: ItemStyle = .item
 	) {
 		self.uuid = uuid
 		self.text = text
 		self.note = note
 		self.options = options
+		self.style = style
 	}
 }
 
@@ -49,7 +53,8 @@ public extension Item {
 			uuid: newId,
 			text: text,
 			note: note,
-			options: options
+			options: options,
+			style: style
 		)
 	}
 }
@@ -92,19 +97,6 @@ public extension Item {
 				options.insert(.folded)
 			} else {
 				options.remove(.folded)
-			}
-		}
-	}
-
-	var style: Style {
-		get {
-			options.contains(.section) ? .section : .item
-		}
-		set {
-			if newValue == .section {
-				options.insert(.section)
-			} else {
-				options.remove(.section)
 			}
 		}
 	}

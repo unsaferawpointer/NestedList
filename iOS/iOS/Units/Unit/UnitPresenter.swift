@@ -72,13 +72,15 @@ extension UnitPresenter: UnitPresenterProtocol {
 
 		cache.store(.isStrikethrough, keyPath: \.isStrikethrough, equalsTo: true, from: snapshot)
 		cache.store(.isMarked, keyPath: \.isMarked, equalsTo: true, from: snapshot)
-		cache.store(.isSection, keyPath: \.style, equalsTo: .section, from: snapshot)
+		cache.store(property: .isSection, from: snapshot) { item in
+			item.style.isSection
+		}
 
 		let converted = snapshot
 			.map { info in
 
 				let isGroup = (content.root.node(with: info.model.id)?.children ?? []).contains { node in
-					node.value.style == .section
+					node.value.style.isSection
 				}
 
 				return factory.makeItem(
@@ -177,7 +179,7 @@ extension UnitPresenter: InteractionDelegate {
 		case .style:
 			editingMode = nil
 			let newValue = !(cache.validate(.isSection, other: currentSelection ?? []) ?? false)
-			interactor?.setStyle(newValue ? .section : .item, for: currentSelection ?? [])
+			interactor?.setStyle(newValue ? .section(icon: nil) : .item, for: currentSelection ?? [])
 		case .select:
 			editingMode = .selection
 		case .reorder:

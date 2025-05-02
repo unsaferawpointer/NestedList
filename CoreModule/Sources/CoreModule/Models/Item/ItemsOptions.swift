@@ -29,7 +29,5 @@ public extension ItemOptions {
 
 	static let marked = ItemOptions(rawValue: 1 << 1)
 
-	static let section = ItemOptions(rawValue: 1 << 2)
-
-	static let folded = ItemOptions(rawValue: 1 << 3)
+	static let folded = ItemOptions(rawValue: 1 << 2)
 }
