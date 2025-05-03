@@ -25,7 +25,7 @@ struct OnboardingFooter: View {
 				Button {
 					onBack?()
 				} label: {
-					Text("Back")
+					Text(OnboardingLocalization.backButtonTitle)
 				}
 				.controlSize(.large)
 			}
@@ -36,7 +36,7 @@ struct OnboardingFooter: View {
 			Button {
 				secondaryAction?()
 			} label: {
-				Text("Skip")
+				Text(OnboardingLocalization.skipButtonTitle)
 			}
 			.controlSize(.large)
 
@@ -44,7 +44,11 @@ struct OnboardingFooter: View {
 			Button(action: {
 				primaryAction?()
 			}) {
-				Text( state.canNext() ? "Next" : "Get started")
+				Text(
+					state.canNext()
+						? OnboardingLocalization.nextButtonTitle
+						: OnboardingLocalization.getStaredButtonTitle
+				)
 					.frame(minWidth: 80)
 			}
 			.buttonStyle(.borderedProminent)
