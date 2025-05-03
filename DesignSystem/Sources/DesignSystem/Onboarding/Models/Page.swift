@@ -28,3 +28,6 @@ public struct Page {
 
 // MARK: - Identifiable
 extension Page: Identifiable { }
+
+// MARK: - Codable
+extension Page: Codable { }

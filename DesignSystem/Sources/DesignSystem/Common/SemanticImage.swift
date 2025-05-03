@@ -106,6 +106,8 @@ public extension SemanticImage {
 		case .point: NSImage(resource: .point)
 		case .shippingbox: NSImage(systemSymbolName: "shippingbox.fill", accessibilityDescription: nil)
 		case .star: NSImage(systemSymbolName: "star.fill", accessibilityDescription: nil)
+		default:
+			nil
 		}
 	}
 }

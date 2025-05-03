@@ -32,3 +32,6 @@ public struct Feature {
 
 // MARK: - Identifiable
 extension Feature: Identifiable { }
+
+// MARK: - Codable
+extension Feature: Codable { }

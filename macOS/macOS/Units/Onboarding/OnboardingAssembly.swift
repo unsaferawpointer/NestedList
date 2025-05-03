@@ -22,25 +22,29 @@ final class OnboardingAssembly {
 		}
 
 		guard let lastOnboardingVersion = settingsProvider.state.lastOnboardingVersion?.version else {
-			return buildWindow(settingsProvider: settingsProvider, appVersion: rawVersion)
+			return buildWindow(settingsProvider: settingsProvider, version: appVersion)
 		}
 
 		guard lastOnboardingVersion < appVersion else {
 			return nil
 		}
 
-		return buildWindow(settingsProvider: settingsProvider, appVersion: rawVersion)
+		return buildWindow(settingsProvider: settingsProvider, version: appVersion)
 	}
 }
 
 // MARK: - Helpers
 private extension OnboardingAssembly {
 
-	static func buildWindow(settingsProvider: SettingsProvider, appVersion: String) -> NSWindow {
+	static func buildWindow(settingsProvider: SettingsProvider, version: Version) -> NSWindow? {
+
 		let window = NSWindow()
 
-		let view = OnboardingView(pages: [.newFormat, .customization]) {
-			settingsProvider.state.lastOnboardingVersion = .init(rawValue: appVersion)
+		guard let pages = try? OnboardingFactory.build(for: version) else {
+			return nil
+		}
+		let view = OnboardingView(pages: pages) {
+			settingsProvider.state.lastOnboardingVersion = .init(rawValue: version.rawValue)
 
 			guard NSApp.modalWindow === window && NSApp.modalWindow?.isVisible ?? false else {
 				return

@@ -22,23 +22,26 @@ final class OnboardingAssembly {
 		}
 
 		guard let lastOnboardingVersion = settingsProvider.state.lastOnboardingVersion?.version else {
-			return buildViewController(settingsProvider: settingsProvider, appVersion: rawVersion)
+			return buildViewController(settingsProvider: settingsProvider, version: appVersion)
 		}
 
 		guard lastOnboardingVersion < appVersion else {
 			return nil
 		}
 
-		return buildViewController(settingsProvider: settingsProvider, appVersion: rawVersion)
+		return buildViewController(settingsProvider: settingsProvider, version: appVersion)
 	}
 }
 
 // MARK: - Helpers
 private extension OnboardingAssembly {
 
-	static func buildViewController(settingsProvider: SettingsProvider, appVersion: String) -> UIViewController {
-		let view = OnboardingView(pages: [.newFormat, .customization]) {
-			settingsProvider.state.lastOnboardingVersion = .init(rawValue: appVersion)
+	static func buildViewController(settingsProvider: SettingsProvider, version: Version) -> UIViewController? {
+		guard let pages = try? OnboardingFactory.build(for: version) else {
+			return nil
+		}
+		let view = OnboardingView(pages: pages) {
+			settingsProvider.state.lastOnboardingVersion = .init(rawValue: version.rawValue)
 		}
 		return UIHostingController(rootView: view)
 	}
