@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DesignSystem
 import CoreModule
 
 struct DetailsView {
@@ -66,12 +67,30 @@ extension DetailsView: View {
 					Toggle(isOn: .init(get: {
 						model.properties.style.isSection
 					}, set: { newValue in
-						model.properties.style = newValue ? .section(icon: nil) : .item
+						model.properties.style = model.properties.style.toggle(isSection: newValue)
 					})) {
 						Text(strings.sectionToggleTitle)
 					}
 					.tint(.accentColor)
 					.accessibilityIdentifier("toggle-is-section")
+				}
+
+				if model.properties.style.isSection {
+					Picker(selection: .init(get: {
+						guard case .section(let icon) = model.properties.style else {
+							return SemanticImage(rawValue: 0) ?? .checkmark
+						}
+						return SemanticImage(rawValue: icon?.rawValue ?? 0) ?? .checkmark
+					}, set: { (newValue: SemanticImage) in
+						model.properties.style = .section(icon: .init(rawValue: newValue.rawValue ?? 0))
+					})) {
+						ForEach(SemanticImage.allCases) { icon in
+							Image(uiImage: icon.image!)
+								.tag(icon)
+						}
+					} label: {
+						Text("Icon")
+					}
 				}
 			}
 			.formStyle(.automatic)
@@ -124,4 +143,11 @@ extension DetailsView {
 
 	}
 		.environment(\.locale, .init(identifier: "ru_RU"))
+}
+
+extension SemanticImage: Identifiable {
+
+	public var id: Int {
+		return rawValue
+	}
 }

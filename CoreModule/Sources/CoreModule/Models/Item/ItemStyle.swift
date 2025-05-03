@@ -27,4 +27,13 @@ public extension ItemStyle {
 		}
 		return true
 	}
+
+	func toggle(isSection: Bool) -> Self {
+		switch self {
+		case .item:
+			return .section(icon: nil)
+		case .section(let icon):
+			return .item
+		}
+	}
 }

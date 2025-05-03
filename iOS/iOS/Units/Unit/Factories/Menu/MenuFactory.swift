@@ -25,14 +25,14 @@ extension MenuFactory {
 					size: .medium,
 					items:
 						[
-							buildItem(id: .cut, title: localization.cutItemTitle, iconName: "scissors"),
-							buildItem(id: .copy, title: localization.copyItemTitle, iconName: "document.on.document"),
-							buildItem(id: .paste, title: localization.pasteItemTitle, iconName: "document.on.clipboard")
+							buildItem(id: .cut, title: localization.cutItemTitle, iconName: .cut),
+							buildItem(id: .copy, title: localization.copyItemTitle, iconName: .copy),
+							buildItem(id: .paste, title: localization.pasteItemTitle, iconName: .paste)
 						]
 				)
 			),
-			buildItem(id: .edit, title: localization.editItemTitle, iconName: "pencil"),
-			buildItem(id: .new, title: localization.newItemTitle, iconName: "plus"),
+			buildItem(id: .edit, title: localization.editItemTitle, iconName: .pencil),
+			buildItem(id: .new, title: localization.newItemTitle, iconName: .plus),
 			.init(
 				id: "",
 				content: .menu(
@@ -46,7 +46,7 @@ extension MenuFactory {
 						]
 				)
 			),
-			buildItem(id: .delete, title: localization.deleteItemTitle, iconName: "trash", attributes: [.destructive])
+			buildItem(id: .delete, title: localization.deleteItemTitle, iconName: .trash, attributes: [.destructive])
 		]
 	}
 }
@@ -57,14 +57,14 @@ private extension MenuFactory {
 	func buildItem(
 		id: ElementIdentifier,
 		title: String,
-		iconName: String = "",
+		iconName: SemanticImage? = nil,
 		state: ControlState = .off,
 		attributes: MenuElement.Attributes = []
 	) -> MenuElement {
 		return MenuElement(
 			id: id.rawValue,
 			title: title,
-			icon: .systemName(iconName),
+			icon: iconName,
 			content: .item(state: state, attributes: attributes)
 		)
 	}

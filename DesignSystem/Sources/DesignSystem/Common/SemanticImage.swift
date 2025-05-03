@@ -22,6 +22,17 @@ fileprivate typealias Image = UIImage
 public enum SemanticImage: Int {
 
 	case point = 0
+	case cut = 1
+	case copy = 2
+	case paste = 3
+	case pencil = 4
+	case plus = 5
+	case trash = 6
+	case checkmark = 7
+	case settings = 8
+	case ellipsisCircle = 9
+	case reorder = 101
+	case checkmarkCircle = 102
 
 	// MARK: - Objects
 	case folder = 10
@@ -47,6 +58,12 @@ public extension SemanticImage {
 		switch self {
 		case .point:
 			"Point"
+		case .cut:
+			"Cut"
+		case .copy:
+			"Copy"
+		case .paste:
+			"Paste"
 		case .folder:
 			"Folder"
 		case .docText:
@@ -57,6 +74,22 @@ public extension SemanticImage {
 			"Package"
 		case .star:
 			"Star"
+		case .pencil:
+			"Pencil"
+		case .plus:
+			"Plus"
+		case .trash:
+			"Trash"
+		case .checkmark:
+			"Checkmark"
+		case .settings:
+			"Settings"
+		case .ellipsisCircle:
+			"Ellipsis"
+		case .reorder:
+			"Reorder"
+		case .checkmarkCircle:
+			"Checkmark Circle"
 		}
 	}
 }
@@ -80,7 +113,6 @@ public extension SemanticImage {
 // MARK: - Computed properties
 public extension SemanticImage {
 
-
 	var image: UIImage? {
 		switch self {
 		case .folder: UIImage(systemName: "folder")
@@ -89,7 +121,19 @@ public extension SemanticImage {
 		case .point: UIImage(resource: .point)
 		case .shippingbox: UIImage(systemName: "shippingbox")
 		case .star: UIImage(systemName: "star")
+		case .cut: UIImage(systemName: "doc.on.doc")
+		case .copy: UIImage(systemName: "scissors")
+		case .paste: UIImage(systemName: "doc.on.clipboard")
+		case .pencil: UIImage(systemName: "pencil")
+		case .plus: UIImage(systemName: "plus")
+		case .trash: UIImage(systemName: "trash")
+		case .checkmark: UIImage(systemName: "checkmark")
+		case .settings: UIImage(systemName: "slider.horizontal.2.square")
+		case .ellipsisCircle: UIImage(systemName: "ellipsis.circle")
+		case .reorder: UIImage(systemName: "line.3.horizontal")
+		case .checkmarkCircle: UIImage(systemName: "checkmark.circle")
 		}
+
 	}
 }
 #endif
