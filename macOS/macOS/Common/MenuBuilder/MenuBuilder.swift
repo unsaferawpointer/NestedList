@@ -6,6 +6,7 @@
 //
 
 import Cocoa
+import DesignSystem
 
 protocol MenuBuilderProtocol {
 	static func build() -> NSMenu
@@ -59,13 +60,50 @@ extension MenuBuilder: MenuBuilderProtocol {
 				return item
 			}()
 		)
+		menu.addItem(.separator())
 		menu.addItem(
 			{
 				let item = NSMenuItem()
-				item.identifier = .init(elementIdentifier: .section)
-				item.title = localization.sectionItemTitle
-				item.action = action
+				item.title = localization.displayAsItemTitle
 				item.keyEquivalent = ""
+
+				item.submenu = {
+					let menu = NSMenu()
+
+					menu.addItem(
+						{
+							let item = NSMenuItem()
+							item.identifier = .init(elementIdentifier: .plainItem)
+							item.title = localization.plainItemTitle
+							item.action = action
+							return item
+						}()
+					)
+					menu.addItem(
+						{
+							let item = NSMenuItem()
+							item.identifier = .init(elementIdentifier: .section)
+							item.title = localization.sectionItemTitle
+							item.submenu = {
+								let menu = NSMenu()
+								for icon in SemanticImage.allCases {
+									let item = NSMenuItem()
+									item.identifier = .init("icon-\(icon.rawValue)")
+									item.action = action
+									item.title = icon.title
+									item.image = icon.image
+									menu.addItem(item)
+								}
+								return menu
+							}()
+
+							return item
+						}()
+					)
+
+					return menu
+				}()
+
 				return item
 			}()
 		)

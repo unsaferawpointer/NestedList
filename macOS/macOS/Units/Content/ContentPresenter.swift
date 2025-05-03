@@ -73,15 +73,9 @@ extension ContentPresenter: ContentPresenterProtocol {
 		cache.store(.hasNote, keyPath: \.note, notEqualsTo: nil, from: snapshot)
 
 		let converted = snapshot.map { info in
-
-			let isGroup = (content.root.node(with: info.model.id)?.children ?? []).contains { node in
-				node.value.style.isSection
-			}
-
-			return factory.makeItem(
+			factory.makeItem(
 				item: info.model,
 				level: info.level,
-				isGroup: isGroup,
 				iconColor: settingsProvider.state.iconColor
 			)
 		}
@@ -124,14 +118,22 @@ extension ContentPresenter: UnitViewOutput {
 		case .newItem:		newItem(in: selection)
 		case .completed:	toggleStrikethrough(for: selection)
 		case .marked:		toggleMark(for: selection)
-		case .section:		toggleStyle(for: selection)
 		case .note:			toggleNote(for: selection)
 		case .delete:		delete(ids: selection)
 		case .cut:			cut(ids: selection)
 		case .copy:			copy(ids: selection)
 		case .paste:		paste(ids: selection)
+		case .section:		setStyle(style: .section(icon: nil), for: selection)
+		case .plainItem:	setStyle(style: .item, for: selection)
 		default:
-			fatalError("Undefined menu item: \(item)")
+			let components = item.rawValue.split(separator: "-")
+			guard
+				components.count == 2, components.first == "icon",
+				let last = components.last, let index = Int(last)
+			else {
+				fatalError("Undefined menu item: \(item)")
+			}
+			interactor?.setStyle(.section(icon: ItemIcon(rawValue: index)), for: selection)
 		}
 	}
 	
@@ -142,7 +144,7 @@ extension ContentPresenter: UnitViewOutput {
 		case .paste:
 			let types = Set([stringType])
 			let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
-			return pasteboard.contains(types)
+			return pasteboard.contains(types)			
 		default:
 			return view?.selection.isEmpty == false
 		}
@@ -206,9 +208,8 @@ private extension ContentPresenter {
 		}
 	}
 
-	func toggleStyle(for ids: [UUID]) {
-		let isSection = cache.validate(.isSection, other: ids) ?? true
-		interactor?.setStyle(!isSection ? .section(icon: nil) : .item, for: ids)
+	func setStyle(style: ItemStyle, for ids: [UUID]) {
+		interactor?.setStyle(style, for: ids)
 	}
 
 	func delete(ids: [UUID]) {

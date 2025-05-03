@@ -17,8 +17,6 @@ extension ElementIdentifier {
 
 	static let note: ElementIdentifier = .init(rawValue: "note-menu-item")
 
-	static let section: ElementIdentifier = .init(rawValue: "section-menu-item")
-
 	static let delete: ElementIdentifier = .init(rawValue: "delete-menu-item")
 
 	static let cut: ElementIdentifier = .init(rawValue: "cut-menu-item")
@@ -26,4 +24,8 @@ extension ElementIdentifier {
 	static let copy: ElementIdentifier = .init(rawValue: "copy-menu-item")
 
 	static let paste: ElementIdentifier = .init(rawValue: "paste-menu-item")
+
+	static let section: ElementIdentifier = .init(rawValue: "section-menu-item")
+
+	static let plainItem: ElementIdentifier = .init(rawValue: "plain-item-menu-item")
 }

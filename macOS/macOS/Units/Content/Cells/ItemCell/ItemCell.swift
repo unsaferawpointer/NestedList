@@ -80,11 +80,6 @@ final class ItemCell: NSView, ListCell {
 		return view
 	}()
 
-	lazy var prefixView: CircleView = {
-		let view = CircleView()
-		return view
-	}()
-
 	lazy var iconView: NSImageView = {
 		let view = NSImageView()
 		view.image?.isTemplate = true
@@ -92,9 +87,10 @@ final class ItemCell: NSView, ListCell {
 	}()
 
 	lazy var container: NSStackView = {
-		let view = NSStackView(views: [prefixView, iconView, textfieldsContainer])
+		let view = NSStackView(views: [iconView, textfieldsContainer])
 		view.orientation = .horizontal
 		view.distribution = .fill
+		view.spacing = 6
 		view.alignment = .centerY
 		return view
 	}()
@@ -136,17 +132,9 @@ private extension ItemCell {
 		)
 		titleTextfield.font = NSFont.preferredFont(forTextStyle: configuration.text.style)
 
-		if let pointConfiguration = configuration.point {
-			prefixView.isHidden = false
-			prefixView.color = pointConfiguration.color
-		} else {
-			prefixView.isHidden = true
-			prefixView.color = .clear
-		}
-
 		if let iconConfiguration = configuration.icon {
 			iconView.isHidden = false
-			let image = iconConfiguration.name.image
+			let image = iconConfiguration.name?.image
 
 			let symbolConfiguration = iconConfiguration.appearence.configuration
 			iconView.image = image?

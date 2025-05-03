@@ -13,7 +13,7 @@ import CoreModule
 import CoreSettings
 
 protocol ItemsFactoryProtocol {
-	func makeItem(item: Item, level: Int, isGroup: Bool, iconColor: IconColor) -> ItemModel
+	func makeItem(item: Item, level: Int, iconColor: IconColor) -> ItemModel
 }
 
 final class ItemsFactory { }
@@ -21,7 +21,7 @@ final class ItemsFactory { }
 // MARK: - ItemsFactoryProtocol
 extension ItemsFactory: ItemsFactoryProtocol {
 
-	func makeItem(item: Item, level: Int, isGroup: Bool, iconColor: IconColor) -> ItemModel {
+	func makeItem(item: Item, level: Int, iconColor: IconColor) -> ItemModel {
 
 		let textConfiguration: TextConfiguration = switch item.style {
 		case .item:
@@ -38,13 +38,6 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			)
 		}
 
-		let pointConfiguration: PointConfiguration? = switch item.style {
-		case .item:
-			PointConfiguration(color: item.isMarked && !item.isStrikethrough ? .yellow : .quaternary)
-		case .section:
-			nil
-		}
-
 		let iconAppearence: IconAppearence = {
 			switch (item.isStrikethrough, item.isMarked) {
 			case (true, _):
@@ -55,7 +48,8 @@ extension ItemsFactory: ItemsFactoryProtocol {
 				guard let color = iconColor.color else {
 					return .multicolor
 				}
-				return .monochrome(token: color)
+
+				return item.style.isSection ? .monochrome(token: color) : .monochrome(token: .tertiary)
 			}
 		}()
 
@@ -68,11 +62,7 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		return ItemModel(
 			id: item.id,
 			value: .init(title: item.text, subtitle: item.note),
-			configuration: .init(
-				point: pointConfiguration,
-				icon: iconConfiguration,
-				text: textConfiguration
-			),
+			configuration: .init(icon: iconConfiguration, text: textConfiguration),
 			isGroup: item.style.isSection,
 			height: item.note != nil ? 36 : nil
 		)

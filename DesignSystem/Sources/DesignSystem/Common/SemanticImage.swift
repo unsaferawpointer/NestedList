@@ -26,6 +26,9 @@ public enum SemanticImage: Int {
 	// MARK: - Objects
 	case folder = 10
 	case docText = 11
+	case docOnDoc = 12
+	case shippingbox = 13
+	case star = 14
 }
 
 // MARK: - Codable
@@ -34,15 +37,42 @@ extension SemanticImage: Codable { }
 // MARK: - Hashable
 extension SemanticImage: Hashable { }
 
+// MARK: - CaseIterable
+extension SemanticImage: CaseIterable { }
+
+// MARK: - Computed Properties
+public extension SemanticImage {
+
+	var title: String {
+		switch self {
+		case .point:
+			"Point"
+		case .folder:
+			"Folder"
+		case .docText:
+			"Document"
+		case .docOnDoc:
+			"Documents"
+		case .shippingbox:
+			"Package"
+		case .star:
+			"Star"
+		}
+	}
+}
+
 #if canImport(AppKit)
 // MARK: - Computed properties
 public extension SemanticImage {
 
 	var image: NSImage? {
 		switch self {
-		case .folder: NSImage(systemSymbolName: "folder", accessibilityDescription: nil)
-		case .docText: NSImage(systemSymbolName: "doc.text", accessibilityDescription: nil)
-		case .point: NSImage(named: "point")
+		case .folder: NSImage(systemSymbolName: "folder.fill", accessibilityDescription: nil)
+		case .docText: NSImage(systemSymbolName: "doc.text.fill", accessibilityDescription: nil)
+		case .docOnDoc: NSImage(systemSymbolName: "doc.on.doc.fill", accessibilityDescription: nil)
+		case .point: NSImage(resource: .point)
+		case .shippingbox: NSImage(systemSymbolName: "shippingbox.fill", accessibilityDescription: nil)
+		case .star: NSImage(systemSymbolName: "star.fill", accessibilityDescription: nil)
 		}
 	}
 }
@@ -55,7 +85,10 @@ public extension SemanticImage {
 		switch self {
 		case .folder: UIImage(systemName: "folder")
 		case .docText: UIImage(systemName: "doc.text")
-		case .point: UIImage(named: "point")
+		case .docOnDoc: UIImage(systemName: "doc.on.doc")
+		case .point: UIImage(resource: .point)
+		case .shippingbox: UIImage(systemName: "shippingbox")
+		case .star: UIImage(systemName: "star")
 		}
 	}
 }

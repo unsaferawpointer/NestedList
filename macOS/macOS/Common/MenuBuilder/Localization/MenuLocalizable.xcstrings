@@ -17,6 +17,22 @@
         }
       }
     },
+    "display-as-item-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Display As"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отображать как"
+          }
+        }
+      }
+    },
     "editor-menu-title" : {
       "localizations" : {
         "en" : {
@@ -29,6 +45,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Редактор"
+          }
+        }
+      }
+    },
+    "icon-item-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icon"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Иконка"
           }
         }
       }
@@ -77,6 +109,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Заметка"
+          }
+        }
+      }
+    },
+    "plain-item-item-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plain Item"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Простой пункт"
           }
         }
       }

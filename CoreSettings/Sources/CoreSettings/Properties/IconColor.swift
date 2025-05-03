@@ -30,7 +30,7 @@ public extension IconColor {
 
 	var color: ColorToken? {
 		switch self {
-		case .neutral:		.gray
+		case .neutral:		.tertiary
 		case .accent:		.accent
 		case .primary:		.primary
 		case .multicolor:	nil
