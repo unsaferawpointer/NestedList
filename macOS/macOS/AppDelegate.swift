@@ -49,6 +49,24 @@ private extension AppDelegate {
 		window.center()
 		NSApp.runModal(for: window)
 	}
+
+	private func loadFile(at url: URL) {
+		do {
+
+			let document = Document()
+			try document.read(from: url, ofType: DocumentType.text.rawValue)
+			document.updateChangeCount(.changeReadOtherContents)
+
+			document.fileURL = nil
+
+			NSDocumentController.shared.addDocument(document)
+			document.makeWindowControllers()
+			document.showWindows()
+
+		} catch {
+			NSApp.presentError(error)
+		}
+	}
 }
 
 import SwiftUI
@@ -57,6 +75,19 @@ import CoreSettings
 
 // MARK: - Actions
 extension AppDelegate {
+
+	// MARK: - Импорт файла
+	@IBAction func importFile(_ sender: Any) {
+		let openPanel = NSOpenPanel()
+		openPanel.allowedContentTypes = [.plainText]
+		openPanel.allowsMultipleSelection = false
+
+		openPanel.begin { [weak self] (result) in
+			if result == .OK, let url = openPanel.url {
+				self?.loadFile(at: url)
+			}
+		}
+	}
 
 	@IBAction
 	func showPreferences(_ sender: Any) {
