@@ -57,7 +57,7 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 		invocations.append(.setMark(isMarked, ids: ids, moveToTop: moveToTop))
 	}
 	
-	func setStyle(_ style: Item.Style, for ids: [UUID]) {
+	func setStyle(_ style: ItemStyle, for ids: [UUID]) {
 		invocations.append(.setStyle(style, ids: ids))
 	}
 	
@@ -96,7 +96,7 @@ extension UnitInteractorMock {
 		case setStatus(_ status: Bool, ids: [UUID], moveToEnd: Bool)
 		case toggleStatus(id: UUID, moveToEnd: Bool)
 		case setMark(_ isMarked: Bool, ids: [UUID], moveToTop: Bool)
-		case setStyle(_ style: Item.Style, ids: [UUID])
+		case setStyle(_ style: ItemStyle, ids: [UUID])
 		case setText(text: String, note: String?, id: UUID)
 		case setNote(note: String?, ids: [UUID])
 		case deleteItems(_ ids: [UUID])

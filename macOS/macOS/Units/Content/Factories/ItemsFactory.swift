@@ -38,6 +38,8 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			)
 		}
 
+		let iconName = item.style.icon(filled: false)
+
 		let iconAppearence: IconAppearence = {
 			switch (item.isStrikethrough, item.isMarked) {
 			case (true, _):
@@ -46,14 +48,14 @@ extension ItemsFactory: ItemsFactoryProtocol {
 				return .hierarchical(token: .yellow)
 			case (false, false):
 				guard let color = iconColor.color else {
-					return .multicolor
+					return .monochrome(token: iconName?.tintColor ?? .primary)
 				}
 
 				return item.style.isSection ? .monochrome(token: color) : .monochrome(token: .tertiary)
 			}
 		}()
 
-		let iconConfiguration: IconConfiguration? = if let iconName = item.style.icon {
+		let iconConfiguration: IconConfiguration? = if let iconName {
 			IconConfiguration(name: iconName, appearence: iconAppearence)
 		} else {
 			nil
@@ -71,15 +73,12 @@ extension ItemsFactory: ItemsFactoryProtocol {
 
 extension ItemStyle {
 
-	var icon: SemanticImage? {
+	func icon(filled: Bool) -> SemanticImage? {
 		switch self {
 		case .item:
-			return .point
+			.point
 		case let .section(icon):
-			guard let rawValue = icon?.rawValue else {
-				return nil
-			}
-			return SemanticImage(rawValue: rawValue)
+			IconMapper.map(icon: icon, filled: filled)
 		}
 	}
 }

@@ -31,7 +31,7 @@ public extension ToolbarBuilder {
 			case .regular:
 				let result = UIBarButtonItem(
 					title: item.title,
-					image: item.icon?.image,
+					image: UIImage(systemName: item.icon ?? ""),
 					primaryAction: action
 				)
 				result.isEnabled = item.isEnabled
@@ -43,7 +43,7 @@ public extension ToolbarBuilder {
 			case let .menu(items):
 				let result = UIBarButtonItem(
 					title: item.title,
-					image: item.icon?.image,
+					image: UIImage(systemName: item.icon ?? ""),
 					primaryAction: nil,
 					menu: MenuBuilder.build(from: items, with: nil, delegate: delegate)
 				)

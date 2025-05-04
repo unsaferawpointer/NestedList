@@ -11,7 +11,7 @@ public struct MenuElement {
 
 	let title: String
 
-	let icon: SemanticImage?
+	let icon: String?
 
 	let content: Content
 
@@ -20,7 +20,7 @@ public struct MenuElement {
 	public init(
 		id: String,
 		title: String = "",
-		icon: SemanticImage? = nil,
+		icon: String? = nil,
 		content: Content
 	) {
 		self.id = id

@@ -12,12 +12,12 @@ public struct IconConfiguration {
 
 	// MARK: - Initialization
 
-	public init(name: SemanticImage, token: ColorToken) {
+	public init(name: SemanticImage?, token: ColorToken) {
 		self.name = name
 		self.appearence = .monochrome(token: token)
 	}
 
-	public init(name: SemanticImage, appearence: IconAppearence) {
+	public init(name: SemanticImage?, appearence: IconAppearence) {
 		self.name = name
 		self.appearence = appearence
 	}

@@ -37,61 +37,9 @@ extension DetailsView: View {
 	var body: some View {
 		NavigationStack {
 			Form {
-				Section {
-					TextField(
-						"",
-						text: $model.properties.text,
-						prompt: Text(strings.textfieldPlaceholder)
-					)
-						.font(.body)
-						.foregroundStyle(.primary)
-						.focused($isFocused)
-						.accessibilityIdentifier("textfield-title")
-					TextField(strings.notePlaceholder, text: $model.properties.description, axis: .vertical)
-						.font(.callout)
-						.foregroundStyle(.secondary)
-						.accessibilityIdentifier("textfield-description")
-				} footer: {
-					if !isValid {
-						Text(strings.warningText)
-							.foregroundStyle(.red)
-							.accessibilityIdentifier("label-hint")
-					}
-				}
-				Section(strings.propertiesSectionTitle) {
-					Toggle(isOn: $model.properties.isMarked) {
-						Text(strings.markToggleTitle)
-					}
-					.tint(.accentColor)
-					.accessibilityIdentifier("toggle-is-marked")
-					Toggle(isOn: .init(get: {
-						model.properties.style.isSection
-					}, set: { newValue in
-						model.properties.style = model.properties.style.toggle(isSection: newValue)
-					})) {
-						Text(strings.sectionToggleTitle)
-					}
-					.tint(.accentColor)
-					.accessibilityIdentifier("toggle-is-section")
-				}
-
-				if model.properties.style.isSection {
-					Picker(selection: .init(get: {
-						guard case .section(let icon) = model.properties.style else {
-							return SemanticImage(rawValue: 0) ?? .checkmark
-						}
-						return SemanticImage(rawValue: icon?.rawValue ?? 0) ?? .checkmark
-					}, set: { (newValue: SemanticImage) in
-						model.properties.style = .section(icon: .init(rawValue: newValue.rawValue ?? 0))
-					})) {
-						ForEach(SemanticImage.allCases) { icon in
-							Image(uiImage: icon.image!)
-								.tag(icon)
-						}
-					} label: {
-						Text("Icon")
-					}
-				}
+				buildInfoSection()
+				buildProperties()
+				buildIconPicker()
 			}
 			.formStyle(.automatic)
 			.toolbar {
@@ -120,6 +68,80 @@ extension DetailsView: View {
 	}
 }
 
+// MARK: - Helpers
+private extension DetailsView {
+
+	@ViewBuilder
+	func buildInfoSection() -> some View {
+		Section {
+			TextField(
+				"",
+				text: $model.properties.text,
+				prompt: Text(strings.textfieldPlaceholder)
+			)
+				.font(.body)
+				.foregroundStyle(.primary)
+				.focused($isFocused)
+				.accessibilityIdentifier("textfield-title")
+			TextField(strings.notePlaceholder, text: $model.properties.description, axis: .vertical)
+				.font(.callout)
+				.foregroundStyle(.secondary)
+				.accessibilityIdentifier("textfield-description")
+		} footer: {
+			if !isValid {
+				Text(strings.warningText)
+					.foregroundStyle(.red)
+					.accessibilityIdentifier("label-hint")
+			}
+		}
+	}
+
+	@ViewBuilder
+	func buildProperties() -> some View {
+		Section(strings.propertiesSectionTitle) {
+			Toggle(isOn: $model.properties.isMarked) {
+				Text(strings.markToggleTitle)
+			}
+			.tint(.accentColor)
+			.accessibilityIdentifier("toggle-is-marked")
+			Toggle(isOn: .init(get: {
+				model.properties.style.isSection
+			}, set: { newValue in
+				model.properties.style = model.properties.style.toggle(isSection: newValue)
+			})) {
+				Text(strings.sectionToggleTitle)
+			}
+			.tint(.accentColor)
+			.accessibilityIdentifier("toggle-is-section")
+		}
+	}
+
+	var iconModels: [IconModel] {
+		return ItemIcon.allCases.map {
+			.customIcon($0)
+		}
+	}
+
+	@ViewBuilder
+	func buildIconPicker() -> some View {
+		if model.properties.style.isSection {
+			Section("Icon") {
+				IconPicker(selection: .init(get: {
+					guard case .section(let icon) = model.properties.style else {
+						return .noIcon
+					}
+					guard let icon else {
+						return .noIcon
+					}
+					return .customIcon(icon)
+				}, set: { (newValue: IconModel) in
+					model.properties.style = .section(icon: newValue.icon)
+				}))
+			}
+		}
+	}
+}
+
 // MARK: - Nested data structs
 extension DetailsView {
 
@@ -143,11 +165,4 @@ extension DetailsView {
 
 	}
 		.environment(\.locale, .init(identifier: "ru_RU"))
-}
-
-extension SemanticImage: Identifiable {
-
-	public var id: Int {
-		return rawValue
-	}
 }

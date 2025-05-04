@@ -27,5 +27,7 @@ extension ElementIdentifier {
 
 	static let section: ElementIdentifier = .init(rawValue: "section-menu-item")
 
+	static let noIcon: ElementIdentifier = .init(rawValue: "no-icon-menu-item")
+
 	static let plainItem: ElementIdentifier = .init(rawValue: "plain-item-menu-item")
 }

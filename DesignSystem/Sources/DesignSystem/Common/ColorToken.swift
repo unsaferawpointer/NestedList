@@ -30,6 +30,7 @@ public enum ColorToken {
 	case indigo
 	case purple
 	case pink
+	case brown
 
 	case gray
 }
@@ -78,6 +79,8 @@ public extension ColorToken {
 			return .systemPurple
 		case .pink:
 			return .systemPink
+		case .brown:
+			return .systemBrown
 		case .disabledText:
 			return NSColor(name: nil) { appearance in
 				appearance.name == .darkAqua
@@ -136,6 +139,8 @@ public extension ColorToken {
 			return .systemPurple
 		case .pink:
 			return .systemPink
+		case .brown:
+			return .brown
 		case .disabledText:
 			return UIColor { traits in
 				traits.userInterfaceStyle == .dark

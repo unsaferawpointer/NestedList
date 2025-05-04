@@ -7,15 +7,13 @@
 
 import Foundation
 
-public struct ItemIcon: RawRepresentable {
+public enum ItemIcon: Int {
+	case document = 0
+	case documents = 1
+	case folder = 2
+	case package = 3
+	case star = 4
 
-	public var rawValue: Int
-
-	// MARK: - Initialization
-
-	public init(rawValue: Int) {
-		self.rawValue = rawValue
-	}
 }
 
 // MARK: - Codable
@@ -23,3 +21,6 @@ extension ItemIcon: Codable { }
 
 // MARK: - Hashable
 extension ItemIcon: Hashable { }
+
+// MARK: - CaseIterable
+extension ItemIcon: CaseIterable { }

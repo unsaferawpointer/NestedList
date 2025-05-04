@@ -47,7 +47,7 @@ extension ToolbarFactory {
 			.init(
 				id: "more",
 				title: "",
-				icon: .ellipsisCircle,
+				icon: "ellipsis.circle",
 				content: .menu(
 					items:
 						[
@@ -61,13 +61,13 @@ extension ToolbarFactory {
 											.init(
 												id: ElementIdentifier.select.rawValue,
 												title: localization.selectItemTitle,
-												icon: .checkmarkCircle,
+												icon: "checkmark.circle",
 												content: .item(state: .off, attributes: [])
 											),
 											.init(
 												id: ElementIdentifier.reorder.rawValue,
 												title: localization.reorderItemTitle,
-												icon: .reorder,
+												icon: "line.3.horizontal",
 												content: .item(state: .off, attributes: [])
 											)
 										]
@@ -96,7 +96,7 @@ extension ToolbarFactory {
 							.init(
 								id: ElementIdentifier.settings.rawValue,
 								title: localization.settingsItemTitle,
-								icon: .settings,
+								icon: "slider.horizontal.2.square",
 								content: .item(state: .off, attributes: [])
 							)
 						]
@@ -123,19 +123,19 @@ extension ToolbarFactory {
 							.init(
 								id: ElementIdentifier.cut.rawValue,
 								title: localization.cutItemTitle,
-								icon: .cut,
+								icon: "scissors",
 								content: .item(state: .off, attributes: [])
 							),
 							.init(
 								id: ElementIdentifier.copy.rawValue,
 								title: localization.copyItemTitle,
-								icon: .copy,
+								icon: "doc.on.doc",
 								content: .item(state: .off, attributes: [])
 							),
 							.init(
 								id: ElementIdentifier.paste.rawValue,
 								title: localization.pasteItemTitle,
-								icon: .paste,
+								icon: "doc.on.clipboard",
 								content: .item(state: .off, attributes: [])
 							)
 						]
@@ -166,7 +166,7 @@ extension ToolbarFactory {
 							.init(
 								id: ElementIdentifier.delete.rawValue,
 								title: localization.deleteItemTitle,
-								icon: .trash,
+								icon: "trash",
 								content: .item(state: .off, attributes: [.destructive])
 							)
 						]
@@ -177,18 +177,24 @@ extension ToolbarFactory {
 		return switch editingMode {
 		case .selection:
 			[
-				.init(id: ElementIdentifier.completed.rawValue, title: "", icon: .checkmark, isEnabled: !isEmpty),
+				.init(id: ElementIdentifier.completed.rawValue, title: "", icon: "checkmark", isEnabled: !isEmpty),
 				.init(id: "", title: "", content: .flexible),
 				.init(id: "", title: "", content: .status(text: statusTitle)),
 				.init(id: "", title: "", content: .flexible),
-				.init(id: ElementIdentifier.delete.rawValue, title: "", icon: .ellipsisCircle, content: .menu(items: items), isEnabled: !isEmpty)
+				.init(
+					id: ElementIdentifier.delete.rawValue,
+					title: "",
+					icon: "ellipsis.circle",
+					content: .menu(items: items),
+					isEnabled: !isEmpty
+				)
 			]
 		case .reordering:
 			[]
 		case nil:
 			[
 				.init(id: "", title: "", content: .flexible),
-				.init(id: ElementIdentifier.new.rawValue, title: "", icon: .plus)
+				.init(id: ElementIdentifier.new.rawValue, title: "", icon: "plus")
 			]
 		}
 	}

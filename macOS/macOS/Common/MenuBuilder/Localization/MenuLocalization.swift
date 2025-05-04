@@ -18,6 +18,7 @@ protocol MenuLocalizationProtocol {
 	var displayAsItemTitle: String { get }
 	var plainItemTitle: String { get }
 	var sectionItemTitle: String { get }
+	var noIconItemTitle: String { get }
 }
 
 final class MenuLocalization { }
@@ -67,5 +68,9 @@ extension MenuLocalization: MenuLocalizationProtocol {
 
 	var sectionItemTitle: String {
 		String(localized: "section-item-title", table: "MenuLocalizable")
+	}
+
+	var noIconItemTitle: String {
+		String(localized: "no-icon-item-title", table: "MenuLocalizable")
 	}
 }

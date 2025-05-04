@@ -278,7 +278,7 @@ extension UnitPresenterTests {
 			return
 		}
 
-		#expect(style == .section)
+		#expect(style == .section(icon: nil))
 		#expect(ids == view.stubs.selection)
 	}
 

@@ -38,7 +38,8 @@ extension JsonDataProviderTests {
 							uuid: .uuid0,
 							text: "item 0",
 							note: nil,
-							options: [.section]
+							options: [],
+							style: .section(icon: nil)
 						),
 						children:
 							[

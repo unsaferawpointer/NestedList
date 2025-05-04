@@ -85,7 +85,7 @@ private extension ParserTests {
 		// project 0
 		let project0 = result[0]
 
-		#expect(project0.value.style == .section)
+		#expect(project0.value.style == .section(icon: nil))
 		#expect(project0.value.text == "project 0")
 		#expect(project0.value.isStrikethrough == false)
 		#expect(project0.value.isMarked == false)
@@ -126,7 +126,7 @@ private extension ParserTests {
 		// project 1
 
 		let project1 = result[1]
-		#expect(project1.value.style == .section)
+		#expect(project1.value.style == .section(icon: nil))
 		#expect(project1.value.text == "project 1")
 		#expect(project1.value.isFolded)
 

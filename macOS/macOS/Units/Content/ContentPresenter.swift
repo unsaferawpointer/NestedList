@@ -125,6 +125,7 @@ extension ContentPresenter: UnitViewOutput {
 		case .paste:		paste(ids: selection)
 		case .section:		setStyle(style: .section(icon: nil), for: selection)
 		case .plainItem:	setStyle(style: .item, for: selection)
+		case .noIcon:		setStyle(style: .section(icon: nil), for: selection)
 		default:
 			let components = item.rawValue.split(separator: "-")
 			guard

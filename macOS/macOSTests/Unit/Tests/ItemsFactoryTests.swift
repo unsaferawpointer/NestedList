@@ -22,7 +22,7 @@ struct ItemsFactoryTests {
 		)
 
 		// Act
-		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .neutral)
+		let result = sut.makeItem(item: item, level: 0, iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup == false)
@@ -30,7 +30,6 @@ struct ItemsFactoryTests {
 		#expect(result.value.subtitle == item.note)
 		#expect(result.configuration.text.colorToken == .primary)
 		#expect(!result.configuration.text.strikethrough)
-		#expect(result.configuration.point?.color == .quaternary)
 	}
 
 	@Test func makeItem_when_itemIsCompleted() {
@@ -40,7 +39,7 @@ struct ItemsFactoryTests {
 		let item = Item(text: .random, options: [.strikethrough])
 
 		// Act
-		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .neutral)
+		let result = sut.makeItem(item: item, level: 0, iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup == false)
@@ -48,7 +47,6 @@ struct ItemsFactoryTests {
 		#expect(result.value.subtitle == nil)
 		#expect(result.configuration.text.colorToken == .disabledText)
 		#expect(result.configuration.text.strikethrough)
-		#expect(result.configuration.point?.color == .quaternary)
 	}
 
 	@Test func makeItem_when_itemIsCompletedAndMarked() {
@@ -58,7 +56,7 @@ struct ItemsFactoryTests {
 		let item = Item(text: .random, options: [.strikethrough, .marked])
 
 		// Act
-		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .neutral)
+		let result = sut.makeItem(item: item, level: 0,iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup == false)
@@ -66,25 +64,23 @@ struct ItemsFactoryTests {
 		#expect(result.value.subtitle == nil)
 		#expect(result.configuration.text.colorToken == .disabledText)
 		#expect(result.configuration.text.strikethrough)
-		#expect(result.configuration.point?.color == .quaternary)
 	}
 
 	@Test func makeSection_whenTintColorIsAccent() {
 		// Arrange
 		let sut = ItemsFactory()
 
-		let item = Item(text: .random, options: [.section])
+		let item = Item(text: .random, options: [], style: .section(icon: .document))
 
 		// Act
-		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .accent)
+		let result = sut.makeItem(item: item, level: 0, iconColor: .accent)
 
 		// Assert
 		#expect(result.isGroup)
 		#expect(result.value.title == item.text)
 		#expect(result.configuration.text.colorToken == .primary)
 		#expect(!result.configuration.text.strikethrough)
-		#expect(result.configuration.point == nil)
-		#expect(result.configuration.icon?.name == .systemName("text.document"))
+		#expect(result.configuration.icon?.name == .textDoc(filled: false))
 		#expect(result.configuration.icon?.appearence == .monochrome(token: .accent))
 	}
 
@@ -92,37 +88,35 @@ struct ItemsFactoryTests {
 		// Arrange
 		let sut = ItemsFactory()
 
-		let item = Item(text: .random, options: [.section])
+		let item = Item(text: .random, style: .section(icon: .folder))
 
 		// Act
-		let result = sut.makeItem(item: item, level: 1, isGroup: true, iconColor: .neutral)
+		let result = sut.makeItem(item: item, level: 1, iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup)
 		#expect(result.value.title == item.text)
 		#expect(result.configuration.text.colorToken == .primary)
 		#expect(!result.configuration.text.strikethrough)
-		#expect(result.configuration.point == nil)
-		#expect(result.configuration.icon?.name == .systemName("folder"))
-		#expect(result.configuration.icon?.appearence == .monochrome(token: .gray))
+		#expect(result.configuration.icon?.name == .folder(filled: false))
+		#expect(result.configuration.icon?.appearence == .monochrome(token: .tertiary))
 	}
 
 	@Test func makeSection_whenStyleIsIconAndMarked() {
 		// Arrange
 		let sut = ItemsFactory()
 
-		let item = Item(text: .random, options: [.marked, .section])
+		let item = Item(text: .random, options: [.marked], style: .section(icon: .package))
 
 		// Act
-		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .neutral)
+		let result = sut.makeItem(item: item, level: 0, iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup)
 		#expect(result.value.title == item.text)
 		#expect(result.configuration.text.colorToken == .primary)
 		#expect(!result.configuration.text.strikethrough)
-		#expect(result.configuration.point == nil)
-		#expect(result.configuration.icon?.name == .systemName("text.document"))
+		#expect(result.configuration.icon?.name == .shippingbox(filled: false))
 		#expect(result.configuration.icon?.appearence == .hierarchical(token: .yellow))
 	}
 
@@ -130,33 +124,31 @@ struct ItemsFactoryTests {
 		// Arrange
 		let sut = ItemsFactory()
 
-		let item = Item(text: .random, options: [.strikethrough, .section])
+		let item = Item(text: .random, options: [.strikethrough], style: .section(icon: nil))
 
 		// Act
-		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .neutral)
+		let result = sut.makeItem(item: item, level: 0, iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup)
 		#expect(result.value.title == item.text)
 		#expect(result.configuration.text.colorToken == .disabledText)
 		#expect(result.configuration.text.strikethrough)
-		#expect(result.configuration.point == nil)
 	}
 
 	@Test func makeSection_when_sectionIsCompletedAndMarked() {
 		// Arrange
 		let sut = ItemsFactory()
 
-		let item = Item(text: .random, options: [.strikethrough, .marked, .section])
+		let item = Item(text: .random, options: [.strikethrough, .marked], style: .section(icon: nil))
 
 		// Act
-		let result = sut.makeItem(item: item, level: 0, isGroup: false, iconColor: .neutral)
+		let result = sut.makeItem(item: item, level: 0, iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup)
 		#expect(result.value.title == item.text)
 		#expect(result.configuration.text.colorToken == .disabledText)
 		#expect(result.configuration.text.strikethrough)
-		#expect(result.configuration.point == nil)
 	}
 }

@@ -11,7 +11,7 @@ public struct ToolbarItem {
 
 	public var title: String
 
-	public var icon: SemanticImage?
+	public var icon: String?
 
 	public var content: Content
 
@@ -19,7 +19,7 @@ public struct ToolbarItem {
 
 	// MARK: - Initialization
 
-	public init(id: String, title: String, icon: SemanticImage? = nil, content: Content = .regular, isEnabled: Bool = true) {
+	public init(id: String, title: String, icon: String? = nil, content: Content = .regular, isEnabled: Bool = true) {
 		self.id = id
 		self.title = title
 		self.icon = icon

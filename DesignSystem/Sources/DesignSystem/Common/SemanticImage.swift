@@ -19,27 +19,14 @@ fileprivate typealias Image = UIImage
 
 #endif
 
-public enum SemanticImage: Int {
+public enum SemanticImage {
 
-	case point = 0
-	case cut = 1
-	case copy = 2
-	case paste = 3
-	case pencil = 4
-	case plus = 5
-	case trash = 6
-	case checkmark = 7
-	case settings = 8
-	case ellipsisCircle = 9
-	case reorder = 101
-	case checkmarkCircle = 102
-
-	// MARK: - Objects
-	case folder = 10
-	case docText = 11
-	case docOnDoc = 12
-	case shippingbox = 13
-	case star = 14
+	case point
+	case folder(filled: Bool = false)
+	case textDoc(filled: Bool = false)
+	case docOnDoc(filled: Bool = false)
+	case shippingbox(filled: Bool = false)
+	case star(filled: Bool = false)
 }
 
 // MARK: - Codable
@@ -48,9 +35,6 @@ extension SemanticImage: Codable { }
 // MARK: - Hashable
 extension SemanticImage: Hashable { }
 
-// MARK: - CaseIterable
-extension SemanticImage: CaseIterable { }
-
 // MARK: - Computed Properties
 public extension SemanticImage {
 
@@ -58,38 +42,63 @@ public extension SemanticImage {
 		switch self {
 		case .point:
 			"Point"
-		case .cut:
-			"Cut"
-		case .copy:
-			"Copy"
-		case .paste:
-			"Paste"
 		case .folder:
 			"Folder"
-		case .docText:
-			"Document"
+		case .textDoc:
+			"Text Document"
 		case .docOnDoc:
 			"Documents"
 		case .shippingbox:
 			"Package"
 		case .star:
 			"Star"
-		case .pencil:
-			"Pencil"
-		case .plus:
-			"Plus"
-		case .trash:
-			"Trash"
-		case .checkmark:
-			"Checkmark"
-		case .settings:
-			"Settings"
-		case .ellipsisCircle:
-			"Ellipsis"
-		case .reorder:
-			"Reorder"
-		case .checkmarkCircle:
-			"Checkmark Circle"
+		}
+	}
+
+	var tintColor: ColorToken {
+		switch self {
+		case .point:
+			return .tertiary
+		case .folder:
+			return .cyan
+		case .textDoc:
+			return .gray
+		case .docOnDoc:
+			return .gray
+		case .shippingbox:
+			return .yellow
+		case .star:
+			return .yellow
+		}
+	}
+
+	var systemName: String? {
+		switch self {
+		case .point:
+			nil
+		case let .folder(filled):
+			filled ? "folder.fill" : "folder"
+		case let .textDoc(filled):
+			filled ? "doc.text.fill" : "doc.text"
+		case let .docOnDoc(filled):
+			filled ? "doc.on.doc.fill" : "doc.on.doc"
+		case let .shippingbox(filled):
+			filled ? "shippingbox.fill" : "shippingbox"
+		case let .star(filled):
+			filled ? "star.fill" : "star"
+		}
+	}
+}
+
+// MARK: - Helpers
+private extension SemanticImage {
+
+	var resource: ImageResource? {
+		switch self {
+		case .point:
+			.point
+		default:
+			nil
 		}
 	}
 }
@@ -99,43 +108,30 @@ public extension SemanticImage {
 public extension SemanticImage {
 
 	var image: NSImage? {
-		switch self {
-		case .folder: NSImage(systemSymbolName: "folder.fill", accessibilityDescription: nil)
-		case .docText: NSImage(systemSymbolName: "doc.text.fill", accessibilityDescription: nil)
-		case .docOnDoc: NSImage(systemSymbolName: "doc.on.doc.fill", accessibilityDescription: nil)
-		case .point: NSImage(resource: .point)
-		case .shippingbox: NSImage(systemSymbolName: "shippingbox.fill", accessibilityDescription: nil)
-		case .star: NSImage(systemSymbolName: "star.fill", accessibilityDescription: nil)
-		default:
-			nil
+		guard let systemName = self.systemName else {
+			if let resource = self.resource {
+				return NSImage(resource: resource)
+			}
+			return nil
 		}
+		return NSImage(systemSymbolName: systemName, accessibilityDescription: nil)
 	}
 }
 #elseif canImport(UIKit)
+
+import SwiftUI
+
 // MARK: - Computed properties
 public extension SemanticImage {
 
-	var image: UIImage? {
-		switch self {
-		case .folder: UIImage(systemName: "folder")
-		case .docText: UIImage(systemName: "doc.text")
-		case .docOnDoc: UIImage(systemName: "doc.on.doc")
-		case .point: UIImage(resource: .point)
-		case .shippingbox: UIImage(systemName: "shippingbox")
-		case .star: UIImage(systemName: "star")
-		case .cut: UIImage(systemName: "doc.on.doc")
-		case .copy: UIImage(systemName: "scissors")
-		case .paste: UIImage(systemName: "doc.on.clipboard")
-		case .pencil: UIImage(systemName: "pencil")
-		case .plus: UIImage(systemName: "plus")
-		case .trash: UIImage(systemName: "trash")
-		case .checkmark: UIImage(systemName: "checkmark")
-		case .settings: UIImage(systemName: "slider.horizontal.2.square")
-		case .ellipsisCircle: UIImage(systemName: "ellipsis.circle")
-		case .reorder: UIImage(systemName: "line.3.horizontal")
-		case .checkmarkCircle: UIImage(systemName: "checkmark.circle")
+	var uiImage: UIImage {
+		guard let systemName = self.systemName else {
+			if let resource = self.resource {
+				return UIImage(resource: resource)
+			}
+			fatalError()
 		}
-
+		return UIImage(systemName: systemName)!
 	}
 }
 #endif

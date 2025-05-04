@@ -17,6 +17,22 @@
         }
       }
     },
+    "icons-picker-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icon"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Иконка"
+          }
+        }
+      }
+    },
     "mark-toggle-title" : {
       "localizations" : {
         "en" : {
@@ -32,6 +48,9 @@
           }
         }
       }
+    },
+    "no-icon-title" : {
+
     },
     "note-placeholder" : {
       "localizations" : {

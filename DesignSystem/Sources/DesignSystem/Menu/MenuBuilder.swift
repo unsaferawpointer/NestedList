@@ -41,7 +41,7 @@ private extension MenuBuilder {
 		case let .item(state, attributes):
 			UIAction(
 				title: model.title,
-				image: model.icon?.image,
+				image: UIImage(systemName: model.icon ?? ""),
 				identifier: .init(model.id),
 				attributes: attributes.value,
 				state: state.value
