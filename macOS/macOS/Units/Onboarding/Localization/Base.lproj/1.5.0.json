@@ -4,7 +4,7 @@
 	"description": "We've upgraded your workflow",
 	"features": [
 	  {
-		"icon": "arrow.down.document",
+		"icon": "arrow.down.doc",
 		"title": "Easy Conversion",
 		"id": "8320D5B3-7C3F-4FD0-900D-499CD71D52A4",
 		"description": "Import legacy TXT files with one click"
@@ -12,7 +12,7 @@
 	  {
 		"description": "Export back to TXT anytime",
 		"id": "0FD1C924-5BCB-45D3-9F43-A5D4C8043CC9",
-		"icon": "arrow.up.document",
+		"icon": "arrow.up.doc",
 		"title": "Full Backward Compatibility"
 	  },
 	  {
@@ -23,18 +23,18 @@
 	  }
 	],
 	"id": "new_format",
-	"image": "document.badge.plus"
+	"image": "doc.badge.plus"
   },
   {
 	"features": [
 	  {
 		"description": "Assign distinct icons to different categories",
 		"title": "Unique Icons for Each Section",
-		"icon": "arrow.down.document",
+		"icon": "arrow.down.doc",
 		"id": "4ECE070E-A147-455D-AE47-94CC90122B70"
 	  },
 	  {
-		"icon": "arrow.up.document",
+		"icon": "arrow.up.doc",
 		"title": "Multiple Display Styles",
 		"id": "7AA6BFCF-4071-45BD-A737-C962A5995AAF",
 		"description": "Choose the visual style that suits you best"
