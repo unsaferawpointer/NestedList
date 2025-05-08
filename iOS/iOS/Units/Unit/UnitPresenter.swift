@@ -267,16 +267,19 @@ private extension UnitPresenter {
 			self?.view?.hideDetails()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
-				self?.interactor?.newItem(
+				guard let id = self?.interactor?.newItem(
 					saved.text,
 					note: note,
 					isMarked: saved.isMarked,
 					style: saved.style,
 					target: target
-				)
+				) else {
+					return
+				}
 				if let target {
 					self?.view?.expand(target)
 				}
+				self?.view?.scroll(to: id)
 			}
 		}
 	}

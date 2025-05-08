@@ -74,6 +74,13 @@ extension ListAdapter {
 		storage.apply(newSnapshot: newSnapshot)
 	}
 
+	func scroll(to id: UUID) {
+		guard let row = storage.row(for: id) else {
+			return
+		}
+		tableView?.scrollToRow(at: .init(row: row, section: 0), at: .bottom, animated: true)
+	}
+
 	func expand(_ id: UUID) {
 		storage.expand(id)
 	}

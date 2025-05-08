@@ -134,6 +134,10 @@ extension ViewController: UnitView {
 		adapter?.expand(id)
 	}
 
+	func scroll(to id: UUID) {
+		adapter?.scroll(to: id)
+	}
+
 	func expandAll() {
 		adapter?.expandAll()
 	}

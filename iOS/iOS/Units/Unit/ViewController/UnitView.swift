@@ -18,6 +18,7 @@ protocol UnitView: AnyObject {
 	func showSettings()
 	func hideDetails()
 
+	func scroll(to id: UUID)
 	func expand(_ id: UUID)
 	func expandAll()
 	func collapseAll()

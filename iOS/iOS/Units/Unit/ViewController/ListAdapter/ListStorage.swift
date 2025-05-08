@@ -116,6 +116,10 @@ extension ListStorage {
 		return list.count
 	}
 
+	func row(for id: UUID) -> Int? {
+		return list.firstIndex(of: id)
+	}
+
 	func apply(newSnapshot: Snapshot<ItemModel>) {
 		apply(newSnapshot: newSnapshot, newExpanded: expanded)
 	}
