@@ -26,6 +26,10 @@ public enum SemanticImage {
 	case textDoc(filled: Bool = false)
 	case docOnDoc(filled: Bool = false)
 	case shippingbox(filled: Bool = false)
+	case archivebox(filled: Bool = false)
+	case squareStack(filled: Bool = false)
+	case book(filled: Bool = false)
+	case squareGrid2x2(filled: Bool = false)
 	case star(filled: Bool = false)
 }
 
@@ -52,6 +56,14 @@ public extension SemanticImage {
 			"Package"
 		case .star:
 			"Star"
+		case .archivebox:
+			"Archive Box"
+		case .squareStack:
+			"Stack"
+		case .book:
+			"Book"
+		case .squareGrid2x2:
+			"Grid"
 		}
 	}
 
@@ -69,6 +81,14 @@ public extension SemanticImage {
 			return .yellow
 		case .star:
 			return .yellow
+		case .archivebox:
+			return .brown
+		case .squareStack:
+			return .cyan
+		case .book:
+			return .orange
+		case .squareGrid2x2:
+			return .blue
 		}
 	}
 
@@ -86,6 +106,14 @@ public extension SemanticImage {
 			filled ? "shippingbox.fill" : "shippingbox"
 		case let .star(filled):
 			filled ? "star.fill" : "star"
+		case let .archivebox(filled):
+			filled ? "archivebox.fill" : "archivebox"
+		case let .squareStack(filled):
+			filled ? "square.stack.3d.up.fill" : "square.stack.3d.up"
+		case let .book(filled):
+			filled ? "book.closed.fill" : "book.closed"
+		case let .squareGrid2x2(filled):
+			filled ? "square.grid.2x2.fill" : "square.grid.2x2"
 		}
 	}
 }

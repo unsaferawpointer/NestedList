@@ -26,6 +26,14 @@ final class IconMapper {
 			.star(filled: filled)
 		case .package:
 			.shippingbox(filled: filled)
+		case .archivebox:
+			.archivebox(filled: filled)
+		case .stack:
+			.squareStack(filled: filled)
+		case .book:
+			.book(filled: filled)
+		case .squareGrid2x2:
+			.squareGrid2x2(filled: filled)
 		}
 	}
 }

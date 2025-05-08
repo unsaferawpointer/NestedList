@@ -8,11 +8,17 @@
 import Foundation
 
 public enum ItemIcon: Int {
+
 	case document = 0
 	case documents = 1
 	case folder = 2
 	case package = 3
-	case star = 4
+	case archivebox = 4
+	case stack = 5
+	case book = 6
+	case squareGrid2x2 = 7
+
+	case star = 10
 
 }
 
