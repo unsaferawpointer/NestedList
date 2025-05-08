@@ -20,11 +20,15 @@ final class IconMapper {
 
 	static func map(icon: ItemIcon) -> SemanticImage {
 		return switch icon {
-		case .document:		.textDoc()
-		case .documents:	.docOnDoc()
-		case .folder:		.folder()
-		case .star:			.star()
-		case .package:		.shippingbox()
+		case .document:			.textDoc()
+		case .documents:		.docOnDoc()
+		case .folder:			.folder()
+		case .star:				.star()
+		case .package:			.shippingbox()
+		case .archivebox:		.archivebox()
+		case .stack:			.squareStack()
+		case .book:				.book()
+		case .squareGrid2x2:	.squareGrid2x2()
 		}
 	}
 }
