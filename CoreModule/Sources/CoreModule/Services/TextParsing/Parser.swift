@@ -93,7 +93,7 @@ extension Parser: ParserProtocol {
 				text: line.text,
 				options: options,
 				style: line.hasColon
-				? .section(icon: .init(rawValue: 11))
+					? .section(icon: .document)
 					: .item
 			)
 
