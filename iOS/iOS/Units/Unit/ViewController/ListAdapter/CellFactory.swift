@@ -50,7 +50,7 @@ extension CellFactory {
 
 			configuration.attributedText = .init(
 				string: model.title.text,
-				textColor: model.title.colorToken.color,
+				textColor: model.title.colorToken.value,
 				strikethrough: model.title.strikethrough
 			)
 
@@ -58,7 +58,7 @@ extension CellFactory {
 
 			if let subtitleConfiguration = model.subtitle {
 				configuration.secondaryTextProperties.font = .preferredFont(forTextStyle: subtitleConfiguration.style)
-				configuration.secondaryTextProperties.color = subtitleConfiguration.colorToken.color
+				configuration.secondaryTextProperties.color = subtitleConfiguration.colorToken.value
 				configuration.secondaryText = subtitleConfiguration.text
 			} else {
 				configuration.secondaryText = nil

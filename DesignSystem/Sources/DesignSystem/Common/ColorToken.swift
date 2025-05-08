@@ -112,11 +112,11 @@ import SwiftUI
 
 public extension ColorToken {
 
-	var value: Color {
-		Color(uiColor: color)
+	var color: Color {
+		Color(uiColor: value)
 	}
 
-	var color: UIColor {
+	var value: UIColor {
 		switch self {
 		case .clear:
 			return .clear

@@ -55,9 +55,9 @@ public extension IconAppearence {
 		case .monochrome:
 			.preferringMonochrome()
 		case let .hierarchical(token):
-			.init(hierarchicalColor: token.color)
+			.init(hierarchicalColor: token.value)
 		case let .palette(tokens):
-			.init(paletteColors: tokens.map(\.color))
+			.init(paletteColors: tokens.map(\.value))
 		case .multicolor:
 			.preferringMulticolor()
 		}
@@ -66,7 +66,7 @@ public extension IconAppearence {
 	var tint: UIColor? {
 		switch self {
 		case let .monochrome(token):
-			token.color
+			token.value
 		default:
 			nil
 		}
