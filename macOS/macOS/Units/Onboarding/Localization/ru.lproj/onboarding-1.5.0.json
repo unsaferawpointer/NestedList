@@ -1,0 +1,55 @@
+[
+  {
+	"title": "Новый формат документов",
+	"description": "Улучшенный способ работы с файлами",
+	"features": [
+	  {
+		"icon": "exclamationmark.triangle.fill",
+		"iconColor": 11,
+		"title": "Важное изменение",
+		"id": "warning_note",
+		"description": "Старые .txt файлы теперь открываются только через импорт"
+	  },
+	  {
+		"icon": "sparkles",
+		"iconColor": 12,
+		"title": "Новые возможности",
+		"id": "premium_features",
+		"description": "Настраиваемые иконки разделов и улучшенная организация"
+	  }
+	],
+	"id": "welcome_page",
+	"image": "square.stack.3d.up.fill",
+	"iconColor": 18
+  },
+  {
+	"title": "Перенос документов",
+	"description": "Преобразование в современный формат",
+	"features": [
+	  {
+		"icon": "1.circle.fill",
+		"iconColor": 14,
+		"title": "Импорт документов",
+		"id": "step1",
+		"description": "Выберите в меню: Файл → Импорт... и укажите нужные .txt файлы"
+	  },
+	  {
+		"icon": "2.circle.fill",
+		"iconColor": 15,
+		"title": "Автоматическое преобразование",
+		"id": "step2",
+		"description": "Приложение создаст новый документ в формате .nlist"
+	  },
+	  {
+		"icon": "checkmark.circle.fill",
+		"iconColor": 13,
+		"title": "Сохраните новый файл",
+		"id": "step3",
+		"description": "Нажмите ⌘S или выберите 'Файл' → 'Сохранить', затем укажите имя и расположение файла"
+	  }
+	],
+	"id": "migration_steps",
+	"image": "arrow.down.doc.fill",
+	"iconColor": 17
+  }
+]

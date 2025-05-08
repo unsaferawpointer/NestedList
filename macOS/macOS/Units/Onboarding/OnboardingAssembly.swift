@@ -54,12 +54,16 @@ private extension OnboardingAssembly {
 			window.close()
 		}
 
-		window.styleMask = [.fullSizeContentView, .titled]
+		window.styleMask = [.fullSizeContentView, .titled, .resizable]
 		window.titleVisibility = .hidden
 		window.toolbar?.isVisible = false
 		window.isOpaque = true
 		window.titlebarAppearsTransparent = true
-		window.contentViewController = NSHostingController(rootView: view)
+
+		let contentViewController = NSHostingController(rootView: view)
+		window.contentViewController = contentViewController
+
+		window.setContentSize(contentViewController.view.fittingSize)
 
 		return window
 	}

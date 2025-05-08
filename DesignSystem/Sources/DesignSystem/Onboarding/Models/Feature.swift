@@ -9,17 +9,19 @@ import Foundation
 
 public struct Feature {
 
-	public var id: UUID
+	public var id: String
 
 	let icon: String
+	let iconColor: ColorToken?
 	let title: String
 	let description: String
 
 	// MARK: - Initialization
 
 	public init(
-		id: UUID = UUID(),
+		id: String = UUID().uuidString,
 		icon: String,
+		iconColor: ColorToken? = .accent,
 		title: String,
 		description: String
 	) {
@@ -27,6 +29,7 @@ public struct Feature {
 		self.icon = icon
 		self.title = title
 		self.description = description
+		self.iconColor = iconColor
 	}
 }
 

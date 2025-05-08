@@ -5,43 +5,51 @@
 //  Created by Anton Cherkasov on 27.12.2024.
 //
 
-public enum ColorToken {
+public enum ColorToken: Int {
 
 	// MARK: - Basic
-	case clear
-	case accent
-	case primary
-	case secondary
-	case tertiary
-	case quaternary
+	case clear = 0
+	case accent = 1
+	case primary = 2
+	case secondary = 3
+	case tertiary = 4
+	case quaternary = 5
 
-	case disabledText
+	case disabledText = 6
 
 	// MARK: - Accent
 
-	case red
-	case orange
-	case yellow
-	case green
-	case mint
-	case teal
-	case cyan
-	case blue
-	case indigo
-	case purple
-	case pink
-	case brown
+	case red = 10
+	case orange = 11
+	case yellow = 12
+	case green = 13
+	case mint = 14
+	case teal = 15
+	case cyan = 16
+	case blue = 17
+	case indigo = 18
+	case purple = 19
+	case pink = 20
+	case brown = 21
 
-	case gray
+	case gray = 22
 }
+
+// MARK: - Codable
+extension ColorToken: Codable { }
 
 // MARK: - Hashable
 extension ColorToken: Hashable { }
 
 #if os(macOS)
 import AppKit
+import SwiftUI
 
 public extension ColorToken {
+
+	var color: Color {
+		Color(nsColor: value)
+	}
 
 	var value: NSColor {
 		switch self {
@@ -100,8 +108,13 @@ public extension ColorToken {
 
 #if os(iOS)
 import UIKit
+import SwiftUI
 
 public extension ColorToken {
+
+	var color: Color {
+		Color(uiColor: value)
+	}
 
 	var color: UIColor {
 		switch self {

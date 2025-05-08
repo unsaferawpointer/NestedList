@@ -1,0 +1,55 @@
+[
+  {
+	"title": "New Document Format",
+	"description": "An improved way to work with files",
+	"features": [
+	  {
+		"icon": "exclamationmark.triangle.fill",
+		"iconColor": 11,
+		"title": "Important Change",
+		"id": "warning_note",
+		"description": "Old .txt files can now only be opened through import"
+	  },
+	  {
+		"icon": "sparkles",
+		"iconColor": 12,
+		"title": "New Features",
+		"id": "premium_features",
+		"description": "Customizable section icons and improved organization"
+	  }
+	],
+	"id": "welcome_page",
+	"image": "square.stack.3d.up.fill",
+	"iconColor": 18
+  },
+  {
+	"title": "Document Migration",
+	"description": "Conversion to modern format",
+	"features": [
+	  {
+		"icon": "1.circle.fill",
+		"iconColor": 14,
+		"title": "Import Documents",
+		"id": "step1",
+		"description": "Select File → Import... from menu and specify .txt files"
+	  },
+	  {
+		"icon": "2.circle.fill",
+		"iconColor": 15,
+		"title": "Automatic Conversion",
+		"id": "step2",
+		"description": "The app will create a new document in .nlist format"
+	  },
+	  {
+		"icon": "checkmark.circle.fill",
+		"iconColor": 13,
+		"title": "Save New File",
+		"id": "step3",
+		"description": "Press ⌘S or select File → Save, then specify name and location"
+	  }
+	],
+	"id": "migration_steps",
+	"image": "arrow.down.doc.fill",
+	"iconColor": 17
+  }
+]

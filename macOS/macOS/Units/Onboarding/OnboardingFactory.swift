@@ -16,7 +16,7 @@ extension OnboardingFactory {
 	static func build(for version: Version) throws -> [Page]? {
 		let bundle = Bundle.main
 		guard
-			let path = bundle.url(forResource: version.rawValue, withExtension: "json"),
+			let path = bundle.url(forResource: "onboarding-\(version.rawValue)", withExtension: "json"),
 			let data = try? Data(contentsOf: path)
 		else {
 			return nil

@@ -60,23 +60,24 @@ extension OnboardingView: View {
 
 	public var body: some View {
 		VStack(spacing: 0) {
-			VStack(spacing: 20) {
-				Spacer()
+			VStack {
 				OnboadringHeader(page: state.page)
-					.padding(.vertical, 24)
+					.frame(width: 540)
+				Spacer(minLength: 24)
 				OnboardingBody(features: state.page.features)
 					.padding(.horizontal)
-					.padding(.bottom, 24)
+					.frame(width: 540)
+				Spacer(minLength: 24)
 			}
 			.id(state.id)
 			.transition(
 				.asymmetric(
 					insertion:
-							.move(edge: isMovingForward ? .leading : .trailing)
-							.combined(with: .opacity),
+							.opacity,
+//							.combined(with: .opacity),
 					removal:
-							.move(edge: isMovingForward ? .leading : .trailing)
-							.combined(with: .opacity)
+							.opacity
+//							.combined(with: .opacity)
 				)
 			)
 
@@ -84,16 +85,16 @@ extension OnboardingView: View {
 
 			OnboardingFooter(state: $state) {
 				withAnimation {
-					isMovingForward = false
 					state.back()
+					isMovingForward = false
 				}
 			} secondaryAction: {
 				onComplete?()
 			} primaryAction: {
 				withAnimation {
 					if state.canNext() {
-						isMovingForward = true
 						state.performPrimaryAction()
+						isMovingForward = true
 					} else {
 						onComplete?()
 					}
@@ -104,11 +105,11 @@ extension OnboardingView: View {
 		.background(.ultraThickMaterial)
 		.frame(
 			minWidth: 640,
-			idealWidth: 640,
-			maxWidth: 760,
-			minHeight: 480,
-			idealHeight: 520,
-			maxHeight: 560, alignment: .bottom
+			idealWidth: 720,
+			maxWidth: 820,
+			minHeight: 560,
+			maxHeight: 640,
+			alignment: .bottom
 		)
 	}
 }
@@ -185,6 +186,7 @@ extension Page {
 	static let newFormat = Page(
 		id: "new_format",
 		image: "document.badge.plus",
+		iconColor: .cyan,
 		title: "New File Format",
 		description: "We've upgraded your workflow",
 		features:
@@ -210,6 +212,7 @@ extension Page {
 	static let customization = Page(
 		id: "customization",
 		image: "slider.horizontal.2.square.on.square",
+		iconColor: .cyan,
 		title: "Redesigned Icons",
 		description: "Customize App Appearance",
 		features:
