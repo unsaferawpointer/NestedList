@@ -45,25 +45,25 @@ public extension SemanticImage {
 	var title: String {
 		switch self {
 		case .point:
-			"Point"
+			String(localized: "semantic-image-point", table: "Localizable", bundle: .module)
 		case .folder:
-			"Folder"
+			String(localized: "semantic-image-folder", table: "Localizable", bundle: .module)
 		case .textDoc:
-			"Text Document"
+			String(localized: "semantic-image-document", table: "Localizable", bundle: .module)
 		case .docOnDoc:
-			"Documents"
+			String(localized: "semantic-image-documents", table: "Localizable", bundle: .module)
 		case .shippingbox:
-			"Package"
+			String(localized: "semantic-image-package", table: "Localizable", bundle: .module)
 		case .star:
-			"Star"
+			String(localized: "semantic-image-star", table: "Localizable", bundle: .module)
 		case .archivebox:
-			"Archive Box"
+			String(localized: "semantic-image-archivebox", table: "Localizable", bundle: .module)
 		case .squareStack:
-			"Stack"
+			String(localized: "semantic-image-stack", table: "Localizable", bundle: .module)
 		case .book:
-			"Book"
+			String(localized: "semantic-image-book", table: "Localizable", bundle: .module)
 		case .squareGrid2x2:
-			"Grid"
+			String(localized: "semantic-image-grid", table: "Localizable", bundle: .module)
 		}
 	}
 
