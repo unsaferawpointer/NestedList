@@ -71,14 +71,7 @@ extension OnboardingView: View {
 			}
 			.id(state.id)
 			.transition(
-				.asymmetric(
-					insertion:
-							.opacity,
-//							.combined(with: .opacity),
-					removal:
-							.opacity
-//							.combined(with: .opacity)
-				)
+				.asymmetric(insertion: .opacity, removal: .opacity)
 			)
 
 			Divider()

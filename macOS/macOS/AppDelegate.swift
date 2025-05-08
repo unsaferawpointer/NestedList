@@ -42,6 +42,17 @@ private extension AppDelegate {
 	}
 
 	func showOnboardingIfNeeded() {
+
+		#if DEBUG
+		if CommandLine.arguments.contains("--UITesting") {
+			guard let rawVersion = ProcessInfo.processInfo.environment["onboarding_version"] else {
+				SettingsProvider.shared.state.lastOnboardingVersion = nil
+				return
+			}
+			SettingsProvider.shared.state.lastOnboardingVersion = .init(rawValue: rawVersion)
+		}
+		#endif
+
 		guard let window = OnboardingAssembly.build(settingsProvider: .shared) else {
 			return
 		}

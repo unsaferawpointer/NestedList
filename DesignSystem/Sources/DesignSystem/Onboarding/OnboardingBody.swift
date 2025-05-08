@@ -18,7 +18,7 @@ struct OnboardingBody: View {
 					Image(systemName: feature.icon)
 						.font(.title3)
 						.symbolRenderingMode(.monochrome)
-						.foregroundColor(feature.iconColor?.color ?? .accentColor)
+						.foregroundColor(feature.iconColor?.value ?? .accentColor)
 
 					VStack(alignment: .leading, spacing: 0) {
 						Text(feature.title)

@@ -39,6 +39,7 @@ private extension OnboardingAssembly {
 	static func buildWindow(settingsProvider: SettingsProvider, version: Version) -> NSWindow? {
 
 		let window = NSWindow()
+		window.identifier = .init("onboarding-window")
 
 		guard let pages = try? OnboardingFactory.build(for: version) else {
 			return nil

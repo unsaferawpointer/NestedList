@@ -16,7 +16,7 @@ struct OnboadringHeader: View {
 			Image(systemName: page.image)
 				.font(.system(size: 120))
 				.symbolRenderingMode(.hierarchical)
-				.foregroundColor(page.iconColor?.color ?? .accentColor)
+				.foregroundColor(page.iconColor?.value ?? .accentColor)
 				.padding(8)
 
 			Text(page.title)

@@ -21,9 +21,7 @@ extension macOSUITests {
 
 	func test_createNewAnyTimes() {
 		// Arrange
-		let app = AppPage(app: XCUIApplication())
-		app.launch()
-		app.closeAll()
+		let app = prepareApp()
 
 		// Act
 		for _ in 0..<3 {
@@ -36,9 +34,7 @@ extension macOSUITests {
 
 	func test_createNew() {
 		// Arrange
-		let app = AppPage(app: XCUIApplication())
-		app.launch()
-		app.closeAll()
+		let app = prepareApp()
 
 		// Act
 		app.newDoc()
@@ -52,9 +48,7 @@ extension macOSUITests {
 
 	func test_open() {
 		// Arrange
-		let app = AppPage(app: XCUIApplication())
-		app.launch()
-		app.closeAll()
+		let app = prepareApp()
 
 		// Act
 		app.press("o", modifierFlags: .command)
@@ -66,6 +60,7 @@ extension macOSUITests {
 	func test_save_whenDocumentIsNew() {
 		// Arrange
 		let app = prepareApp()
+		app.newDoc()
 
 		let window = app.firstWindow()
 		let doc = DocumentPage(window: window)
@@ -80,6 +75,7 @@ extension macOSUITests {
 	func test_saveAs() {
 		// Arrange
 		let app = prepareApp()
+		app.newDoc()
 
 		let window = app.firstWindow()
 		let doc = DocumentPage(window: window)
@@ -94,10 +90,24 @@ extension macOSUITests {
 	func test_close() {
 		// Arrange
 		let app = prepareApp()
+		app.newDoc()
 
 		app.press("w", modifierFlags: .command)
 
 		XCTAssertFalse(app.firstWindow().exists)
+	}
+}
+
+// MARK: - Onboarding Support
+extension macOSUITests {
+
+	func test_onboarding() {
+		let app = AppPage(app: XCUIApplication())
+
+		app.launch(with: ["onboarding_version": ""])
+
+		let window = app.onboarding()
+		let _ = OnboardingPage(window: window)
 	}
 }
 
@@ -107,10 +117,8 @@ private extension macOSUITests {
 	func prepareApp() -> AppPage {
 		let app = AppPage(app: XCUIApplication())
 
-		app.launch()
+		app.launch(with: ["onboarding_version": "1.5.0"])
 		app.closeAll()
-
-		app.newDoc()
 
 		return app
 	}

@@ -19,12 +19,20 @@ final class AppPage {
 // MARK: - Public Interface
 extension AppPage {
 
-	func launch() {
+	func launch(with defaults: [String: String] = [:]) {
+		app.launchArguments.append("--UITesting")
+		for (key, value) in defaults {
+			app.launchEnvironment[key] = value
+		}
 		app.launch()
 	}
 
 	func newDoc() {
 		app.typeKey("n", modifierFlags: .command)
+	}
+
+	func onboarding() -> XCUIElement {
+		return app.dialogs["onboarding-window"].firstMatch
 	}
 
 	func firstWindow() -> XCUIElement {

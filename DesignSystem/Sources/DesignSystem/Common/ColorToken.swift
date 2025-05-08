@@ -112,8 +112,8 @@ import SwiftUI
 
 public extension ColorToken {
 
-	var color: Color {
-		Color(uiColor: value)
+	var value: Color {
+		Color(uiColor: color)
 	}
 
 	var color: UIColor {
