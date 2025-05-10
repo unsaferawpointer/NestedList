@@ -49,6 +49,16 @@
 		4CF92CF22CE8CD9600135033 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		4C8DF4112DCF77F9001461BF /* Exceptions for "Units" folder in "macOSUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Import/ImportCoordinator.swift,
+			);
+			target = 4C1F87EA2D458C020093C0BC /* macOSUITests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		4C1F87EC2D458C020093C0BC /* macOSUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -62,6 +72,9 @@
 		};
 		4CB8A7562DC3B66700D3F484 /* Units */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				4C8DF4112DCF77F9001461BF /* Exceptions for "Units" folder in "macOSUITests" target */,
+			);
 			path = Units;
 			sourceTree = "<group>";
 		};
