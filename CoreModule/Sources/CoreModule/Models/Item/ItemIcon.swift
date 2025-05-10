@@ -19,6 +19,7 @@ public enum ItemIcon: Int {
 	case squareGrid2x2 = 7
 
 	case star = 10
+	case heart = 11
 
 }
 

@@ -31,6 +31,7 @@ public enum SemanticImage {
 	case book(filled: Bool = false)
 	case squareGrid2x2(filled: Bool = false)
 	case star(filled: Bool = false)
+	case heart(filled: Bool = false)
 }
 
 // MARK: - Codable
@@ -64,6 +65,8 @@ public extension SemanticImage {
 			String(localized: "semantic-image-book", table: "Localizable", bundle: .module)
 		case .squareGrid2x2:
 			String(localized: "semantic-image-grid", table: "Localizable", bundle: .module)
+		case .heart:
+			String(localized: "semantic-image-heart", table: "Localizable", bundle: .module)
 		}
 	}
 
@@ -89,6 +92,8 @@ public extension SemanticImage {
 			return .orange
 		case .squareGrid2x2:
 			return .blue
+		case .heart:
+			return .red
 		}
 	}
 
@@ -114,6 +119,8 @@ public extension SemanticImage {
 			filled ? "book.closed.fill" : "book.closed"
 		case let .squareGrid2x2(filled):
 			filled ? "square.grid.2x2.fill" : "square.grid.2x2"
+		case .heart(filled: let filled):
+			filled ? "heart.fill" : "heart"
 		}
 	}
 }

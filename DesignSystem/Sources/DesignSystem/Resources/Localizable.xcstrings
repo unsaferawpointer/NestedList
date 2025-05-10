@@ -171,6 +171,23 @@
         }
       }
     },
+    "semantic-image-heart" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heart"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сердце"
+          }
+        }
+      }
+    },
     "semantic-image-package" : {
       "extractionState" : "manual",
       "localizations" : {

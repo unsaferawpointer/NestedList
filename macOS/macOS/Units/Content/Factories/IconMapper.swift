@@ -34,6 +34,8 @@ final class IconMapper {
 			.book(filled: filled)
 		case .squareGrid2x2:
 			.squareGrid2x2(filled: filled)
+		case .heart:
+			.heart(filled: filled)
 		}
 	}
 }
