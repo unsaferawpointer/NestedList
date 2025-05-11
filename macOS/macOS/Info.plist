@@ -6,9 +6,9 @@
 	<array>
 		<dict>
 			<key>CFBundleTypeIconFile</key>
-			<string>DocumentIcon</string>
+			<string></string>
 			<key>CFBundleTypeIconSystemGenerated</key>
-			<integer>0</integer>
+			<integer>1</integer>
 			<key>CFBundleTypeName</key>
 			<string>Nested List</string>
 			<key>CFBundleTypeRole</key>
@@ -30,45 +30,18 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>public.json</string>
+				<string>public.data</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>Nested List</string>
 			<key>UTTypeIconFile</key>
-			<string>DocumentIcon</string>
+			<string></string>
 			<key>UTTypeIcons</key>
 			<dict>
+				<key>UTTypeIconBackgroundName</key>
+				<string>background-icon</string>
 				<key>UTTypeIconBadgeName</key>
-				<string></string>
-				<key>UTTypeIconText</key>
-				<string>List</string>
-			</dict>
-			<key>UTTypeIdentifier</key>
-			<string>dev.zeroindex.nested-list.doc</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>nlist</string>
-				</array>
-			</dict>
-		</dict>
-	</array>
-	<key>UTImportedTypeDeclarations</key>
-	<array>
-		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.json</string>
-			</array>
-			<key>UTTypeDescription</key>
-			<string>Nested List</string>
-			<key>UTTypeIconFile</key>
-			<string>DocumentIcon</string>
-			<key>UTTypeIcons</key>
-			<dict>
-				<key>UTTypeIconBadgeName</key>
-				<string></string>
+				<string>foreground-icon</string>
 				<key>UTTypeIconText</key>
 				<string>List</string>
 			</dict>
