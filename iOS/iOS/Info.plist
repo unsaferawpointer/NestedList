@@ -56,6 +56,32 @@
 			</array>
 		</dict>
 	</dict>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Nested List Document File</string>
+			<key>UTTypeIconFiles</key>
+			<array>
+				<string>foreground-icon</string>
+				<string>foreground-icon@2x</string>
+				<string>foreground-icon@3x</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>dev.zeroindex.nested-list.doc</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>nlist</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
 	<key>UTImportedTypeDeclarations</key>
 	<array>
 		<dict>
@@ -74,25 +100,6 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>txt</string>
-				</array>
-			</dict>
-		</dict>
-		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.json</string>
-			</array>
-			<key>UTTypeDescription</key>
-			<string>Nested List</string>
-			<key>UTTypeIconFiles</key>
-			<array/>
-			<key>UTTypeIdentifier</key>
-			<string>dev.zeroindex.nested-list.doc</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>nlist</string>
 				</array>
 			</dict>
 		</dict>
