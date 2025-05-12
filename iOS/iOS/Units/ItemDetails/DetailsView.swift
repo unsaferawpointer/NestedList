@@ -89,7 +89,6 @@ private extension DetailsView {
 				.onSubmit {
 					focusedField = .note
 				}
-				.keyboardType(.alphabet)
 				.accessibilityIdentifier("textfield-title")
 			TextField(
 				strings.notePlaceholder,
@@ -99,7 +98,6 @@ private extension DetailsView {
 				.focused($focusedField, equals: .note)
 				.font(.callout)
 				.foregroundStyle(.secondary)
-				.keyboardType(.alphabet)
 				.accessibilityIdentifier("textfield-description")
 		} footer: {
 			if !isValid {
