@@ -18,12 +18,6 @@ struct ItemModel {
 	var title: TextConfiguration
 
 	var subtitle: TextConfiguration?
-
-	var status: Bool
-
-	var isMarked: Bool
-
-	var isSection: Bool
 }
 
 // MARK: - Identifiable

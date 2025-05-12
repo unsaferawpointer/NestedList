@@ -12,31 +12,21 @@ final class ListStorage {
 
 	weak var delegate: CacheDelegate?
 
-	// MARK: - State
+	// MARK: - Internal State
 
-	private var expanded: Set<UUID> = []
+	private var state = ListState()
 
-	private var list: [UUID] = []
-
-	// MARK: - Snapshots
-
-	private var snapshot = Snapshot<ItemModel>()
-
-	private var backup: Snapshot<ItemModel>?
+	private var backupState: ListState?
 }
 
 extension ListStorage {
 
 	func destination(for row: Int) -> Destination<UUID> {
-		guard row < list.count else {
-			return .toRoot
-		}
-		let id = list[row]
-		return snapshot.destination(ofItem: id)
+		return state.destination(for: row)
 	}
 
 	var isEmpty: Bool {
-		return list.isEmpty
+		return state.isEmpty
 	}
 }
 
@@ -45,241 +35,123 @@ extension ListStorage {
 
 	func beginMovement(for id: ItemModel.ID) {
 		// Save current state
-		self.backup = snapshot
+		self.backupState = state
 
-		let modificated = modificate { root in
-			root.deleteItem(id)
-		}
-		apply(newSnapshot: modificated)
+		let newState = state.deleted(id: id)
+		apply(newState: newState)
 	}
 
 	@discardableResult
 	func endMovement(for id: ItemModel.ID, to destination: Destination<ItemModel.ID>) -> Destination<ItemModel.ID> {
 		defer {
-			self.backup = nil
+			self.backupState = nil
 		}
-		guard let backup else {
+		guard let backupState else {
 			fatalError("Incosistent state")
 		}
-		// Same location
-		if
-			backup.parent(for: id)?.id == destination.id,
+
+		let resultDestination: Destination<ItemModel.ID> = if
+			backupState.snapshot.parent(for: id)?.id == destination.id,
 			let rawIndex = destination.index,
-			backup.localIndex(for: id) < rawIndex + 1
+			backupState.snapshot.localIndex(for: id) < rawIndex + 1
 		{
-			let shiftedDestination = destination.shifted(by: 1)
-
-			let modificated = modificate { root in
-				let node = Node(value: backup.model(with: id))
-				root.insertItems(from: [node], to: destination)
-			}
-
-			apply(newSnapshot: modificated)
-
-			return shiftedDestination
+			destination.shifted(by: 1)
+		} else {
+			destination
 		}
 
-		let modificated = modificate { root in
-			let node = Node(value: backup.model(with: id))
-			root.insertItems(from: [node], to: destination)
-		}
-		apply(newSnapshot: modificated)
+		let model = backupState.model(for: id)
 
-		return destination
+		let newState = state.inserted(model: model, to: destination)
+
+		apply(newState: newState)
+
+		return resultDestination
+
 	}
 
 	func cancelMovement() {
-		guard let backup else {
+		guard let backupState else {
 			return
 		}
-		self.snapshot = backup
-		apply(newSnapshot: backup)
-		self.backup = nil
-	}
-}
-
-// MARK: - Helpers
-private extension ListStorage {
-
-	func modificate(_ block: (Root<ItemModel>) -> Void) -> Snapshot<ItemModel> {
-		let nodes = snapshot.getNodes()
-		let root = Root<ItemModel>(hierarchy: nodes)
-		block(root)
-		return Snapshot(root.nodes)
+		apply(newState: backupState)
+		self.backupState = nil
 	}
 }
 
 // MARK: - Public interface
 extension ListStorage {
 
+	func apply(snapshot: Snapshot<ItemModel>) {
+		let newState = state.replaced(with: snapshot)
+		apply(newState: newState)
+	}
+
 	var count: Int {
-		return list.count
+		return state.count
 	}
 
 	func row(for id: UUID) -> Int? {
-		return list.firstIndex(of: id)
+		return state.row(for: id)
 	}
 
 	func apply(newSnapshot: Snapshot<ItemModel>) {
-		apply(newSnapshot: newSnapshot, newExpanded: expanded)
+		let newState = ListState(expanded: state.expanded, snapshot: newSnapshot)
+		apply(newState: newState)
 	}
 
 	func rowConfiguration(for index: Int) -> RowConfiguration {
-		let id = list[index]
-		return RowConfiguration(
-			level: snapshot.level(for: id),
-			isExpanded: expanded.contains(id),
-			isLeaf: snapshot.isLeaf(id: id)
-		)
+		return state.configuration(for: index)
 	}
 
 	func identifier(for row: Int) -> UUID {
-		return list[row]
+		return state.identifier(for: row)
 	}
 
 	func model(with index: Int) -> ItemModel {
-		let id = list[index]
-		return snapshot.model(with: id)
+		return state.model(for: index)
 	}
 
 	func toggle(indexPath: IndexPath) {
-		let index = indexPath.row
-		let id = list[index]
 
-		if expanded.contains(id) {
-			collapse(id)
-		} else {
-			expand(id)
-		}
+		let id = state.identifier(for: indexPath.row)
+		let newState = state.toggled(id: id)
+
+		apply(newState: newState)
 	}
 
 	func collapse(_ id: UUID) {
-		expanded.remove(id)
-
-		guard let index = list.firstIndex(of: id) else {
-			assertionFailure("Invalid index of id = \(id)")
-			return
-		}
-
-		let rowConfiguration = RowConfiguration(
-			level: snapshot.level(for: id),
-			isExpanded: false,
-			isLeaf: snapshot.isLeaf(id: id)
-		)
-
-		delegate?.updateCell(indexPath: .init(row: index, section: 0), rowConfiguration: rowConfiguration)
-
-		let oldList = list
-		let newList = snapshot.flattened { item in
-			self.expanded.contains(item.id)
-		}.map(\.id)
-		self.list = newList
-		animate(oldList: oldList, newList: newList)
+		let newState = state.collapsed(id: id)
+		apply(newState: newState)
 	}
 
 	func expandAll() {
-		apply(newSnapshot: snapshot, newExpanded: snapshot.nodeIdentifiers)
+		let newState = state.allExpanded()
+		apply(newState: newState)
 	}
 
 	func collapseAll() {
-		expanded.removeAll()
-		apply(newSnapshot: snapshot)
+		let newState = state.allCollapsed()
+		apply(newState: newState)
 	}
 
 	func expand(_ id: UUID) {
-		expanded.insert(id)
-		guard let index = list.firstIndex(of: id) else {
-			assertionFailure("Invalid index of id = \(id)")
-			return
-		}
-
-		let rowConfiguration = RowConfiguration(
-			level: snapshot.level(for: id),
-			isExpanded: true,
-			isLeaf: snapshot.isLeaf(id: id)
-		)
-
-		delegate?.updateCell(indexPath: .init(row: index, section: 0), rowConfiguration: rowConfiguration)
-
-		let oldList = list
-		let newList = snapshot.flattened { item in
-			self.expanded.contains(item.id)
-		}.map(\.id)
-		self.list = newList
-		animate(oldList: oldList, newList: newList)
+		let newState = state.expanded(id: id)
+		apply(newState: newState)
 	}
 }
 
 // MARK: - Helpers
 private extension ListStorage {
 
-	func apply(newSnapshot: Snapshot<ItemModel>, newExpanded: Set<UUID>) {
-
-		let oldList = list
-		let oldSnapshot = snapshot
-
-		let newList = newSnapshot.flattened { item in
-			newExpanded.contains(item.id)
-		}.map(\.id)
-
-		let updated = Set(oldList).intersection(newList)
-
-		for id in updated {
-
-			let oldIndex = oldList.firstIndex(where: { $0 == id })!
-
-			let oldModel = oldSnapshot.model(with: id)
-			let newModel = newSnapshot.model(with: id)
-
-			let oldConfiguration = RowConfiguration(
-				level: oldSnapshot.level(for: id),
-				isExpanded: expanded.contains(id),
-				isLeaf: oldSnapshot.isLeaf(id: id)
-			)
-
-			let newConfiguration = RowConfiguration(
-				level: newSnapshot.level(for: id),
-				isExpanded: newExpanded.contains(id),
-				isLeaf: newSnapshot.isLeaf(id: id)
-			)
-
-			if oldModel != newModel {
-				delegate?.updateCell(indexPath: .init(row: oldIndex, section: 0), model: newModel)
-			}
-
-			if oldConfiguration != newConfiguration {
-				delegate?.updateCell(indexPath: .init(row: oldIndex, section: 0), rowConfiguration: newConfiguration)
-			}
+	func apply(newState: ListState) {
+		guard let delegate else {
+			assertionFailure("Cannot animate without a delegate.")
+			return
 		}
-
-		self.snapshot = newSnapshot
-		self.expanded = newExpanded
-		self.list = newList
-
-		animate(oldList: oldList, newList: newList)
-
-	}
-
-	func animate(oldList: [UUID], newList: [UUID]) {
-
-		let diff = newList.difference(from: oldList)
-
-		delegate?.beginUpdates()
-
-		var toRemove = [IndexPath]()
-		var toInsert = [IndexPath]()
-		for change in diff {
-			switch change {
-			case let .remove(offset, _, _):
-				let indexPath = IndexPath(row: offset, section: 0)
-				toRemove.append(indexPath)
-			case let .insert(offset, _, _):
-				let indexPath = IndexPath(row: offset, section: 0)
-				toInsert.append(indexPath)
-			}
-		}
-
-		delegate?.update(deleteRows: toRemove, insertRows: toInsert)
-		delegate?.endUpdates()
+		let oldState = state
+		self.state = newState
+		ListAnimator.update(oldState: oldState, newState: newState, delegate: delegate)
+		ListAnimator.animate(oldState: oldState, newState: newState, delegate: delegate)
 	}
 }

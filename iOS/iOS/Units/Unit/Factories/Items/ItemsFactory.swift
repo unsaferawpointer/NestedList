@@ -84,10 +84,7 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			uuid: item.id,
 			icon: iconConfiguration,
 			title: titleConfiguration,
-			subtitle: subtitleConfiguration,
-			status: item.isStrikethrough,
-			isMarked: item.isMarked,
-			isSection: item.style.isSection
+			subtitle: subtitleConfiguration
 		)
 	}
 }

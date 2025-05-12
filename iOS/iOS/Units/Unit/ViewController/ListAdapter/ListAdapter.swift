@@ -31,6 +31,9 @@ final class ListAdapter: NSObject {
 
 	var editingMode: EditingMode? {
 		didSet {
+			guard editingMode != oldValue else {
+				return
+			}
 			tableView?.setEditing(editingMode != nil, animated: true)
 			tableView?.allowsMultipleSelectionDuringEditing = editingMode?.allowSelection ?? false
 			tableView?.reloadData()
@@ -106,7 +109,6 @@ extension ListAdapter: UITableViewDataSource {
 	}
 
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
 		let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! ItemCell
 		cell.indentationWidth = 24
 		cell.layoutMargins.left = 32
@@ -398,7 +400,7 @@ extension ListAdapter: CacheDelegate {
 
 	func update(deleteRows: [IndexPath], insertRows: [IndexPath]) {
 		tableView?.deleteRows(at: deleteRows, with: .fade)
-		tableView?.insertRows(at: insertRows, with: .middle)
+		tableView?.insertRows(at: insertRows, with: .fade)
 	}
 
 	func endUpdates() {
