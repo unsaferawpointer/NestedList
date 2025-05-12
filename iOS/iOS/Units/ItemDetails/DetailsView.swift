@@ -21,7 +21,7 @@ struct DetailsView {
 		return !model.properties.text.isEmpty
 	}
 
-	@FocusState var isFocused: Bool
+	@FocusState private var focusedField: Field?
 
 	// MARK: - Initialization
 
@@ -62,7 +62,10 @@ extension DetailsView: View {
 			.navigationBarTitleDisplayMode(.inline)
 		}
 		.onAppear {
-			self.isFocused = true
+			DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+				focusedField = .title
+			}
+
 		}
 
 	}
@@ -79,19 +82,40 @@ private extension DetailsView {
 				text: $model.properties.text,
 				prompt: Text(strings.textfieldPlaceholder)
 			)
+				.focused($focusedField, equals: .title)
 				.font(.body)
 				.foregroundStyle(.primary)
-				.focused($isFocused)
+				.submitLabel(.continue)
+				.onSubmit {
+					focusedField = .note
+				}
+				.keyboardType(.alphabet)
 				.accessibilityIdentifier("textfield-title")
-			TextField(strings.notePlaceholder, text: $model.properties.description, axis: .vertical)
+			TextField(
+				strings.notePlaceholder,
+				text: $model.properties.description,
+				axis: .vertical
+			)
+				.focused($focusedField, equals: .note)
 				.font(.callout)
 				.foregroundStyle(.secondary)
+				.keyboardType(.alphabet)
 				.accessibilityIdentifier("textfield-description")
 		} footer: {
 			if !isValid {
 				Text(strings.warningText)
 					.foregroundStyle(.red)
 					.accessibilityIdentifier("label-hint")
+			}
+		}
+		.scrollDismissesKeyboard(.interactively)
+		.ignoresSafeArea(.keyboard)
+		.onSubmit {
+			switch focusedField {
+			case .title:
+				focusedField = .note
+			default:
+				focusedField = nil
 			}
 		}
 	}
@@ -144,6 +168,11 @@ private extension DetailsView {
 
 // MARK: - Nested data structs
 extension DetailsView {
+
+	enum Field: Hashable {
+		case title
+		case note
+	}
 
 	struct Model {
 		var navigationTitle: String
