@@ -25,7 +25,7 @@ struct IconPicker: View {
 				) {
 					selection = .noIcon
 				}
-				ForEach(ItemIcon.allCases, id: \.self) { icon in
+				ForEach(IconName.allCases, id: \.self) { icon in
 					IconButton(
 						icon: IconMapper.map(icon: icon).systemName ?? "",
 						isSelected: icon == selection.icon

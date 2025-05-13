@@ -11,7 +11,7 @@ import DesignSystem
 
 final class IconMapper {
 
-	static func map(icon: ItemIcon?, filled: Bool) -> SemanticImage? {
+	static func map(icon: IconName?, filled: Bool) -> SemanticImage? {
 		guard let icon else {
 			return nil
 		}

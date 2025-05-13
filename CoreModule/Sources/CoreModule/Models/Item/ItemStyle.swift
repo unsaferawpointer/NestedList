@@ -32,8 +32,19 @@ public extension ItemStyle {
 		switch self {
 		case .item:
 			return .section(icon: nil)
-		case .section(let icon):
+		case .section:
 			return .item
+		}
+	}
+
+	var color: ItemColor? {
+		get {
+			switch self {
+			case .item:
+				return nil
+			case .section(let icon):
+				return icon?.color
+			}
 		}
 	}
 }

@@ -50,8 +50,12 @@ extension MenuLocalization: MenuLocalizationProtocol {
 		String(localized: "display-as-item-title", table: "MenuLocalizable")
 	}
 
-	var iconItemTitle: String {
-		String(localized: "icon-item-title", table: "MenuLocalizable")
+	var sectionIconItemTitle: String {
+		String(localized: "section-icon-item-title", table: "MenuLocalizable")
+	}
+
+	var sectionColorItemTitle: String {
+		String(localized: "section-color-item-title", table: "MenuLocalizable")
 	}
 
 	var noteItemTitle: String {

@@ -123,18 +123,24 @@ extension ContentPresenter: UnitViewOutput {
 		case .cut:			cut(ids: selection)
 		case .copy:			copy(ids: selection)
 		case .paste:		paste(ids: selection)
-		case .section:		setStyle(style: .section(icon: nil), for: selection)
-		case .plainItem:	setStyle(style: .item, for: selection)
-		case .noIcon:		setStyle(style: .section(icon: nil), for: selection)
+		case .section:		toggleStyle(for: selection)
+		case .noIcon:		interactor?.setIcon(nil, for: selection)
 		default:
 			let components = item.rawValue.split(separator: "-")
 			guard
-				components.count == 2, components.first == "icon",
-				let last = components.last, let index = Int(last)
+				components.count == 2, let last = components.last, let index = Int(last), let key = components.first
 			else {
 				fatalError("Undefined menu item: \(item)")
 			}
-			interactor?.setStyle(.section(icon: ItemIcon(rawValue: index)), for: selection)
+
+			switch key {
+			case "icon":
+				interactor?.setIcon(.init(rawValue: index) ?? .document, for: selection)
+			case "color":
+				interactor?.setColor(.init(rawValue: index) ?? .tertiary, for: selection)
+			default:
+				fatalError()
+			}
 		}
 	}
 	
@@ -145,9 +151,30 @@ extension ContentPresenter: UnitViewOutput {
 		case .paste:
 			let types = Set([stringType])
 			let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
-			return pasteboard.contains(types)			
+			return pasteboard.contains(types)
+		case .noIcon:
+			guard let selection = view?.selection, cache.validate(.isSection, other: selection) != false else {
+				return false
+			}
+			return true
 		default:
-			return view?.selection.isEmpty == false
+
+			let components = item.rawValue.split(separator: "-")
+			guard
+				components.count == 2, let last = components.last, Int(last) != nil, let key = components.first
+			else {
+				return view?.selection.isEmpty == false
+			}
+
+			switch key {
+			case "icon", "color":
+				guard let selection = view?.selection, cache.validate(.isSection, other: selection) != false else {
+					return false
+				}
+				return true
+			default:
+				return view?.selection.isEmpty == false
+			}
 		}
 	}
 	
@@ -209,8 +236,9 @@ private extension ContentPresenter {
 		}
 	}
 
-	func setStyle(style: ItemStyle, for ids: [UUID]) {
-		interactor?.setStyle(style, for: ids)
+	func toggleStyle(for ids: [UUID]) {
+		let isSection = cache.validate(.isSection, other: ids) ?? false
+		interactor?.setStyle(isSection ? .item : .section(icon: nil), for: ids)
 	}
 
 	func delete(ids: [UUID]) {

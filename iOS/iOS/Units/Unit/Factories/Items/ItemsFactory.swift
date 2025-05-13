@@ -96,7 +96,7 @@ extension ItemStyle {
 		case .item:
 			return .point
 		case let .section(icon):
-			return IconMapper.map(icon: icon, filled: false)
+			return IconMapper.map(icon: icon?.name, filled: false)
 		}
 	}
 }

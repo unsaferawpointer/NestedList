@@ -7,20 +7,17 @@
 
 import Foundation
 
-public enum ItemIcon: Int {
+public struct ItemIcon {
 
-	case document = 0
-	case documents = 1
-	case folder = 2
-	case package = 3
-	case archivebox = 4
-	case stack = 5
-	case book = 6
-	case squareGrid2x2 = 7
+	public var name: IconName
+	public var color: ItemColor
 
-	case star = 10
-	case heart = 11
+	// MARK: - Initialization
 
+	public init(name: IconName, color: ItemColor) {
+		self.name = name
+		self.color = color
+	}
 }
 
 // MARK: - Codable
@@ -28,6 +25,3 @@ extension ItemIcon: Codable { }
 
 // MARK: - Hashable
 extension ItemIcon: Hashable { }
-
-// MARK: - CaseIterable
-extension ItemIcon: CaseIterable { }

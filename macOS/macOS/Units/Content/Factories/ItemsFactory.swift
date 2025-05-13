@@ -43,15 +43,17 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		let iconAppearence: IconAppearence = {
 			switch (item.isStrikethrough, item.isMarked) {
 			case (true, _):
-				return .monochrome(token: .disabledText)
+				return .monochrome(token: .tertiary)
 			case (false, true):
 				return .hierarchical(token: .yellow)
 			case (false, false):
-				guard let color = iconColor.color else {
-					return .monochrome(token: iconName?.tintColor ?? .primary)
+				guard item.style != .item else {
+					return .monochrome(token: .tertiary)
 				}
-
-				return item.style.isSection ? .monochrome(token: color) : .monochrome(token: .tertiary)
+				if let color = iconColor.color {
+					return .monochrome(token: color)
+				}
+				return .monochrome(token: ColorMapper.map(color: item.style.color))
 			}
 		}()
 
@@ -78,7 +80,7 @@ extension ItemStyle {
 		case .item:
 			.point
 		case let .section(icon):
-			IconMapper.map(icon: icon, filled: filled)
+			IconMapper.map(icon: icon?.name, filled: filled)
 		}
 	}
 }

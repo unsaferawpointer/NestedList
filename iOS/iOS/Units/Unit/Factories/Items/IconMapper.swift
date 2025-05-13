@@ -11,14 +11,14 @@ import DesignSystem
 
 final class IconMapper {
 
-	static func map(icon: ItemIcon?, filled: Bool) -> SemanticImage? {
+	static func map(icon: IconName?, filled: Bool) -> SemanticImage? {
 		guard let icon else {
 			return nil
 		}
 		return map(icon: icon)
 	}
 
-	static func map(icon: ItemIcon) -> SemanticImage {
+	static func map(icon: IconName) -> SemanticImage {
 		return switch icon {
 		case .document:			.textDoc()
 		case .documents:		.docOnDoc()

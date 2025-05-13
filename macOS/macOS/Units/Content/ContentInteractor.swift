@@ -22,6 +22,8 @@ protocol ContentInteractorProtocol {
 	func toggleStrikethrough(for id: UUID, moveToEnd: Bool)
 	func setMark(_ isMarked: Bool, for ids: [UUID], moveToTop: Bool)
 	func setStyle(_ style: ItemStyle, for ids: [UUID])
+	func setColor(_ color: ItemColor, for ids: [UUID])
+	func setIcon(_ name: IconName?, for ids: [UUID])
 	func set(text: String, note: String?, for id: UUID)
 	func set(note: String?, for ids: [UUID])
 	func deleteItems(_ ids: [UUID])
@@ -118,6 +120,34 @@ extension ContentInteractor: ContentInteractorProtocol {
 	func setStyle(_ style: ItemStyle, for ids: [UUID]) {
 		storage.modificate { content in
 			content.root.setProperty(\.style, to: style, for: ids, downstream: false)
+		}
+	}
+
+	func setIcon(_ name: IconName?, for ids: [UUID]) {
+		storage.modificate { content in
+			for node in content.root.nodes(with: ids) {
+				guard case var .section(icon) = node.value.style else {
+					continue
+				}
+				guard let name else {
+					node.value.style = .section(icon: nil)
+					continue
+				}
+				icon?.name = name
+				node.value.style = .section(icon: icon ?? .init(name: .document, color: .secondary))
+			}
+		}
+	}
+
+	func setColor(_ color: ItemColor, for ids: [UUID]) {
+		storage.modificate { content in
+			for node in content.root.nodes(with: ids) {
+				guard case var .section(icon) = node.value.style else {
+					continue
+				}
+				icon?.color = color
+				node.value.style = .section(icon: icon)
+			}
 		}
 	}
 

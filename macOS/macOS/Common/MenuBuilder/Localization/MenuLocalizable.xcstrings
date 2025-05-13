@@ -49,22 +49,6 @@
         }
       }
     },
-    "icon-item-title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Icon"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Иконка"
-          }
-        }
-      }
-    },
     "marked-item-title" : {
       "localizations" : {
         "en" : {
@@ -157,6 +141,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Свойства пункта"
+          }
+        }
+      }
+    },
+    "section-color-item-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icon Color"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Цвет иконки"
+          }
+        }
+      }
+    },
+    "section-icon-item-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Section Icon"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Иконка секции"
           }
         }
       }

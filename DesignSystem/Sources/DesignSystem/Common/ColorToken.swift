@@ -41,6 +41,55 @@ extension ColorToken: Codable { }
 // MARK: - Hashable
 extension ColorToken: Hashable { }
 
+// MARK: - Computed Properties
+public extension ColorToken {
+
+	var displayName: String {
+		switch self {
+		case .clear:
+			"Transparent"
+		case .accent:
+			"Accent"
+		case .primary:
+			"Primary"
+		case .secondary:
+			"Secondary"
+		case .tertiary:
+			"Tertiary"
+		case .quaternary:
+			"Quaternary"
+		case .disabledText:
+			"Disabled Text"
+		case .red:
+			"Red"
+		case .orange:
+			"Orange"
+		case .yellow:
+			"Yellow"
+		case .green:
+			"Green"
+		case .mint:
+			"Mint"
+		case .teal:
+			"Teal"
+		case .cyan:
+			"Cyan"
+		case .blue:
+			"Blue"
+		case .indigo:
+			"Indigo"
+		case .purple:
+			"Purple"
+		case .pink:
+			"Pink"
+		case .brown:
+			"Brown"
+		case .gray:
+			"Gray"
+		}
+	}
+}
+
 #if os(macOS)
 import AppKit
 import SwiftUI

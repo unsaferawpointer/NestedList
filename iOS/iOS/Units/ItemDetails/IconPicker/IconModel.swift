@@ -10,14 +10,14 @@ import CoreModule
 enum IconModel {
 
 	case noIcon
-	case customIcon(ItemIcon)
+	case customIcon(IconName)
 
-	var icon: ItemIcon? {
+	var icon: IconName? {
 		switch self {
 		case .noIcon:
 			nil
-		case .customIcon(let itemIcon):
-			itemIcon
+		case .customIcon(let name):
+			name
 		}
 	}
 }

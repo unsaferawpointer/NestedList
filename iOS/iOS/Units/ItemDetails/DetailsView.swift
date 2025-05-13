@@ -139,7 +139,7 @@ private extension DetailsView {
 	}
 
 	var iconModels: [IconModel] {
-		return ItemIcon.allCases.map {
+		return IconName.allCases.map {
 			.customIcon($0)
 		}
 	}
@@ -155,9 +155,17 @@ private extension DetailsView {
 					guard let icon else {
 						return .noIcon
 					}
-					return .customIcon(icon)
+					return .customIcon(icon.name)
 				}, set: { (newValue: IconModel) in
-					model.properties.style = .section(icon: newValue.icon)
+					switch newValue {
+					case .noIcon:
+						model.properties.style = .section(icon: nil)
+					case .customIcon(let iconName):
+						model.properties.style = .section(
+							icon: .init(name: iconName, color: .tertiary)
+						)
+					}
+
 				}))
 			}
 		}
