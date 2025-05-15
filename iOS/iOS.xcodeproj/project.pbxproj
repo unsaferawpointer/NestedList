@@ -41,6 +41,7 @@
 		4CF92CAC2CE8A97400135033 /* Exceptions for "iOS" folder in "iOS" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"Info-Release.plist",
 				Info.plist,
 			);
 			target = 4CF92C842CE8A97300135033 /* iOS */;
@@ -350,7 +351,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 48KV35Y6PN;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = iOS/Info.plist;
+				INFOPLIST_FILE = "iOS/Info-Release.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Nested List";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

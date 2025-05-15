@@ -70,7 +70,7 @@ struct ItemsFactoryTests {
 		// Arrange
 		let sut = ItemsFactory()
 
-		let item = Item(text: .random, options: [], style: .section(icon: .document))
+		let item = Item(text: .random, options: [], style: .section(icon: .init(name: .document, color: .tertiary)))
 
 		// Act
 		let result = sut.makeItem(item: item, level: 0, iconColor: .accent)
@@ -88,7 +88,7 @@ struct ItemsFactoryTests {
 		// Arrange
 		let sut = ItemsFactory()
 
-		let item = Item(text: .random, style: .section(icon: .folder))
+		let item = Item(text: .random, style: .section(icon: .init(name: .folder, color: .tertiary)))
 
 		// Act
 		let result = sut.makeItem(item: item, level: 1, iconColor: .neutral)
@@ -106,7 +106,7 @@ struct ItemsFactoryTests {
 		// Arrange
 		let sut = ItemsFactory()
 
-		let item = Item(text: .random, options: [.marked], style: .section(icon: .package))
+		let item = Item(text: .random, options: [.marked], style: .section(icon: .init(name: .package, color: .tertiary)))
 
 		// Act
 		let result = sut.makeItem(item: item, level: 0, iconColor: .neutral)
