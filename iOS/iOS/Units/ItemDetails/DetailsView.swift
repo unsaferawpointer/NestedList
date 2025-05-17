@@ -67,6 +67,7 @@ extension DetailsView: View {
 			.navigationTitle(model.navigationTitle)
 			.navigationBarTitleDisplayMode(.inline)
 		}
+		.scrollDismissesKeyboard(.immediately)
 	}
 }
 
@@ -106,8 +107,6 @@ private extension DetailsView {
 					.accessibilityIdentifier("label-hint")
 			}
 		}
-		.scrollDismissesKeyboard(.interactively)
-		.ignoresSafeArea(.keyboard)
 		.onSubmit {
 			switch focusedField {
 			case .title:
