@@ -4,16 +4,10 @@
 	"description": "Мы улучшили ваш рабочий процесс",
 	"features": [
 	  {
-		"icon": "arrow.down.document",
+		"icon": "arrow.down.doc",
 		"title": "Простое преобразование",
 		"id": "8320D5B3-7C3F-4FD0-900D-499CD71D52A4",
 		"description": "Импортируйте старые TXT-файлы в один клик"
-	  },
-	  {
-		"description": "Экспорт обратно в TXT в любое время",
-		"id": "0FD1C924-5BCB-45D3-9F43-A5D4C8043CC9",
-		"icon": "arrow.up.document",
-		"title": "Полная обратная совместимость"
 	  },
 	  {
 		"description": "Расширенные функции доступны только в новом формате",
@@ -23,32 +17,36 @@
 	  }
 	],
 	"id": "new_format",
-	"image": "document.badge.plus"
+	"image": "doc.badge.plus"
   },
   {
+	"title": "Перенос документов",
+	"description": "Преобразование в современный формат",
 	"features": [
 	  {
-		"description": "Назначайте уникальные иконки для разных категорий",
-		"title": "Уникальные иконки для каждого раздела",
-		"icon": "arrow.down.document",
-		"id": "4ECE070E-A147-455D-AE47-94CC90122B70"
+		"icon": "1.circle.fill",
+		"iconColor": 14,
+		"title": "Импорт документов",
+		"id": "step1",
+		"description": "Выберите нужные .txt файлы"
 	  },
 	  {
-		"icon": "arrow.up.document",
-		"title": "Несколько стилей отображения",
-		"id": "7AA6BFCF-4071-45BD-A737-C962A5995AAF",
-		"description": "Выберите визуальный стиль, который вам подходит"
+		"icon": "2.circle.fill",
+		"iconColor": 15,
+		"title": "Автоматическое преобразование",
+		"id": "step2",
+		"description": "Приложение создаст новый документ в формате .nlist"
 	  },
 	  {
-		"id": "E551B8EB-CF72-4BAF-AA0F-3BFDA92EE304",
-		"icon": "sparkles",
-		"description": "Иконки автоматически адаптируются к светлой/темной теме",
-		"title": "Плавная адаптация к теме"
+		"icon": "checkmark.circle.fill",
+		"iconColor": 13,
+		"title": "Готово",
+		"id": "step3",
+		"description": "Готовые документы сохраняются автоматически — исходные файлы можно удалить"
 	  }
 	],
-	"image": "slider.horizontal.2.square.on.square",
-	"description": "Настройте внешний вид приложения",
-	"title": "Обновленные иконки",
-	"id": "customization"
+	"id": "migration_steps",
+	"image": "arrow.down.doc.fill",
+	"iconColor": 17
   }
 ]
