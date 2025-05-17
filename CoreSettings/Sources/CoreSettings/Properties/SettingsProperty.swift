@@ -9,4 +9,5 @@ import Foundation
 
 protocol SettingsProperty: RawRepresentable {
 	static var key: String { get }
+	static var defaultValue: Self? { get }
 }

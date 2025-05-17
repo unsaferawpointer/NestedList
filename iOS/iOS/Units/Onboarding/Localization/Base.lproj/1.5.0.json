@@ -6,12 +6,14 @@
 	  {
 		"icon": "arrow.down.doc",
 		"title": "Simple Conversion",
+		"iconColor": 3,
 		"id": "8320D5B3-7C3F-4FD0-900D-499CD71D52A4",
 		"description": "Import legacy TXT files with one click"
 	  },
 	  {
 		"description": "Advanced features exclusively available in the new format",
 		"icon": "sparkles",
+		"iconColor": 12,
 		"title": "Exclusive Features",
 		"id": "4E625C7B-0EB1-4ACD-B225-65867E5571BB"
 	  }
@@ -47,6 +49,36 @@
 	],
 	"id": "migration_steps",
 	"image": "arrow.down.doc.fill",
+	"iconColor": 17
+  },
+  {
+	"title": "Section Customization",
+	"description": "Enhanced customization options",
+	"features": [
+	  {
+		"icon": "photo.on.rectangle",
+		"iconColor": 14,
+		"title": "Icon Selection",
+		"id": "step1",
+		"description": "Choose symbols from the library to match your needs"
+	  },
+	  {
+		"icon": "drop.halffull",
+		"iconColor": 15,
+		"title": "Icon Color",
+		"id": "step2",
+		"description": "Adjust shades to highlight priority items"
+	  },
+	  {
+		"icon": "exclamationmark.triangle",
+		"iconColor": 12,
+		"title": "Important Note",
+		"id": "step3",
+		"description": "Custom icon colors are only visible in 'Multicolor' mode"
+	  }
+	],
+	"id": "customization",
+	"image": "slider.horizontal.2.square.on.square",
 	"iconColor": 17
   }
 ]

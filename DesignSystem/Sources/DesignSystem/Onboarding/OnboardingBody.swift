@@ -12,7 +12,7 @@ struct OnboardingBody: View {
 	let features: [Feature]
 
 	var body: some View {
-		VStack(alignment: .leading, spacing: 14) {
+		VStack(alignment: .listRowSeparatorLeading, spacing: 14) {
 			ForEach(features) { feature in
 				HStack(alignment: .firstTextBaseline, spacing: 12) {
 					Image(systemName: feature.icon)

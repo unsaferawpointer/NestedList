@@ -33,4 +33,8 @@ extension OnboardingVersion: SettingsProperty {
 	static var key: String {
 		"onboarding_version"
 	}
+
+	static var defaultValue: OnboardingVersion? {
+		return nil
+	}
 }

@@ -21,6 +21,10 @@ extension IconColor: Hashable { }
 // MARK: - SettingsProperty
 extension IconColor: SettingsProperty {
 
+	static var defaultValue: IconColor? {
+		return .multicolor
+	}
+
 	static var key: String {
 		"section_icon_color"
 	}

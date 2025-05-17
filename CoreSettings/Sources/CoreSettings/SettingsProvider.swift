@@ -66,24 +66,24 @@ public final class SettingsProvider {
 
 	public init() {
 
-		let completionBehaviour = defaults.getProperty(as: CompletionBehavior.self)
-		let markingBehaviour = defaults.getProperty(as: MarkingBehavior.self)
-		let iconColor = defaults.getProperty(as: IconColor.self)
+		let completionBehaviour = defaults.getProperty(as: CompletionBehavior.self) ?? CompletionBehavior.defaultValue
+		let markingBehaviour = defaults.getProperty(as: MarkingBehavior.self) ?? MarkingBehavior.defaultValue
+		let iconColor = defaults.getProperty(as: IconColor.self) ?? IconColor.defaultValue
 		let lastOnboardingVersion = defaults.getProperty(as: OnboardingVersion.self)
 
 		self.state = Settings(
 			completionBehaviour: completionBehaviour ?? .regular,
 			markingBehaviour: markingBehaviour ?? .regular,
-			iconColor: iconColor ?? .neutral,
+			iconColor: iconColor ?? .accent,
 			lastOnboardingVersion: lastOnboardingVersion
 		)
 
 		defaults.register(
 			defaults:
 				[
-					CompletionBehavior.key: CompletionBehavior.regular.rawValue,
-					MarkingBehavior.key: MarkingBehavior.regular.rawValue,
-					IconColor.key: IconColor.neutral.rawValue
+					CompletionBehavior.key: CompletionBehavior.defaultValue?.rawValue,
+					MarkingBehavior.key: MarkingBehavior.defaultValue?.rawValue,
+					IconColor.key: IconColor.defaultValue?.rawValue
 				]
 		)
 
@@ -103,13 +103,13 @@ extension SettingsProvider {
 		// Реакция на изменение настроек
 		let completionBehaviour = defaults.getProperty(as: CompletionBehavior.self)
 		let markingBehaviour = defaults.getProperty(as: MarkingBehavior.self)
-		let iconColor = defaults.getProperty(as: IconColor.self)
+		let iconColor = defaults.getProperty(as: IconColor.self) ?? IconColor.defaultValue
 		let lastOnboardingVersion = defaults.getProperty(as: OnboardingVersion.self)
 
 		let current = Settings(
 			completionBehaviour: completionBehaviour ?? .regular,
 			markingBehaviour: markingBehaviour ?? .regular,
-			iconColor: iconColor ?? .neutral,
+			iconColor: iconColor ?? .accent,
 			lastOnboardingVersion: lastOnboardingVersion
 		)
 

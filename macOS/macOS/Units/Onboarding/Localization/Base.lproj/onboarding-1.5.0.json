@@ -51,5 +51,35 @@
 	"id": "migration_steps",
 	"image": "arrow.down.doc.fill",
 	"iconColor": 17
+  },
+  {
+	"title": "Section Customization",
+	"description": "Enhanced customization options",
+	"features": [
+	  {
+		"icon": "photo.on.rectangle",
+		"iconColor": 14,
+		"title": "Icon Selection",
+		"id": "step1",
+		"description": "Choose symbols from the library to match your needs"
+	  },
+	  {
+		"icon": "drop.halffull",
+		"iconColor": 15,
+		"title": "Icon Color",
+		"id": "step2",
+		"description": "Adjust shades to highlight priority items"
+	  },
+	  {
+		"icon": "exclamationmark.triangle",
+		"iconColor": 12,
+		"title": "Important Note",
+		"id": "step3",
+		"description": "Custom icon colors are only visible in 'Multicolor' mode"
+	  }
+	],
+	"id": "customization",
+	"image": "slider.horizontal.2.square.on.square",
+	"iconColor": 17
   }
 ]

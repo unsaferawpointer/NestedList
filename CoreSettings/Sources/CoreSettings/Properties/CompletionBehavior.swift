@@ -18,6 +18,10 @@ extension CompletionBehavior: Hashable { }
 // MARK: - SettingsProperty
 extension CompletionBehavior: SettingsProperty {
 
+	static var defaultValue: CompletionBehavior? {
+		return .regular
+	}
+
 	static var key: String {
 		"completion_behavior"
 	}
