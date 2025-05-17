@@ -17,6 +17,22 @@
         }
       }
     },
+    "color-picker-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Color"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цвет"
+          }
+        }
+      }
+    },
     "icons-picker-title" : {
       "localizations" : {
         "en" : {
@@ -50,7 +66,20 @@
       }
     },
     "no-icon-title" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Icon"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Без иконки"
+          }
+        }
+      }
     },
     "note-placeholder" : {
       "localizations" : {

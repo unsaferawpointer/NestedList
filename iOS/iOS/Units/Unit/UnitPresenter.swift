@@ -136,7 +136,9 @@ extension UnitPresenter: InteractionDelegate {
 				self?.view?.hideDetails()
 				if success {
 					let note = saved.description.isEmpty ? nil : saved.description
-					self?.interactor?.set(saved.text, note: note, isMarked: saved.isMarked, style: saved.style, for: id)
+					let style: ItemStyle = saved.isSection ? .section(icon: saved.icon) : .item
+
+					self?.interactor?.set(saved.text, note: note, isMarked: saved.isMarked, style: style, for: id)
 				}
 			}
 		case .new:
@@ -267,11 +269,13 @@ private extension UnitPresenter {
 			self?.view?.hideDetails()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
+				let style: ItemStyle = saved.isSection ? .section(icon: saved.icon) : .item
+
 				guard let id = self?.interactor?.newItem(
 					saved.text,
 					note: note,
 					isMarked: saved.isMarked,
-					style: saved.style,
+					style: style,
 					target: target
 				) else {
 					return
@@ -299,7 +303,8 @@ private extension Item {
 			text: text,
 			description: note ?? "",
 			isMarked: isMarked,
-			style: style
+			isSection: style != .item,
+			icon: style.icon
 		)
 	}
 }

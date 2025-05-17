@@ -19,4 +19,6 @@ struct DetailsLocalization {
 
 	let iconsPickerTitle = String(localized: "icons-picker-title", table: "DetailsLocalizable")
 	let noIconTitle = String(localized: "no-icon-title", table: "DetailsLocalizable")
+
+	let colorPickerTitle = String(localized: "color-picker-title", table: "DetailsLocalizable")
 }

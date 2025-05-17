@@ -47,45 +47,45 @@ public extension ColorToken {
 	var displayName: String {
 		switch self {
 		case .clear:
-			"Transparent"
+			String(localized: "transparent-display-name", table: "ColorLocalizable")
 		case .accent:
-			"Accent"
+			String(localized: "accent-display-name", table: "ColorLocalizable")
 		case .primary:
-			"Primary"
+			String(localized: "primary-display-name", table: "ColorLocalizable")
 		case .secondary:
-			"Secondary"
+			String(localized: "secondary-display-name", table: "ColorLocalizable")
 		case .tertiary:
-			"Tertiary"
+			String(localized: "tertiary-display-name", table: "ColorLocalizable")
 		case .quaternary:
-			"Quaternary"
+			String(localized: "quaternary-display-name", table: "ColorLocalizable")
 		case .disabledText:
-			"Disabled Text"
+			String(localized: "disabled-text-display-name", table: "ColorLocalizable")
 		case .red:
-			"Red"
+			String(localized: "red-display-name", table: "ColorLocalizable")
 		case .orange:
-			"Orange"
+			String(localized: "orange-display-name", table: "ColorLocalizable")
 		case .yellow:
-			"Yellow"
+			String(localized: "yellow-display-name", table: "ColorLocalizable")
 		case .green:
-			"Green"
+			String(localized: "green-display-name", table: "ColorLocalizable")
 		case .mint:
-			"Mint"
+			String(localized: "mint-display-name", table: "ColorLocalizable")
 		case .teal:
-			"Teal"
+			String(localized: "teal-display-name", table: "ColorLocalizable")
 		case .cyan:
-			"Cyan"
+			String(localized: "cyan-display-name", table: "ColorLocalizable")
 		case .blue:
-			"Blue"
+			String(localized: "blue-display-name", table: "ColorLocalizable")
 		case .indigo:
-			"Indigo"
+			String(localized: "indigo-display-name", table: "ColorLocalizable")
 		case .purple:
-			"Purple"
+			String(localized: "purple-display-name", table: "ColorLocalizable")
 		case .pink:
-			"Pink"
+			String(localized: "pink-display-name", table: "ColorLocalizable")
 		case .brown:
-			"Brown"
+			String(localized: "brown-display-name", table: "ColorLocalizable")
 		case .gray:
-			"Gray"
+			String(localized: "gray-display-name", table: "ColorLocalizable")
 		}
 	}
 }

@@ -50,32 +50,34 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			nil
 		}
 
-		let iconName = item.style.icon
+		let iconName = item.style.semanticImage
 
 		let iconAppearence: IconAppearence = {
 			switch (item.isStrikethrough, item.isMarked) {
 			case (true, _):
-				return .monochrome(token: .disabledText)
+				return .monochrome(token: .tertiary)
 			case (false, true):
 				return .hierarchical(token: .yellow)
 			case (false, false):
-				guard let color = iconColor.color else {
-					return .monochrome(token: iconName?.tintColor ?? .primary)
+				guard item.style != .item else {
+					return .monochrome(token: .tertiary)
 				}
-
-				return item.style.isSection ? .monochrome(token: color) : .monochrome(token: .tertiary)
+				if let color = iconColor.color {
+					return .monochrome(token: color)
+				}
+				return .monochrome(token: ColorMapper.map(color: item.style.color))
 			}
 		}()
 
 		let iconConfiguration: IconConfiguration? = switch item.style {
 		case .item:
 			IconConfiguration(
-				name: item.style.icon,
+				name: item.style.semanticImage,
 				appearence: .hierarchical(token: item.isMarked && !item.isStrikethrough ? .yellow : .quaternary)
 			)
 		case .section:
 			IconConfiguration(
-				name: item.style.icon,
+				name: item.style.semanticImage,
 				appearence: iconAppearence
 			)
 		}
@@ -91,7 +93,16 @@ extension ItemsFactory: ItemsFactoryProtocol {
 
 extension ItemStyle {
 
-	var icon: SemanticImage? {
+	var icon: ItemIcon? {
+		switch self {
+		case .item:
+			return nil
+		case .section(let icon):
+			return icon
+		}
+	}
+
+	var semanticImage: SemanticImage? {
 		switch self {
 		case .item:
 			return .point
