@@ -47,45 +47,45 @@ public extension ColorToken {
 	var displayName: String {
 		switch self {
 		case .clear:
-			String(localized: "transparent-display-name", table: "ColorLocalizable")
+			String(localized: "transparent-display-name", table: "ColorLocalizable", bundle: .module)
 		case .accent:
-			String(localized: "accent-display-name", table: "ColorLocalizable")
+			String(localized: "accent-display-name", table: "ColorLocalizable", bundle: .module)
 		case .primary:
-			String(localized: "primary-display-name", table: "ColorLocalizable")
+			String(localized: "primary-display-name", table: "ColorLocalizable", bundle: .module)
 		case .secondary:
-			String(localized: "secondary-display-name", table: "ColorLocalizable")
+			String(localized: "secondary-display-name", table: "ColorLocalizable", bundle: .module)
 		case .tertiary:
-			String(localized: "tertiary-display-name", table: "ColorLocalizable")
+			String(localized: "tertiary-display-name", table: "ColorLocalizable", bundle: .module)
 		case .quaternary:
-			String(localized: "quaternary-display-name", table: "ColorLocalizable")
+			String(localized: "quaternary-display-name", table: "ColorLocalizable", bundle: .module)
 		case .disabledText:
-			String(localized: "disabled-text-display-name", table: "ColorLocalizable")
+			String(localized: "disabled-text-display-name", table: "ColorLocalizable", bundle: .module)
 		case .red:
-			String(localized: "red-display-name", table: "ColorLocalizable")
+			String(localized: "red-display-name", table: "ColorLocalizable", bundle: .module)
 		case .orange:
-			String(localized: "orange-display-name", table: "ColorLocalizable")
+			String(localized: "orange-display-name", table: "ColorLocalizable", bundle: .module)
 		case .yellow:
-			String(localized: "yellow-display-name", table: "ColorLocalizable")
+			String(localized: "yellow-display-name", table: "ColorLocalizable", bundle: .module)
 		case .green:
-			String(localized: "green-display-name", table: "ColorLocalizable")
+			String(localized: "green-display-name", table: "ColorLocalizable", bundle: .module)
 		case .mint:
-			String(localized: "mint-display-name", table: "ColorLocalizable")
+			String(localized: "mint-display-name", table: "ColorLocalizable", bundle: .module)
 		case .teal:
-			String(localized: "teal-display-name", table: "ColorLocalizable")
+			String(localized: "teal-display-name", table: "ColorLocalizable", bundle: .module)
 		case .cyan:
-			String(localized: "cyan-display-name", table: "ColorLocalizable")
+			String(localized: "cyan-display-name", table: "ColorLocalizable", bundle: .module)
 		case .blue:
-			String(localized: "blue-display-name", table: "ColorLocalizable")
+			String(localized: "blue-display-name", table: "ColorLocalizable", bundle: .module)
 		case .indigo:
-			String(localized: "indigo-display-name", table: "ColorLocalizable")
+			String(localized: "indigo-display-name", table: "ColorLocalizable", bundle: .module)
 		case .purple:
-			String(localized: "purple-display-name", table: "ColorLocalizable")
+			String(localized: "purple-display-name", table: "ColorLocalizable", bundle: .module)
 		case .pink:
-			String(localized: "pink-display-name", table: "ColorLocalizable")
+			String(localized: "pink-display-name", table: "ColorLocalizable", bundle: .module)
 		case .brown:
-			String(localized: "brown-display-name", table: "ColorLocalizable")
+			String(localized: "brown-display-name", table: "ColorLocalizable", bundle: .module)
 		case .gray:
-			String(localized: "gray-display-name", table: "ColorLocalizable")
+			String(localized: "gray-display-name", table: "ColorLocalizable", bundle: .module)
 		}
 	}
 }
