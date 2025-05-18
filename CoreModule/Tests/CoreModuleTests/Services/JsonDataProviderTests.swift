@@ -39,7 +39,7 @@ extension JsonDataProviderTests {
 							text: "item 0",
 							note: nil,
 							options: [],
-							style: .section(icon: nil)
+							style: .section(icon: .init(name: .document, color: .secondary))
 						),
 						children:
 							[
@@ -48,7 +48,8 @@ extension JsonDataProviderTests {
 										uuid: .uuid00,
 										text: "item 0 0",
 										note: nil,
-										options: []
+										options: [],
+										style: .section(icon: nil)
 									),
 									children:
 										[

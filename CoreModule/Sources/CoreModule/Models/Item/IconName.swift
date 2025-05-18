@@ -9,18 +9,18 @@ import Foundation
 
 public enum IconName: Int {
 
-	case document = 0
-	case documents = 1
-	case folder = 2
-	case package = 3
-	case archivebox = 4
-	case stack = 5
-	case book = 6
-	case squareGrid2x2 = 7
+	case document = 10
+	case documents = 11
+	case folder = 12
+	case package = 13
+	case archivebox = 14
+	case stack = 15
+	case book = 16
+	case squareGrid2x2 = 17
+	case listStar = 18
 
-	case star = 10
-	case heart = 11
-
+	case star = 100
+	case heart = 101
 }
 
 // MARK: - Codable

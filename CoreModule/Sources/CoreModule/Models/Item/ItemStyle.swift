@@ -16,7 +16,37 @@ public enum ItemStyle {
 extension ItemStyle: Hashable { }
 
 // MARK: - Codable
-extension ItemStyle: Codable { }
+extension ItemStyle: Codable {
+
+	public init(from decoder: any Decoder) throws {
+		let container = try decoder.container(keyedBy: CodingKeys.self)
+		var allKeys = ArraySlice(container.allKeys)
+		guard let onlyKey = allKeys.popFirst(), allKeys.isEmpty else {
+			throw DecodingError.typeMismatch(
+				ItemStyle.self,
+				DecodingError.Context(
+					codingPath: container.codingPath,
+					debugDescription: "Invalid number of keys found, expected one.",
+					underlyingError: nil
+				)
+			)
+		}
+		switch onlyKey {
+		case .item:
+			self = .item
+		case .section:
+			let nestedContainer = try container.nestedContainer(
+				keyedBy: ItemStyle.SectionCodingKeys.self,
+				forKey: .section
+			)
+			let icon = try? nestedContainer.decodeIfPresent(
+				ItemIcon.self,
+				forKey: ItemStyle.SectionCodingKeys.icon
+			)
+			self = .section(icon: icon)
+		}
+	}
+}
 
 // MARK: - Public Interface
 public extension ItemStyle {

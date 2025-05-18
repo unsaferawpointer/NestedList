@@ -30,6 +30,7 @@ final class IconMapper {
 		case .book:				.book()
 		case .squareGrid2x2:	.squareGrid2x2()
 		case .heart:			.heart()
+		case .listStar:			.listStar()
 		}
 	}
 }

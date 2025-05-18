@@ -22,7 +22,12 @@
               "text" : "item 0 0",
               "uuid" : "CFC579A2-0780-41D0-A714-B837F04AB629",
 			  "style": {
-				  "item": {}
+				  "section": {
+					  "icon": {
+						  "name": 999,
+						  "color": 999
+					  }
+				  }
 			  }
             }
           }
@@ -32,7 +37,12 @@
           "text" : "item 0",
           "uuid" : "7D851F9C-BD99-4EA2-AB6E-BB73B861C93B",
 		  "style": {
-			  "section": { }
+			  "section": {
+				  "icon": {
+					  "name": 10,
+					  "color": 3
+				  }
+			  }
 		  }
         }
       },

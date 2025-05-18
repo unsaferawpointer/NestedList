@@ -188,6 +188,23 @@
         }
       }
     },
+    "semantic-image-list-star" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "List"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Список"
+          }
+        }
+      }
+    },
     "semantic-image-package" : {
       "extractionState" : "manual",
       "localizations" : {

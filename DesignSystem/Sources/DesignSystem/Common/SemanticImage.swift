@@ -32,6 +32,7 @@ public enum SemanticImage {
 	case squareGrid2x2(filled: Bool = false)
 	case star(filled: Bool = false)
 	case heart(filled: Bool = false)
+	case listStar(filled: Bool = false)
 }
 
 // MARK: - Codable
@@ -67,6 +68,8 @@ public extension SemanticImage {
 			String(localized: "semantic-image-grid", table: "Localizable", bundle: .module)
 		case .heart:
 			String(localized: "semantic-image-heart", table: "Localizable", bundle: .module)
+		case .listStar:
+			String(localized: "semantic-image-list-star", table: "Localizable", bundle: .module)
 		}
 	}
 
@@ -94,6 +97,8 @@ public extension SemanticImage {
 			return .blue
 		case .heart:
 			return .red
+		case .listStar:
+			return .yellow
 		}
 	}
 
@@ -121,6 +126,8 @@ public extension SemanticImage {
 			filled ? "square.grid.2x2.fill" : "square.grid.2x2"
 		case .heart(filled: let filled):
 			filled ? "heart.fill" : "heart"
+		case .listStar(filled: let filled):
+			filled ? nil : "text.badge.star"
 		}
 	}
 }
