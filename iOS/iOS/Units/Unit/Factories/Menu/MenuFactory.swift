@@ -26,8 +26,8 @@ extension MenuFactory {
 					items:
 						[
 							buildItem(id: .cut, title: localization.cutItemTitle, iconName: "scissors"),
-							buildItem(id: .copy, title: localization.copyItemTitle, iconName: "document.on.document"),
-							buildItem(id: .paste, title: localization.pasteItemTitle, iconName: "document.on.clipboard")
+							buildItem(id: .copy, title: localization.copyItemTitle, iconName: "doc.on.doc"),
+							buildItem(id: .paste, title: localization.pasteItemTitle, iconName: "doc.on.clipboard")
 						]
 				)
 			),
@@ -40,7 +40,7 @@ extension MenuFactory {
 					size: .automatic,
 					items:
 						[
-							buildItem(id: .completed, title: localization.strikethroughItemTitle, state: isCompleted.state),
+							buildItem(id: .strikethrough, title: localization.strikethroughItemTitle, state: isCompleted.state),
 							buildItem(id: .marked, title: localization.markedItemTitle, state: isMarked.state),
 							buildItem(id: .style, title: localization.sectionItemTitle, state: isSection.state)
 						]
@@ -57,14 +57,14 @@ private extension MenuFactory {
 	func buildItem(
 		id: ElementIdentifier,
 		title: String,
-		iconName: String = "",
+		iconName: String? = nil,
 		state: ControlState = .off,
 		attributes: MenuElement.Attributes = []
 	) -> MenuElement {
 		return MenuElement(
 			id: id.rawValue,
 			title: title,
-			icon: .systemName(iconName),
+			icon: iconName,
 			content: .item(state: state, attributes: attributes)
 		)
 	}

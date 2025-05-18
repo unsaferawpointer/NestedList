@@ -1,8 +1,8 @@
 //
-//  File.swift
+//  NSUserInterfaceItemIdentifier+Extension.swift
 //  DesignSystem
 //
-//  Created by Anton Cherkasov on 12.04.2025.
+//  Created by Anton Cherkasov on 02.05.2025.
 //
 
 #if canImport(AppKit)

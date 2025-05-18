@@ -73,20 +73,30 @@ extension Parser: ParserProtocol {
 				continue
 			}
 
-			let isDone = contains(prefix: .ex, orAnnotation: .done, in: line)
+			let isStrikethrough = contains(prefix: .ex, orAnnotation: .done, in: line)
 			let isMarked = contains(prefix: .asterisk, orAnnotation: .mark, in: line)
 			let isFolded = contains(prefix: .greaterThan, orAnnotation: .fold, in: line)
 
-			let style: Item.Style = line.hasColon ? .section : .item
+			var options: ItemOptions = []
+			if isStrikethrough && !line.hasColon {
+				options.insert(.strikethrough)
+			}
+			if isMarked && !line.hasColon {
+				options.insert(.marked)
+			}
+			if isFolded {
+				options.insert(.folded)
+			}
 
 			let item = Item(
 				uuid: .init(),
-				isDone: isDone && style == .item,
-				isMarked: isMarked && style == .item,
-				isFolded: isFolded,
 				text: line.text,
-				style: style
+				options: options,
+				style: line.hasColon
+					? .section(icon: .init(name: .document, color: .tertiary))
+					: .item
 			)
+
 			let node = Node<Model>(value: item)
 			previous = node
 
@@ -132,7 +142,7 @@ private extension Parser {
 				return item.isFolded ? .greaterThan : .dash
 			}
 
-			return switch (item.isDone, item.isMarked) {
+			return switch (item.isStrikethrough, item.isMarked) {
 			case (true, _): 		.ex
 			case (false, true): 	.asterisk
 			default: 				.dash

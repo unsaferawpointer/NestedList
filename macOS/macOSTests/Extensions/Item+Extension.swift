@@ -11,12 +11,9 @@ extension Item {
 
 	static var random: Item {
 		return .init(
-			uuid: .init(),
-			isDone: Bool.random(),
-			isMarked: Bool.random(),
 			text: .random,
 			note: .random,
-			style: .item
+			options: []
 		)
 	}
 }

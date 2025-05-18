@@ -47,26 +47,56 @@ extension ToolbarFactory {
 			.init(
 				id: "more",
 				title: "",
-				icon: .systemName("ellipsis.circle"),
+				icon: "ellipsis.circle",
 				content: .menu(
 					items:
 						[
 							.init(
-								id: ElementIdentifier.select.rawValue,
-								title: localization.selectItemTitle,
-								icon: .systemName("checkmark.circle"),
-								content: .item(state: .off, attributes: [])
+								id: "",
+								content: .menu(
+									options: .inline,
+									size: .large,
+									items:
+										[
+											.init(
+												id: ElementIdentifier.select.rawValue,
+												title: localization.selectItemTitle,
+												icon: "checkmark.circle",
+												content: .item(state: .off, attributes: [])
+											),
+											.init(
+												id: ElementIdentifier.reorder.rawValue,
+												title: localization.reorderItemTitle,
+												icon: "line.3.horizontal",
+												content: .item(state: .off, attributes: [])
+											)
+										]
+								)
 							),
 							.init(
-								id: ElementIdentifier.reorder.rawValue,
-								title: localization.reorderItemTitle,
-								icon: .systemName("line.3.horizontal"),
-								content: .item(state: .off, attributes: [])
+								id: "",
+								content: .menu(
+									options: .inline,
+									size: .large,
+									items:
+										[
+											.init(
+												id: ElementIdentifier.expandAll.rawValue,
+												title: localization.expandAllItemTitle,
+												content: .item(state: .off, attributes: [])
+											),
+											.init(
+												id: ElementIdentifier.collapseAll.rawValue,
+												title: localization.collapseAllItemTitle,
+												content: .item(state: .off, attributes: [])
+											)
+										]
+								)
 							),
 							.init(
 								id: ElementIdentifier.settings.rawValue,
 								title: localization.settingsItemTitle,
-								icon: .systemName("slider.horizontal.2.square"),
+								icon: "slider.horizontal.2.square",
 								content: .item(state: .off, attributes: [])
 							)
 						]
@@ -92,26 +122,27 @@ extension ToolbarFactory {
 						[
 							.init(
 								id: ElementIdentifier.cut.rawValue,
-								title: localization.cutItemTitle, icon: .systemName("scissors"),
+								title: localization.cutItemTitle,
+								icon: "scissors",
 								content: .item(state: .off, attributes: [])
 							),
 							.init(
 								id: ElementIdentifier.copy.rawValue,
 								title: localization.copyItemTitle,
-								icon: .systemName("document.on.document"),
+								icon: "doc.on.doc",
 								content: .item(state: .off, attributes: [])
 							),
 							.init(
 								id: ElementIdentifier.paste.rawValue,
 								title: localization.pasteItemTitle,
-								icon: .systemName("document.on.clipboard"),
+								icon: "doc.on.clipboard",
 								content: .item(state: .off, attributes: [])
 							)
 						]
 				)
 			),
 			.init(
-				id: ElementIdentifier.completed.rawValue,
+				id: ElementIdentifier.strikethrough.rawValue,
 				title: localization.strikethroughItemTitle,
 				content: .item(state: isCompleted.state, attributes: [])
 			),
@@ -135,7 +166,7 @@ extension ToolbarFactory {
 							.init(
 								id: ElementIdentifier.delete.rawValue,
 								title: localization.deleteItemTitle,
-								icon: .systemName("trash"),
+								icon: "trash",
 								content: .item(state: .off, attributes: [.destructive])
 							)
 						]
@@ -146,18 +177,23 @@ extension ToolbarFactory {
 		return switch editingMode {
 		case .selection:
 			[
-				.init(id: ElementIdentifier.completed.rawValue, title: "", icon: .systemName("checkmark"), isEnabled: !isEmpty),
 				.init(id: "", title: "", content: .flexible),
 				.init(id: "", title: "", content: .status(text: statusTitle)),
 				.init(id: "", title: "", content: .flexible),
-				.init(id: ElementIdentifier.delete.rawValue, title: "", icon: .systemName("ellipsis.circle"), content: .menu(items: items), isEnabled: !isEmpty)
+				.init(
+					id: ElementIdentifier.delete.rawValue,
+					title: "",
+					icon: "ellipsis.circle",
+					content: .menu(items: items),
+					isEnabled: !isEmpty
+				)
 			]
 		case .reordering:
 			[]
 		case nil:
 			[
 				.init(id: "", title: "", content: .flexible),
-				.init(id: ElementIdentifier.new.rawValue, title: "", icon: .systemName("plus"))
+				.init(id: ElementIdentifier.new.rawValue, title: "", icon: "plus")
 			]
 		}
 	}

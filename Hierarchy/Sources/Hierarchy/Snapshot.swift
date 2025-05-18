@@ -189,8 +189,12 @@ public extension Snapshot {
 		return storage[unsafe: id].level
 	}
 
-	func index(for id: ID) -> Int {
+	func globalIndex(for id: ID) -> Int {
 		return storage[unsafe: id].globalIndex
+	}
+
+	func localIndex(for id: ID) -> Int {
+		return storage[unsafe: id].localIndex
 	}
 
 	func rootItem(at index: Int) -> Model {

@@ -13,7 +13,7 @@ import CoreModule
 import CoreSettings
 
 protocol ItemsFactoryProtocol {
-	func makeItem(item: Item, level: Int, sectionStyle: SectionStyle) -> ItemModel
+	func makeItem(item: Item, level: Int, iconColor: IconColor) -> ItemModel
 }
 
 final class ItemsFactory { }
@@ -21,54 +21,66 @@ final class ItemsFactory { }
 // MARK: - ItemsFactoryProtocol
 extension ItemsFactory: ItemsFactoryProtocol {
 
-	func makeItem(item: Item, level: Int, sectionStyle: SectionStyle) -> ItemModel {
+	func makeItem(item: Item, level: Int, iconColor: IconColor) -> ItemModel {
 
 		let textConfiguration: TextConfiguration = switch item.style {
 		case .item:
 			TextConfiguration(
 				style: .body,
-				colorToken: item.isDone ? .disabledText : .primary,
-				strikethrough: item.isDone
+				colorToken: item.isStrikethrough ? .disabledText : .primary,
+				strikethrough: item.isStrikethrough
 			)
 		case .section:
 			TextConfiguration(
 				style: .headline,
-				colorToken: item.isDone ? .disabledText : .primary,
-				strikethrough: item.isDone
+				colorToken: item.isStrikethrough ? .disabledText : .primary,
+				strikethrough: item.isStrikethrough
 			)
 		}
 
-		let pointConfiguration: PointConfiguration? = switch item.style {
-		case .item:
-			PointConfiguration(color: item.isMarked && !item.isDone ? .yellow : .quaternary)
-		case .section:
-			sectionStyle == .point
-			? PointConfiguration(color: item.isMarked && !item.isDone ? .yellow : .quaternary)
-			: nil
-		}
+		let iconName = item.style.icon(filled: false)
 
-		let iconConfiguration: IconConfiguration? = switch item.style {
-		case .item:
+		let iconAppearence: IconAppearence = {
+			switch (item.isStrikethrough, item.isMarked) {
+			case (true, _):
+				return .monochrome(token: .tertiary)
+			case (false, true):
+				return .hierarchical(token: .yellow)
+			case (false, false):
+				guard item.style != .item else {
+					return .monochrome(token: .tertiary)
+				}
+				if let color = iconColor.color {
+					return .monochrome(token: color)
+				}
+				return .monochrome(token: ColorMapper.map(color: item.style.color))
+			}
+		}()
+
+		let iconConfiguration: IconConfiguration? = if let iconName {
+			IconConfiguration(name: iconName, appearence: iconAppearence)
+		} else {
 			nil
-		case .section:
-			sectionStyle == .icon
-			? IconConfiguration(
-				name: .named("custom.text.page"),
-				appearence: .hierarchical(token: item.isMarked && !item.isDone ? .yellow : .tertiary)
-			)
-			: nil
 		}
 
 		return ItemModel(
 			id: item.id,
 			value: .init(title: item.text, subtitle: item.note),
-			configuration: .init(
-				point: pointConfiguration,
-				icon: iconConfiguration,
-				text: textConfiguration
-			),
-			isGroup: item.style == .section,
+			configuration: .init(icon: iconConfiguration, text: textConfiguration),
+			isGroup: item.style.isSection,
 			height: item.note != nil ? 36 : nil
 		)
+	}
+}
+
+extension ItemStyle {
+
+	func icon(filled: Bool) -> SemanticImage? {
+		switch self {
+		case .item:
+			.point
+		case let .section(icon):
+			IconMapper.map(icon: icon?.name, filled: filled)
+		}
 	}
 }

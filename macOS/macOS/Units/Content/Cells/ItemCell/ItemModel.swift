@@ -34,7 +34,6 @@ struct ItemModel: CellModel {
 extension ItemModel {
 
 	struct Configuration: Equatable {
-		var point: PointConfiguration?
 		var icon: IconConfiguration?
 		var text: TextConfiguration
 	}
@@ -49,8 +48,4 @@ struct TextConfiguration: Equatable {
 	var style: NSFont.TextStyle
 	var colorToken: ColorToken
 	var strikethrough: Bool
-}
-
-struct PointConfiguration: Equatable {
-	var color: ColorToken
 }

@@ -21,7 +21,9 @@ protocol ContentInteractorProtocol {
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool)
 	func toggleStrikethrough(for id: UUID, moveToEnd: Bool)
 	func setMark(_ isMarked: Bool, for ids: [UUID], moveToTop: Bool)
-	func setStyle(_ style: Item.Style, for ids: [UUID])
+	func setStyle(_ style: ItemStyle, for ids: [UUID])
+	func setColor(_ color: ItemColor, for ids: [UUID])
+	func setIcon(_ name: IconName?, for ids: [UUID])
 	func set(text: String, note: String?, for id: UUID)
 	func set(note: String?, for ids: [UUID])
 	func deleteItems(_ ids: [UUID])
@@ -70,12 +72,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 		let nodes = storage.state.root.nodes(with: ids)
 		let copied = nodes.map { node in
 			node.map { item in
-				Item(
-					uuid: .random,
-					isDone: item.isDone,
-					text: item.text,
-					style: item.style
-				)
+				item.copy()
 			}
 		}
 		storage.modificate { content in
@@ -84,7 +81,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 	}
 
 	func newItem(_ text: String, target: UUID?) -> UUID {
-		let new = Item(uuid: .random, text: text, style: .item)
+		let new = Item(uuid: .random, text: text)
 		let destination = Destination(target: target)
 		storage.modificate { content in
 			content.root.insertItems(with: [new], to: destination)
@@ -94,7 +91,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool) {
 		storage.modificate { content in
-			content.root.setProperty(\.isDone, to: status, for: ids, downstream: true)
+			content.root.setProperty(\.isStrikethrough, to: status, for: ids, downstream: true)
 			if moveToEnd && status {
 				content.root.moveToEnd(ids)
 			}
@@ -103,8 +100,8 @@ extension ContentInteractor: ContentInteractorProtocol {
 
 	func toggleStrikethrough(for id: UUID, moveToEnd: Bool) {
 		storage.modificate { content in
-			let status = content.root.node(with: id)?.value.isDone ?? false
-			content.root.setProperty(\.isDone, to: !status, for: [id], downstream: true)
+			let status = content.root.node(with: id)?.value.isStrikethrough ?? false
+			content.root.setProperty(\.isStrikethrough, to: !status, for: [id], downstream: true)
 			if moveToEnd && status == false {
 				content.root.moveToEnd([id])
 			}
@@ -120,9 +117,41 @@ extension ContentInteractor: ContentInteractorProtocol {
 		}
 	}
 
-	func setStyle(_ style: CoreModule.Item.Style, for ids: [UUID]) {
+	func setStyle(_ style: ItemStyle, for ids: [UUID]) {
 		storage.modificate { content in
 			content.root.setProperty(\.style, to: style, for: ids, downstream: false)
+		}
+	}
+
+	func setIcon(_ name: IconName?, for ids: [UUID]) {
+		storage.modificate { content in
+			for node in content.root.nodes(with: ids) {
+				guard case let .section(icon) = node.value.style else {
+					continue
+				}
+				guard let name else {
+					node.value.style = .section(icon: nil)
+					continue
+				}
+				if var icon {
+					icon.name = name
+					node.value.style = .section(icon: icon)
+				} else {
+					node.value.style = .section(icon: .init(name: name, color: .tertiary))
+				}
+			}
+		}
+	}
+
+	func setColor(_ color: ItemColor, for ids: [UUID]) {
+		storage.modificate { content in
+			for node in content.root.nodes(with: ids) {
+				guard case var .section(icon) = node.value.style else {
+					continue
+				}
+				icon?.color = color
+				node.value.style = .section(icon: icon)
+			}
 		}
 	}
 

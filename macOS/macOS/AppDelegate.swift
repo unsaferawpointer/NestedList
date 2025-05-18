@@ -6,19 +6,18 @@
 //
 
 import Cocoa
+import DesignSystem
 
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
 
+	var onboardingWindow: NSWindow?
+
+	var importCoordinator: ImportCoordinator?
+
 	func applicationDidFinishLaunching(_ aNotification: Notification) {
-		if let menu = NSApplication.shared.mainMenu {
-
-			let item = NSMenuItem()
-			item.title = "Editor"
-			item.submenu = MenuBuilder.build()
-
-			menu.insertItem(item, at: 3)
-		}
+		prepareMenu()
+		showOnboardingIfNeeded()
 	}
 
 	func applicationWillTerminate(_ aNotification: Notification) {
@@ -30,12 +29,53 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 }
 
+// MARK: - Helpers
+private extension AppDelegate {
+
+	func prepareMenu() {
+		if let menu = NSApplication.shared.mainMenu {
+
+			let item = NSMenuItem()
+			item.title = "Editor"
+			item.submenu = MenuBuilder.build()
+
+			menu.insertItem(item, at: 3)
+		}
+	}
+
+	func showOnboardingIfNeeded() {
+
+		#if DEBUG
+		if CommandLine.arguments.contains("--UITesting") {
+			guard let rawVersion = ProcessInfo.processInfo.environment["onboarding_version"] else {
+				SettingsProvider.shared.state.lastOnboardingVersion = nil
+				return
+			}
+			SettingsProvider.shared.state.lastOnboardingVersion = .init(rawValue: rawVersion)
+		}
+		#endif
+
+		guard let window = OnboardingAssembly.build(settingsProvider: .shared) else {
+			return
+		}
+		self.onboardingWindow = window
+		window.center()
+		NSApp.runModal(for: window)
+	}
+}
+
 import SwiftUI
 import CoreModule
 import CoreSettings
 
 // MARK: - Actions
 extension AppDelegate {
+
+	// MARK: - Импорт файла
+	@IBAction func importFile(_ sender: Any) {
+		importCoordinator = ImportCoordinator()
+		importCoordinator?.start()
+	}
 
 	@IBAction
 	func showPreferences(_ sender: Any) {

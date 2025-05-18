@@ -7,7 +7,7 @@
 
 import Foundation
 
-public final class Root<Value: NodeValue> {
+public final class Root<Value: Identifiable & Hashable> {
 
 	public typealias ID = Value.ID
 
@@ -82,12 +82,21 @@ public extension Root {
 // MARK: - Helpers
 private extension Root {
 
-	func storeInCache(_ items: [Node<Value>]) {
+	func storeInCache(_ items: [Node<Value>]) where Value: NodeValue {
 		for item in items {
 			item.enumerate {
 				if cache[$0.id] != nil {
 					$0.value.generateIdentifier()
 				}
+				cache[$0.id] = $0
+			}
+		}
+	}
+
+	func storeInCache(_ items: [Node<Value>]) {
+		for item in items {
+			item.enumerate {
+				if cache[$0.id] != nil { }
 				cache[$0.id] = $0
 			}
 		}

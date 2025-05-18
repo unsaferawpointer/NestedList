@@ -1,6 +1,22 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "collapse_all_menu_item_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collapse All"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Свернуть все"
+          }
+        }
+      }
+    },
     "copy_menu_item_title" : {
       "localizations" : {
         "en" : {
@@ -61,6 +77,22 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "Готово"
+          }
+        }
+      }
+    },
+    "expand_all_menu_item_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expand All"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Развернуть все"
           }
         }
       }

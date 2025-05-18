@@ -7,4 +7,5 @@
 
 enum DocumentError: Error {
 	case unexpectedFormat
+	case unknownVersion
 }

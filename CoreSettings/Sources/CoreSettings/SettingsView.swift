@@ -39,6 +39,21 @@ public struct SettingsView: View {
 					Text(localization.markingBehaviourDescription)
 				}
 			}
+			Section(localization.styleSectionTitle) {
+				Picker(selection: $model.settings.iconColor) {
+					Text(localization.neutralSectionIconColorName)
+						.tag(IconColor.neutral)
+					Text(localization.accentSectionIconsColorDescription)
+						.tag(IconColor.accent)
+					Text(localization.primarySectionIconsColorDescription)
+						.tag(IconColor.primary)
+					Text(localization.multicolorSectionIconsColorDescription)
+						.tag(IconColor.multicolor)
+				} label: {
+					Text(localization.sectionIconsColorTitle)
+				}
+
+			}
 		}
 		.formStyle(.grouped)
 		#if os(macOS)

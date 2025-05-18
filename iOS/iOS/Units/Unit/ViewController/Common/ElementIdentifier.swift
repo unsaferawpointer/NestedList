@@ -14,7 +14,7 @@ enum ElementIdentifier: String {
 	case copy
 	case paste
 	case delete
-	case completed
+	case strikethrough
 	case marked
 	case style
 
@@ -22,4 +22,7 @@ enum ElementIdentifier: String {
 	case reorder
 	case settings
 	case done
+
+	case expandAll
+	case collapseAll
 }

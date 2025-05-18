@@ -13,7 +13,7 @@ extension Settings {
 		return .init(
 			completionBehaviour: .regular,
 			markingBehaviour: .regular,
-			sectionStyle: .icon
+			lastOnboardingVersion: nil
 		)
 	}
 }

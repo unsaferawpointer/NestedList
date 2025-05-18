@@ -19,34 +19,16 @@ Create and edit nested lists with ease..
 
 ## Introduction
 
-My goal is to create an application for reading and editing nested lists in plain-text file format:
-
-version 1.0.0 (deprecated)
-```
-Section:
-	- Marked Task 0 @mark
-		- Subtask 0
-		Note for Subtask 0
-		- Completed Subtask 1 @done
-	- Task 1
-		- Subtask 1 0
-```
-
-version 2.0.0
-```
-- Section:
-	* Marked Task 0
-		- Subtask 0
-		Note for Subtask 0
-		x Completed Subtask 1
-	- Task 1
-		- Subtask 1 0
-```
+Nested List — a **minimalist editor** for working with hierarchical lists
 
 ## Features
 
 * Creating and editing nested lists of any complexity.
 * Ability to customize the style and formatting of lists.
+* `.nlist` file format (JSON-based)  
+* Auto-save and iCloud sync  
+* Automatic version conflict resolution  
+* Clean interface with no clutter  
 * Drag&Drop support.
 * Hotkeys support.
 
@@ -61,9 +43,9 @@ version 2.0.0
 	- Open the context menu to delete selected items
 	- Press ⌘⌫ to delete selected items
 * Customization:
-	- Go to Edit > Style to change the style of the selected items
+	- Go to Edit > Display As to change the style of the selected items
 	- Access the context menu to change the style of selected items
-	- Choose Editor > Completed to toggle the completion status
+	- Choose Editor > Strikethrough to toggle the completion status
 * Drag & Drop:
 	- Drag plain text to the document
 	- Move selected items to another document

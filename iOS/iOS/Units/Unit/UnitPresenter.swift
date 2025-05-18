@@ -37,7 +37,7 @@ final class UnitPresenter {
 			let model = toolbarFactory.build(
 				editingMode: editingMode,
 				selectedCount: selection.count,
-				isCompleted: cache.validate(.isDone, other: selection),
+				isCompleted: cache.validate(.isStrikethrough, other: selection),
 				isMarked: cache.validate(.isMarked, other: selection),
 				isSection: cache.validate(.isSection, other: selection)
 			)
@@ -67,19 +67,27 @@ extension UnitPresenter: UnitPresenterProtocol {
 	func present(_ content: Content) {
 
 		var snapshot = Snapshot(content.root.nodes)
-		snapshot.validate(keyPath: \.isDone)
+		snapshot.validate(keyPath: \.isStrikethrough)
 		snapshot.validate(keyPath: \.isMarked)
 
-		cache.store(.isDone, keyPath: \.isDone, equalsTo: true, from: snapshot)
+		cache.store(.isStrikethrough, keyPath: \.isStrikethrough, equalsTo: true, from: snapshot)
 		cache.store(.isMarked, keyPath: \.isMarked, equalsTo: true, from: snapshot)
-		cache.store(.isSection, keyPath: \.style, equalsTo: .section, from: snapshot)
+		cache.store(property: .isSection, from: snapshot) { item in
+			item.style.isSection
+		}
 
 		let converted = snapshot
 			.map { info in
-				factory.makeItem(
+
+				let isGroup = (content.root.node(with: info.model.id)?.children ?? []).contains { node in
+					node.value.style.isSection
+				}
+
+				return factory.makeItem(
 					item: info.model,
 					level: info.level,
-					sectionStyle: settingsProvider.state.sectionStyle
+					isGroup: isGroup,
+					iconColor: settingsProvider.state.iconColor
 				)
 			}
 		view?.display(converted)
@@ -99,7 +107,7 @@ extension UnitPresenter: ViewDelegate {
 		let toolbar = toolbarFactory.build(
 			editingMode: editingMode,
 			selectedCount: 0,
-			isCompleted: cache.validate(.isDone, other: view?.selection ?? []),
+			isCompleted: cache.validate(.isStrikethrough, other: view?.selection ?? []),
 			isMarked: cache.validate(.isMarked, other: view?.selection ?? []),
 			isSection: cache.validate(.isSection, other: view?.selection ?? [])
 		)
@@ -128,7 +136,9 @@ extension UnitPresenter: InteractionDelegate {
 				self?.view?.hideDetails()
 				if success {
 					let note = saved.description.isEmpty ? nil : saved.description
-					self?.interactor?.set(saved.text, note: note, isMarked: saved.isMarked, style: saved.style, for: id)
+					let style: ItemStyle = saved.isSection ? .section(icon: saved.icon) : .item
+
+					self?.interactor?.set(saved.text, note: note, isMarked: saved.isMarked, style: style, for: id)
 				}
 			}
 		case .new:
@@ -158,10 +168,10 @@ extension UnitPresenter: InteractionDelegate {
 		case .delete:
 			editingMode = nil
 			interactor?.deleteItems(currentSelection ?? [])
-		case .completed:
+		case .strikethrough:
 			editingMode = nil
 			let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
-			let newValue = !(cache.validate(.isDone, other: currentSelection ?? []) ?? false)
+			let newValue = !(cache.validate(.isStrikethrough, other: currentSelection ?? []) ?? false)
 			interactor?.setStatus(newValue, for: currentSelection ?? [], moveToEnd: moveToEnd)
 		case .marked:
 			editingMode = nil
@@ -171,7 +181,7 @@ extension UnitPresenter: InteractionDelegate {
 		case .style:
 			editingMode = nil
 			let newValue = !(cache.validate(.isSection, other: currentSelection ?? []) ?? false)
-			interactor?.setStyle(newValue ? .section : .item, for: currentSelection ?? [])
+			interactor?.setStyle(newValue ? .section(icon: nil) : .item, for: currentSelection ?? [])
 		case .select:
 			editingMode = .selection
 		case .reorder:
@@ -180,6 +190,10 @@ extension UnitPresenter: InteractionDelegate {
 			view?.showSettings()
 		case .done:
 			editingMode = nil
+		case .expandAll:
+			view?.expandAll()
+		case .collapseAll:
+			view?.collapseAll()
 		}
 	}
 }
@@ -198,7 +212,7 @@ extension UnitPresenter: ListDelegate {
 		let toolbar = toolbarFactory.build(
 			editingMode: editingMode,
 			selectedCount: ids.count,
-			isCompleted: cache.validate(.isDone, other: ids),
+			isCompleted: cache.validate(.isStrikethrough, other: ids),
 			isMarked: cache.validate(.isMarked, other: ids),
 			isSection: cache.validate(.isSection, other: ids)
 		)
@@ -207,7 +221,7 @@ extension UnitPresenter: ListDelegate {
 
 	func menu(for ids: [UUID]) -> [MenuElement] {
 		menuFactory.build(
-			isCompleted: cache.validate(.isDone, other: ids),
+			isCompleted: cache.validate(.isStrikethrough, other: ids),
 			isMarked: cache.validate(.isMarked, other: ids),
 			isSection: cache.validate(.isSection, other: ids)
 		)
@@ -255,23 +269,28 @@ private extension UnitPresenter {
 			self?.view?.hideDetails()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
-				self?.interactor?.newItem(
+				let style: ItemStyle = saved.isSection ? .section(icon: saved.icon) : .item
+
+				guard let id = self?.interactor?.newItem(
 					saved.text,
 					note: note,
 					isMarked: saved.isMarked,
-					style: saved.style,
+					style: style,
 					target: target
-				)
+				) else {
+					return
+				}
 				if let target {
 					self?.view?.expand(target)
 				}
+				self?.view?.scroll(to: id)
 			}
 		}
 	}
 }
 
 enum Property: Hashable {
-	case isDone
+	case isStrikethrough
 	case isMarked
 	case isItem
 	case isSection
@@ -284,7 +303,8 @@ private extension Item {
 			text: text,
 			description: note ?? "",
 			isMarked: isMarked,
-			style: style
+			isSection: style != .item,
+			icon: style.icon
 		)
 	}
 }

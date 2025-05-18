@@ -13,12 +13,12 @@ protocol UnitInteractorProtocol {
 	func fetchData()
 
 	@discardableResult
-	func newItem(_ text: String, note: String?, isMarked: Bool, style: Item.Style, target: UUID?) -> UUID
+	func newItem(_ text: String, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID
 	func deleteItems(_ ids: [UUID])
-	func setStatus(_ isDone: Bool, for ids: [UUID], moveToEnd: Bool)
+	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool)
 	func mark(_ isMarked: Bool, ids: [UUID], moveToTop: Bool)
-	func setStyle(_ style: Item.Style, for ids: [UUID])
-	func set(_ text: String, note: String?, isMarked: Bool, style: Item.Style, for id: UUID)
+	func setStyle(_ style: ItemStyle, for ids: [UUID])
+	func set(_ text: String, note: String?, isMarked: Bool, style: ItemStyle, for id: UUID)
 	func item(for id: UUID) -> Item
 
 	func string(for ids: [UUID]) -> String
@@ -54,8 +54,12 @@ extension UnitInteractor: UnitInteractorProtocol {
 		presenter?.present(storage.state)
 	}
 
-	func newItem(_ text: String, note: String?, isMarked: Bool, style: Item.Style, target: UUID?) -> UUID {
-		let new = Item(uuid: UUID(), isMarked: isMarked, text: text, note: note, style: style)
+	func newItem(_ text: String, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID {
+		var options = ItemOptions()
+		if isMarked {
+			options.insert(.marked)
+		}
+		let new = Item(uuid: UUID(), text: text, note: note, options: options, style: style)
 		let destination = Destination(target: target)
 		storage.modificate { content in
 			content.root.insertItems(with: [new], to: destination)
@@ -76,10 +80,10 @@ extension UnitInteractor: UnitInteractorProtocol {
 		}
 	}
 
-	func setStatus(_ isDone: Bool, for ids: [UUID], moveToEnd: Bool) {
+	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool) {
 		storage.modificate { content in
-			content.root.setProperty(\.isDone, to: isDone, for: ids, downstream: true)
-			if moveToEnd && isDone {
+			content.root.setProperty(\.isStrikethrough, to: isStrikethrough, for: ids, downstream: true)
+			if moveToEnd && isStrikethrough {
 				content.root.moveToEnd(ids)
 			}
 		}
@@ -94,13 +98,13 @@ extension UnitInteractor: UnitInteractorProtocol {
 		}
 	}
 
-	func setStyle(_ style: Item.Style, for ids: [UUID]) {
+	func setStyle(_ style: ItemStyle, for ids: [UUID]) {
 		storage.modificate { content in
 			content.root.setProperty(\.style, to: style, for: ids)
 		}
 	}
 
-	func set(_ text: String, note: String?, isMarked: Bool, style: Item.Style, for id: UUID) {
+	func set(_ text: String, note: String?, isMarked: Bool, style: ItemStyle, for id: UUID) {
 		storage.modificate { content in
 			content.root.setProperty(\.text, to: text, for: [id])
 			content.root.setProperty(\.note, to: note, for: [id])

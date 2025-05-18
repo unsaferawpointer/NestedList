@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import DesignSystem
 import CoreModule
 
 struct DetailsView {
@@ -20,7 +21,7 @@ struct DetailsView {
 		return !model.properties.text.isEmpty
 	}
 
-	@FocusState var isFocused: Bool
+	@FocusState private var focusedField: Field?
 
 	// MARK: - Initialization
 
@@ -36,42 +37,14 @@ extension DetailsView: View {
 	var body: some View {
 		NavigationStack {
 			Form {
-				Section {
-					TextField(
-						"",
-						text: $model.properties.text,
-						prompt: Text(strings.textfieldPlaceholder)
-					)
-						.font(.body)
-						.foregroundStyle(.primary)
-						.focused($isFocused)
-						.accessibilityIdentifier("textfield-title")
-					TextField(strings.notePlaceholder, text: $model.properties.description, axis: .vertical)
-						.font(.callout)
-						.foregroundStyle(.secondary)
-						.accessibilityIdentifier("textfield-description")
-				} footer: {
-					if !isValid {
-						Text(strings.warningText)
-							.foregroundStyle(.red)
-							.accessibilityIdentifier("label-hint")
-					}
+				buildInfoSection()
+				buildProperties()
+				if model.properties.isSection {
+					buildIconPicker()
 				}
-				Section(strings.propertiesSectionTitle) {
-					Toggle(isOn: $model.properties.isMarked) {
-						Text(strings.markToggleTitle)
-					}
-					.tint(.accentColor)
-					.accessibilityIdentifier("toggle-is-marked")
-					Toggle(isOn: .init(get: {
-						model.properties.style == .section
-					}, set: { newValue in
-						model.properties.style = newValue ? .section : .item
-					})) {
-						Text(strings.sectionToggleTitle)
-					}
-					.tint(.accentColor)
-					.accessibilityIdentifier("toggle-is-section")
+
+				if model.properties.icon != nil && model.properties.isSection {
+					buildColorPicker()
 				}
 			}
 			.formStyle(.automatic)
@@ -94,34 +67,153 @@ extension DetailsView: View {
 			.navigationTitle(model.navigationTitle)
 			.navigationBarTitleDisplayMode(.inline)
 		}
-		.onAppear {
-			self.isFocused = true
-		}
+		.scrollDismissesKeyboard(.immediately)
+	}
+}
 
+// MARK: - Helpers
+private extension DetailsView {
+
+	@ViewBuilder
+	func buildInfoSection() -> some View {
+		Section {
+			TextField(
+				"",
+				text: $model.properties.text,
+				prompt: Text(strings.textfieldPlaceholder)
+			)
+				.focused($focusedField, equals: .title)
+				.font(.body)
+				.foregroundStyle(.primary)
+				.submitLabel(.continue)
+				.onSubmit {
+					focusedField = .note
+				}
+				.accessibilityIdentifier("textfield-title")
+			TextField(
+				strings.notePlaceholder,
+				text: $model.properties.description,
+				axis: .vertical
+			)
+				.focused($focusedField, equals: .note)
+				.font(.callout)
+				.foregroundStyle(.secondary)
+				.submitLabel(.return)
+				.accessibilityIdentifier("textfield-description")
+		} footer: {
+			if !isValid {
+				Text(strings.warningText)
+					.foregroundStyle(.red)
+					.accessibilityIdentifier("label-hint")
+			}
+		}
+		.onSubmit {
+			switch focusedField {
+			case .title:
+				focusedField = .note
+			default:
+				focusedField = nil
+			}
+		}
+	}
+
+	@ViewBuilder
+	func buildProperties() -> some View {
+		Section(strings.propertiesSectionTitle) {
+			Toggle(isOn: $model.properties.isMarked) {
+				Text(strings.markToggleTitle)
+			}
+			.tint(.accentColor)
+			.accessibilityIdentifier("toggle-is-marked")
+			Toggle(isOn: $model.properties.isSection) {
+				Text(strings.sectionToggleTitle)
+			}
+			.tint(.accentColor)
+			.accessibilityIdentifier("toggle-is-section")
+		}
+	}
+
+	var iconModels: [IconModel] {
+		return IconName.allCases.map {
+			.customIcon($0)
+		}
+	}
+
+	@ViewBuilder
+	func buildIconPicker() -> some View {
+		Section(strings.iconsPickerTitle) {
+			IconPicker(selection: .init(get: {
+				guard model.properties.isSection else {
+					return .noIcon
+				}
+				guard let icon = model.properties.icon?.name else {
+					return .noIcon
+				}
+				return .customIcon(icon)
+			}, set: { (newValue: IconModel) in
+				switch newValue {
+				case .noIcon:
+					model.properties.icon = nil
+				case .customIcon(let iconName):
+					let color = model.properties.icon?.color ?? .tertiary
+					model.properties.icon = ItemIcon(name: iconName, color: color)
+				}
+
+			}))
+		}
+	}
+
+	@ViewBuilder
+	func buildColorPicker() -> some View {
+		Section(strings.colorPickerTitle) {
+			ColorPicker(selection: .init(get: {
+				guard model.properties.isSection else {
+					return .tertiary
+				}
+				guard let color = model.properties.icon?.color else {
+					return .tertiary
+				}
+				return color
+			}, set: { (newValue: ItemColor) in
+				guard let icon = model.properties.icon else {
+					return
+				}
+				model.properties.icon? = ItemIcon(name: icon.name, color: newValue)
+			}))
+		}
 	}
 }
 
 // MARK: - Nested data structs
 extension DetailsView {
 
+	enum Field: Hashable {
+		case title
+		case note
+	}
+
 	struct Model {
 		var navigationTitle: String
 		var properties: Properties
+		var focus: DetailsView.Field?
 	}
 
 	struct Properties {
 		var text: String
 		var description: String = ""
 		var isMarked: Bool = false
-		var style: Item.Style = .item
+		var isSection: Bool = false
+		var icon: ItemIcon?
 	}
 }
 
 #Preview {
 	DetailsView(item: .init(
 		navigationTitle: "New Item",
-		properties: .init(text: ""))) { _, _ in
+		properties: .init(text: "", isSection: false)
+	)
+	) { _, _ in
 
 	}
-		.environment(\.locale, .init(identifier: "ru_RU"))
+	.environment(\.locale, .init(identifier: "ru_RU"))
 }

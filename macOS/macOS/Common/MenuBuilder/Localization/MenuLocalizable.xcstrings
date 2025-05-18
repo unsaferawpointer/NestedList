@@ -17,6 +17,22 @@
         }
       }
     },
+    "display-as-item-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Display As"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отображать как"
+          }
+        }
+      }
+    },
     "editor-menu-title" : {
       "localizations" : {
         "en" : {
@@ -65,6 +81,22 @@
         }
       }
     },
+    "no-icon-item-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Icon"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Без иконки"
+          }
+        }
+      }
+    },
     "note-item-title" : {
       "localizations" : {
         "en" : {
@@ -81,6 +113,22 @@
         }
       }
     },
+    "plain-item-item-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plain Item"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Простой пункт"
+          }
+        }
+      }
+    },
     "properties-header-title" : {
       "localizations" : {
         "en" : {
@@ -93,6 +141,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Свойства пункта"
+          }
+        }
+      }
+    },
+    "section-color-item-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icon Color"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Цвет иконки"
+          }
+        }
+      }
+    },
+    "section-icon-item-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Section Icon"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Иконка секции"
           }
         }
       }

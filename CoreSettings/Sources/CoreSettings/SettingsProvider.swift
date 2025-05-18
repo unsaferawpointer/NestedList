@@ -15,7 +15,18 @@ private extension UserDefaults {
 		return P(rawValue: rawValue)
 	}
 
+	func getProperty<P: SettingsProperty>(as type: P.Type) -> P? where P.RawValue == String {
+		guard let rawValue = string(forKey: P.key) else {
+			return nil
+		}
+		return P(rawValue: rawValue)
+	}
+
 	func setProperty<P: SettingsProperty>(_ property: P) where P.RawValue == Int {
+		setValue(property.rawValue, forKey: P.key)
+	}
+
+	func setProperty<P: SettingsProperty>(_ property: P) where P.RawValue == String {
 		setValue(property.rawValue, forKey: P.key)
 	}
 }
@@ -36,9 +47,10 @@ public final class SettingsProvider {
 
 			defaults.setValuesForKeys(
 				[
-					CompletionBehavior.key : state.completionBehaviour.rawValue,
-					MarkingBehavior.key : state.markingBehaviour.rawValue,
-					SectionStyle.key : state.sectionStyle.rawValue
+					CompletionBehavior.key: state.completionBehaviour.rawValue,
+					MarkingBehavior.key: state.markingBehaviour.rawValue,
+					IconColor.key: state.iconColor.rawValue,
+					OnboardingVersion.key: state.lastOnboardingVersion?.rawValue
 				]
 			)
 
@@ -54,22 +66,24 @@ public final class SettingsProvider {
 
 	public init() {
 
-		let completionBehaviour = defaults.getProperty(as: CompletionBehavior.self)
-		let markingBehaviour = defaults.getProperty(as: MarkingBehavior.self)
-		let sectionStyle = defaults.getProperty(as: SectionStyle.self)
+		let completionBehaviour = defaults.getProperty(as: CompletionBehavior.self) ?? CompletionBehavior.defaultValue
+		let markingBehaviour = defaults.getProperty(as: MarkingBehavior.self) ?? MarkingBehavior.defaultValue
+		let iconColor = defaults.getProperty(as: IconColor.self) ?? IconColor.defaultValue
+		let lastOnboardingVersion = defaults.getProperty(as: OnboardingVersion.self)
 
 		self.state = Settings(
 			completionBehaviour: completionBehaviour ?? .regular,
 			markingBehaviour: markingBehaviour ?? .regular,
-			sectionStyle: sectionStyle ?? .icon
+			iconColor: iconColor ?? .accent,
+			lastOnboardingVersion: lastOnboardingVersion
 		)
 
 		defaults.register(
 			defaults:
 				[
-					CompletionBehavior.key: CompletionBehavior.regular.rawValue,
-					MarkingBehavior.key: MarkingBehavior.regular.rawValue,
-					SectionStyle.key: SectionStyle.icon.rawValue
+					CompletionBehavior.key: CompletionBehavior.defaultValue?.rawValue,
+					MarkingBehavior.key: MarkingBehavior.defaultValue?.rawValue,
+					IconColor.key: IconColor.defaultValue?.rawValue
 				]
 		)
 
@@ -89,12 +103,14 @@ extension SettingsProvider {
 		// Реакция на изменение настроек
 		let completionBehaviour = defaults.getProperty(as: CompletionBehavior.self)
 		let markingBehaviour = defaults.getProperty(as: MarkingBehavior.self)
-		let sectionStyle = defaults.getProperty(as: SectionStyle.self)
+		let iconColor = defaults.getProperty(as: IconColor.self) ?? IconColor.defaultValue
+		let lastOnboardingVersion = defaults.getProperty(as: OnboardingVersion.self)
 
 		let current = Settings(
 			completionBehaviour: completionBehaviour ?? .regular,
 			markingBehaviour: markingBehaviour ?? .regular,
-			sectionStyle: sectionStyle ?? .icon
+			iconColor: iconColor ?? .accent,
+			lastOnboardingVersion: lastOnboardingVersion
 		)
 
 		guard current != state else {

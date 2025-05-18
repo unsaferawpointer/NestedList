@@ -30,7 +30,7 @@ class DocumentBrowserViewController: UIDocumentBrowserViewController, UIDocument
 
 		os_log("==> Creating A New Document.", log: .default, type: .debug)
 
-		let url = FileManager.default.temporaryDirectory.appendingPathComponent("NewDocument.txt")
+		let url = FileManager.default.temporaryDirectory.appendingPathComponent("New List.nlist")
 
 		let doc = Document(fileURL: url)
 
@@ -100,8 +100,22 @@ class DocumentBrowserViewController: UIDocumentBrowserViewController, UIDocument
 
 	// UIDocumentBrowserViewController is telling us to open a selected a document.
 	func documentBrowser(_ controller: UIDocumentBrowserViewController, didPickDocumentsAt documentURLs: [URL]) {
+		
 		if let url = documentURLs.first {
-			presentDocument(at: url)
+			os_log("==> didPickDocumentsAt %@.", log: .default, type: .debug, [url])
+
+			if ImportManager.shouldImport(file: url) {
+				ImportManager.importFile(from: url) { document in
+					let tempURL = document.fileURL
+					self.revealDocument(at: document.fileURL, importIfNeeded: true) { url, error in
+						try? FileManager.default.removeItem(at: tempURL)
+					}
+				}
+			} else {
+				presentDocument(at: url)
+			}
+
+
 		}
 	}
 

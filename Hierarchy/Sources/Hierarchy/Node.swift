@@ -192,6 +192,8 @@ extension Node: Encodable where Value: Encodable {
 		var container = encoder.container(keyedBy: CodingKeys.self)
 
 		try container.encode(value, forKey: .value)
-		try container.encode(children, forKey: .children)
+		if !children.isEmpty {
+			try container.encode(children, forKey: .children)
+		}
 	}
 }

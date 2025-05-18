@@ -6,6 +6,8 @@
 //
 
 import Cocoa
+import CoreModule
+import DesignSystem
 
 protocol MenuBuilderProtocol {
 	static func build() -> NSMenu
@@ -63,9 +65,65 @@ extension MenuBuilder: MenuBuilderProtocol {
 			{
 				let item = NSMenuItem()
 				item.identifier = .init(elementIdentifier: .section)
-				item.title = localization.sectionItemTitle
 				item.action = action
-				item.keyEquivalent = ""
+				item.title = localization.sectionItemTitle
+				return item
+			}()
+		)
+		menu.addItem(.separator())
+		menu.addItem(
+			{
+				let item = NSMenuItem()
+				item.identifier = .init(elementIdentifier: .icon)
+				item.title = localization.sectionIconItemTitle
+				item.action = action
+				item.submenu = {
+					let menu = NSMenu()
+					menu.addItem(
+						{
+							let item = NSMenuItem()
+							item.identifier = .init(elementIdentifier: .noIcon)
+							item.title = localization.noIconItemTitle
+							item.image = NSImage(systemSymbolName: "circle.slash", accessibilityDescription: nil)
+							item.action = action
+							return item
+						}()
+					)
+					menu.addItem(.separator())
+					for icon in IconName.allCases {
+						let item = NSMenuItem()
+						item.identifier = .init("icon-\(icon.rawValue)")
+						item.action = action
+						item.title = IconMapper.map(icon: icon, filled: false)?.title ?? ""
+						item.image = IconMapper.map(icon: icon, filled: false)?.image
+						menu.addItem(item)
+					}
+					return menu
+				}()
+
+				return item
+			}()
+		)
+		menu.addItem(
+			{
+				let item = NSMenuItem()
+				item.title = localization.sectionColorItemTitle
+				item.submenu = {
+					let menu = NSMenu()
+					for color in ItemColor.allCases {
+
+						let token = ColorMapper.map(color: color)
+
+						let item = NSMenuItem()
+						item.identifier = .init("color-\(color.rawValue)")
+						item.title = token.displayName
+						item.action = action
+						menu.addItem(item)
+						item.image = NSImage(systemSymbolName: "circle.fill", accessibilityDescription: nil)?
+							.withSymbolConfiguration(.init(hierarchicalColor: token.value))
+					}
+					return menu
+				}()
 				return item
 			}()
 		)

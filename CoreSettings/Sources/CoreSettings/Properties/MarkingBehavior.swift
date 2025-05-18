@@ -18,6 +18,10 @@ extension MarkingBehavior: Hashable { }
 // MARK: - SettingsProperty
 extension MarkingBehavior: SettingsProperty {
 
+	static var defaultValue: MarkingBehavior? {
+		return .regular
+	}
+
 	static var key: String {
 		"marking_behavior"
 	}
