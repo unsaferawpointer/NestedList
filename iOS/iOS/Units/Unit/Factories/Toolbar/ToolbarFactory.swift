@@ -142,7 +142,7 @@ extension ToolbarFactory {
 				)
 			),
 			.init(
-				id: ElementIdentifier.completed.rawValue,
+				id: ElementIdentifier.strikethrough.rawValue,
 				title: localization.strikethroughItemTitle,
 				content: .item(state: isCompleted.state, attributes: [])
 			),
@@ -177,7 +177,6 @@ extension ToolbarFactory {
 		return switch editingMode {
 		case .selection:
 			[
-				.init(id: ElementIdentifier.completed.rawValue, title: "", icon: "checkmark", isEnabled: !isEmpty),
 				.init(id: "", title: "", content: .flexible),
 				.init(id: "", title: "", content: .status(text: statusTitle)),
 				.init(id: "", title: "", content: .flexible),

@@ -11,7 +11,7 @@ extension ElementIdentifier {
 
 	static let newItem: ElementIdentifier = .init(rawValue: "newItem-menu-item")
 
-	static let completed: ElementIdentifier = .init(rawValue: "completed-menu-item")
+	static let completed: ElementIdentifier = .init(rawValue: "strikethrough-menu-item")
 
 	static let marked: ElementIdentifier = .init(rawValue: "marked-menu-item")
 

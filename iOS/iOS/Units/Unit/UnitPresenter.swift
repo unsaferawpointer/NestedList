@@ -168,7 +168,7 @@ extension UnitPresenter: InteractionDelegate {
 		case .delete:
 			editingMode = nil
 			interactor?.deleteItems(currentSelection ?? [])
-		case .completed:
+		case .strikethrough:
 			editingMode = nil
 			let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
 			let newValue = !(cache.validate(.isStrikethrough, other: currentSelection ?? []) ?? false)
