@@ -28,7 +28,7 @@ struct OnboardingFactoryTests {
 
 		// Act
 		let result = try OnboardingFactory.build(for: version)
-		#expect(result?.count == 2)
+		#expect(result?.count == 3)
 
 	}
 }
