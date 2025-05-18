@@ -126,15 +126,19 @@ extension ContentInteractor: ContentInteractorProtocol {
 	func setIcon(_ name: IconName?, for ids: [UUID]) {
 		storage.modificate { content in
 			for node in content.root.nodes(with: ids) {
-				guard case var .section(icon) = node.value.style else {
+				guard case let .section(icon) = node.value.style else {
 					continue
 				}
 				guard let name else {
 					node.value.style = .section(icon: nil)
 					continue
 				}
-				icon?.name = name
-				node.value.style = .section(icon: icon ?? .init(name: .document, color: .secondary))
+				if var icon {
+					icon.name = name
+					node.value.style = .section(icon: icon)
+				} else {
+					node.value.style = .section(icon: .init(name: name, color: .tertiary))
+				}
 			}
 		}
 	}
