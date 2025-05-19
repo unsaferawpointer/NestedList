@@ -27,7 +27,7 @@ final class ListAdapter: NSObject {
 
 	weak var tableView: UITableView?
 
-	var delegate: (any UnitViewDelegate<UUID>)?
+	var delegate: (any ContentViewDelegate<UUID>)?
 
 	var editingMode: EditingMode? {
 		didSet {
@@ -54,7 +54,7 @@ final class ListAdapter: NSObject {
 
 	// MARK: - Initialization
 
-	init(tableView: UITableView?, delegate: (any UnitViewDelegate<UUID>)?) {
+	init(tableView: UITableView?, delegate: (any ContentViewDelegate<UUID>)?) {
 		self.tableView = tableView
 		super.init()
 

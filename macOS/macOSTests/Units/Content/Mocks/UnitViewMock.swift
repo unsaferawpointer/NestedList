@@ -19,7 +19,7 @@ final class UnitViewMock {
 	}
 }
 
-// MARK: - UnitView
+// MARK: - ContentView
 extension UnitViewMock: UnitView {
 
 	func display(_ snapshot: Snapshot<ItemModel>) {

@@ -13,15 +13,15 @@ import CoreModule
 import DesignSystem
 import CoreSettings
 
-protocol UnitPresenterProtocol: AnyObject {
+protocol ContentPresenterProtocol: AnyObject {
 	func present(_ content: Content)
 }
 
-final class UnitPresenter {
+final class ContentPresenter {
 
-	var interactor: UnitInteractorProtocol?
+	var interactor: ContentUnitInteractorProtocol?
 
-	weak var view: UnitView?
+	weak var view: ContentView?
 
 	private(set) var factory: ItemsFactoryProtocol = ItemsFactory()
 
@@ -62,7 +62,7 @@ final class UnitPresenter {
 }
 
 // MARK: - ContentPresenterProtocol
-extension UnitPresenter: UnitPresenterProtocol {
+extension ContentPresenter: ContentPresenterProtocol {
 
 	func present(_ content: Content) {
 
@@ -95,7 +95,7 @@ extension UnitPresenter: UnitPresenterProtocol {
 }
 
 // MARK: - ViewDelegate
-extension UnitPresenter: ViewDelegate {
+extension ContentPresenter: ViewDelegate {
 
 	func viewDidChange(state: ViewState) {
 		guard case .didAppear = state else {
@@ -116,7 +116,7 @@ extension UnitPresenter: ViewDelegate {
 }
 
 // MARK: - InteractionDelegate
-extension UnitPresenter: InteractionDelegate {
+extension ContentPresenter: InteractionDelegate {
 
 	func userDidSelect(item: String, with selection: [UUID]?) {
 		guard let menuIdentifier = ElementIdentifier(rawValue: item) else {
@@ -198,11 +198,11 @@ extension UnitPresenter: InteractionDelegate {
 	}
 }
 
-// MARK: - UnitViewDelegate
-extension UnitPresenter: UnitViewDelegate { }
+// MARK: - ContentViewDelegate
+extension ContentPresenter: ContentViewDelegate { }
 
 // MARK: - ListDelegate
-extension UnitPresenter: ListDelegate {
+extension ContentPresenter: ListDelegate {
 
 	func listItemHasBeenDelete(id: UUID) {
 		interactor?.deleteItems([id])
@@ -231,7 +231,7 @@ extension UnitPresenter: ListDelegate {
 import UniformTypeIdentifiers
 
 // MARK: - DropDelegate
-extension UnitPresenter: DropDelegate {
+extension ContentPresenter: DropDelegate {
 
 	typealias ID = UUID
 
@@ -261,7 +261,7 @@ extension UnitPresenter: DropDelegate {
 }
 
 // MARK: - Helpers
-private extension UnitPresenter {
+private extension ContentPresenter {
 
 	func createNew(target: UUID?) {
 		let model = DetailsView.Model(navigationTitle: "New Item", properties: .init(text: ""))

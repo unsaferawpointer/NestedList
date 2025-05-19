@@ -104,7 +104,7 @@ class ContentViewController: NSViewController {
 	}
 }
 
-// MARK: - UnitView
+// MARK: - ContentView
 extension ContentViewController: UnitView {
 
 	func display(_ snapshot: Snapshot<ItemModel>) {

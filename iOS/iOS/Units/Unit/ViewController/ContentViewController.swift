@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  ContentViewController.swift
 //  iOS
 //
 //  Created by Anton Cherkasov on 16.11.2024.
@@ -14,9 +14,9 @@ import CoreSettings
 import Hierarchy
 import UniformTypeIdentifiers
 
-class ViewController: UIDocumentViewController {
+class ContentViewController: UIDocumentViewController {
 
-	var delegate: (any UnitViewDelegate<UUID>)?
+	var delegate: (any ContentViewDelegate<UUID>)?
 
 	// MARK: - Data
 
@@ -35,7 +35,7 @@ class ViewController: UIDocumentViewController {
 			guard let document = listDocument else {
 				return
 			}
-			self.delegate = UnitAssembly.build(self, storage: document.storage)
+			self.delegate = ContentUnitAssembly.build(self, storage: document.storage)
 			self.adapter = ListAdapter(tableView: tableView, delegate: delegate)
 		}
 	}
@@ -87,7 +87,7 @@ class ViewController: UIDocumentViewController {
 }
 
 // MARK: - DocumentView
-extension ViewController: UnitView {
+extension ContentViewController: ContentView {
 
 	func setEditing(_ editingMode: EditingMode?) {
 		self.adapter?.editingMode = editingMode
@@ -149,7 +149,7 @@ extension ViewController: UnitView {
 }
 
 // MARK: - Helpers
-private extension ViewController {
+private extension ContentViewController {
 
 	func performUpdate(_ block: @escaping () -> Void) {
 		if Thread.isMainThread {

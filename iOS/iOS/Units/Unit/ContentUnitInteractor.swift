@@ -9,7 +9,7 @@ import Foundation
 import Hierarchy
 import CoreModule
 
-protocol UnitInteractorProtocol {
+protocol ContentUnitInteractorProtocol {
 	func fetchData()
 
 	@discardableResult
@@ -28,11 +28,11 @@ protocol UnitInteractorProtocol {
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool
 }
 
-final class UnitInteractor {
+final class ContentUnitInteractor {
 
 	private let storage: DocumentStorage<Content>
 
-	var presenter: UnitPresenterProtocol?
+	var presenter: ContentPresenterProtocol?
 
 	// MARK: - Initialization
 
@@ -48,7 +48,7 @@ final class UnitInteractor {
 }
 
 // MARK: - ContentInteractorProtocol
-extension UnitInteractor: UnitInteractorProtocol {
+extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 
 	func fetchData() {
 		presenter?.present(storage.state)
