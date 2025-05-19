@@ -12,6 +12,13 @@ import Cocoa
 #if os(macOS)
 extension NSOutlineView {
 
+	func clickedItem<T>(with type: T.Type) -> T? {
+		guard clickedRow != -1 else {
+			return nil
+		}
+		return item(atRow: clickedRow) as? T
+	}
+
 	func effectiveSelection() -> IndexSet {
 		if clickedRow != -1 {
 			if selectedRowIndexes.contains(clickedRow) {
