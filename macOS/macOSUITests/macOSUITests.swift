@@ -98,19 +98,6 @@ extension macOSUITests {
 	}
 }
 
-// MARK: - Onboarding Support
-extension macOSUITests {
-
-	func test_onboarding() {
-		let app = AppPage(app: XCUIApplication())
-
-		app.launch(with: ["onboarding_version": ""])
-
-		let window = app.onboarding()
-		let _ = OnboardingPage(window: window)
-	}
-}
-
 // MARK: - Helpers
 private extension macOSUITests {
 

@@ -76,7 +76,6 @@ extension MenuBuilder: MenuBuilderProtocol {
 				let item = NSMenuItem()
 				item.identifier = .init(elementIdentifier: .icon)
 				item.title = localization.sectionIconItemTitle
-				item.action = action
 				item.submenu = {
 					let menu = NSMenu()
 					menu.addItem(
