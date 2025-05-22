@@ -76,7 +76,10 @@ class ContentViewController: NSViewController {
 		self.adapter?.cellDelegate = cellDelegate
 		self.adapter?.dragDelegate = dragDelegate
 		self.adapter?.delegate = listDelegate
-		self.adapter?.menu = MenuBuilder.build()
+
+		if let items = output?.menuItems() {
+			self.adapter?.menu = MenuBuilder.build(for: items)
+		}
 	}
 
 	@available(*, unavailable, message: "Use init(storage:)")
@@ -203,6 +206,7 @@ extension ContentViewController: NSMenuItemValidation {
 		let id = ElementIdentifier(rawValue: rawValue)
 
 		menuItem.state = output.stateForMenuItem(id).value
+		menuItem.isHidden = output.isHidden(id)
 		return output.validateMenuItem(id)
 	}
 }

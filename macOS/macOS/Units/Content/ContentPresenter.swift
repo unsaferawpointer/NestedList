@@ -109,6 +109,31 @@ extension ContentPresenter: ViewDelegate {
 // MARK: - UnitViewOutput
 extension ContentPresenter: UnitViewOutput {
 
+	func menuItems() -> [ElementIdentifier] {
+		return [.newItem,
+				.separator,
+				.completed, .marked, .section,
+				.separator,
+				.icon, .color,
+				.separator,
+				.delete]
+	}
+
+	func isHidden(_ item: ElementIdentifier) -> Bool {
+		guard let selection = view?.selection else {
+			return false
+		}
+
+		if selection.isEmpty {
+			return item != .newItem
+		} else {
+			if item == .color || item == .icon {
+				return cache.validate(.isSection, other: selection) == false
+			}
+			return false
+		}
+	}
+
 	func menuItemClicked(_ item: ElementIdentifier) {
 		guard let selection = view?.selection else {
 			return

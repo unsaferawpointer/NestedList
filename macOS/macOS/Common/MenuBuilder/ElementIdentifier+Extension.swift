@@ -32,4 +32,6 @@ extension ElementIdentifier {
 	static let icon: ElementIdentifier = .init(rawValue: "icon-menu-item")
 
 	static let color: ElementIdentifier = .init(rawValue: "color-menu-item")
+
+	static let separator: ElementIdentifier = .init(rawValue: "separator-menu-item")
 }

@@ -7,74 +7,60 @@
 
 import Foundation
 
-protocol MenuLocalizationProtocol {
-	var editorMenuTitle: String { get }
-	var newItemTitle: String { get }
-	var propertiesHeaderTitle: String { get }
-	var strikethroughItemTitle: String { get }
-	var markedItemTitle: String { get }
-	var noteItemTitle: String { get }
-	var deleteItemTitle: String { get }
-	var displayAsItemTitle: String { get }
-	var plainItemTitle: String { get }
-	var sectionItemTitle: String { get }
-	var noIconItemTitle: String { get }
-}
+struct MenuLocalization { }
 
-final class MenuLocalization { }
+// MARK: - Strings
+extension MenuLocalization {
 
-// MARK: - MenuLocalizationProtocol
-extension MenuLocalization: MenuLocalizationProtocol {
-
-	var editorMenuTitle: String {
+	static var editorMenuTitle: String {
 		String(localized: "editor-menu-title", table: "MenuLocalizable")
 	}
 
-	var newItemTitle: String {
+	static var newItemTitle: String {
 		String(localized: "new-item-title", table: "MenuLocalizable")
 	}
 	
-	var propertiesHeaderTitle: String {
+	static var propertiesHeaderTitle: String {
 		String(localized: "properties-header-title", table: "MenuLocalizable")
 	}
 	
-	var strikethroughItemTitle: String {
+	static var strikethroughItemTitle: String {
 		String(localized: "strikethrough-item-title", table: "MenuLocalizable")
 	}
 	
-	var markedItemTitle: String {
+	static var markedItemTitle: String {
 		String(localized: "marked-item-title", table: "MenuLocalizable")
 	}
 	
-	var displayAsItemTitle: String {
+	static var displayAsItemTitle: String {
 		String(localized: "display-as-item-title", table: "MenuLocalizable")
 	}
 
-	var sectionIconItemTitle: String {
+	static var sectionIconItemTitle: String {
 		String(localized: "section-icon-item-title", table: "MenuLocalizable")
 	}
 
-	var sectionColorItemTitle: String {
+	static var sectionColorItemTitle: String {
 		String(localized: "section-color-item-title", table: "MenuLocalizable")
 	}
 
-	var noteItemTitle: String {
+	static var noteItemTitle: String {
 		String(localized: "note-item-title", table: "MenuLocalizable")
 	}
 	
-	var deleteItemTitle: String {
+	static var deleteItemTitle: String {
 		String(localized: "delete-item-title", table: "MenuLocalizable")
 	}
 
-	var plainItemTitle: String {
+	static var plainItemTitle: String {
 		String(localized: "plain-item-item-title", table: "MenuLocalizable")
 	}
 
-	var sectionItemTitle: String {
+	static var sectionItemTitle: String {
 		String(localized: "section-item-title", table: "MenuLocalizable")
 	}
 
-	var noIconItemTitle: String {
+	static var noIconItemTitle: String {
 		String(localized: "no-icon-item-title", table: "MenuLocalizable")
 	}
 }
