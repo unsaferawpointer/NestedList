@@ -42,50 +42,17 @@ private extension MenuBuilder {
 			item.identifier = .init(elementIdentifier: .section)
 			item.title = MenuLocalization.sectionItemTitle
 		case .icon:
-			item.identifier = .init(elementIdentifier: .icon)
-			item.title = MenuLocalization.sectionIconItemTitle
-			item.submenu = {
-				let menu = NSMenu()
-				menu.addItem(
-					{
-						let item = NSMenuItem()
-						item.identifier = .init(elementIdentifier: .noIcon)
-						item.title = MenuLocalization.noIconItemTitle
-						item.image = NSImage(systemSymbolName: "circle.slash", accessibilityDescription: nil)
-						item.action = action
-						return item
-					}()
-				)
-				menu.addItem(.separator())
-				for icon in IconName.allCases {
-					let item = NSMenuItem()
-					item.identifier = .init("icon-\(icon.rawValue)")
-					item.action = action
-					item.title = IconMapper.map(icon: icon, filled: false)?.title ?? ""
-					item.image = IconMapper.map(icon: icon, filled: false)?.image
-					menu.addItem(item)
-				}
-				return menu
-			}()
+			if #available(macOS 14.0, *) {
+				configureIconPallete(item, action: action)
+			} else {
+				configureIconItem(item, action: action)
+			}
 		case .color:
-			item.title = MenuLocalization.sectionColorItemTitle
-			item.identifier = .init(elementIdentifier: .color)
-			item.submenu = {
-				let menu = NSMenu()
-				for color in ItemColor.allCases {
-
-					let token = ColorMapper.map(color: color)
-
-					let item = NSMenuItem()
-					item.identifier = .init("color-\(color.rawValue)")
-					item.title = token.displayName
-					item.action = action
-					menu.addItem(item)
-					item.image = NSImage(systemSymbolName: "circle.fill", accessibilityDescription: nil)?
-						.withSymbolConfiguration(.init(hierarchicalColor: token.value))
-				}
-				return menu
-			}()
+			if #available(macOS 14.0, *) {
+				configureColorPallete(item, action: action)
+			} else {
+				configureColorItem(item, action: action)
+			}
 		case .note:
 			item.identifier = .init(elementIdentifier: .note)
 			item.title = MenuLocalization.noteItemTitle
@@ -114,5 +81,166 @@ extension MenuBuilder: MenuBuilderProtocol {
 			menu.addItem(build(id: item))
 		}
 		return menu
+	}
+}
+
+// MARK: - Helpers
+private extension MenuBuilder {
+
+	static func buildColorItem(color: ItemColor, action: Selector) -> NSMenuItem {
+
+		let token = ColorMapper.map(color: color)
+
+		let item = NSMenuItem()
+		item.identifier = .init("color-\(color.rawValue)")
+		item.title = token.displayName
+		item.action = action
+		item.image = NSImage(systemSymbolName: "circle.fill", accessibilityDescription: nil)?
+			.withSymbolConfiguration(.init(hierarchicalColor: token.value))
+
+		return item
+	}
+
+	static func configureColorItem(_ item: NSMenuItem, action: Selector) {
+		item.title = MenuLocalization.sectionColorItemTitle
+		item.identifier = .init(elementIdentifier: .color)
+		item.submenu = {
+			let menu = NSMenu()
+			for color in ItemColor.allCases {
+				let item = buildColorItem(
+					color: color,
+					action: action
+				)
+				menu.addItem(item)
+			}
+			return menu
+		}()
+	}
+
+	@available(macOS 14.0, *)
+	static func configureColorPallete(_ item: NSMenuItem, action: Selector) {
+		item.title = MenuLocalization.sectionColorItemTitle
+		item.identifier = .init(elementIdentifier: .color)
+		item.submenu = {
+			let menu = NSMenu()
+
+			let item = buildColorItem(
+				color: .accent,
+				action: action
+			)
+			menu.addItem(item)
+
+			menu.addItem(.separator())
+
+			for chunk in Array(ItemColor.allCases.dropFirst()).chunked(into: 4) {
+				let row = NSMenuItem()
+				row.submenu = {
+					let menu = NSMenu()
+					menu.presentationStyle = .palette
+					for color in chunk {
+
+						let item = buildColorItem(
+							color: color,
+							action: action
+						)
+						menu.addItem(item)
+					}
+					return menu
+				}()
+				menu.addItem(row)
+			}
+			return menu
+		}()
+	}
+}
+
+// MARK: - Helpers
+private extension MenuBuilder {
+
+	static func buildIconItem(icon: IconName, action: Selector) -> NSMenuItem {
+		let item = NSMenuItem()
+		item.identifier = .init("icon-\(icon.rawValue)")
+		item.action = action
+		item.title = IconMapper.map(icon: icon, filled: false)?.title ?? ""
+		item.image = IconMapper.map(icon: icon, filled: false)?.image?
+			.withSymbolConfiguration(.preferringHierarchical())
+		return item
+	}
+
+	static func configureIconItem(_ item: NSMenuItem, action: Selector) {
+		item.identifier = .init(elementIdentifier: .icon)
+		item.title = MenuLocalization.sectionIconItemTitle
+		item.submenu = {
+			let menu = NSMenu()
+			menu.addItem(
+				{
+					let item = NSMenuItem()
+					item.identifier = .init(elementIdentifier: .noIcon)
+					item.title = MenuLocalization.noIconItemTitle
+					item.image = NSImage(systemSymbolName: "circle.slash", accessibilityDescription: nil)
+					item.action = action
+					return item
+				}()
+			)
+			menu.addItem(.separator())
+			for icon in IconName.allCases {
+				let item = NSMenuItem()
+				item.identifier = .init("icon-\(icon.rawValue)")
+				item.action = action
+				item.title = IconMapper.map(icon: icon, filled: false)?.title ?? ""
+				item.image = IconMapper.map(icon: icon, filled: false)?.image
+				menu.addItem(item)
+			}
+			return menu
+		}()
+	}
+
+	@available(macOS 14.0, *)
+	static func configureIconPallete(_ item: NSMenuItem, action: Selector) {
+		item.title = MenuLocalization.sectionIconItemTitle
+		item.identifier = .init(elementIdentifier: .icon)
+		item.submenu = {
+			let menu = NSMenu()
+
+			menu.addItem(
+				{
+					let item = NSMenuItem()
+					item.identifier = .init(elementIdentifier: .noIcon)
+					item.title = MenuLocalization.noIconItemTitle
+					item.image = NSImage(systemSymbolName: "circle.slash", accessibilityDescription: nil)
+					item.action = action
+					return item
+				}()
+			)
+
+			menu.addItem(.separator())
+
+			for chunk in IconName.allCases.chunked(into: 4) {
+				let row = NSMenuItem()
+				row.submenu = {
+					let menu = NSMenu()
+					menu.presentationStyle = .palette
+					for icon in chunk {
+
+						let item = buildIconItem(
+							icon: icon,
+							action: action
+						)
+						menu.addItem(item)
+					}
+					return menu
+				}()
+				menu.addItem(row)
+			}
+			return menu
+		}()
+	}
+}
+
+extension Array {
+	func chunked(into size: Int) -> [[Element]] {
+		return stride(from: 0, to: count, by: size).map {
+			Array(self[$0 ..< Swift.min($0 + size, count)])
+		}
 	}
 }

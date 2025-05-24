@@ -155,7 +155,8 @@ extension ContentPresenter: UnitViewOutput {
 			guard
 				components.count == 2, let last = components.last, let index = Int(last), let key = components.first
 			else {
-				fatalError("Undefined menu item: \(item)")
+				assertionFailure("Undefined menu item: \(item)")
+				return
 			}
 
 			switch key {
