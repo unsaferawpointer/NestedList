@@ -114,6 +114,8 @@ extension ContentPresenter: UnitViewOutput {
 				.separator,
 				.completed, .marked, .section,
 				.separator,
+				.note,
+				.separator,
 				.icon, .color,
 				.separator,
 				.delete]
@@ -199,7 +201,7 @@ extension ContentPresenter: UnitViewOutput {
 				}
 				return true
 			default:
-				return view?.selection.isEmpty == false
+				return view?.selection.isEmpty != false
 			}
 		}
 	}
