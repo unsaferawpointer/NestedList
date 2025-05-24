@@ -21,6 +21,7 @@ public enum IconName: Int {
 
 	case star = 100
 	case heart = 101
+	case bolt = 102
 }
 
 // MARK: - Codable
