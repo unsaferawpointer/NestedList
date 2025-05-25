@@ -7,6 +7,7 @@
 
 import UIKit
 import SwiftUI
+import OSLog
 
 import CoreModule
 import DesignSystem
@@ -32,11 +33,7 @@ class ContentViewController: UIDocumentViewController {
 
 	override var document: UIDocument? {
 		didSet {
-			guard let document = listDocument else {
-				return
-			}
-			self.delegate = ContentUnitAssembly.build(self, storage: document.storage)
-			self.adapter = ListAdapter(tableView: tableView, delegate: delegate)
+			loadViewIfNeeded()
 		}
 	}
 
@@ -62,6 +59,7 @@ class ContentViewController: UIDocumentViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		configureViewForCurrentDocument()
 		undoRedoItems = undoRedoItemGroup.barButtonItems
 		delegate?.viewDidChange(state: .didLoad)
 	}
@@ -74,6 +72,20 @@ class ContentViewController: UIDocumentViewController {
 		delegate?.viewDidChange(state: .didAppear)
 	}
 
+	override func documentDidOpen() {
+		configureViewForCurrentDocument()
+	}
+
+	override func viewDidDisappear(_ animated: Bool) {
+		super.viewDidDisappear(animated)
+
+		document?.close { (success) in
+			guard success else { fatalError( "*** Error closing document ***") }
+
+			os_log("==> Document saved and closed", log: .default, type: .debug)
+		}
+	}
+
 	override func updateContentUnavailableConfiguration(using state: UIContentUnavailableConfigurationState) {
 		if adapter?.isEmpty ?? true {
 			var configuration = UIContentUnavailableConfiguration.empty()
@@ -83,6 +95,18 @@ class ContentViewController: UIDocumentViewController {
 		} else {
 			self.contentUnavailableConfiguration = nil
 		}
+	}
+}
+
+// MARK: - Helpers
+private extension ContentViewController {
+
+	func configureViewForCurrentDocument() {
+		guard let document = listDocument else {
+			return
+		}
+		self.delegate = ContentUnitAssembly.build(self, storage: document.storage)
+		self.adapter = ListAdapter(tableView: tableView, delegate: delegate)
 	}
 }
 
