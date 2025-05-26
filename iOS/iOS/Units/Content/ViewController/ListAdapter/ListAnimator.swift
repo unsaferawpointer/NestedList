@@ -6,16 +6,14 @@
 //
 
 import Foundation
+import DesignSystem
 import Hierarchy
 
-final class ListAnimator {
-
-	var state = ListState()
-}
+final class ListAnimator { }
 
 extension ListAnimator {
 
-	static func update(oldState: ListState, newState: ListState, delegate: CacheDelegate) {
+	static func update<M: CellModel>(oldState: ListState<M>, newState: ListState<M>, delegate: any CacheDelegate<M>) {
 
 		let oldList = oldState.flattened
 		let newList = newState.flattened
@@ -45,7 +43,7 @@ extension ListAnimator {
 		}
 	}
 
-	static func animate(oldState: ListState, newState: ListState, delegate: CacheDelegate) {
+	static func animate<M: CellModel>(oldState: ListState<M>, newState: ListState<M>, delegate: any CacheDelegate) {
 
 		let oldList = oldState.flattened
 		let newList = newState.flattened

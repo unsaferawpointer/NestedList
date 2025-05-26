@@ -7,6 +7,7 @@
 
 import CoreFoundation
 
+#if os(macOS)
 public protocol CellModel: Identifiable {
 
 	associatedtype Value
@@ -35,3 +36,18 @@ extension CellModel where Value: Identifiable {
 		value.id
 	}
 }
+#elseif os(iOS)
+
+import UIKit
+
+public protocol CellModel: Identifiable, Hashable {
+
+	associatedtype Cell: ListCell where Cell.Model == Self
+
+	var configuration: UIListContentConfiguration { get }
+
+	var selectionConfiguration: UIListContentConfiguration { get }
+
+	func contentIsEquals(to other: Self) -> Bool
+}
+#endif

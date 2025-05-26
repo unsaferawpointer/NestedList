@@ -7,12 +7,13 @@
 
 import Foundation
 import Hierarchy
+import DesignSystem
 
-struct ListState {
+struct ListState<Model: CellModel> {
 
-	var expanded: Set<UUID> = []
+	var expanded: Set<Model.ID> = []
 
-	var snapshot: Snapshot<ItemModel> = .init()
+	var snapshot: Snapshot<Model> = .init()
 }
 
 // MARK: - Computed Properties
@@ -26,7 +27,7 @@ extension ListState {
 		return flattened.isEmpty
 	}
 
-	func destination(for row: Int) -> Destination<UUID> {
+	func destination(for row: Int) -> Destination<Model.ID> {
 		guard row < flattened.count else {
 			return .toRoot
 		}
@@ -34,7 +35,7 @@ extension ListState {
 		return snapshot.destination(ofItem: id)
 	}
 
-	var flattened: [UUID] {
+	var flattened: [Model.ID] {
 		return snapshot.flattened { item in
 			expanded.contains(item.id)
 		}.map {
@@ -42,20 +43,20 @@ extension ListState {
 		}
 	}
 
-	func row(for id: UUID) -> Int? {
+	func row(for id: Model.ID) -> Int? {
 		return flattened.firstIndex(of: id)
 	}
 
-	func identifier(for row: Int) -> UUID {
+	func identifier(for row: Int) -> Model.ID {
 		return flattened[row]
 	}
 
-	func model(for row: Int) -> ItemModel {
+	func model(for row: Int) -> Model {
 		let id = flattened[row]
 		return snapshot.model(with: id)
 	}
 
-	func model(for id: UUID) -> ItemModel {
+	func model(for id: Model.ID) -> Model {
 		return snapshot.model(with: id)
 	}
 
@@ -64,7 +65,7 @@ extension ListState {
 		return configuration(for: id)
 	}
 
-	func configuration(for id: UUID) -> RowConfiguration {
+	func configuration(for id: Model.ID) -> RowConfiguration {
 		return RowConfiguration(
 			level: snapshot.level(for: id),
 			isExpanded: expanded.contains(id),
@@ -72,7 +73,7 @@ extension ListState {
 		)
 	}
 
-	func expanded(id: UUID) -> ListState {
+	func expanded(id: Model.ID) -> ListState {
 		let newExpanded = expanded.union([id])
 		return ListState(
 			expanded: newExpanded,
@@ -80,7 +81,7 @@ extension ListState {
 		)
 	}
 
-	func collapsed(id: UUID) -> ListState {
+	func collapsed(id: Model.ID) -> ListState {
 		let newExpanded = expanded.subtracting([id])
 		return ListState(
 			expanded: newExpanded,
@@ -102,11 +103,11 @@ extension ListState {
 		)
 	}
 
-	func toggled(id: UUID) -> ListState {
+	func toggled(id: Model.ID) -> ListState {
 		return expanded.contains(id) ? collapsed(id: id) : expanded(id: id)
 	}
 
-	func replaced(with snapshot: Snapshot<ItemModel>) -> ListState {
+	func replaced(with snapshot: Snapshot<Model>) -> ListState {
 
 		let newExpanded = expanded.intersection(snapshot.identifiers)
 
@@ -116,9 +117,9 @@ extension ListState {
 		)
 	}
 
-	func deleted(id: UUID) -> ListState {
+	func deleted(id: Model.ID) -> ListState {
 		let nodes = snapshot.getNodes()
-		let root = Root<ItemModel>(hierarchy: nodes)
+		let root = Root<Model>(hierarchy: nodes)
 		root.deleteItem(id)
 		let newExpanded = expanded.subtracting([id])
 		return ListState(
@@ -127,8 +128,8 @@ extension ListState {
 		)
 	}
 
-	func inserted(model: ItemModel, to destination: Destination<UUID>) -> ListState {
-		let root = Root<ItemModel>(hierarchy: snapshot.getNodes())
+	func inserted(model: Model, to destination: Destination<Model.ID>) -> ListState {
+		let root = Root<Model>(hierarchy: snapshot.getNodes())
 		root.insertItems(with: [model], to: destination)
 
 		return ListState(

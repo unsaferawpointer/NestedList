@@ -39,7 +39,7 @@ final class ListAdapter: NSObject {
 
 	// MARK: - Manager
 
-	private(set) var manager: ListManager
+	private(set) var manager: ListManager<ItemModel>
 
 	// MARK: - Initialization
 

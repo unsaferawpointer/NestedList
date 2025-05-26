@@ -15,19 +15,22 @@ struct RowConfiguration: Equatable {
 	var isLeaf: Bool
 }
 
-protocol CacheDelegate: AnyObject {
+protocol CacheDelegate<Model>: AnyObject {
+
+	associatedtype Model
+
 	func updateCell(indexPath: IndexPath, rowConfiguration: RowConfiguration)
-	func updateCell(indexPath: IndexPath, model: ItemModel)
+	func updateCell(indexPath: IndexPath, model: Model)
 	func beginUpdates()
 	func update(deleteRows: [IndexPath], insertRows: [IndexPath])
 	func endUpdates()
 }
 
-final class ListManager {
+final class ListManager<Model: CellModel> {
 
 	unowned var tableView: UITableView
 
-	var delegate: (any ContentViewDelegate<UUID>)?
+	var delegate: (any ContentViewDelegate<Model.ID>)?
 
 	var editingMode: EditingMode? {
 		didSet {
@@ -42,9 +45,9 @@ final class ListManager {
 
 	private var feedbackGenerator: UIImpactFeedbackGenerator?
 
-	private let storage = ListStorage()
+	private let storage = ListStorage<Model>()
 
-	var selection: [UUID] {
+	var selection: [Model.ID] {
 		get {
 			tableView.indexPathsForSelectedRows?.map { indexPath in
 				storage.identifier(for: indexPath.row)
@@ -54,7 +57,7 @@ final class ListManager {
 
 	// MARK: - Initialization
 
-	init(tableView: UITableView, delegate: (any ContentViewDelegate<UUID>)?) {
+	init(tableView: UITableView, delegate: (any ContentViewDelegate<Model.ID>)?) {
 		self.tableView = tableView
 
 		self.tableView.register(ItemCell.self, forCellReuseIdentifier: "cell")
@@ -65,18 +68,18 @@ final class ListManager {
 
 extension ListManager {
 
-	func apply(newSnapshot: Snapshot<ItemModel>) {
+	func apply(newSnapshot: Snapshot<Model>) {
 		storage.apply(newSnapshot: newSnapshot)
 	}
 
-	func scroll(to id: UUID) {
+	func scroll(to id: Model.ID) {
 		guard let row = storage.row(for: id) else {
 			return
 		}
 		tableView.scrollToRow(at: .init(row: row, section: 0), at: .bottom, animated: true)
 	}
 
-	func expand(_ id: UUID) {
+	func expand(_ id: Model.ID) {
 		storage.expand(id)
 	}
 
@@ -101,10 +104,7 @@ extension ListManager {
 	}
 
 	func cellForRow(at indexPath: IndexPath) -> UITableViewCell {
-		let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! ItemCell
-		cell.indentationWidth = 24
-		cell.layoutMargins.left = 32
-		cell.layoutMargins.right = 32
+		let cell = CellFactory.makeCell(with: Model.Cell.self, in: tableView, at: indexPath)
 
 		let model = storage.model(with: indexPath.row)
 		updateCell(cell, with: model)
@@ -193,7 +193,7 @@ extension ListManager {
 	}
 
 	func tableView(_ tableView: UITableView, dragSessionWillBegin session: any UIDragSession) {
-		guard let item = session.items.first, let id = item.localObject as? UUID else {
+		guard let item = session.items.first, let id = item.localObject as? Model.ID else {
 			return
 		}
 
@@ -223,9 +223,9 @@ extension ListManager {
 			return .init(operation: .move, intent: .automatic)
 		}
 
-		let id = session.identifiers.first
+		let id = session.identifiers(with: Model.ID.self).first
 
-		assert(session.identifiers.count <= 1, "Adapter cant support multi-selection")
+		assert(session.identifiers(with: Model.ID.self).count <= 1, "Adapter cant support multi-selection")
 
 		// MARK: - You can't drop a cell on itself
 		guard id != storage.identifier(for: target) else {
@@ -262,7 +262,7 @@ extension ListManager {
 				delegate?.drop(strings, to: destination)
 			}
 		case .move:
-			guard let id = coordinator.session.identifiers.first else {
+			guard let id = coordinator.session.identifiers(with: Model.ID.self).first else {
 				return
 			}
 
@@ -320,7 +320,7 @@ extension ListManager {
 		session.localContext = sceneIdentifier
 	}
 
-	func destination(for intent: UITableViewDropProposal.Intent, destinationIndexPath: IndexPath?) -> Destination<UUID> {
+	func destination(for intent: UITableViewDropProposal.Intent, destinationIndexPath: IndexPath?) -> Destination<Model.ID> {
 		switch intent {
 		case .insertAtDestinationIndexPath:
 			return if let target = destinationIndexPath {
@@ -343,24 +343,19 @@ extension ListManager {
 // MARK: - Helpers
 private extension ListManager {
 
-	func updateCell(_ cell: ItemCell, with configuration: RowConfiguration) {
+	func updateCell(_ cell: Model.Cell, with configuration: RowConfiguration) {
 		CellFactory.updateCell(cell, with: configuration)
 	}
 
-	func updateCell(_ cell: UITableViewCell, with model: ItemModel) {
-		CellFactory.updateCell(
-			cell,
-			with: model,
-			editingMode: editingMode,
-			in: tableView
-		)
+	func updateCell(_ cell: Model.Cell, with model: Model) {
+		CellFactory.updateCell(cell, with: model, in: tableView, editingMode: editingMode)
 	}
 }
 
 extension ListManager: CacheDelegate {
 
-	func updateCell(indexPath: IndexPath, model: ItemModel) {
-		guard let cell = tableView.cellForRow(at: indexPath) else {
+	func updateCell(indexPath: IndexPath, model: Model) {
+		guard let cell = tableView.cellForRow(at: indexPath) as? Model.Cell else {
 			return
 		}
 
@@ -369,7 +364,7 @@ extension ListManager: CacheDelegate {
 	
 
 	func updateCell(indexPath: IndexPath, rowConfiguration: RowConfiguration) {
-		guard let cell = tableView.cellForRow(at: indexPath) as? ItemCell else {
+		guard let cell = tableView.cellForRow(at: indexPath) as? Model.Cell else {
 			return
 		}
 
@@ -393,7 +388,7 @@ extension ListManager: CacheDelegate {
 // MARK: - Context Menu Support
 extension ListManager {
 
-	func buildContextMenu(for model: ItemModel) -> UIContextMenuConfiguration {
+	func buildContextMenu(for model: Model) -> UIContextMenuConfiguration {
 		guard let delegate else {
 			fatalError("Delegate is nil")
 		}
@@ -409,9 +404,9 @@ extension ListManager {
 
 fileprivate extension UIDropSession {
 
-	var identifiers: [UUID] {
+	func identifiers<T>(with type: T.Type) -> [T] {
 		return items.compactMap {
-			$0.localObject as? UUID
+			$0.localObject as? T
 		}
 	}
 }
