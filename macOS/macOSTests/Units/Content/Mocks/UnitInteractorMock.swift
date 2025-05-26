@@ -90,6 +90,19 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 		invocations.append(.insertStrings(strings, destination: destination))
 	}
 
+	func nodes(for ids: [UUID]) -> [Node<Item>] {
+		invocations.append(.nodes(ids: ids))
+		return stubs.nodes
+	}
+
+	func insertStrings(_ data: [Data], to destination: Destination<UUID>) {
+		invocations.append(.insertStringsFromData(data: data, destination: destination))
+	}
+
+	func insertItems(_ data: [Data], to destination: Destination<UUID>) {
+		invocations.append(.insertItems(data: data, destination: destination))
+	}
+
 }
 
 // MARK: - Nested data structs
@@ -112,11 +125,15 @@ extension UnitInteractorMock {
 		case deleteItems(_ ids: [UUID])
 		case strings(_ ids: [UUID])
 		case insertStrings(_ strings: [String], destination: Destination<UUID>)
+		case nodes(ids: [UUID])
+		case insertStringsFromData(data: [Data], destination: Destination<UUID>)
+		case insertItems(data: [Data], destination: Destination<UUID>)
 	}
 
 	struct Stubs {
 		var validateMovement: Bool = false
 		var newItem: UUID = .random
 		var strings: [String] = []
+		var nodes: [Node<Item>] = []
 	}
 }

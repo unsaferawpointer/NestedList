@@ -34,7 +34,11 @@ public final class ListAdapterProxy<Model: CellModel> where Model.ID: Codable {
 
 	public weak var delegate: (any ListDelegate<ID>)?
 
-	public weak var dropDelegate: (any DropDelegate<ID>)?
+	public weak var dropDelegate: (any DropDelegate<ID>)? {
+		didSet {
+			DragManager.register(types: dropDelegate?.availableTypes(), in: tableView)
+		}
+	}
 
 	public weak var dragDelegate: (any DragDelegate<ID>)?
 
@@ -162,14 +166,13 @@ extension ListAdapterProxy {
 		proposedChildIndex index: Int
 	) -> NSDragOperation {
 
-		let ids: [ID] = DragManager.identifiers(from: info)
-
 		guard let dropDelegate, let destination = getDestination(proposedItem: item, proposedChildIndex: index) else {
 			return []
 		}
 
 		if DragManager.isLocal(from: info, in: outlineView) {
 			guard info.draggingSourceOperationMask == .copy else {
+				let ids: [ID] = DragManager.identifiers(from: info)
 				let isValid = dropDelegate.validateMovement(ids, to: destination)
 				return isValid ? .private : []
 			}

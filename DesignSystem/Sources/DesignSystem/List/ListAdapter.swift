@@ -79,8 +79,6 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 		tableView.target = self
 		tableView.doubleAction = #selector(handleDoubleClick(_:))
-
-		DragManager.registerTypes(in: tableView)
 	}
 
 	// MARK: - NSOutlineViewDataSource

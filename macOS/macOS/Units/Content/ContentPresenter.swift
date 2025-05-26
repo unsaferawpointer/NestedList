@@ -30,11 +30,13 @@ final class ContentPresenter {
 
 	private(set) var localization: ContentLocalizationProtocol
 
+	private(set) var settingsProvider: any StateProviderProtocol<Settings>
+
 	// MARK: - Constants
 
 	private let stringType = NSPasteboard.PasteboardType.string.rawValue
 
-	var settingsProvider: any StateProviderProtocol<Settings>
+	private let itemType = "dev.zeroindex.ListAdapter.item"
 
 	// MARK: - Cache
 
@@ -345,34 +347,41 @@ private extension ContentPresenter {
 
 // MARK: - DropDelelgate
 extension ContentPresenter: DropDelegate {
-
+	
 	typealias ID = UUID
-
+	
 	func move(_ ids: [UUID], to destination: Destination<UUID>) {
 		interactor?.move(ids, to: destination)
 	}
-
+	
 	func copy(_ ids: [UUID], to destination: Destination<UUID>) {
 		interactor?.copy(ids, to: destination)
 	}
-
+	
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
 		interactor?.validateMovement(ids, to: destination) ?? false
 	}
-
+	
 	func validateDrop(_ info: PasteboardInfo, to destination: Destination<UUID>) -> Bool {
-		info.containsInfo(of: stringType)
+		info.containsInfo(of: stringType) || info.containsInfo(of: itemType)
 	}
 
 	func drop(_ info: PasteboardInfo, to destination: Destination<UUID>) {
-
-		let strings = info.items.compactMap { item in
-			item.data[stringType]
-		}.compactMap { data in
-			String(data: data, encoding: .utf8)
+		if info.containsInfo(of: itemType) {
+			let data = info.items.compactMap { item in
+				item.data[itemType]
+			}
+			interactor?.insertItems(data, to: destination)
+		} else {
+			let data = info.items.compactMap { item in
+				item.data[stringType]
+			}
+			interactor?.insertStrings(data, to: destination)
 		}
+	}
 
-		interactor?.insertStrings(strings, to: destination)
+	func availableTypes() -> Set<String> {
+		return [itemType, stringType]
 	}
 }
 
@@ -380,12 +389,22 @@ extension ContentPresenter: DropDelegate {
 extension ContentPresenter: DragDelegate {
 
 	func write(ids: [UUID], to pasteboard: any PasteboardProtocol) {
-		guard let strings = interactor?.strings(for: ids) else {
+		guard let nodes = interactor?.nodes(for: ids) else {
 			return
 		}
 
-		let items = strings.map { string in
-			PasteboardInfo.Item(string: string)
+		let encoder = JSONEncoder()
+		let parser = Parser()
+
+
+		let items = nodes.map {
+			PasteboardInfo.Item(
+				data:
+					[
+						itemType : (try? encoder.encode($0)) ?? Data(),
+						stringType: parser.format($0).data(using: .utf8) ?? Data()
+					]
+			)
 		}
 
 		let info = PasteboardInfo(items: items)
