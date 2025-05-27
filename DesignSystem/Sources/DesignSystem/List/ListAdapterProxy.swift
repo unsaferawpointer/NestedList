@@ -80,44 +80,39 @@ public final class ListAdapterProxy<Model: CellModel> where Model.ID: Codable {
 // MARK: - NSOutlineViewDataSource
 extension ListAdapterProxy {
 
-	func child(at index: Int, ofItem item: Any?) -> Any {
-		guard
-			let item = item as? Item
-		else {
+	func child(at index: Int, ofItem parent: InternalModel.ID?) -> Any {
+		guard let parent else {
 			let id = snapshot.rootItem(at: index).id
 			return cache[unsafe: id]
 		}
-		let id = snapshot.childOfItem(item.id, at: index).id
+		let id = snapshot.childOfItem(parent, at: index).id
 		return cache[unsafe: id]
 	}
 
-	func numberOfChildrenOfItem(_ item: Any?) -> Int {
-		guard
-			let item = item as? Item
-		else {
+	func numberOfChildrenOfItem(_ parent: InternalModel.ID?) -> Int {
+		guard let parent else {
 			return snapshot.numberOfRootItems()
 		}
-		return snapshot.numberOfChildren(ofItem: item.id)
+		return snapshot.numberOfChildren(ofItem: parent)
 	}
 
-	func isItemExpandable(item: Any) -> Bool {
-		let id = internalId(for: item)
-		return snapshot.numberOfChildren(ofItem: id) > 0
+	func isItemExpandable(item: InternalModel.ID) -> Bool {
+		return snapshot.numberOfChildren(ofItem: item) > 0
 	}
 }
 
 // MARK: - NSOutlineViewDelegate
 extension ListAdapterProxy {
 
-	func view(for item: Any, in tableView: NSOutlineView) -> NSView? {
-		guard case let .model(value) = internalModel(for: item) else {
+	func view(forItem id: InternalModel.ID, in tableView: NSOutlineView) -> NSView? {
+		guard case let .model(value) = snapshot.model(with: id) else {
 			return nil
 		}
 		return CellFactory.makeCellIfNeeded(for: value, in: tableView, delegate: cellDelegate)
 	}
 
-	func heightOfRow(byItem item: Any) -> CGFloat {
-		switch internalModel(for: item) {
+	func heightOfRow(byItem id: InternalModel.ID) -> CGFloat {
+		switch snapshot.model(with: id) {
 		case .model(let value):
 			return value.height ?? NSView.noIntrinsicMetric
 		case .spacer(_, let height):
@@ -129,8 +124,8 @@ extension ListAdapterProxy {
 // MARK: - Drag And Drop support
 extension ListAdapterProxy {
 
-	func pasteboardWriter(for item: Any) -> NSPasteboardWriting? {
-		guard let id = identifier(for: item) else {
+	func pasteboardWriter(for item: InternalModel.ID) -> NSPasteboardWriting? {
+		guard case let .item(id) = item else {
 			return nil
 		}
 		return DragManager.write(id, to: NSPasteboardItem())
@@ -139,13 +134,11 @@ extension ListAdapterProxy {
 	func draggingWillBegin(
 		draggingSession session: NSDraggingSession,
 		willBeginAt screenPoint: NSPoint,
-		forItems draggedItems: [Any]
+		forItems draggedItems: [InternalModel.ID]
 	) {
 
-		let ids = draggedItems.compactMap { item in
-			item as? Item
-		}.compactMap { item in
-			switch item.id {
+		let ids = draggedItems.compactMap { id in
+			switch id {
 			case .item(let id):
 				return id
 			case .spacer:
@@ -497,7 +490,7 @@ private extension ListAdapterProxy {
 }
 
 // MARK: - Nested data structs
-private extension ListAdapterProxy {
+extension ListAdapterProxy {
 
 	final class Item: Identifiable {
 

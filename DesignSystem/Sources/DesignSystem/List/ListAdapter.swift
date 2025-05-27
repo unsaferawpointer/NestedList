@@ -84,31 +84,31 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 	// MARK: - NSOutlineViewDataSource
 
 	public func outlineView(_ outlineView: NSOutlineView, child index: Int, ofItem item: Any?) -> Any {
-		return proxy.child(at: index, ofItem: item)
+		return proxy.child(at: index, ofItem: identifier(of: item))
 	}
 
 	public func outlineView(_ outlineView: NSOutlineView, numberOfChildrenOfItem item: Any?) -> Int {
-		return proxy.numberOfChildrenOfItem(item)
+		return proxy.numberOfChildrenOfItem(identifier(of: item))
 	}
 
 	public func outlineView(_ outlineView: NSOutlineView, isItemExpandable item: Any) -> Bool {
-		return proxy.isItemExpandable(item: item)
+		return proxy.isItemExpandable(item: identifier(of: item))
 	}
 
 	// MARK: - NSOutlineViewDelegate
 
 	public func outlineView(_ outlineView: NSOutlineView, viewFor tableColumn: NSTableColumn?, item: Any) -> NSView? {
-		return proxy.view(for: item, in: outlineView)
+		return proxy.view(forItem: identifier(of: item), in: outlineView)
 	}
 
 	public func outlineView(_ outlineView: NSOutlineView, heightOfRowByItem item: Any) -> CGFloat {
-		return proxy.heightOfRow(byItem: item)
+		return proxy.heightOfRow(byItem: identifier(of: item))
 	}
 
 	// MARK: - Drag And Drop support
 
 	public func outlineView(_ outlineView: NSOutlineView, pasteboardWriterForItem item: Any) -> NSPasteboardWriting? {
-		return proxy.pasteboardWriter(for: item)
+		return proxy.pasteboardWriter(for: identifier(of: item))
 	}
 
 	public func outlineView(
@@ -117,7 +117,16 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		willBeginAt screenPoint: NSPoint,
 		forItems draggedItems: [Any]
 	) {
-		proxy.draggingWillBegin(draggingSession: session, willBeginAt: screenPoint, forItems: draggedItems)
+
+		let ids = draggedItems.compactMap { item in
+			identifier(of: item)
+		}
+
+		proxy.draggingWillBegin(
+			draggingSession: session,
+			willBeginAt: screenPoint,
+			forItems: ids
+		)
 	}
 
 	public func outlineView(
@@ -155,6 +164,21 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 	public func menuNeedsUpdate(_ menu: NSMenu) {
 		proxy.menuNeedsUpdate(menu)
+	}
+}
+
+// MARK: - Helpers
+private extension ListAdapter {
+
+	func identifier(of item: Any?) -> InternalModel.ID? {
+		return (item as? ListAdapterProxy<Model>.Item)?.id
+	}
+
+	func identifier(of item: Any) -> InternalModel.ID {
+		guard let item = item as? ListAdapterProxy<Model>.Item else {
+			fatalError("Invalid item type")
+		}
+		return item.id
 	}
 }
 
