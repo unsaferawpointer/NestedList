@@ -135,11 +135,13 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		proposedItem item: Any?,
 		proposedChildIndex index: Int
 	) -> NSDragOperation {
-		proxy.validateDrop(outlineView, info: info, proposedItem: item, proposedChildIndex: index)
+		let destination = getDestination(proposedItem: item, proposedChildIndex: index)
+		return proxy.validateDrop(outlineView, info: info, to: destination)
 	}
 
 	public func outlineView(_ outlineView: NSOutlineView, acceptDrop info: NSDraggingInfo, item: Any?, childIndex index: Int) -> Bool {
-		proxy.acceptDrop(outlineView, info: info, item: item, childIndex: index)
+		let destination = getDestination(proposedItem: item, proposedChildIndex: index)
+		return proxy.acceptDrop(outlineView, info: info, to: destination)
 	}
 
 	// MARK: - Selection support
@@ -179,6 +181,21 @@ private extension ListAdapter {
 			fatalError("Invalid item type")
 		}
 		return item.id
+	}
+
+	func getDestination(proposedItem item: Any?, proposedChildIndex index: Int) -> Destination<InternalModel.ID> {
+		return switch (item, index) {
+		case (.none, -1):
+			.toRoot
+		case (.none, let index):
+			.inRoot(atIndex: index)
+		case (let item as ListAdapterProxy<Model>.Item, -1):
+			.onItem(with: item.id)
+		case (let item as ListAdapterProxy<Model>.Item, let index):
+			.inItem(with: item.id, atIndex: index)
+		default:
+			fatalError()
+		}
 	}
 }
 

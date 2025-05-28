@@ -55,18 +55,14 @@ public final class ListAdapterProxy<Model: CellModel> where Model.ID: Codable {
 	private(set) var selection = Set<ID>()
 
 	public var effectiveSelection: [ID] {
-		guard let tableView else {
+		guard let selection = tableView?.effectiveSelection() else {
 			return []
 		}
-		return tableView.effectiveSelection().compactMap {
-			tableView.item(atRow: $0) as? Item
-		}.compactMap { item in
-			switch item.id {
-			case .item(let id):
-				return id
-			case .spacer:
+		return selection.compactMap {
+			guard case let .item(id) = snapshot[$0].id else {
 				return nil
 			}
+			return id
 		}
 	}
 
@@ -155,11 +151,10 @@ extension ListAdapterProxy {
 	func validateDrop(
 		_ outlineView: NSOutlineView,
 		info: NSDraggingInfo,
-		proposedItem item: Any?,
-		proposedChildIndex index: Int
+		to rawDestination: Destination<InternalModel.ID>
 	) -> NSDragOperation {
 
-		guard let dropDelegate, let destination = getDestination(proposedItem: item, proposedChildIndex: index) else {
+		guard let dropDelegate, let destination = normalize(destination: rawDestination) else {
 			return []
 		}
 
@@ -179,9 +174,9 @@ extension ListAdapterProxy {
 		return dropDelegate.validateDrop(info, to: destination) ? .copy : []
 	}
 
-	func acceptDrop(_ outlineView: NSOutlineView, info: NSDraggingInfo, item: Any?, childIndex index: Int) -> Bool {
+	func acceptDrop(_ outlineView: NSOutlineView, info: NSDraggingInfo, to rawDestination: Destination<InternalModel.ID>) -> Bool {
 
-		guard let dropDelegate, let destination = getDestination(proposedItem: item, proposedChildIndex: index) else {
+		guard let dropDelegate, let destination = normalize(destination: rawDestination) else {
 			return false
 		}
 
@@ -213,10 +208,10 @@ extension ListAdapterProxy {
 
 	func selectionIndexes(for proposedSelectionIndexes: IndexSet) -> IndexSet {
 		selection.removeAll()
-
 		var result = IndexSet()
 		for index in proposedSelectionIndexes {
-			guard let item = tableView?.item(atRow: index) as? Item, case let .item(id) = item.id else {
+			let id = snapshot[index].id
+			guard case let .item(id) = id else {
 				continue
 			}
 			selection.insert(id)
@@ -259,10 +254,7 @@ private extension ListAdapterProxy {
 
 	func validateSelection() {
 		let rows = selection.compactMap { id -> Int? in
-			guard let item = cache[.item(id: id)], let row = tableView?.row(forItem: item), row != -1 else {
-				return nil
-			}
-			return row
+			snapshot.globalIndex(for: .item(id: id))
 		}
 		tableView?.selectRowIndexes(.init(rows), byExtendingSelection: false)
 	}
@@ -444,6 +436,48 @@ private extension ListAdapterProxy {
 
 		tableView?.endUpdates()
 		validateSelection()
+	}
+
+	func normalize(destination: Destination<InternalModel.ID>) -> Destination<ID>? {
+		switch destination {
+		case .toRoot:
+			return .toRoot
+		case let .inRoot(index):
+
+			let numberOfRootItems = snapshot.numberOfRootItems()
+			if index < numberOfRootItems {
+				let model = snapshot.rootItem(at: index)
+				guard case .model = model else {
+					return nil
+				}
+			}
+
+			let shift = snapshot.contains(in: nil, maxIndex: index) { $0.isDecoration }
+			return .inRoot(atIndex: index - shift)
+		case let .onItem(basicId):
+			guard case .item(let id) = basicId else {
+				return nil
+			}
+			return .onItem(with: id)
+		case let .inItem(basicId, index):
+			guard case .item(let id) = basicId else {
+				return nil
+			}
+
+			let numberOfItems = snapshot.numberOfChildren(ofItem: basicId)
+			if index < numberOfItems {
+				let model = snapshot.childOfItem(basicId, at: index)
+				guard case .model = model else {
+					return nil
+				}
+			}
+
+			let shift = snapshot.contains(in: basicId, maxIndex: index) {
+				$0.isDecoration
+			}
+
+			return .inItem(with: id, atIndex: index - shift)
+		}
 	}
 
 	func getDestination(proposedItem item: Any?, proposedChildIndex index: Int) -> Destination<ID>? {

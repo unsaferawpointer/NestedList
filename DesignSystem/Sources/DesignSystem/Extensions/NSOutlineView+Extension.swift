@@ -20,15 +20,12 @@ extension NSOutlineView {
 	}
 
 	func effectiveSelection() -> IndexSet {
-		if clickedRow != -1 {
-			if selectedRowIndexes.contains(clickedRow) {
-				return selectedRowIndexes
-			} else {
-				return IndexSet(integer: clickedRow)
-			}
-		} else {
+		guard clickedRow != -1 else {
 			return selectedRowIndexes
 		}
+		return selectedRowIndexes.contains(clickedRow)
+			? selectedRowIndexes
+			: .init(integer: clickedRow)
 	}
 
 	func scroll(to item: Any) {
