@@ -170,13 +170,12 @@ extension ListManager {
 			return []
 		}
 
-		let model = storage.model(with: indexPath.row)
-
-		let string = delegate.string(for: model.id)
-		let itemProvider = NSItemProvider(object: string as NSString)
-
-		let item = UIDragItem(itemProvider: itemProvider)
-		item.localObject = model.id
+		let id = storage.model(with: indexPath.row).id
+		guard let provider = delegate.provider(for: id) else {
+			return []
+		}
+		let item = UIDragItem(itemProvider: provider)
+		item.localObject = id
 		return [item]
 	}
 
@@ -197,7 +196,7 @@ extension ListManager {
 			return
 		}
 
-		if let sceneIdentifier = tableView.superview?.window?.windowScene?.session.persistentIdentifier {
+		if let sceneIdentifier {
 			session.localContext = sceneIdentifier
 		}
 
@@ -246,21 +245,20 @@ extension ListManager {
 	func tableView(_ tableView: UITableView, performDropWith coordinator: any UITableViewDropCoordinator) {
 
 		let proposal = coordinator.proposal
+		let session = coordinator.session
 
 		switch proposal.operation {
 		case .copy:
-			coordinator.session.loadObjects(ofClass: NSString.self) { [weak self] items in
-				guard let self else {
-					return
-				}
-				guard let strings = items as? [String] else { return }
 
-				let destination = destination(
-					for: proposal.intent,
-					destinationIndexPath: coordinator.destinationIndexPath
-				)
-				delegate?.drop(strings, to: destination)
-			}
+			let targetIndexPath = coordinator.destinationIndexPath
+			let destination = destination(
+				for: proposal.intent,
+				destinationIndexPath: targetIndexPath
+			)
+
+			let providers = session.items.map(\.itemProvider)
+
+			delegate?.dropItems(providers: providers, to: destination)
 		case .move:
 			guard let id = coordinator.session.identifiers(with: Model.ID.self).first else {
 				return

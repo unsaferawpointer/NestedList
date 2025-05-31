@@ -19,7 +19,11 @@ protocol ContentPresenterProtocol: AnyObject {
 
 final class ContentPresenter {
 
+	// MARK: - DI
+
 	var interactor: ContentUnitInteractorProtocol?
+
+	let contentLoader: ContentLoaderProtocol = ContentLoader()
 
 	weak var view: ContentView?
 
@@ -45,6 +49,12 @@ final class ContentPresenter {
 			view?.setEditing(editingMode)
 		}
 	}
+
+	// MARK: - Constants
+
+	private let itemType = "dev.zeroindex.ListAdapter.item"
+
+	private let stringType = UTType.plainText.identifier
 
 	// MARK: - Cache
 
@@ -247,17 +257,43 @@ extension ContentPresenter: DropDelegate {
 	}
 
 	func availableTypes() -> [String] {
-		return [UTType.plainText.identifier]
+		return [itemType, stringType]
 	}
 
-	func drop(_ strings: [String], to destination: Destination<UUID>) {
-		interactor?.insertStrings(strings, to: destination)
+	func dropItems(providers: [NSItemProvider], to destination: Destination<UUID>) {
+
+		let canLoad = contentLoader.loadItems(providers: providers) { [weak self] nodes in
+			self?.interactor?.insertNodes(nodes, to: destination)
+		}
+
+		guard !canLoad else {
+			return
+		}
+
+		_ = contentLoader.loadStrings(providers: providers) { [weak self] strings in
+			self?.interactor?.insertStrings(strings, to: destination)
+		}
 	}
 
-	func string(for id: UUID) -> String {
-		return interactor?.string(for: [id]) ?? ""
-	}
+	func provider(for id: UUID) -> NSItemProvider? {
 
+		let provider = NSItemProvider()
+
+		if let text = interactor?.string(for: [id]) {
+			provider.registerObject(text as NSString, visibility: .all)
+		}
+
+		provider.registerDataRepresentation(forTypeIdentifier: itemType, visibility: .ownProcess) { [weak self] handler in
+			guard let data = self?.interactor?.data(of: id) else {
+				handler(nil, nil)
+				return nil
+			}
+			handler(data, nil)
+			return nil
+		}
+
+		return provider
+	}
 }
 
 // MARK: - Helpers
