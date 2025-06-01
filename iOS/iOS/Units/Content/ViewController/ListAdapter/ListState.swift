@@ -9,7 +9,7 @@ import Foundation
 import Hierarchy
 import DesignSystem
 
-struct ListState<Model: CellModel> {
+struct ListState<Model: CellModel & IdentifiableValue> {
 
 	var expanded: Set<Model.ID> = []
 

@@ -26,7 +26,7 @@ protocol CacheDelegate<Model>: AnyObject {
 	func endUpdates()
 }
 
-final class ListManager<Model: CellModel> {
+final class ListManager<Model: CellModel & IdentifiableValue> {
 
 	unowned var tableView: UITableView
 

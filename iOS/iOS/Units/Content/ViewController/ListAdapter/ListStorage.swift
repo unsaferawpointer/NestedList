@@ -9,7 +9,7 @@ import Foundation
 import DesignSystem
 import Hierarchy
 
-final class ListStorage<Model: CellModel> {
+final class ListStorage<Model: CellModel & IdentifiableValue> {
 
 	weak var delegate: (any CacheDelegate<Model>)?
 

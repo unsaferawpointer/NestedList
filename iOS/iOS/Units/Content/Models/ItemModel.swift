@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import Hierarchy
 import DesignSystem
 
 struct ItemModel {
@@ -83,6 +84,14 @@ extension ItemModel: Identifiable {
 
 	var id: UUID {
 		uuid
+	}
+}
+
+// MARK: - IdentifiableValue
+extension ItemModel: IdentifiableValue {
+
+	mutating func generateId() {
+		uuid = UUID()
 	}
 }
 
