@@ -92,6 +92,14 @@ private extension Root {
 			}
 		}
 	}
+
+	func removeFromCache(_ items: [Node<Value>]) {
+		for item in items {
+			item.enumerate {
+				cache[$0.id] = nil
+			}
+		}
+	}
 }
 
 // MARK: - Insertion
@@ -122,7 +130,7 @@ extension Root {
 		let items = data.map { node in
 			makeNode(from: node)
 		}
-
+		storeInCache(items)
 		switch destination {
 		case .toRoot:
 			nodes.append(contentsOf: items)
@@ -145,7 +153,6 @@ extension Root {
 		let node = Node<Value>(value: other.value, children: other.children.map({ node in
 			makeNode(from: node)
 		}))
-		storeInCache([node])
 		return node
 	}
 }
@@ -163,6 +170,9 @@ public extension Root {
 		guard let item = cache[id] else {
 			return
 		}
+
+		removeFromCache([item])
+
 		guard let parent = item.parent else {
 			if let index = nodes.firstIndex(where: \.id, equalsTo: id) {
 				nodes.remove(at: index)
@@ -170,7 +180,6 @@ public extension Root {
 			return
 		}
 		parent.deleteChild(id)
-		cache[id] = nil
 	}
 }
 

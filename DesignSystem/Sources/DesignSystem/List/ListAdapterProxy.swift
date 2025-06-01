@@ -59,7 +59,7 @@ public final class ListAdapterProxy<Model: CellModel> where Model.ID: Codable {
 			return []
 		}
 		return selection.compactMap {
-			guard case let .item(id) = snapshot[$0].id else {
+			guard let item = tableView?.item(atRow: $0) as? Item, case let .item(id) = item.id else {
 				return nil
 			}
 			return id
@@ -210,8 +210,7 @@ extension ListAdapterProxy {
 		selection.removeAll()
 		var result = IndexSet()
 		for index in proposedSelectionIndexes {
-			let id = snapshot[index].id
-			guard case let .item(id) = id else {
+			guard let item = tableView?.item(atRow: index) as? Item, case let .item(id) = item.id else {
 				continue
 			}
 			selection.insert(id)
@@ -254,7 +253,10 @@ private extension ListAdapterProxy {
 
 	func validateSelection() {
 		let rows = selection.compactMap { id -> Int? in
-			snapshot.globalIndex(for: .item(id: id))
+			guard let item = cache[.item(id: id)], let row = tableView?.row(forItem: item) else {
+				return nil
+			}
+			return row != -1 ? row : nil
 		}
 		tableView?.selectRowIndexes(.init(rows), byExtendingSelection: false)
 	}
