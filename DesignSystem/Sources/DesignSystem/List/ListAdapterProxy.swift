@@ -199,6 +199,8 @@ extension ListAdapterProxy {
 
 		dropDelegate.drop(info, to: destination)
 
+		outlineView.window?.makeKeyAndOrderFront(nil)
+
 		return true
 	}
 }
