@@ -6,22 +6,23 @@
 //
 
 import Foundation
+import DesignSystem
 import Hierarchy
 
-final class ListStorage {
+final class ListStorage<Model: CellModel & IdentifiableValue> {
 
-	weak var delegate: CacheDelegate?
+	weak var delegate: (any CacheDelegate<Model>)?
 
 	// MARK: - Internal State
 
-	private var state = ListState()
+	private var state = ListState<Model>()
 
-	private var backupState: ListState?
+	private var backupState: ListState<Model>?
 }
 
 extension ListStorage {
 
-	func destination(for row: Int) -> Destination<UUID> {
+	func destination(for row: Int) -> Destination<Model.ID> {
 		return state.destination(for: row)
 	}
 
@@ -33,7 +34,7 @@ extension ListStorage {
 // MARK: - Moving support
 extension ListStorage {
 
-	func beginMovement(for id: ItemModel.ID) {
+	func beginMovement(for id: Model.ID) {
 		// Save current state
 		self.backupState = state
 
@@ -42,7 +43,7 @@ extension ListStorage {
 	}
 
 	@discardableResult
-	func endMovement(for id: ItemModel.ID, to destination: Destination<ItemModel.ID>) -> Destination<ItemModel.ID> {
+	func endMovement(for id: Model.ID, to destination: Destination<Model.ID>) -> Destination<Model.ID> {
 		defer {
 			self.backupState = nil
 		}
@@ -50,7 +51,7 @@ extension ListStorage {
 			fatalError("Incosistent state")
 		}
 
-		let resultDestination: Destination<ItemModel.ID> = if
+		let resultDestination: Destination<Model.ID> = if
 			backupState.snapshot.parent(for: id)?.id == destination.id,
 			let rawIndex = destination.index,
 			backupState.snapshot.localIndex(for: id) < rawIndex + 1
@@ -82,7 +83,7 @@ extension ListStorage {
 // MARK: - Public interface
 extension ListStorage {
 
-	func apply(snapshot: Snapshot<ItemModel>) {
+	func apply(snapshot: Snapshot<Model>) {
 		let newState = state.replaced(with: snapshot)
 		apply(newState: newState)
 	}
@@ -91,12 +92,12 @@ extension ListStorage {
 		return state.count
 	}
 
-	func row(for id: UUID) -> Int? {
+	func row(for id: Model.ID) -> Int? {
 		return state.row(for: id)
 	}
 
-	func apply(newSnapshot: Snapshot<ItemModel>) {
-		let newState = ListState(expanded: state.expanded, snapshot: newSnapshot)
+	func apply(newSnapshot: Snapshot<Model>) {
+		let newState = ListState<Model>(expanded: state.expanded, snapshot: newSnapshot)
 		apply(newState: newState)
 	}
 
@@ -104,11 +105,11 @@ extension ListStorage {
 		return state.configuration(for: index)
 	}
 
-	func identifier(for row: Int) -> UUID {
+	func identifier(for row: Int) -> Model.ID {
 		return state.identifier(for: row)
 	}
 
-	func model(with index: Int) -> ItemModel {
+	func model(with index: Int) -> Model {
 		return state.model(for: index)
 	}
 
@@ -120,7 +121,7 @@ extension ListStorage {
 		apply(newState: newState)
 	}
 
-	func collapse(_ id: UUID) {
+	func collapse(_ id: Model.ID) {
 		let newState = state.collapsed(id: id)
 		apply(newState: newState)
 	}
@@ -135,7 +136,7 @@ extension ListStorage {
 		apply(newState: newState)
 	}
 
-	func expand(_ id: UUID) {
+	func expand(_ id: Model.ID) {
 		let newState = state.expanded(id: id)
 		apply(newState: newState)
 	}
@@ -144,7 +145,7 @@ extension ListStorage {
 // MARK: - Helpers
 private extension ListStorage {
 
-	func apply(newState: ListState) {
+	func apply(newState: ListState<Model>) {
 		guard let delegate else {
 			assertionFailure("Cannot animate without a delegate.")
 			return

@@ -105,10 +105,10 @@ public extension Item {
 // MARK: - Codable
 extension Item: Codable { }
 
-// MARK: - NodeValue
-extension Item: NodeValue {
-
-	public mutating func generateIdentifier() {
+// MARK: - IdentifiableValue
+extension Item: IdentifiableValue {
+	
+	public mutating func generateId() {
 		self.uuid = UUID()
 	}
 }

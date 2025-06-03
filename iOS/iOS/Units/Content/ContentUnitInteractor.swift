@@ -9,7 +9,7 @@ import Foundation
 import Hierarchy
 import CoreModule
 
-protocol UnitInteractorProtocol {
+protocol ContentUnitInteractorProtocol {
 	func fetchData()
 
 	@discardableResult
@@ -21,18 +21,20 @@ protocol UnitInteractorProtocol {
 	func set(_ text: String, note: String?, isMarked: Bool, style: ItemStyle, for id: UUID)
 	func item(for id: UUID) -> Item
 
+	func data(of id: UUID) -> Data?
 	func string(for ids: [UUID]) -> String
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>)
+	func insertNodes(_ nodes: [any TreeNode<Item>], to destination: Destination<UUID>)
 
 	func move(ids: [UUID], to destination: Destination<UUID>)
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool
 }
 
-final class UnitInteractor {
+final class ContentUnitInteractor {
 
 	private let storage: DocumentStorage<Content>
 
-	var presenter: UnitPresenterProtocol?
+	var presenter: ContentPresenterProtocol?
 
 	// MARK: - Initialization
 
@@ -48,7 +50,7 @@ final class UnitInteractor {
 }
 
 // MARK: - ContentInteractorProtocol
-extension UnitInteractor: UnitInteractorProtocol {
+extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 
 	func fetchData() {
 		presenter?.present(storage.state)
@@ -133,11 +135,24 @@ extension UnitInteractor: UnitInteractorProtocol {
 		}.joined(separator: "\n")
 	}
 
+	func data(of id: UUID) -> Data? {
+		guard let node = storage.state.root.node(with: id) else {
+			return nil
+		}
+		return try? JSONEncoder().encode(node)
+	}
+
 	func insertStrings(_ strings: [String], to destination: Hierarchy.Destination<UUID>) {
 		let parser = Parser()
 		let nodes = strings.flatMap { string in
 			parser.parse(from: string)
 		}
+		storage.modificate { content in
+			content.root.insertItems(from: nodes, to: destination)
+		}
+	}
+
+	func insertNodes(_ nodes: [any TreeNode<Item>], to destination: Destination<UUID>) {
 		storage.modificate { content in
 			content.root.insertItems(from: nodes, to: destination)
 		}

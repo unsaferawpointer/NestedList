@@ -5,6 +5,7 @@
 //  Created by Anton Cherkasov on 18.02.2025.
 //
 
+#if os(macOS)
 import Foundation
 
 extension ListAdapter {
@@ -84,3 +85,4 @@ extension ListModel {
 		}
 	}
 }
+#endif

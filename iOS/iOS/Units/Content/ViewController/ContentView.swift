@@ -1,5 +1,5 @@
 //
-//  UnitView.swift
+//  ContentView.swift
 //  iOS
 //
 //  Created by Anton Cherkasov on 16.02.2025.
@@ -8,7 +8,7 @@
 import Foundation
 import Hierarchy
 
-protocol UnitView: AnyObject {
+protocol ContentView: AnyObject {
 
 	func display(_ snapshot: Snapshot<ItemModel>)
 	func display(_ toolbar: ToolbarModel)

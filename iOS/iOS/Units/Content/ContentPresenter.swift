@@ -13,15 +13,19 @@ import CoreModule
 import DesignSystem
 import CoreSettings
 
-protocol UnitPresenterProtocol: AnyObject {
+protocol ContentPresenterProtocol: AnyObject {
 	func present(_ content: Content)
 }
 
-final class UnitPresenter {
+final class ContentPresenter {
 
-	var interactor: UnitInteractorProtocol?
+	// MARK: - DI
 
-	weak var view: UnitView?
+	var interactor: ContentUnitInteractorProtocol?
+
+	let contentLoader: ContentLoaderProtocol = ContentLoader()
+
+	weak var view: ContentView?
 
 	private(set) var factory: ItemsFactoryProtocol = ItemsFactory()
 
@@ -46,6 +50,12 @@ final class UnitPresenter {
 		}
 	}
 
+	// MARK: - Constants
+
+	private let itemType = "dev.zeroindex.ListAdapter.item"
+
+	private let stringType = UTType.plainText.identifier
+
 	// MARK: - Cache
 
 	var cache = Cache<Property, Item>()
@@ -62,7 +72,7 @@ final class UnitPresenter {
 }
 
 // MARK: - ContentPresenterProtocol
-extension UnitPresenter: UnitPresenterProtocol {
+extension ContentPresenter: ContentPresenterProtocol {
 
 	func present(_ content: Content) {
 
@@ -95,7 +105,7 @@ extension UnitPresenter: UnitPresenterProtocol {
 }
 
 // MARK: - ViewDelegate
-extension UnitPresenter: ViewDelegate {
+extension ContentPresenter: ViewDelegate {
 
 	func viewDidChange(state: ViewState) {
 		guard case .didAppear = state else {
@@ -116,7 +126,7 @@ extension UnitPresenter: ViewDelegate {
 }
 
 // MARK: - InteractionDelegate
-extension UnitPresenter: InteractionDelegate {
+extension ContentPresenter: InteractionDelegate {
 
 	func userDidSelect(item: String, with selection: [UUID]?) {
 		guard let menuIdentifier = ElementIdentifier(rawValue: item) else {
@@ -198,11 +208,11 @@ extension UnitPresenter: InteractionDelegate {
 	}
 }
 
-// MARK: - UnitViewDelegate
-extension UnitPresenter: UnitViewDelegate { }
+// MARK: - ContentViewDelegate
+extension ContentPresenter: ContentViewDelegate { }
 
 // MARK: - ListDelegate
-extension UnitPresenter: ListDelegate {
+extension ContentPresenter: ListDelegate {
 
 	func listItemHasBeenDelete(id: UUID) {
 		interactor?.deleteItems([id])
@@ -231,7 +241,7 @@ extension UnitPresenter: ListDelegate {
 import UniformTypeIdentifiers
 
 // MARK: - DropDelegate
-extension UnitPresenter: DropDelegate {
+extension ContentPresenter: DropDelegate {
 
 	typealias ID = UUID
 
@@ -247,21 +257,47 @@ extension UnitPresenter: DropDelegate {
 	}
 
 	func availableTypes() -> [String] {
-		return [UTType.plainText.identifier]
+		return [itemType, stringType]
 	}
 
-	func drop(_ strings: [String], to destination: Destination<UUID>) {
-		interactor?.insertStrings(strings, to: destination)
+	func dropItems(providers: [NSItemProvider], to destination: Destination<UUID>) {
+
+		let canLoad = contentLoader.loadItems(providers: providers) { [weak self] nodes in
+			self?.interactor?.insertNodes(nodes, to: destination)
+		}
+
+		guard !canLoad else {
+			return
+		}
+
+		_ = contentLoader.loadStrings(providers: providers) { [weak self] strings in
+			self?.interactor?.insertStrings(strings, to: destination)
+		}
 	}
 
-	func string(for id: UUID) -> String {
-		return interactor?.string(for: [id]) ?? ""
-	}
+	func provider(for id: UUID) -> NSItemProvider? {
 
+		let provider = NSItemProvider()
+
+		if let text = interactor?.string(for: [id]) {
+			provider.registerObject(text as NSString, visibility: .all)
+		}
+
+		provider.registerDataRepresentation(forTypeIdentifier: itemType, visibility: .ownProcess) { [weak self] handler in
+			guard let data = self?.interactor?.data(of: id) else {
+				handler(nil, nil)
+				return nil
+			}
+			handler(data, nil)
+			return nil
+		}
+
+		return provider
+	}
 }
 
 // MARK: - Helpers
-private extension UnitPresenter {
+private extension ContentPresenter {
 
 	func createNew(target: UUID?) {
 		let model = DetailsView.Model(navigationTitle: "New Item", properties: .init(text: ""))

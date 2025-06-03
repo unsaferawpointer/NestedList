@@ -127,7 +127,7 @@ class DocumentBrowserViewController: UIDocumentBrowserViewController, UIDocument
 
 		// Load the document's view controller from the storyboard.
 		let doc = Document(fileURL: documentURL)
-		let documentViewController = ViewController(document: doc)
+		let documentViewController = ContentViewController(document: doc)
 		let docNavController = UINavigationController(rootViewController: documentViewController)
 		docNavController.setNavigationBarHidden(false, animated: true)
 

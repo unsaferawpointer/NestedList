@@ -6,8 +6,14 @@
 //
 
 import UIKit
+import DesignSystem
 
-class ItemCell: UITableViewCell {
+class ItemCell: UITableViewCell, ListCell {
+
+	typealias Model = ItemModel
+
+	static var reuseIdentifier: String = "cell"
+
 
 	override func awakeFromNib() {
 		super.awakeFromNib()

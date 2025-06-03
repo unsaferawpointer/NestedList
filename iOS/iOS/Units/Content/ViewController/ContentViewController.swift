@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  ContentViewController.swift
 //  iOS
 //
 //  Created by Anton Cherkasov on 16.11.2024.
@@ -7,6 +7,7 @@
 
 import UIKit
 import SwiftUI
+import OSLog
 
 import CoreModule
 import DesignSystem
@@ -14,9 +15,9 @@ import CoreSettings
 import Hierarchy
 import UniformTypeIdentifiers
 
-class ViewController: UIDocumentViewController {
+class ContentViewController: UIDocumentViewController {
 
-	var delegate: (any UnitViewDelegate<UUID>)?
+	var delegate: (any ContentViewDelegate<UUID>)?
 
 	// MARK: - Data
 
@@ -32,11 +33,7 @@ class ViewController: UIDocumentViewController {
 
 	override var document: UIDocument? {
 		didSet {
-			guard let document = listDocument else {
-				return
-			}
-			self.delegate = UnitAssembly.build(self, storage: document.storage)
-			self.adapter = ListAdapter(tableView: tableView, delegate: delegate)
+			loadViewIfNeeded()
 		}
 	}
 
@@ -62,6 +59,7 @@ class ViewController: UIDocumentViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		configureViewForCurrentDocument()
 		undoRedoItems = undoRedoItemGroup.barButtonItems
 		delegate?.viewDidChange(state: .didLoad)
 	}
@@ -72,6 +70,20 @@ class ViewController: UIDocumentViewController {
 		self.navigationController?.setToolbarHidden(false, animated: false)
 
 		delegate?.viewDidChange(state: .didAppear)
+	}
+
+	override func documentDidOpen() {
+		configureViewForCurrentDocument()
+	}
+
+	override func viewDidDisappear(_ animated: Bool) {
+		super.viewDidDisappear(animated)
+
+		document?.close { (success) in
+			guard success else { fatalError( "*** Error closing document ***") }
+
+			os_log("==> Document saved and closed", log: .default, type: .debug)
+		}
 	}
 
 	override func updateContentUnavailableConfiguration(using state: UIContentUnavailableConfigurationState) {
@@ -86,8 +98,20 @@ class ViewController: UIDocumentViewController {
 	}
 }
 
+// MARK: - Helpers
+private extension ContentViewController {
+
+	func configureViewForCurrentDocument() {
+		guard let document = listDocument else {
+			return
+		}
+		self.delegate = ContentUnitAssembly.build(self, storage: document.storage)
+		self.adapter = ListAdapter(tableView: tableView, delegate: delegate)
+	}
+}
+
 // MARK: - DocumentView
-extension ViewController: UnitView {
+extension ContentViewController: ContentView {
 
 	func setEditing(_ editingMode: EditingMode?) {
 		self.adapter?.editingMode = editingMode
@@ -149,7 +173,7 @@ extension ViewController: UnitView {
 }
 
 // MARK: - Helpers
-private extension ViewController {
+private extension ContentViewController {
 
 	func performUpdate(_ block: @escaping () -> Void) {
 		if Thread.isMainThread {

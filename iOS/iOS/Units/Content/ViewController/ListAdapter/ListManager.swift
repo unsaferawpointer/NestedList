@@ -1,5 +1,5 @@
 //
-//  ListAdapter.swift
+//  ListManager.swift
 //  iOS
 //
 //  Created by Anton Cherkasov on 07.01.2025.
@@ -15,38 +15,41 @@ struct RowConfiguration: Equatable {
 	var isLeaf: Bool
 }
 
-protocol CacheDelegate: AnyObject {
+protocol CacheDelegate<Model>: AnyObject {
+
+	associatedtype Model
+
 	func updateCell(indexPath: IndexPath, rowConfiguration: RowConfiguration)
-	func updateCell(indexPath: IndexPath, model: ItemModel)
+	func updateCell(indexPath: IndexPath, model: Model)
 	func beginUpdates()
 	func update(deleteRows: [IndexPath], insertRows: [IndexPath])
 	func endUpdates()
 }
 
-final class ListAdapter: NSObject {
+final class ListManager<Model: CellModel & IdentifiableValue> {
 
-	weak var tableView: UITableView?
+	unowned var tableView: UITableView
 
-	var delegate: (any UnitViewDelegate<UUID>)?
+	var delegate: (any ContentViewDelegate<Model.ID>)?
 
 	var editingMode: EditingMode? {
 		didSet {
 			guard editingMode != oldValue else {
 				return
 			}
-			tableView?.setEditing(editingMode != nil, animated: true)
-			tableView?.allowsMultipleSelectionDuringEditing = editingMode?.allowSelection ?? false
-			tableView?.reloadData()
+			tableView.setEditing(editingMode != nil, animated: true)
+			tableView.allowsMultipleSelectionDuringEditing = editingMode?.allowSelection ?? false
+			tableView.reloadData()
 		}
 	}
 
 	private var feedbackGenerator: UIImpactFeedbackGenerator?
 
-	private let storage = ListStorage()
+	private let storage = ListStorage<Model>()
 
-	var selection: [UUID] {
+	var selection: [Model.ID] {
 		get {
-			tableView?.indexPathsForSelectedRows?.map { indexPath in
+			tableView.indexPathsForSelectedRows?.map { indexPath in
 				storage.identifier(for: indexPath.row)
 			} ?? []
 		}
@@ -54,37 +57,29 @@ final class ListAdapter: NSObject {
 
 	// MARK: - Initialization
 
-	init(tableView: UITableView?, delegate: (any UnitViewDelegate<UUID>)?) {
+	init(tableView: UITableView, delegate: (any ContentViewDelegate<Model.ID>)?) {
 		self.tableView = tableView
-		super.init()
 
-		self.tableView?.dataSource = self
-		self.tableView?.delegate = self
-		self.tableView?.dragDelegate = self
-		self.tableView?.dropDelegate = self
-
-		self.tableView?.register(ItemCell.self, forCellReuseIdentifier: "cell")
-
+		self.tableView.register(ItemCell.self, forCellReuseIdentifier: "cell")
 		self.storage.delegate = self
-
 		self.delegate = delegate
 	}
 }
 
-extension ListAdapter {
+extension ListManager {
 
-	func apply(newSnapshot: Snapshot<ItemModel>) {
+	func apply(newSnapshot: Snapshot<Model>) {
 		storage.apply(newSnapshot: newSnapshot)
 	}
 
-	func scroll(to id: UUID) {
+	func scroll(to id: Model.ID) {
 		guard let row = storage.row(for: id) else {
 			return
 		}
-		tableView?.scrollToRow(at: .init(row: row, section: 0), at: .bottom, animated: true)
+		tableView.scrollToRow(at: .init(row: row, section: 0), at: .bottom, animated: true)
 	}
 
-	func expand(_ id: UUID) {
+	func expand(_ id: Model.ID) {
 		storage.expand(id)
 	}
 
@@ -102,17 +97,14 @@ extension ListAdapter {
 }
 
 // MARK: - UITableViewDataSource
-extension ListAdapter: UITableViewDataSource {
+extension ListManager {
 
-	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+	func numberOfRows() -> Int {
 		return storage.count
 	}
 
-	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-		let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! ItemCell
-		cell.indentationWidth = 24
-		cell.layoutMargins.left = 32
-		cell.layoutMargins.right = 32
+	func cellForRow(at indexPath: IndexPath) -> UITableViewCell {
+		let cell = CellFactory.makeCell(with: Model.Cell.self, in: tableView, at: indexPath)
 
 		let model = storage.model(with: indexPath.row)
 		updateCell(cell, with: model)
@@ -125,9 +117,9 @@ extension ListAdapter: UITableViewDataSource {
 }
 
 // MARK: - UITableViewDelegate
-extension ListAdapter: UITableViewDelegate {
+extension ListManager {
 
-	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+	func didSelect(at indexPath: IndexPath) {
 		guard !tableView.isEditing else {
 			delegate?.listDidChangeSelection(ids: selection)
 			return
@@ -136,19 +128,14 @@ extension ListAdapter: UITableViewDelegate {
 		storage.toggle(indexPath: indexPath)
 	}
 
-	func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+	func didDeselectRow(at indexPath: IndexPath) {
 		guard tableView.isEditing else {
 			return
 		}
 		delegate?.listDidChangeSelection(ids: selection)
 	}
 
-	func tableView(
-		_ tableView: UITableView,
-		contextMenuConfigurationForRowAt indexPath: IndexPath,
-		point: CGPoint
-	) -> UIContextMenuConfiguration? {
-
+	func contextMenuConfigurationForRow(at indexPath: IndexPath) -> UIContextMenuConfiguration? {
 		guard !tableView.isEditing else {
 			return nil
 		}
@@ -158,11 +145,11 @@ extension ListAdapter: UITableViewDelegate {
 		return buildContextMenu(for: model)
 	}
 
-	func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+	func editingStyleForRow(at indexPath: IndexPath) -> UITableViewCell.EditingStyle {
 		return .none
 	}
 
-	func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+	func commitEditingStyle(editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
 		guard editingStyle == .delete else {
 			return
 		}
@@ -170,37 +157,32 @@ extension ListAdapter: UITableViewDelegate {
 		delegate?.listItemHasBeenDelete(id: id)
 	}
 
-	func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
+	func shouldIndentWhileEditingRow(at indexPath: IndexPath) -> Bool {
 		return editingMode == .selection
 	}
 }
 
 // MARK: - UITableViewDragDelegate
-extension ListAdapter: UITableViewDragDelegate {
+extension ListManager {
 
-	func tableView(
-		_ tableView: UITableView,
-		itemsForBeginning session: any UIDragSession,
-		at indexPath: IndexPath
-	) -> [UIDragItem] {
+	func itemsForBeginning(session: any UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
 		guard editingMode == .reordering, let delegate else {
 			return []
 		}
 
-		let model = storage.model(with: indexPath.row)
-
-		let string = delegate.string(for: model.id)
-		let itemProvider = NSItemProvider(object: string as NSString)
-
-		let item = UIDragItem(itemProvider: itemProvider)
-		item.localObject = model.id
+		let id = storage.model(with: indexPath.row).id
+		guard let provider = delegate.provider(for: id) else {
+			return []
+		}
+		let item = UIDragItem(itemProvider: provider)
+		item.localObject = id
 		return [item]
 	}
 
 }
 
 // MARK: - UITableViewDropDelegate
-extension ListAdapter: UITableViewDropDelegate {
+extension ListManager {
 
 	func tableView(_ tableView: UITableView, canHandle session: any UIDropSession) -> Bool {
 		guard let types = delegate?.availableTypes() else {
@@ -210,11 +192,11 @@ extension ListAdapter: UITableViewDropDelegate {
 	}
 
 	func tableView(_ tableView: UITableView, dragSessionWillBegin session: any UIDragSession) {
-		guard let item = session.items.first, let id = item.localObject as? UUID else {
+		guard let item = session.items.first, let id = item.localObject as? Model.ID else {
 			return
 		}
 
-		if let sceneIdentifier = tableView.superview?.window?.windowScene?.session.persistentIdentifier {
+		if let sceneIdentifier {
 			session.localContext = sceneIdentifier
 		}
 
@@ -240,9 +222,9 @@ extension ListAdapter: UITableViewDropDelegate {
 			return .init(operation: .move, intent: .automatic)
 		}
 
-		let id = session.identifiers.first
+		let id = session.identifiers(with: Model.ID.self).first
 
-		assert(session.identifiers.count <= 1, "Adapter cant support multi-selection")
+		assert(session.identifiers(with: Model.ID.self).count <= 1, "Adapter cant support multi-selection")
 
 		// MARK: - You can't drop a cell on itself
 		guard id != storage.identifier(for: target) else {
@@ -263,23 +245,22 @@ extension ListAdapter: UITableViewDropDelegate {
 	func tableView(_ tableView: UITableView, performDropWith coordinator: any UITableViewDropCoordinator) {
 
 		let proposal = coordinator.proposal
+		let session = coordinator.session
 
 		switch proposal.operation {
 		case .copy:
-			coordinator.session.loadObjects(ofClass: NSString.self) { [weak self] items in
-				guard let self else {
-					return
-				}
-				guard let strings = items as? [String] else { return }
 
-				let destination = destination(
-					for: proposal.intent,
-					destinationIndexPath: coordinator.destinationIndexPath
-				)
-				delegate?.drop(strings, to: destination)
-			}
+			let targetIndexPath = coordinator.destinationIndexPath
+			let destination = destination(
+				for: proposal.intent,
+				destinationIndexPath: targetIndexPath
+			)
+
+			let providers = session.items.map(\.itemProvider)
+
+			delegate?.dropItems(providers: providers, to: destination)
 		case .move:
-			guard let id = coordinator.session.identifiers.first else {
+			guard let id = coordinator.session.identifiers(with: Model.ID.self).first else {
 				return
 			}
 
@@ -308,7 +289,7 @@ extension ListAdapter: UITableViewDropDelegate {
 }
 
 // MARK: - Moving support
-extension ListAdapter {
+extension ListManager {
 
 	func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
 		return editingMode == .reordering
@@ -319,10 +300,10 @@ extension ListAdapter {
 }
 
 // MARK: - Drag And Drop Support
-extension ListAdapter {
+extension ListManager {
 
 	var sceneIdentifier: String? {
-		return tableView?.window?.windowScene?
+		return tableView.window?.windowScene?
 			.session.persistentIdentifier
 	}
 
@@ -337,7 +318,7 @@ extension ListAdapter {
 		session.localContext = sceneIdentifier
 	}
 
-	func destination(for intent: UITableViewDropProposal.Intent, destinationIndexPath: IndexPath?) -> Destination<UUID> {
+	func destination(for intent: UITableViewDropProposal.Intent, destinationIndexPath: IndexPath?) -> Destination<Model.ID> {
 		switch intent {
 		case .insertAtDestinationIndexPath:
 			return if let target = destinationIndexPath {
@@ -358,26 +339,21 @@ extension ListAdapter {
 }
 
 // MARK: - Helpers
-private extension ListAdapter {
+private extension ListManager {
 
-	func updateCell(_ cell: ItemCell, with configuration: RowConfiguration) {
+	func updateCell(_ cell: Model.Cell, with configuration: RowConfiguration) {
 		CellFactory.updateCell(cell, with: configuration)
 	}
 
-	func updateCell(_ cell: UITableViewCell, with model: ItemModel) {
-		CellFactory.updateCell(
-			cell,
-			with: model,
-			editingMode: editingMode,
-			in: tableView
-		)
+	func updateCell(_ cell: Model.Cell, with model: Model) {
+		CellFactory.updateCell(cell, with: model, in: tableView, editingMode: editingMode)
 	}
 }
 
-extension ListAdapter: CacheDelegate {
+extension ListManager: CacheDelegate {
 
-	func updateCell(indexPath: IndexPath, model: ItemModel) {
-		guard let cell = tableView?.cellForRow(at: indexPath) else {
+	func updateCell(indexPath: IndexPath, model: Model) {
+		guard let cell = tableView.cellForRow(at: indexPath) as? Model.Cell else {
 			return
 		}
 
@@ -386,7 +362,7 @@ extension ListAdapter: CacheDelegate {
 	
 
 	func updateCell(indexPath: IndexPath, rowConfiguration: RowConfiguration) {
-		guard let cell = tableView?.cellForRow(at: indexPath) as? ItemCell else {
+		guard let cell = tableView.cellForRow(at: indexPath) as? Model.Cell else {
 			return
 		}
 
@@ -394,23 +370,23 @@ extension ListAdapter: CacheDelegate {
 	}
 
 	func beginUpdates() {
-		tableView?.beginUpdates()
+		tableView.beginUpdates()
 	}
 
 	func update(deleteRows: [IndexPath], insertRows: [IndexPath]) {
-		tableView?.deleteRows(at: deleteRows, with: .fade)
-		tableView?.insertRows(at: insertRows, with: .fade)
+		tableView.deleteRows(at: deleteRows, with: .fade)
+		tableView.insertRows(at: insertRows, with: .fade)
 	}
 
 	func endUpdates() {
-		tableView?.endUpdates()
+		tableView.endUpdates()
 	}
 }
 
 // MARK: - Context Menu Support
-extension ListAdapter {
+extension ListManager {
 
-	func buildContextMenu(for model: ItemModel) -> UIContextMenuConfiguration {
+	func buildContextMenu(for model: Model) -> UIContextMenuConfiguration {
 		guard let delegate else {
 			fatalError("Delegate is nil")
 		}
@@ -426,9 +402,9 @@ extension ListAdapter {
 
 fileprivate extension UIDropSession {
 
-	var identifiers: [UUID] {
+	func identifiers<T>(with type: T.Type) -> [T] {
 		return items.compactMap {
-			$0.localObject as? UUID
+			$0.localObject as? T
 		}
 	}
 }

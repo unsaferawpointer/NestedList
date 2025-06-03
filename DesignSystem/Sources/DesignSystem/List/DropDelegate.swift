@@ -5,6 +5,7 @@
 //  Created by Anton Cherkasov on 17.11.2024.
 //
 
+import Foundation
 import Hierarchy
 
 #if os(macOS)
@@ -18,6 +19,7 @@ public protocol DropDelegate<ID>: AnyObject {
 	func validateMovement(_ ids: [ID], to destination: Destination<ID>) -> Bool
 	func validateDrop(_ info: PasteboardInfo, to destination: Destination<ID>) -> Bool
 	func drop(_ info: PasteboardInfo, to destination: Destination<ID>)
+	func availableTypes() -> Set<String>
 }
 #endif
 
@@ -29,8 +31,8 @@ public protocol DropDelegate<ID>: AnyObject {
 
 	func move(_ ids: [ID], to destination: Destination<ID>)
 	func validateMovement(_ ids: [ID], to destination: Destination<ID>) -> Bool
-	func drop(_ strings: [String], to destination: Destination<ID>)
-	func string(for id: ID) -> String
+	func dropItems(providers: [NSItemProvider], to destination: Destination<ID>)
+	func provider(for id: ID) -> NSItemProvider?
 	func availableTypes() -> [String]
 }
 #endif

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public final class Root<Value: Identifiable & Hashable> {
+public final class Root<Value: IdentifiableValue> {
 
 	public typealias ID = Value.ID
 
@@ -82,22 +82,21 @@ public extension Root {
 // MARK: - Helpers
 private extension Root {
 
-	func storeInCache(_ items: [Node<Value>]) where Value: NodeValue {
+	func storeInCache(_ items: [Node<Value>]) {
 		for item in items {
 			item.enumerate {
 				if cache[$0.id] != nil {
-					$0.value.generateIdentifier()
+					$0.value.generateId()
 				}
 				cache[$0.id] = $0
 			}
 		}
 	}
 
-	func storeInCache(_ items: [Node<Value>]) {
+	func removeFromCache(_ items: [Node<Value>]) {
 		for item in items {
 			item.enumerate {
-				if cache[$0.id] != nil { }
-				cache[$0.id] = $0
+				cache[$0.id] = nil
 			}
 		}
 	}
@@ -131,7 +130,7 @@ extension Root {
 		let items = data.map { node in
 			makeNode(from: node)
 		}
-
+		storeInCache(items)
 		switch destination {
 		case .toRoot:
 			nodes.append(contentsOf: items)
@@ -154,7 +153,6 @@ extension Root {
 		let node = Node<Value>(value: other.value, children: other.children.map({ node in
 			makeNode(from: node)
 		}))
-		storeInCache([node])
 		return node
 	}
 }
@@ -172,6 +170,9 @@ public extension Root {
 		guard let item = cache[id] else {
 			return
 		}
+
+		removeFromCache([item])
+
 		guard let parent = item.parent else {
 			if let index = nodes.firstIndex(where: \.id, equalsTo: id) {
 				nodes.remove(at: index)
@@ -179,7 +180,6 @@ public extension Root {
 			return
 		}
 		parent.deleteChild(id)
-		cache[id] = nil
 	}
 }
 

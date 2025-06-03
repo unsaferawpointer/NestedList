@@ -30,6 +30,11 @@ protocol ContentInteractorProtocol {
 
 	func strings(for ids: [UUID]) -> [String]
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>)
+
+	func nodes(for ids: [UUID]) -> [Node<Item>]
+
+	func insertStrings(_ data: [Data], to destination: Destination<UUID>)
+	func insertItems(_ data: [Data], to destination: Destination<UUID>)
 }
 
 final class ContentInteractor {
@@ -202,5 +207,37 @@ extension ContentInteractor: ContentInteractorProtocol {
 		storage.modificate { content in
 			content.root.setProperty(\.note, to: note, for: ids)
 		}
+	}
+
+	func insertStrings(_ data: [Data], to destination: Hierarchy.Destination<UUID>) {
+		let strings = data.compactMap {
+			String(data: $0, encoding: .utf8)
+		}
+		self.insertStrings(strings, to: destination)
+	}
+
+	func insertItems(_ data: [Data], to destination: Destination<UUID>) {
+		let decoder = JSONDecoder()
+		let nodes = data.compactMap {
+			try? decoder.decode(Node<Item>.self, from: $0)
+		}
+		storage.modificate { content in
+			content.root.insertItems(from: nodes, to: destination)
+		}
+	}
+
+	func nodes(for ids: [UUID]) -> [Node<Item>] {
+		let cache = Set(ids)
+
+		let nodes = storage.state.root.nodes(with: ids)
+		let copied = nodes.map { node in
+			node.map { $0 }
+		}
+
+		copied.forEach { node in
+			node.deleteDescendants(with: cache)
+		}
+
+		return copied
 	}
 }

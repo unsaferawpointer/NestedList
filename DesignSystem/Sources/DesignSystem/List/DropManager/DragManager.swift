@@ -13,9 +13,16 @@ final class DragManager { }
 // MARK: - Public interface
 extension DragManager {
 
-	static func registerTypes(in list: NSTableView) {
-		list.registerForDraggedTypes([.identifier, .string])
-		list.setDraggingSourceOperationMask(.copy, forLocal: false)
+	static func register(types: Set<String>?, in list: NSTableView?) {
+
+		list?.unregisterDraggedTypes()
+
+		guard let availableTypes = types?.map({ NSPasteboard.PasteboardType($0) }) else {
+			return
+		}
+
+		list?.registerForDraggedTypes([.identifier] + availableTypes)
+		list?.setDraggingSourceOperationMask(.copy, forLocal: false)
 	}
 
 	static func isLocal(from info: NSDraggingInfo, in list: NSOutlineView) -> Bool {

@@ -53,7 +53,7 @@ extension ItemsFactory: ItemsFactoryProtocol {
 				if let color = iconColor.color {
 					return .monochrome(token: color)
 				}
-				return .monochrome(token: ColorMapper.map(color: item.style.color))
+				return .hierarchical(token: ColorMapper.map(color: item.style.color))
 			}
 		}()
 

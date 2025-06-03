@@ -38,6 +38,8 @@ final class IconMapper {
 			.heart(filled: filled)
 		case .listStar:
 			.listStar(filled: filled)
+		case .bolt:
+			.bolt(filled: filled)
 		}
 	}
 }

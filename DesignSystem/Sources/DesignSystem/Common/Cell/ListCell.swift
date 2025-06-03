@@ -26,21 +26,15 @@ public protocol ListCell: NSView {
 }
 #endif
 
-#if canImport(UIKit)
-import UIKit
-#endif
-
 #if os(iOS)
+import UIKit
+
 public protocol ListCell: UITableViewCell {
 
 	associatedtype Model: CellModel
 
 	static var reuseIdentifier: String { get }
 
-	var model: Model { get set }
-
-	init(_ model: Model)
-
-	var action: ((Model.Value) -> Void)? { get set }
+	func validateIndent()
 }
 #endif
