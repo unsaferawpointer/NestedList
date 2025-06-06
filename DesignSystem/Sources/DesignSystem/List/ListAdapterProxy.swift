@@ -30,13 +30,22 @@ public final class ListAdapterProxy<Model: CellModel> where Model.ID: Codable {
 		}
 	}
 
+	// MARK: - Managers
+
+	lazy var dropManager: DropManager<ID> = {
+		return DropManager(list: tableView!)
+	}()
+
 	// MARK: - Delegates
 
 	public weak var delegate: (any ListDelegate<ID>)?
 
 	public weak var dropDelegate: (any DropDelegate<ID>)? {
-		didSet {
-			DragManager.register(types: dropDelegate?.availableTypes(), in: tableView)
+		get {
+			dropManager.delegate
+		}
+		set {
+			dropManager.delegate = newValue
 		}
 	}
 
@@ -153,55 +162,27 @@ extension ListAdapterProxy {
 		info: NSDraggingInfo,
 		to rawDestination: Destination<InternalModel.ID>
 	) -> NSDragOperation {
-
-		guard let dropDelegate, let destination = normalize(destination: rawDestination) else {
+		guard let destination = normalize(destination: rawDestination) else {
 			return []
 		}
-
-		if DragManager.isLocal(from: info, in: outlineView) {
-			guard info.draggingSourceOperationMask == .copy else {
-				let ids: [ID] = DragManager.identifiers(from: info)
-				let isValid = dropDelegate.validateMovement(ids, to: destination)
-				return isValid ? .private : []
-			}
-			return .copy
-		}
-
-		guard let info = Pasteboard(pasteboard: info.draggingPasteboard).getInfo() else {
-			return []
-		}
-
-		return dropDelegate.validateDrop(info, to: destination) ? .copy : []
+		return dropManager.validateDrop(info: info, to: destination)
 	}
 
 	func acceptDrop(_ outlineView: NSOutlineView, info: NSDraggingInfo, to rawDestination: Destination<InternalModel.ID>) -> Bool {
 
-		guard let dropDelegate, let destination = normalize(destination: rawDestination) else {
+		guard let destination = normalize(destination: rawDestination) else {
 			return false
 		}
 
-		guard !DragManager.isLocal(from: info, in: outlineView) else {
-			let ids: [ID] = DragManager.identifiers(from: info)
-			if info.draggingSourceOperationMask == .copy {
-				dropDelegate.copy(ids, to: destination)
-			} else {
-				dropDelegate.move(ids, to: destination)
-			}
-			if let id = destination.id, let targetItem = cache[.item(id: id)] {
-				tableView?.expandItem(targetItem, expandChildren: false)
-			}
-			return true
-		}
+		let result = dropManager.acceptDrop(info: info, to: destination)
 
-		guard let info = Pasteboard(pasteboard: info.draggingPasteboard).getInfo() else {
-			return false
+		if let id = destination.id, let targetItem = cache[.item(id: id)] {
+			tableView?.expandItem(targetItem, expandChildren: false)
 		}
-
-		dropDelegate.drop(info, to: destination)
 
 		outlineView.window?.makeKeyAndOrderFront(nil)
 
-		return true
+		return result
 	}
 }
 
@@ -225,8 +206,8 @@ extension ListAdapterProxy {
 		validateSelection()
 	}
 
-	func handleDoubleClick() {
-		guard let item = tableView?.clickedItem(with: Item.self), case let .item(id) = item.id else {
+	func handleDoubleClick(basicId: InternalModel.ID) {
+		guard case let .item(id) = basicId else {
 			return
 		}
 
@@ -481,48 +462,6 @@ private extension ListAdapterProxy {
 			}
 
 			return .inItem(with: id, atIndex: index - shift)
-		}
-	}
-
-	func getDestination(proposedItem item: Any?, proposedChildIndex index: Int) -> Destination<ID>? {
-		switch (item, index) {
-		case (.none, -1):
-			return .toRoot
-		case (.none, let index):
-
-			let numberOfRootItems = snapshot.numberOfRootItems()
-			if index < numberOfRootItems {
-				let model = snapshot.rootItem(at: index)
-				guard case .model = model else {
-					return nil
-				}
-			}
-
-			let shift = snapshot.contains(in: nil, maxIndex: index) { $0.isDecoration }
-			return .inRoot(atIndex: index - shift)
-		case (let item as Item, -1):
-			guard case .item(let id) = item.id else {
-				return nil
-			}
-			return .onItem(with: id)
-		case (let item as Item, let index):
-			guard case .item(let id) = item.id else {
-				return nil
-			}
-
-			let numberOfItems = snapshot.numberOfChildren(ofItem: item.id)
-			if index < numberOfItems {
-				let model = snapshot.childOfItem(item.id, at: index)
-				guard case .model = model else {
-					return nil
-				}
-			}
-
-			let shift = snapshot.contains(in: item.id, maxIndex: index) { $0.isDecoration }
-
-			return .inItem(with: id, atIndex: index - shift)
-		default:
-			fatalError()
 		}
 	}
 }

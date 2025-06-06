@@ -61,7 +61,7 @@ extension DragManager {
 
 }
 
-private extension NSPasteboard.PasteboardType {
+extension NSPasteboard.PasteboardType {
 
 	static let identifier: Self = .init("dev.zeroindex.ListAdapter.identifier")
 }
