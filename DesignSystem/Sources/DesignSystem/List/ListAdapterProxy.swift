@@ -25,8 +25,11 @@ public final class ListAdapterProxy<Model: CellModel> where Model.ID: Codable {
 	// MARK: - Public Properties
 
 	public weak var menu: NSMenu? {
-		didSet {
-			tableView?.menu = menu
+		get {
+			tableView?.menu
+		}
+		set {
+			tableView?.menu = newValue
 		}
 	}
 
@@ -36,20 +39,13 @@ public final class ListAdapterProxy<Model: CellModel> where Model.ID: Codable {
 		return DropManager(list: tableView!)
 	}()
 
+	lazy var dragManager: DragManager<ID> = {
+		return DragManager(list: tableView!)
+	}()
+
 	// MARK: - Delegates
 
 	public weak var delegate: (any ListDelegate<ID>)?
-
-	public weak var dropDelegate: (any DropDelegate<ID>)? {
-		get {
-			dropManager.delegate
-		}
-		set {
-			dropManager.delegate = newValue
-		}
-	}
-
-	public weak var dragDelegate: (any DragDelegate<ID>)?
 
 	public weak var cellDelegate: (any CellDelegate<Model>)?
 
@@ -79,6 +75,28 @@ public final class ListAdapterProxy<Model: CellModel> where Model.ID: Codable {
 
 	public init(tableView: NSOutlineView) {
 		self.tableView = tableView
+	}
+}
+
+// MARK: - Computed Properties
+extension ListAdapterProxy {
+
+	public weak var dropDelegate: (any DropDelegate<ID>)? {
+		get {
+			dropManager.delegate
+		}
+		set {
+			dropManager.delegate = newValue
+		}
+	}
+
+	public weak var dragDelegate: (any DragDelegate<ID>)? {
+		get {
+			dragManager.delegate
+		}
+		set {
+			dragManager.delegate = newValue
+		}
 	}
 }
 
@@ -133,7 +151,7 @@ extension ListAdapterProxy {
 		guard case let .item(id) = item else {
 			return nil
 		}
-		return DragManager.write(id, to: NSPasteboardItem())
+		return dragManager.write(id, to: NSPasteboardItem())
 	}
 
 	func draggingWillBegin(
@@ -151,10 +169,7 @@ extension ListAdapterProxy {
 			}
 		}
 
-		precondition(session.draggingPasteboard.pasteboardItems?.count == ids.count)
-
-		let pasteboard = Pasteboard(pasteboard: session.draggingPasteboard)
-		dragDelegate?.write(ids: ids, to: pasteboard)
+		dragManager.draggingWillBegin(draggingSession: session, forItems: ids)
 	}
 
 	func validateDrop(

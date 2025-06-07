@@ -90,7 +90,11 @@ private extension DropManager {
 
 		list.unregisterDraggedTypes()
 
-		guard let availableTypes = delegate?.availableTypes().map({ NSPasteboard.PasteboardType($0) }) else {
+		let availableTypes = delegate?.availableTypes().map {
+			NSPasteboard.PasteboardType($0)
+		}
+
+		guard let availableTypes else {
 			return
 		}
 

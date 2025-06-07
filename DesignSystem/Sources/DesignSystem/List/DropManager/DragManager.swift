@@ -8,46 +8,23 @@
 #if canImport(AppKit)
 import AppKit
 
-final class DragManager { }
+final class DragManager<ID: Encodable> {
+
+	unowned var list: NSOutlineView
+
+	weak var delegate: (any DragDelegate<ID>)?
+
+	// MARK: - Initialization
+
+	init(list: NSOutlineView) {
+		self.list = list
+	}
+}
 
 // MARK: - Public interface
 extension DragManager {
 
-	static func register(types: Set<String>?, in list: NSTableView?) {
-
-		list?.unregisterDraggedTypes()
-
-		guard let availableTypes = types?.map({ NSPasteboard.PasteboardType($0) }) else {
-			return
-		}
-
-		list?.registerForDraggedTypes([.identifier] + availableTypes)
-		list?.setDraggingSourceOperationMask(.copy, forLocal: false)
-	}
-
-	static func isLocal(from info: NSDraggingInfo, in list: NSOutlineView) -> Bool {
-		guard let source = info.draggingSource as? NSOutlineView else {
-			return false
-		}
-		return source === list
-	}
-
-	static func identifiers<ID: Decodable>(from info: NSDraggingInfo) -> [ID] {
-
-		guard let pasteboardItems = info.draggingPasteboard.pasteboardItems else {
-			return []
-		}
-
-		let decoder = JSONDecoder()
-
-		return pasteboardItems.compactMap { item in
-			item.data(forType: .identifier)
-		}.compactMap { data in
-			return try? decoder.decode(ID.self, from: data)
-		}
-	}
-
-	static func write<ID: Encodable>(_ id: ID, to pasteboardItem: NSPasteboardItem) -> NSPasteboardWriting? {
+	func write(_ id: ID, to pasteboardItem: NSPasteboardItem) -> NSPasteboardWriting? {
 
 		let encoder = JSONEncoder()
 
@@ -57,6 +34,14 @@ extension DragManager {
 
 		pasteboardItem.setData(data, forType: .identifier)
 		return pasteboardItem
+	}
+
+	func draggingWillBegin(draggingSession session: NSDraggingSession, forItems ids: [ID]) {
+
+		precondition(session.draggingPasteboard.pasteboardItems?.count == ids.count)
+
+		let pasteboard = Pasteboard(pasteboard: session.draggingPasteboard)
+		delegate?.write(ids: ids, to: pasteboard)
 	}
 
 }
