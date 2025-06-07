@@ -124,6 +124,12 @@ extension ContentPresenter: UnitViewOutput {
 	}
 
 	func isHidden(_ item: ElementIdentifier) -> Bool {
+		guard item != .paste else {
+			let types = Set([stringType, itemType])
+			let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
+			return !pasteboard.contains(types)
+		}
+
 		guard let selection = view?.selection else {
 			return false
 		}
@@ -179,7 +185,7 @@ extension ContentPresenter: UnitViewOutput {
 		case .newItem:
 			return true
 		case .paste:
-			let types = Set([stringType])
+			let types = Set([stringType, itemType])
 			let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
 			return pasteboard.contains(types)
 		case .noIcon:
@@ -281,19 +287,11 @@ private extension ContentPresenter {
 
 	func cut(ids: [UUID]) {
 		guard
-			let selection = view?.selection,
-			let interactor, !selection.isEmpty
+			let selection = view?.selection, let interactor, !selection.isEmpty,
+			let info = pasteboardInfo(for: selection)
 		else {
 			return
 		}
-
-		let strings = interactor.strings(for: selection)
-
-		let items = strings.map { string in
-			PasteboardInfo.Item(string: string)
-		}
-
-		let info = PasteboardInfo(items: items)
 
 		let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
 		pasteboard.setInfo(info, clearContents: true)
@@ -301,22 +299,15 @@ private extension ContentPresenter {
 	}
 
 	func copy(ids: [UUID]) {
-		guard
-			let selection = view?.selection,
-			let interactor, !selection.isEmpty
-		else {
+		guard let selection = view?.selection, !selection.isEmpty else {
 			return
 		}
 
-		let strings = interactor.strings(for: selection)
-
-		let items = strings.map { string in
-			PasteboardInfo.Item(string: string)
+		guard let info = pasteboardInfo(for: selection) else {
+			return
 		}
 
-		let info = PasteboardInfo(items: items)
-
-		let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
+		let pasteboard = Pasteboard(pasteboard: .general)
 		pasteboard.setInfo(info, clearContents: true)
 	}
 
@@ -335,13 +326,17 @@ private extension ContentPresenter {
 			.toRoot
 		}
 
-		let strings = info.items.compactMap { item in
-			item.data[stringType]
-		}.compactMap { data in
-			String(data: data, encoding: .utf8)
+		if info.containsInfo(of: itemType) {
+			let data = info.items.compactMap { item in
+				item.data[itemType]
+			}
+			interactor?.insertItems(data, to: destination)
+		} else {
+			let data = info.items.compactMap { item in
+				item.data[stringType]
+			}
+			interactor?.insertStrings(data, to: destination)
 		}
-
-		interactor?.insertStrings(strings, to: destination)
 	}
 }
 
@@ -389,25 +384,10 @@ extension ContentPresenter: DropDelegate {
 extension ContentPresenter: DragDelegate {
 
 	func write(ids: [UUID], to pasteboard: any PasteboardProtocol) {
-		guard let nodes = interactor?.nodes(for: ids) else {
+		guard let info = pasteboardInfo(for: ids) else {
 			return
 		}
 
-		let encoder = JSONEncoder()
-		let parser = Parser()
-
-
-		let items = nodes.map {
-			PasteboardInfo.Item(
-				data:
-					[
-						itemType : (try? encoder.encode($0)) ?? Data(),
-						stringType: parser.format($0).data(using: .utf8) ?? Data()
-					]
-			)
-		}
-
-		let info = PasteboardInfo(items: items)
 		pasteboard.setInfo(info, clearContents: false)
 	}
 
@@ -431,7 +411,30 @@ extension ContentPresenter: CellDelegate {
 		interactor?.set(text: newValue.title, note: note, for: id)
 	}
 }
-extension ContentPresenter {
+
+// MARK: - Helpers
+private extension ContentPresenter {
+
+	func pasteboardInfo(for ids: [UUID]) -> PasteboardInfo? {
+		guard let nodes = interactor?.nodes(for: ids) else {
+			return nil
+		}
+
+		let encoder = JSONEncoder()
+		let parser = Parser()
+
+		let items = nodes.map {
+			PasteboardInfo.Item(
+				data:
+					[
+						itemType : (try? encoder.encode($0)) ?? Data(),
+						stringType: parser.format($0).data(using: .utf8) ?? Data()
+					]
+			)
+		}
+
+		return PasteboardInfo(items: items)
+	}
 
 	func validateStatus() -> Bool? {
 		guard let selection = view?.selection, !selection.isEmpty else {

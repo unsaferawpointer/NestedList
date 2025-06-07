@@ -73,7 +73,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 		storage.state.root.validateMoving(ids, to: destination)
 	}
 
-	func copy(_ ids: [UUID], to destination: Hierarchy.Destination<UUID>) {
+	func copy(_ ids: [UUID], to destination: Destination<UUID>) {
 		let nodes = storage.state.root.nodes(with: ids)
 		let copied = nodes.map { node in
 			node.map { item in
