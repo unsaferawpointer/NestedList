@@ -43,7 +43,7 @@ final class ListManager<Model: CellModel & IdentifiableValue> {
 		}
 	}
 
-	private var feedbackGenerator: UIImpactFeedbackGenerator?
+	private var feedbackGenerator = FeedbackGenerator()
 
 	private let storage = ListStorage<Model>()
 
@@ -200,10 +200,7 @@ extension ListManager {
 			session.localContext = sceneIdentifier
 		}
 
-		// Тактильный отклик при перемещении элемента
-		feedbackGenerator = UIImpactFeedbackGenerator(style: .heavy)
-		feedbackGenerator?.prepare()
-		feedbackGenerator?.impactOccurred()
+		feedbackGenerator.impactOccurred(style: .heavy)
 
 		storage.beginMovement(for: id)
 	}
@@ -234,11 +231,7 @@ extension ListManager {
 	}
 
 	func tableView(_ tableView: UITableView, dragSessionDidEnd session: any UIDragSession) {
-		// Завершаем работу генератора
-		feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
-		feedbackGenerator?.prepare()
-		feedbackGenerator?.impactOccurred()
-		feedbackGenerator = nil
+		feedbackGenerator.impactOccurred(style: .medium)
 		storage.cancelMovement()
 	}
 
