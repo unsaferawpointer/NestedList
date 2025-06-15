@@ -5,6 +5,8 @@
 //  Created by Anton Cherkasov on 02.05.2025.
 //
 
+import SwiftUI
+
 #if canImport(AppKit)
 
 import AppKit
@@ -22,6 +24,7 @@ fileprivate typealias Image = UIImage
 public enum SemanticImage {
 
 	case point
+	case circleSlash
 	case folder(filled: Bool = false)
 	case textDoc(filled: Bool = false)
 	case docOnDoc(filled: Bool = false)
@@ -47,6 +50,8 @@ public extension SemanticImage {
 
 	var title: String {
 		switch self {
+		case .circleSlash:
+			""
 		case .point:
 			String(localized: "semantic-image-point", table: "Localizable", bundle: .module)
 		case .folder:
@@ -78,6 +83,8 @@ public extension SemanticImage {
 
 	var systemName: String? {
 		switch self {
+		case .circleSlash:
+			"circle.slash"
 		case .point:
 			nil
 		case let .folder(filled):
@@ -121,11 +128,24 @@ private extension SemanticImage {
 	}
 }
 
+public extension SemanticImage {
+
+	var image: SwiftUI.Image? {
+		guard let systemName = self.systemName else {
+			if let resource = self.resource {
+				return SwiftUI.Image(resource)
+			}
+			return nil
+		}
+		return SwiftUI.Image(systemName: systemName)
+	}
+}
+
 #if canImport(AppKit)
 // MARK: - Computed properties
 public extension SemanticImage {
 
-	var image: NSImage? {
+	var nsImage: NSImage? {
 		guard let systemName = self.systemName else {
 			if let resource = self.resource {
 				return NSImage(resource: resource)

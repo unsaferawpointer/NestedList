@@ -135,7 +135,7 @@ private extension DetailsView {
 
 	var iconModels: [IconModel] {
 		return IconName.allCases.map {
-			.customIcon($0)
+			.customIcon(IconMapper.map(icon: $0, filled: false) ?? .textDoc(filled: false))
 		}
 	}
 
@@ -146,17 +146,21 @@ private extension DetailsView {
 				guard model.properties.isSection else {
 					return .noIcon
 				}
-				guard let icon = model.properties.icon?.name else {
+
+				guard
+					let name = model.properties.icon?.name,
+					let icon = IconMapper.map(icon: name, filled: false)
+				else {
 					return .noIcon
 				}
 				return .customIcon(icon)
-			}, set: { (newValue: IconModel) in
+			}, set: { newValue in
 				switch newValue {
 				case .noIcon:
 					model.properties.icon = nil
 				case .customIcon(let iconName):
 					let color = model.properties.icon?.color ?? .tertiary
-					model.properties.icon = ItemIcon(name: iconName, color: color)
+					model.properties.icon = ItemIcon(name: IconMapper.map(icon: iconName), color: color)
 				}
 
 			}))

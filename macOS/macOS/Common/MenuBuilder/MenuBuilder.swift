@@ -166,7 +166,7 @@ private extension MenuBuilder {
 		item.identifier = .init("icon-\(icon.rawValue)")
 		item.action = action
 		item.title = IconMapper.map(icon: icon, filled: false)?.title ?? ""
-		item.image = IconMapper.map(icon: icon, filled: false)?.image?
+		item.image = IconMapper.map(icon: icon, filled: false)?.nsImage?
 			.withSymbolConfiguration(.preferringHierarchical())
 		return item
 	}
@@ -192,7 +192,7 @@ private extension MenuBuilder {
 				item.identifier = .init("icon-\(icon.rawValue)")
 				item.action = action
 				item.title = IconMapper.map(icon: icon, filled: false)?.title ?? ""
-				item.image = IconMapper.map(icon: icon, filled: false)?.image
+				item.image = IconMapper.map(icon: icon, filled: false)?.nsImage
 				menu.addItem(item)
 			}
 			return menu

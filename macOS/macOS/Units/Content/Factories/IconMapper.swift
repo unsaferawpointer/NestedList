@@ -42,4 +42,25 @@ final class IconMapper {
 			.bolt(filled: filled)
 		}
 	}
+
+	static func map(icon: SemanticImage?) -> IconName {
+		guard let icon else {
+			return .document
+		}
+		return switch icon {
+		case .textDoc:			.document
+		case .docOnDoc:			.documents
+		case .folder:			.folder
+		case .star:				.star
+		case .shippingbox:		.package
+		case .archivebox:		.archivebox
+		case .squareStack:		.stack
+		case .book:				.book
+		case .squareGrid2x2:	.squareGrid2x2
+		case .heart:			.heart
+		case .listStar:			.listStar
+		case .bolt:				.bolt
+		default:				.document
+		}
+	}
 }

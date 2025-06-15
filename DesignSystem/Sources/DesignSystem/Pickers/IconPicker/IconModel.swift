@@ -5,14 +5,12 @@
 //  Created by Anton Cherkasov on 04.05.2025.
 //
 
-import CoreModule
-
-enum IconModel {
+public enum IconModel {
 
 	case noIcon
-	case customIcon(IconName)
+	case customIcon(SemanticImage)
 
-	var icon: IconName? {
+	var icon: SemanticImage? {
 		switch self {
 		case .noIcon:
 			nil

@@ -134,7 +134,7 @@ private extension ItemCell {
 
 		if let iconConfiguration = configuration.icon {
 			iconView.isHidden = false
-			let image = iconConfiguration.name?.image
+			let image = iconConfiguration.name?.nsImage
 
 			let symbolConfiguration = iconConfiguration.appearence.configuration
 			iconView.image = image?
