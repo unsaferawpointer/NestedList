@@ -114,6 +114,8 @@ extension ContentPresenter: UnitViewOutput {
 	func menuItems() -> [ElementIdentifier] {
 		return [.newItem,
 				.separator,
+				.edit,
+				.separator,
 				.completed, .marked, .section,
 				.separator,
 				.note,
@@ -154,6 +156,7 @@ extension ContentPresenter: UnitViewOutput {
 		case .completed:	toggleStrikethrough(for: selection)
 		case .marked:		toggleMark(for: selection)
 		case .note:			toggleNote(for: selection)
+		case .edit:			editItem(with: selection)
 		case .delete:		delete(ids: selection)
 		case .cut:			cut(ids: selection)
 		case .copy:			copy(ids: selection)
@@ -248,6 +251,22 @@ private extension ContentPresenter {
 			view?.expand([first])
 		}
 		view?.focus(on: id, key: "title")
+	}
+
+	func editItem(with selection: [UUID]) {
+		guard let id = selection.first, let item = interactor?.nodes(for: [id]).first?.value else {
+			return
+		}
+		let model = DetailsView.Model(navigationTitle: "Edit Item", properties: item.details)
+		view?.showDetails(with: model) { [weak self] saved, success in
+			self?.view?.hideDetails()
+			if success {
+				let note = saved.description.isEmpty ? nil : saved.description
+				let style: ItemStyle = saved.isSection ? .section(icon: saved.icon) : .item
+
+				self?.interactor?.set(saved.text, note: note, isMarked: saved.isMarked, style: style, for: id)
+			}
+		}
 	}
 
 	func toggleStrikethrough(for ids: [UUID]) {
@@ -477,6 +496,40 @@ extension Optional<Bool> {
 		switch self {
 		case .none:					.mixed
 		case .some(let wrapped):	wrapped ? .on : .off
+		}
+	}
+}
+
+private extension Item {
+
+	var details: DetailsView.Properties {
+		return .init(
+			text: text,
+			description: note ?? "",
+			isMarked: isMarked,
+			isSection: style != .item,
+			icon: style.icon
+		)
+	}
+}
+
+extension ItemStyle {
+
+	var icon: ItemIcon? {
+		switch self {
+		case .item:
+			return nil
+		case .section(let icon):
+			return icon
+		}
+	}
+
+	var semanticImage: SemanticImage? {
+		switch self {
+		case .item:
+			return .point
+		case let .section(icon):
+			return IconMapper.map(icon: icon?.name, filled: false)
 		}
 	}
 }

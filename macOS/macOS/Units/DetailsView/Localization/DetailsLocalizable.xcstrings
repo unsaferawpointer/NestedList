@@ -1,103 +1,71 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "delete-item-title" : {
+    "cancel-item-title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Delete"
+            "value" : "Cancel"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Отменить"
+          }
+        }
+      }
+    },
+    "color-picker-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Color"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Удалить"
+            "value" : "Цвет"
           }
         }
       }
     },
-    "display-as-item-title" : {
+    "icons-picker-title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Display As"
+            "value" : "Icon"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Отображать как"
+            "value" : "Иконка"
           }
         }
       }
     },
-    "edit-item-title" : {
+    "mark-toggle-title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Edit…"
+            "value" : "Mark"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Править…"
+            "state" : "needs_review",
+            "value" : "Выделить"
           }
         }
       }
     },
-    "editor-menu-title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Editor"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Редактор"
-          }
-        }
-      }
-    },
-    "marked-item-title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Marked"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Выделено"
-          }
-        }
-      }
-    },
-    "new-item-title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "New Item"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Новый пункт"
-          }
-        }
-      }
-    },
-    "no-icon-item-title" : {
+    "no-icon-title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -113,7 +81,7 @@
         }
       }
     },
-    "note-item-title" : {
+    "note-placeholder" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -129,23 +97,7 @@
         }
       }
     },
-    "plain-item-item-title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Plain Item"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Простой пункт"
-          }
-        }
-      }
-    },
-    "properties-header-title" : {
+    "properties-section-title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -156,44 +108,28 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Свойства пункта"
+            "value" : "Свойства"
           }
         }
       }
     },
-    "section-color-item-title" : {
+    "save-item-title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Icon Color"
+            "value" : "Save"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Цвет иконки"
+            "value" : "Сохранить"
           }
         }
       }
     },
-    "section-icon-item-title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Section Icon"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Иконка секции"
-          }
-        }
-      }
-    },
-    "section-item-title" : {
+    "section-toggle-title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -203,24 +139,40 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Секция"
           }
         }
       }
     },
-    "strikethrough-item-title" : {
+    "textfield-placeholder" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Strikethrough"
+            "value" : "Enter Text"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Зачеркнуто"
+            "value" : "Введите текст"
+          }
+        }
+      }
+    },
+    "warning-text" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empty text textfield"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Пустое поле с текстом"
           }
         }
       }

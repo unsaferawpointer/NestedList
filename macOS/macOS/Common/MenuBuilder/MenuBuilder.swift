@@ -62,6 +62,10 @@ private extension MenuBuilder {
 			item.keyEquivalent = "\u{0008}"
 			item.image = NSImage(systemSymbolName: "trash", accessibilityDescription: nil)
 			return item
+		case .edit:
+			item.identifier = .init(elementIdentifier: .edit)
+			item.title = MenuLocalization.editItemTitle
+			return item
 		case .separator:
 			return NSMenuItem.separator()
 		default:

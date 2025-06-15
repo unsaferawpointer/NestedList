@@ -16,6 +16,12 @@ protocol UnitViewOutput: ViewDelegate, MenuDelegate { }
 
 protocol UnitView: AnyObject, ListSupportable {
 	func display(_ snapshot: Snapshot<ItemModel>)
+
+	func showDetails(
+		with model: DetailsView.Model,
+		completionHandler: @escaping (DetailsView.Properties, Bool) -> Void
+	)
+	func hideDetails()
 }
 
 class ContentViewController: NSViewController {
@@ -105,10 +111,27 @@ class ContentViewController: NSViewController {
 		output?.viewDidChange(state: .willAppear)
 		table.sizeLastColumnToFit()
 	}
+
+	var sheet: NSViewController?
 }
 
 // MARK: - ContentView
 extension ContentViewController: UnitView {
+
+	func hideDetails() {
+		if let sheet = presentedViewControllers?.first {
+			dismiss(sheet)
+		}
+	}
+
+	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void) {
+
+		let contentViewController = NSHostingController(
+			rootView:
+				DetailsView(item: model, completionHandler: completionHandler)
+		)
+		presentAsSheet(contentViewController)
+	}
 
 	func display(_ snapshot: Snapshot<ItemModel>) {
 		adapter?.apply(snapshot)
