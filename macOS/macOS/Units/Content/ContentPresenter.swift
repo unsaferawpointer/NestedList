@@ -16,6 +16,7 @@ import AppKit
 
 protocol ContentPresenterProtocol: AnyObject {
 	func present(_ content: Content)
+	func present(_ nodes: [Node<Item>])
 }
 
 final class ContentPresenter {
@@ -59,8 +60,13 @@ final class ContentPresenter {
 extension ContentPresenter: ContentPresenterProtocol {
 
 	func present(_ content: Content) {
+		let nodes = content.root.nodes
+		present(nodes)
+	}
 
-		var snapshot = Snapshot(content.root.nodes)
+	func present(_ nodes: [Node<Item>]) {
+
+		var snapshot = Snapshot(nodes)
 		snapshot.validate(keyPath: \.isStrikethrough)
 		snapshot.validate(keyPath: \.isMarked)
 

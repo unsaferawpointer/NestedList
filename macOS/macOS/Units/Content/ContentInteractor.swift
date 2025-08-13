@@ -44,15 +44,21 @@ final class ContentInteractor {
 
 	weak var presenter: ContentPresenterProtocol?
 
+	// MARK: - Internal State
+
+	private var root: UUID?
+
 	// MARK: - Initialization
 
-	init(storage: DocumentStorage<Content>) {
+	init(storage: DocumentStorage<Content>, root: UUID? = nil) {
 		self.storage = storage
+		self.root = root
 		storage.addObservation(for: self) { [weak self] _, content in
 			guard let self else {
 				return
 			}
-			self.presenter?.present(content)
+			let nodes = content.root.children(of: root)
+			self.presenter?.present(nodes)
 		}
 	}
 }
@@ -61,17 +67,17 @@ final class ContentInteractor {
 extension ContentInteractor: ContentInteractorProtocol {
 
 	func fetchData() {
-		presenter?.present(storage.state)
+		presenter?.present(storage.state.root.nodes)
 	}
 
 	func move(_ ids: [UUID], to destination: Destination<UUID>) {
 		storage.modificate { content in
-			content.root.moveItems(with: ids, to: destination)
+			content.root.moveItems(with: ids, to: destination.relative(to: root))
 		}
 	}
 
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
-		storage.state.root.validateMoving(ids, to: destination)
+		storage.state.root.validateMoving(ids, to: destination.relative(to: root))
 	}
 
 	func copy(_ ids: [UUID], to destination: Destination<UUID>) {
@@ -82,13 +88,13 @@ extension ContentInteractor: ContentInteractorProtocol {
 			}
 		}
 		storage.modificate { content in
-			content.root.insertItems(from: copied, to: destination)
+			content.root.insertItems(from: copied, to: destination.relative(to: root))
 		}
 	}
 
 	func newItem(_ text: String, target: UUID?) -> UUID {
 		let new = Item(uuid: .random, text: text)
-		let destination = Destination(target: target)
+		let destination = Destination(target: target).relative(to: root)
 		storage.modificate { content in
 			content.root.insertItems(with: [new], to: destination)
 		}
@@ -209,7 +215,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 			parser.parse(from: string)
 		}
 		storage.modificate { content in
-			content.root.insertItems(from: nodes, to: destination)
+			content.root.insertItems(from: nodes, to: destination.relative(to: root))
 		}
 	}
 
@@ -223,7 +229,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 		let strings = data.compactMap {
 			String(data: $0, encoding: .utf8)
 		}
-		self.insertStrings(strings, to: destination)
+		self.insertStrings(strings, to: destination.relative(to: root))
 	}
 
 	func insertItems(_ data: [Data], to destination: Destination<UUID>) {
@@ -232,7 +238,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 			try? decoder.decode(Node<Item>.self, from: $0)
 		}
 		storage.modificate { content in
-			content.root.insertItems(from: nodes, to: destination)
+			content.root.insertItems(from: nodes, to: destination.relative(to: root))
 		}
 	}
 

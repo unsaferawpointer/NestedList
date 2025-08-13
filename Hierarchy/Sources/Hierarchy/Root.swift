@@ -43,6 +43,13 @@ public extension Root {
 		}
 	}
 
+	func children(of id: ID?) -> [Node<Value>] {
+		guard let id else {
+			return nodes
+		}
+		return cache[id]?.children ?? []
+	}
+
 	func node(with id: ID) -> Node<Value>? {
 		return cache[id]
 	}
