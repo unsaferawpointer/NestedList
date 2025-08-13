@@ -139,6 +139,12 @@ private extension DetailsView {
 		}
 	}
 
+	var availableColors: [ColorToken] {
+		return ItemColor.allCases.compactMap {
+			ColorMapper.map(color: $0)
+		}
+	}
+
 	@ViewBuilder
 	func buildIconPicker() -> some View {
 		Section(strings.iconsPickerTitle) {
@@ -170,20 +176,25 @@ private extension DetailsView {
 	@ViewBuilder
 	func buildColorPicker() -> some View {
 		Section(strings.colorPickerTitle) {
-			ColorPicker(selection: .init(get: {
+			DesignSystem.ColorPicker(selection: .init(get: {
 				guard model.properties.isSection else {
 					return .tertiary
 				}
 				guard let color = model.properties.icon?.color else {
 					return .tertiary
 				}
-				return color
-			}, set: { (newValue: ItemColor) in
+				return ColorMapper.map(color: color)
+			}, set: { newValue in
 				guard let icon = model.properties.icon else {
 					return
 				}
-				model.properties.icon? = ItemIcon(name: icon.name, color: newValue)
-			}))
+				model.properties.icon? = ItemIcon(
+					name: icon.name,
+					color: ColorMapper.map(token: newValue) ?? .quaternary
+				)
+			}),
+				availableColors: availableColors
+			)
 		}
 	}
 }

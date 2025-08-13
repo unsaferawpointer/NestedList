@@ -2,27 +2,27 @@
 //  SwiftUIView.swift
 //  DesignSystem
 //
-//  Created by Anton Cherkasov on 15.06.2025.
+//  Created by Anton Cherkasov on 16.06.2025.
 //
 
 import SwiftUI
 
-struct IconButton: View {
+struct ColorButton: View {
 
-	let icon: SemanticImage
+	let color: ColorToken
 	let isSelected: Bool
 	let action: () -> Void
 
-#if os(iOS)
+	#if os(iOS)
 	var body: some View {
 		Button(action: action) {
 			VStack {
-				icon.image
+				Image(systemName: "circle.fill")
+					.foregroundColor(color.color)
 					.font(.system(size: 24))
 					.frame(maxWidth: .infinity, maxHeight: .infinity)
 					.padding()
 					.background(isSelected ? Color.accentColor.opacity(0.2) : Color.gray.opacity(0.1))
-					.foregroundColor(isSelected ? .accentColor : .primary)
 					.cornerRadius(10)
 			}
 		}
@@ -32,12 +32,12 @@ struct IconButton: View {
 	var body: some View {
 		Button(action: action) {
 			VStack {
-				icon.image
+				Image(systemName: "circle.fill")
+					.foregroundColor(color.color)
 					.font(.system(size: 16))
 					.frame(maxWidth: .infinity, maxHeight: .infinity)
 					.padding(8)
 					.background(isSelected ? Color.accentColor.opacity(0.2) : Color.gray.opacity(0.1))
-					.foregroundColor(isSelected ? .accentColor : .primary)
 					.cornerRadius(8)
 			}
 		}
@@ -47,6 +47,5 @@ struct IconButton: View {
 }
 
 #Preview {
-	IconButton(icon: .book(filled: false), isSelected: false, action: { })
-	IconButton(icon: .book(filled: false), isSelected: true, action: { })
+	ColorButton(color: .blue, isSelected: false, action: { })
 }
