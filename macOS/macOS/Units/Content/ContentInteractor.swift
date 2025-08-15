@@ -67,7 +67,8 @@ final class ContentInteractor {
 extension ContentInteractor: ContentInteractorProtocol {
 
 	func fetchData() {
-		presenter?.present(storage.state.root.nodes)
+		let nodes = storage.state.root.children(of: root)
+		presenter?.present(nodes)
 	}
 
 	func move(_ ids: [UUID], to destination: Destination<UUID>) {

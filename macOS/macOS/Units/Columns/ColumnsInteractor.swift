@@ -5,9 +5,12 @@
 //  Created by Anton Cherkasov on 14.08.2025.
 //
 
+import Foundation
 import CoreModule
 
-protocol ColumnsInteractorProtocol { }
+protocol ColumnsInteractorProtocol {
+	func fetchData()
+}
 
 final class ColumnsInteractor {
 
@@ -20,10 +23,15 @@ final class ColumnsInteractor {
 	init(storage: DocumentStorage<Content>) {
 		self.storage = storage
 		storage.addObservation(for: self) { [weak self] _, content in
-			fatalError()
+			self?.presenter?.present(storage.state.root.nodes)
 		}
 	}
 }
 
 // MARK: - ColumnsInteractorProtocol
-extension ColumnsInteractor: ColumnsInteractorProtocol { }
+extension ColumnsInteractor: ColumnsInteractorProtocol {
+
+	func fetchData() {
+		presenter?.present(storage.state.root.nodes)
+	}
+}

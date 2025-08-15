@@ -24,7 +24,7 @@ protocol UnitView: AnyObject, ListSupportable {
 	func hideDetails()
 }
 
-class ContentViewController: NSViewController {
+class ContentViewController: NSCollectionViewItem {
 
 	var adapter: ListAdapter<ItemModel>?
 

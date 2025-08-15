@@ -13,7 +13,8 @@ final class ColumnsUnitAssembly {
 	static func build(storage: DocumentStorage<Content>) -> NSViewController {
 		let presenter = ColumnsPresenter()
 		let interactor = ColumnsInteractor(storage: storage)
-		return ColumnsViewController { viewController in
+		let columnsFactory = ColumnsFactory(storage: storage)
+		return ColumnsViewController(columnsFactory: columnsFactory) { viewController in
 			viewController.output = presenter
 			presenter.view = viewController
 			presenter.interactor = interactor

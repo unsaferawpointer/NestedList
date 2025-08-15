@@ -5,9 +5,13 @@
 //  Created by Anton Cherkasov on 14.08.2025.
 //
 
+import Hierarchy
+import CoreModule
 import DesignSystem
 
-protocol ColumnsPresenterProtocol: AnyObject { }
+protocol ColumnsPresenterProtocol: AnyObject {
+	func present(_ nodes: [Node<Item>])
+}
 
 final class ColumnsPresenter {
 
@@ -22,9 +26,18 @@ final class ColumnsPresenter {
 extension ColumnsPresenter: ColumnsViewOutput {
 
 	func viewDidChange(state: ViewState) {
-		fatalError()
+		guard state == .didLoad else {
+			return
+		}
+		interactor?.fetchData()
 	}
 }
 
 // MARK: - ColumnsPresenterProtocol
-extension ColumnsPresenter: ColumnsPresenterProtocol { }
+extension ColumnsPresenter: ColumnsPresenterProtocol {
+
+	func present(_ nodes: [Node<Item>]) {
+		let columns = nodes.map(\.id)
+		view?.display(columns)
+	}
+}
