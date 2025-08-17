@@ -20,6 +20,6 @@ final class ColumnsFactory {
 extension ColumnsFactory {
 
 	func build(for id: UUID) -> NSCollectionViewItem {
-		return ContentUnitAssembly.build(for: id, storage: storage) as! NSCollectionViewItem
+		return ColumnUnitAssembly.build(root: id, storage: storage)
 	}
 }

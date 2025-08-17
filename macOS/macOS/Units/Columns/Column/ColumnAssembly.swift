@@ -1,0 +1,24 @@
+//
+//  ColumnAssembly.swift
+//  Nested List
+//
+//  Created by Anton Cherkasov on 16.08.2025.
+//
+
+import Cocoa
+import CoreModule
+
+final class ColumnUnitAssembly {
+
+	static func build(root: UUID, storage: DocumentStorage<Content>) -> NSCollectionViewItem {
+		let presenter = ColumnPresenter()
+		let interactor = ColumnInteractor(root: root, storage: storage)
+		let content = ContentUnitAssembly.build(for: root, storage: storage)
+		return ColumnViewController(content) { viewController in
+			viewController.output = presenter
+			presenter.view = viewController
+			presenter.interactor = interactor
+			interactor.presenter = presenter
+		}
+	}
+}

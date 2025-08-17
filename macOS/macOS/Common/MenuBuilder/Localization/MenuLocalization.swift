@@ -67,4 +67,12 @@ extension MenuLocalization {
 	static var editItemTitle: String {
 		String(localized: "edit-item-title", table: "MenuLocalizable")
 	}
+
+	static var moveForward: String {
+		String(localized: "move-forward-item-title", table: "MenuLocalizable")
+	}
+
+	static var moveBackward: String {
+		String(localized: "move-backward-item-title", table: "MenuLocalizable")
+	}
 }

@@ -81,6 +81,38 @@
         }
       }
     },
+    "move-backward-item-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move Backward"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сдвинуть назад"
+          }
+        }
+      }
+    },
+    "move-forward-item-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move Forward"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сдвинуть вперед"
+          }
+        }
+      }
+    },
     "new-item-title" : {
       "localizations" : {
         "en" : {

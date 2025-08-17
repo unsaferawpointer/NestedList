@@ -10,7 +10,7 @@ import CoreModule
 import DesignSystem
 
 protocol MenuBuilderProtocol {
-	static func build(for items: [ElementIdentifier]) -> NSMenu
+	static func build(for items: [ElementIdentifier], target: AnyObject?) -> NSMenu
 }
 
 final class MenuBuilder { }
@@ -18,12 +18,13 @@ final class MenuBuilder { }
 // MARK: - Helpers
 private extension MenuBuilder {
 
-	static func build(id: ElementIdentifier) -> NSMenuItem {
+	static func build(id: ElementIdentifier, target: AnyObject? = nil) -> NSMenuItem {
 
 		let action = #selector(ContentViewController.menuItemClicked(_:))
 
 		let item = NSMenuItem()
 		item.action = action
+		item.target = target
 
 		switch id {
 		case .newItem:
@@ -43,9 +44,9 @@ private extension MenuBuilder {
 			item.title = MenuLocalization.sectionItemTitle
 		case .icon:
 			if #available(macOS 14.0, *) {
-				configureIconPallete(item, action: action)
+				configureIconPallete(item, action: action, target: target)
 			} else {
-				configureIconItem(item, action: action)
+				configureIconItem(item, action: action, target: target)
 			}
 		case .color:
 			if #available(macOS 14.0, *) {
@@ -68,6 +69,29 @@ private extension MenuBuilder {
 			return item
 		case .separator:
 			return NSMenuItem.separator()
+		case .columnNewItem:
+			item.identifier = .init(elementIdentifier: .columnEdit)
+			item.title = MenuLocalization.newItemTitle
+			item.image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)
+		case .columnEdit:
+			item.identifier = .init(elementIdentifier: .columnEdit)
+			item.title = MenuLocalization.editItemTitle
+			return item
+		case .columnDelete:
+			item.identifier = .init(elementIdentifier: .columnDelete)
+			item.title = MenuLocalization.deleteItemTitle
+			item.image = NSImage(systemSymbolName: "trash", accessibilityDescription: nil)
+			return item
+		case .moveForward:
+			item.identifier = .init(elementIdentifier: .moveForward)
+			item.title = MenuLocalization.moveForward
+			item.image = NSImage(systemSymbolName: "arrow.forward", accessibilityDescription: nil)
+			return item
+		case .moveBackward:
+			item.identifier = .init(elementIdentifier: .moveBackward)
+			item.title = MenuLocalization.moveBackward
+			item.image = NSImage(systemSymbolName: "arrow.backward", accessibilityDescription: nil)
+			return item
 		default:
 			fatalError()
 		}
@@ -79,10 +103,10 @@ private extension MenuBuilder {
 // MARK: - MenuBuilderProtocol
 extension MenuBuilder: MenuBuilderProtocol {
 
-	static func build(for items: [ElementIdentifier]) -> NSMenu {
+	static func build(for items: [ElementIdentifier], target: AnyObject?) -> NSMenu {
 		let menu = NSMenu()
 		for item in items {
-			menu.addItem(build(id: item))
+			menu.addItem(build(id: item, target: target))
 		}
 		return menu
 	}
@@ -161,17 +185,18 @@ private extension MenuBuilder {
 // MARK: - Helpers
 private extension MenuBuilder {
 
-	static func buildIconItem(icon: IconName, action: Selector) -> NSMenuItem {
+	static func buildIconItem(icon: IconName, action: Selector, target: AnyObject?) -> NSMenuItem {
 		let item = NSMenuItem()
 		item.identifier = .init("icon-\(icon.rawValue)")
 		item.action = action
+		item.target = target
 		item.title = IconMapper.map(icon: icon, filled: false)?.title ?? ""
 		item.image = IconMapper.map(icon: icon, filled: false)?.nsImage?
 			.withSymbolConfiguration(.preferringHierarchical())
 		return item
 	}
 
-	static func configureIconItem(_ item: NSMenuItem, action: Selector) {
+	static func configureIconItem(_ item: NSMenuItem, action: Selector, target: AnyObject?) {
 		item.identifier = .init(elementIdentifier: .icon)
 		item.title = MenuLocalization.sectionIconItemTitle
 		item.submenu = {
@@ -183,6 +208,7 @@ private extension MenuBuilder {
 					item.title = MenuLocalization.noIconItemTitle
 					item.image = NSImage(systemSymbolName: "circle.slash", accessibilityDescription: nil)
 					item.action = action
+					item.target = target
 					return item
 				}()
 			)
@@ -191,6 +217,7 @@ private extension MenuBuilder {
 				let item = NSMenuItem()
 				item.identifier = .init("icon-\(icon.rawValue)")
 				item.action = action
+				item.target = target
 				item.title = IconMapper.map(icon: icon, filled: false)?.title ?? ""
 				item.image = IconMapper.map(icon: icon, filled: false)?.nsImage
 				menu.addItem(item)
@@ -200,7 +227,7 @@ private extension MenuBuilder {
 	}
 
 	@available(macOS 14.0, *)
-	static func configureIconPallete(_ item: NSMenuItem, action: Selector) {
+	static func configureIconPallete(_ item: NSMenuItem, action: Selector, target: AnyObject?) {
 		item.title = MenuLocalization.sectionIconItemTitle
 		item.identifier = .init(elementIdentifier: .icon)
 		item.submenu = {
@@ -213,6 +240,7 @@ private extension MenuBuilder {
 					item.title = MenuLocalization.noIconItemTitle
 					item.image = NSImage(systemSymbolName: "circle.slash", accessibilityDescription: nil)
 					item.action = action
+					item.target = target
 					return item
 				}()
 			)
@@ -228,7 +256,8 @@ private extension MenuBuilder {
 
 						let item = buildIconItem(
 							icon: icon,
-							action: action
+							action: action,
+							target: target
 						)
 						menu.addItem(item)
 					}

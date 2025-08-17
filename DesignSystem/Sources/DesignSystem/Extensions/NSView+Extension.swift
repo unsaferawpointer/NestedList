@@ -15,19 +15,19 @@ public extension NSView {
 		view.addSubview(self)
 
 		if edges.contains(.top) {
-			topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+			topAnchor.constraint(equalTo: view.topAnchor, constant: inset).isActive = true
 		}
 
 		if edges.contains(.leading) {
-			leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+			leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: inset).isActive = true
 		}
 
 		if edges.contains(.trailing) {
-			trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+			trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -inset).isActive = true
 		}
 
 		if edges.contains(.bottom) {
-			bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+			bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -inset).isActive = true
 		}
 	}
 }

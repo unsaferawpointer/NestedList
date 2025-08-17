@@ -54,6 +54,7 @@ class ContentViewController: NSCollectionViewItem {
 		view.autohidesScrollers = true
 		view.hasVerticalScroller = false
 		view.automaticallyAdjustsContentInsets = true
+		view.drawsBackground = false
 		return view
 	}()
 
@@ -84,7 +85,7 @@ class ContentViewController: NSCollectionViewItem {
 		self.adapter?.delegate = listDelegate
 
 		if let items = output?.menuItems() {
-			self.adapter?.menu = MenuBuilder.build(for: items)
+			self.adapter?.menu = MenuBuilder.build(for: items, target: self)
 		}
 	}
 
@@ -170,7 +171,7 @@ private extension ContentViewController {
 
 		table.frame = scrollview.bounds
 		table.headerView = nil
-		scrollview.additionalSafeAreaInsets = .horizontal(32)
+//		scrollview.additionalSafeAreaInsets = .horizontal(32)
 
 		let column = NSTableColumn(identifier: .init("main"))
 		table.addTableColumn(column)
