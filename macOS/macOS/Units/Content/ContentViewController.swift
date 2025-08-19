@@ -35,6 +35,8 @@ class ContentViewController: NSCollectionViewItem {
 	weak var dragDelegate: (any DesignSystem.DragDelegate<UUID>)?
 	weak var cellDelegate: (any DesignSystem.CellDelegate<ItemModel>)?
 
+	let configuration: ContentConfiguration
+
 	// MARK: - UI-Properties
 
 	lazy var placeholderView: NSView = {
@@ -75,7 +77,8 @@ class ContentViewController: NSCollectionViewItem {
 
 	// MARK: - Initialization
 
-	init(configure: (ContentViewController) -> Void) {
+	init(configuration: ContentConfiguration, configure: (ContentViewController) -> Void) {
+		self.configuration = configuration
 		super.init(nibName: nil, bundle: nil)
 		configure(self)
 		self.adapter = ListAdapter<ItemModel>(tableView: table)
@@ -171,7 +174,8 @@ private extension ContentViewController {
 
 		table.frame = scrollview.bounds
 		table.headerView = nil
-		scrollview.additionalSafeAreaInsets = .horizontal(32)
+		scrollview.additionalSafeAreaInsets = configuration.hasInsets ? .horizontal(32) : .init()
+		scrollview.drawsBackground = configuration.drawsBackground
 
 		let column = NSTableColumn(identifier: .init("main"))
 		table.addTableColumn(column)

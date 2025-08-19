@@ -13,7 +13,11 @@ final class ColumnUnitAssembly {
 	static func build(root: UUID, storage: DocumentStorage<Content>) -> NSCollectionViewItem {
 		let presenter = ColumnPresenter()
 		let interactor = ColumnInteractor(root: root, storage: storage)
-		let content = ContentUnitAssembly.build(for: root, storage: storage)
+		let content = ContentUnitAssembly.build(
+			for: root,
+			storage: storage,
+			configuration: .init(drawsBackground: false, hasInsets: false)
+		)
 		return ColumnViewController(content) { viewController in
 			viewController.output = presenter
 			presenter.view = viewController
