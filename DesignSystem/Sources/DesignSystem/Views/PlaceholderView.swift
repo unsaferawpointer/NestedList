@@ -36,7 +36,7 @@ public struct PlaceholderView: View {
 					.foregroundStyle(.tertiary)
 					.lineLimit(nil)
 			}
-			.frame(width: 320)
+			.frame(maxWidth: 320)
 			.padding()
 		}
 		.frame(maxWidth: .infinity, maxHeight: .infinity)
