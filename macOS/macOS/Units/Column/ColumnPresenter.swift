@@ -43,7 +43,7 @@ extension ColumnPresenter: MenuDelegate {
 		case .columnEdit:
 			fatalError()
 		case .columnDelete:
-			fatalError()
+			interactor?.deleteColumn()
 		case .moveForward:
 			fatalError()
 		case .moveBackward:

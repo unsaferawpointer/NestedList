@@ -33,7 +33,7 @@ class ColumnHeaderView: NSView {
 	lazy var actionButton: NSButton = {
 		let image = NSImage.init(systemSymbolName: "ellipsis", accessibilityDescription: nil)!
 		let action = #selector(buttonDidClick(_:))
-		let button = NSButton(image: image, target: nil, action: action)
+		let button = NSButton(image: image, target: self, action: action)
 		button.showsBorderOnlyWhileMouseInside = true
 		return button
 	}()

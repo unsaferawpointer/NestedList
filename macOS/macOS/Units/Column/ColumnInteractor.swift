@@ -10,6 +10,8 @@ import CoreModule
 
 protocol ColumnInteractorProtocol {
 	func fetchData()
+
+	func deleteColumn()
 }
 
 final class ColumnInteractor {
@@ -42,5 +44,11 @@ extension ColumnInteractor: ColumnInteractorProtocol {
 			return
 		}
 		presenter?.present(item)
+	}
+
+	func deleteColumn() {
+		storage.modificate { content in
+			content.root.deleteItem(root)
+		}
 	}
 }
