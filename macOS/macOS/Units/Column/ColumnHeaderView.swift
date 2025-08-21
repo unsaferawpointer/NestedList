@@ -34,6 +34,7 @@ class ColumnHeaderView: NSView {
 		let image = NSImage.init(systemSymbolName: "ellipsis", accessibilityDescription: nil)!
 		let action = #selector(buttonDidClick(_:))
 		let button = NSButton(image: image, target: self, action: action)
+		button.bezelStyle = .toolbar
 		button.showsBorderOnlyWhileMouseInside = true
 		return button
 	}()
@@ -81,7 +82,7 @@ private extension ColumnHeaderView {
 			titleTextfield.trailingAnchor.constraint(equalTo: actionButton.leadingAnchor, constant: -12),
 
 			actionButton.firstBaselineAnchor.constraint(equalTo: titleTextfield.firstBaselineAnchor),
-			actionButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12)
+			actionButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8)
 		]
 			.forEach { $0.isActive = true }
 
