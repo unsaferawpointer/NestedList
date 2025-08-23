@@ -66,7 +66,7 @@ extension ColumnPresenter: MenuDelegate {
 	}
 	
 	func menuItems() -> [ElementIdentifier] {
-		return [.columnNewItem, .separator, .columnEdit, .separator, .moveForward, .moveBackward, .separator, .columnDelete]
+		return [.columnEdit, .separator, .moveForward, .moveBackward, .separator, .columnDelete]
 	}
 }
 

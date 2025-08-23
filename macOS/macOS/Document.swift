@@ -47,9 +47,8 @@ class Document: NSDocument {
 		// Returns the Storyboard that contains your Document window.
 		let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
 		let windowController = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Document Window Controller")) as! NSWindowController
-		windowController.contentViewController = ContentUnitAssembly.build(
-			storage: storage,
-			configuration: .init(drawsBackground: true, hasInsets: true)
+		windowController.contentViewController = ColumnsUnitAssembly.build(
+			storage: storage
 		)
 		self.addWindowController(windowController)
 	}
@@ -62,4 +61,35 @@ class Document: NSDocument {
 		try storage.read(from: data, ofType: typeName)
 	}
 
+}
+
+// MARK: - Actions
+extension Document {
+
+	@IBAction
+	func changeView(_ sender: NSSegmentedControl) {
+
+		guard
+			let windowController = self.windowControllers.first,
+			let size = windowController.window?.frame.size
+		else {
+			return
+		}
+
+		switch sender.selectedSegment {
+		case 0:
+			windowController.contentViewController = ContentUnitAssembly.build(
+				storage: storage,
+				configuration: .init(drawsBackground: true, hasInsets: true)
+			)
+		case 1:
+			windowController.contentViewController = ColumnsUnitAssembly.build(
+				storage: storage
+			)
+		default:
+			break
+		}
+
+		windowController.window?.setContentSize(size)
+	}
 }

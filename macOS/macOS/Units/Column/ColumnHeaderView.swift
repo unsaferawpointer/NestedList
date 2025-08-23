@@ -20,6 +20,7 @@ class ColumnHeaderView: NSView {
 		view.focusRingType = .default
 		view.cell?.sendsActionOnEndEditing = true
 		view.isBordered = false
+		view.isEditable = false
 		view.drawsBackground = false
 		view.usesSingleLineMode = true
 		view.lineBreakMode = .byTruncatingMiddle
@@ -30,8 +31,24 @@ class ColumnHeaderView: NSView {
 		return view
 	}()
 
+	lazy var buttons: NSStackView = {
+		let view = NSStackView(views: [plusButton, actionButton])
+		view.orientation = .horizontal
+		view.spacing = 0
+		return view
+	}()
+
 	lazy var actionButton: NSButton = {
 		let image = NSImage.init(systemSymbolName: "ellipsis", accessibilityDescription: nil)!
+		let action = #selector(buttonDidClick(_:))
+		let button = NSButton(image: image, target: self, action: action)
+		button.bezelStyle = .toolbar
+		button.showsBorderOnlyWhileMouseInside = true
+		return button
+	}()
+
+	lazy var plusButton: NSButton = {
+		let image = NSImage.init(systemSymbolName: "plus", accessibilityDescription: nil)!
 		let action = #selector(buttonDidClick(_:))
 		let button = NSButton(image: image, target: self, action: action)
 		button.bezelStyle = .toolbar
@@ -57,11 +74,15 @@ extension ColumnHeaderView {
 
 	@objc
 	func buttonDidClick(_ sender: NSButton) {
-		buttonMenu.popUp(
-			positioning: nil,
-			at: .init(x: actionButton.bounds.midX, y: actionButton.bounds.maxY),
-			in: sender
-		)
+		if actionButton === sender {
+			buttonMenu.popUp(
+				positioning: nil,
+				at: .init(x: actionButton.bounds.midX, y: actionButton.bounds.maxY),
+				in: sender
+			)
+		} else if plusButton === sender {
+
+		}
 	}
 }
 
@@ -70,19 +91,25 @@ private extension ColumnHeaderView {
 
 	func configureConstraints() {
 
-		[titleTextfield, actionButton].map { $0 }.forEach {
+		[titleTextfield, buttons].map { $0 }.forEach {
 			$0.translatesAutoresizingMaskIntoConstraints = false
 			addSubview($0)
 		}
+
+		titleTextfield.setContentHuggingPriority(.defaultLow, for: .horizontal)
+		titleTextfield.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
+		buttons.setHuggingPriority(.defaultHigh, for: .horizontal)
+		buttons.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
 
 		[
 			titleTextfield.topAnchor.constraint(equalTo: topAnchor, constant: 12),
 			titleTextfield.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12),
 			titleTextfield.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
-			titleTextfield.trailingAnchor.constraint(equalTo: actionButton.leadingAnchor, constant: -12),
+			titleTextfield.trailingAnchor.constraint(equalTo: buttons.leadingAnchor, constant: -12),
 
-			actionButton.firstBaselineAnchor.constraint(equalTo: titleTextfield.firstBaselineAnchor),
-			actionButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8)
+			buttons.firstBaselineAnchor.constraint(equalTo: titleTextfield.firstBaselineAnchor),
+			buttons.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4)
 		]
 			.forEach { $0.isActive = true }
 
