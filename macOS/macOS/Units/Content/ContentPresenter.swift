@@ -270,7 +270,14 @@ private extension ContentPresenter {
 				let note = saved.description.isEmpty ? nil : saved.description
 				let style: ItemStyle = saved.isSection ? .section(icon: saved.icon) : .item
 
-				self?.interactor?.set(saved.text, note: note, isMarked: saved.isMarked, style: style, for: id)
+				self?.interactor?.set(
+					saved.text,
+					isStrikethrough: saved.isStrikethrough,
+					note: note,
+					isMarked: saved.isMarked,
+					style: style,
+					for: id
+				)
 			}
 		}
 	}
@@ -512,6 +519,7 @@ private extension Item {
 		return .init(
 			text: text,
 			description: note ?? "",
+			isStrikethrough: isStrikethrough,
 			isMarked: isMarked,
 			isSection: style != .item,
 			icon: style.icon

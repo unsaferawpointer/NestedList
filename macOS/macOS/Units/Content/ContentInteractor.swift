@@ -26,7 +26,14 @@ protocol ContentInteractorProtocol {
 	func setIcon(_ name: IconName?, for ids: [UUID])
 	func set(text: String, note: String?, for id: UUID)
 	func set(note: String?, for ids: [UUID])
-	func set(_ text: String, note: String?, isMarked: Bool, style: ItemStyle, for id: UUID)
+	func set(
+		_ text: String,
+		isStrikethrough: Bool,
+		note: String?,
+		isMarked: Bool,
+		style: ItemStyle,
+		for id: UUID
+	)
 	func deleteItems(_ ids: [UUID])
 
 	func strings(for ids: [UUID]) -> [String]
@@ -175,9 +182,10 @@ extension ContentInteractor: ContentInteractorProtocol {
 		}
 	}
 
-	func set(_ text: String, note: String?, isMarked: Bool, style: ItemStyle, for id: UUID) {
+	func set(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, for id: UUID) {
 		storage.modificate { content in
 			content.root.setProperty(\.text, to: text, for: [id])
+			content.root.setProperty(\.isStrikethrough, to: isStrikethrough, for: [id])
 			content.root.setProperty(\.note, to: note, for: [id])
 			content.root.setProperty(\.isMarked, to: isMarked, for: [id], downstream: true)
 			content.root.setProperty(\.style, to: style, for: [id])

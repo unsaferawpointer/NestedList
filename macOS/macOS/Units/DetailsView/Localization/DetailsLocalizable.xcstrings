@@ -145,6 +145,22 @@
         }
       }
     },
+    "strike-through-toggle-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strikethrough"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зачеркнуть"
+          }
+        }
+      }
+    },
     "textfield-placeholder" : {
       "localizations" : {
         "en" : {

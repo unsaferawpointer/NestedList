@@ -120,6 +120,11 @@ private extension DetailsView {
 	@ViewBuilder
 	func buildProperties() -> some View {
 		Section(strings.propertiesSectionTitle) {
+			Toggle(isOn: $model.properties.isStrikethrough) {
+				Text(strings.strikeThroughToggleTitle)
+			}
+			.tint(.accentColor)
+			.accessibilityIdentifier("toggle-strikethrough")
 			Toggle(isOn: $model.properties.isMarked) {
 				Text(strings.markToggleTitle)
 			}
@@ -216,6 +221,7 @@ extension DetailsView {
 	struct Properties {
 		var text: String
 		var description: String = ""
+		var isStrikethrough: Bool = false
 		var isMarked: Bool = false
 		var isSection: Bool = false
 		var icon: ItemIcon?
