@@ -18,7 +18,7 @@ extension DocumentType {
 	var lastVersion: Version {
 		switch self {
 		case .nlist:
-			return .init(major: 1, minor: 0)
+			return .init(major: 1)
 		default:
 			fatalError("Can`t support other types")
 		}

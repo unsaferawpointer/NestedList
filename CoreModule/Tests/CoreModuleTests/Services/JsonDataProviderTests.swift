@@ -81,7 +81,8 @@ extension JsonDataProviderTests {
 							options: [.strikethrough, .marked]
 						)
 					),
-				]
+				],
+			view: .board
 		)
 
 		let version = "1-0-0"

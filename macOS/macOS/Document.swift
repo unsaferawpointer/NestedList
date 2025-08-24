@@ -10,6 +10,12 @@ import CoreModule
 
 class Document: NSDocument {
 
+	lazy var toolbar: NSToolbar = {
+		let view = NSToolbar()
+		view.delegate = self
+		return view
+	}()
+
 	// MARK: - DI
 
 	lazy var storage: DocumentStorage<Content> = {
@@ -47,9 +53,10 @@ class Document: NSDocument {
 		// Returns the Storyboard that contains your Document window.
 		let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
 		let windowController = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Document Window Controller")) as! NSWindowController
-		windowController.contentViewController = ColumnsUnitAssembly.build(
-			storage: storage
-		)
+		windowController.contentViewController = buildUnit(for: storage.state.view)
+
+		windowController.window?.toolbar = toolbar
+		windowController.window?.toolbar?.delegate = self
 		self.addWindowController(windowController)
 	}
 
@@ -66,6 +73,20 @@ class Document: NSDocument {
 // MARK: - Actions
 extension Document {
 
+	func buildUnit(for view: Content.ContentView) -> NSViewController {
+		switch view {
+		case .list:
+			ContentUnitAssembly.build(
+				storage: storage,
+				configuration: .init(drawsBackground: true, hasInsets: true)
+			)
+		case .board:
+			ColumnsUnitAssembly.build(
+				storage: storage
+			)
+		}
+	}
+
 	@IBAction
 	func changeView(_ sender: NSSegmentedControl) {
 
@@ -76,20 +97,75 @@ extension Document {
 			return
 		}
 
-		switch sender.selectedSegment {
-		case 0:
-			windowController.contentViewController = ContentUnitAssembly.build(
-				storage: storage,
-				configuration: .init(drawsBackground: true, hasInsets: true)
+		let view = Content.ContentView(rawValue: sender.indexOfSelectedItem) ?? .list
+
+		guard view != storage.state.view else { return }
+		storage.modificate { content in
+			content.view = view
+		}
+
+		let viewController = buildUnit(for: view)
+		windowController.contentViewController = viewController
+
+		windowController.window?.setContentSize(size)
+	}
+}
+
+// MARK: - NSToolbarDelegate
+extension Document: NSToolbarDelegate {
+
+	func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
+		return [.viewItem, .space, .newItem]
+	}
+
+	func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
+		return [.viewItem, .space, .newItem]
+	}
+
+	func toolbar(
+		_ toolbar: NSToolbar,
+		itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier,
+		willBeInsertedIntoToolbar flag: Bool
+	) -> NSToolbarItem? {
+
+		let item = NSToolbarItem(itemIdentifier: itemIdentifier)
+		item.visibilityPriority = .high
+
+		switch itemIdentifier {
+		case .newItem:
+			let image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)!
+			let button = NSButton(image: image, target: nil, action:nil)
+
+			item.label = "New Item"
+			item.view = button
+		case .viewItem:
+			let button = NSSegmentedControl(
+				images:
+					[
+						NSImage(systemSymbolName: "list.bullet", accessibilityDescription: nil)!,
+						NSImage(systemSymbolName: "rectangle.split.3x1", accessibilityDescription: nil)!
+					],
+				trackingMode: .selectOne,
+				target: nil,
+				action: nil
 			)
-		case 1:
-			windowController.contentViewController = ColumnsUnitAssembly.build(
-				storage: storage
-			)
+			button.action = #selector(changeView(_:))
+			button.target = self
+			button.selectedSegment = storage.state.view.rawValue
+
+			item.label = "View"
+			item.view = button
 		default:
 			break
 		}
 
-		windowController.window?.setContentSize(size)
+		return item
 	}
+}
+
+extension NSToolbarItem.Identifier {
+
+	static let newItem = NSToolbarItem.Identifier("newItem")
+
+	static let viewItem = NSToolbarItem.Identifier("viewItem")
 }
