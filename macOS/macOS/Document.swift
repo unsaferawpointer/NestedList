@@ -12,6 +12,7 @@ class Document: NSDocument {
 
 	lazy var toolbar: NSToolbar = {
 		let view = NSToolbar()
+		view.displayMode = .iconOnly
 		view.delegate = self
 		return view
 	}()
