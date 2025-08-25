@@ -10,6 +10,7 @@ import CoreModule
 
 protocol ColumnsInteractorProtocol {
 	func fetchData()
+	func createNewItem(with text: String) -> UUID
 }
 
 final class ColumnsInteractor {
@@ -33,5 +34,13 @@ extension ColumnsInteractor: ColumnsInteractorProtocol {
 
 	func fetchData() {
 		presenter?.present(storage.state.root.nodes)
+	}
+
+	func createNewItem(with text: String) -> UUID {
+		let new = Item(uuid: .random, text: text)
+		storage.modificate { content in
+			content.root.insertItems(with: [new], to: .toRoot)
+		}
+		return new.id
 	}
 }

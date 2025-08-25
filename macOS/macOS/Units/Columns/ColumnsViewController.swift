@@ -8,7 +8,9 @@
 import AppKit
 import DesignSystem
 
-protocol ColumnsViewOutput: ViewDelegate { }
+protocol ColumnsViewOutput: ViewDelegate {
+	func handleNewColumnClick()
+}
 
 protocol ColumnsUnitView: AnyObject {
 	func display(_ columns: [UUID])
@@ -74,6 +76,14 @@ class ColumnsViewController: NSViewController {
 	override func viewWillAppear() {
 		super.viewWillAppear()
 		output?.viewDidChange(state: .willAppear)
+	}
+}
+
+// MARK: - Actions
+extension ColumnsViewController: DocumentToolbarSupportable {
+
+	func newItem(_ sender: Any) {
+		output?.handleNewColumnClick()
 	}
 }
 

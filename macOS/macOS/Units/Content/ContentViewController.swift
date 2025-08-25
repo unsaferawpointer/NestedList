@@ -189,6 +189,14 @@ private extension ContentViewController {
 	}
 }
 
+// MARK: - DocumentToolbarSupportable
+extension ContentViewController: DocumentToolbarSupportable {
+
+	func newItem(_ sender: Any) {
+		output?.menuItemClicked(.newItem)
+	}
+}
+
 // MARK: - Interaction Delegate
 extension ContentViewController {
 
@@ -199,11 +207,6 @@ extension ContentViewController {
 		}
 		let id = ElementIdentifier(rawValue: rawValue)
 		output?.menuItemClicked(id)
-	}
-
-	@IBAction
-	func newItem(_ sender: NSMenuItem) {
-		output?.menuItemClicked(.newItem)
 	}
 
 	@IBAction

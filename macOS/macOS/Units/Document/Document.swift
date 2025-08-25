@@ -17,6 +17,8 @@ class Document: NSDocument {
 		return view
 	}()
 
+	var localization = DocumentLocalization()
+
 	// MARK: - DI
 
 	lazy var storage: DocumentStorage<Content> = {
@@ -54,11 +56,14 @@ class Document: NSDocument {
 		// Returns the Storyboard that contains your Document window.
 		let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
 		let windowController = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Document Window Controller")) as! NSWindowController
-		windowController.contentViewController = buildUnit(for: storage.state.view)
+		windowController.contentViewController = DocumentAssembly.build(storage: storage, for: storage.state.view)
 
 		windowController.window?.toolbar = toolbar
 		windowController.window?.toolbar?.delegate = self
+
 		self.addWindowController(windowController)
+
+		configureToolbar()
 	}
 
 	override func data(ofType typeName: String) throws -> Data {
@@ -73,20 +78,6 @@ class Document: NSDocument {
 
 // MARK: - Actions
 extension Document {
-
-	func buildUnit(for view: Content.ContentView) -> NSViewController {
-		switch view {
-		case .list:
-			ContentUnitAssembly.build(
-				storage: storage,
-				configuration: .init(drawsBackground: true, hasInsets: true)
-			)
-		case .board:
-			ColumnsUnitAssembly.build(
-				storage: storage
-			)
-		}
-	}
 
 	@IBAction
 	func changeView(_ sender: NSSegmentedControl) {
@@ -105,10 +96,23 @@ extension Document {
 			content.view = view
 		}
 
-		let viewController = buildUnit(for: view)
+		let viewController = DocumentAssembly.build(storage: storage, for: view)
+
 		windowController.contentViewController = viewController
+		configureToolbar()
 
 		windowController.window?.setContentSize(size)
+	}
+}
+
+private extension Document {
+
+	func configureToolbar() {
+		let item = toolbar.items.first { $0.itemIdentifier == .newItem }
+		guard let item else {
+			return
+		}
+		item.target = windowControllers.first?.contentViewController as? DocumentToolbarSupportable
 	}
 }
 
@@ -135,9 +139,10 @@ extension Document: NSToolbarDelegate {
 		switch itemIdentifier {
 		case .newItem:
 			let image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)!
-			let button = NSButton(image: image, target: nil, action:nil)
+			let button = NSButton(image: image, target: nil, action: #selector(DocumentToolbarSupportable.newItem(_:)))
+			item.target = windowControllers.first?.contentViewController as? DocumentToolbarSupportable
 
-			item.label = "New Item"
+			item.label = localization.newItemToolbarItemLabel
 			item.view = button
 		case .viewItem:
 			let button = NSSegmentedControl(
@@ -154,7 +159,7 @@ extension Document: NSToolbarDelegate {
 			button.target = self
 			button.selectedSegment = storage.state.view.rawValue
 
-			item.label = "View"
+			item.label = localization.viewToolbarItemLabel
 			item.view = button
 		default:
 			break

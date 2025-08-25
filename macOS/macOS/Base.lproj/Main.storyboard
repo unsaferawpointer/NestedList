@@ -3,7 +3,6 @@
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23727"/>
-        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -261,47 +260,6 @@
                         <rect key="contentRect" x="196" y="240" width="480" height="270"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
                         <value key="minSize" type="size" width="360" height="240"/>
-                        <toolbar key="toolbar" implicitIdentifier="2283DAE1-2ACD-44DE-ACB6-9F069FBA2A28" autosavesConfiguration="NO" allowsUserCustomization="NO" showsBaselineSeparator="NO" displayMode="iconOnly" sizeMode="regular" id="tzn-Er-iDM">
-                            <allowedToolbarItems>
-                                <toolbarItem implicitItemIdentifier="AC37FEF0-16F7-4C2B-8F28-CD9A3008481F" label="New Item" paletteLabel="Custom View" image="plus" catalog="system" sizingBehavior="auto" id="Q5T-Kf-Oem">
-                                    <nil key="toolTip"/>
-                                    <button key="view" verticalHuggingPriority="750" id="81n-Nr-EkT">
-                                        <rect key="frame" x="25" y="14" width="26" height="23"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <buttonCell key="cell" type="roundTextured" bezelStyle="texturedRounded" image="plus" catalog="system" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="xFy-X2-Shs">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="system"/>
-                                        </buttonCell>
-                                        <connections>
-                                            <action selector="newItem:" target="6f7-a7-6o1" id="ops-iC-TIC"/>
-                                        </connections>
-                                    </button>
-                                </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="BE01686D-7B1A-4779-B932-C01031ABEBF8" label="Custom View" paletteLabel="Custom View" sizingBehavior="auto" id="SuW-jd-W2s">
-                                    <nil key="toolTip"/>
-                                    <segmentedControl key="view" verticalHuggingPriority="750" id="UfT-A8-OAl">
-                                        <rect key="frame" x="0.0" y="14" width="77" height="26"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <segmentedCell key="cell" borderStyle="border" alignment="left" style="texturedSquare" trackingMode="selectOne" id="bEb-eH-Hse">
-                                            <font key="font" metaFont="system"/>
-                                            <segments>
-                                                <segment image="list.bullet" catalog="system" width="32"/>
-                                                <segment image="rectangle.split.3x1" catalog="system" width="32" tag="1"/>
-                                            </segments>
-                                            <connections>
-                                                <action selector="changeView:" target="6f7-a7-6o1" id="sRF-rt-ace"/>
-                                            </connections>
-                                        </segmentedCell>
-                                    </segmentedControl>
-                                </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="xfl-2K-eif"/>
-                            </allowedToolbarItems>
-                            <defaultToolbarItems>
-                                <toolbarItem reference="SuW-jd-W2s"/>
-                                <toolbarItem reference="xfl-2K-eif"/>
-                                <toolbarItem reference="Q5T-Kf-Oem"/>
-                            </defaultToolbarItems>
-                        </toolbar>
                         <connections>
                             <outlet property="delegate" destination="jGA-0Y-lOj" id="98r-iN-zZc"/>
                         </connections>
@@ -312,9 +270,4 @@
             <point key="canvasLocation" x="75" y="250"/>
         </scene>
     </scenes>
-    <resources>
-        <image name="list.bullet" catalog="system" width="16" height="12"/>
-        <image name="plus" catalog="system" width="14" height="13"/>
-        <image name="rectangle.split.3x1" catalog="system" width="18" height="14"/>
-    </resources>
 </document>
