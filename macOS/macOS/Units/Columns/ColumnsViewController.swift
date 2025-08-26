@@ -135,10 +135,45 @@ extension ColumnsViewController: NSCollectionViewDelegate { }
 extension ColumnsViewController: ColumnsUnitView {
 
 	func display(_ columns: [UUID]) {
-		guard self.columns != columns else {
+
+		guard let (removed, inserted) = calculateAnimation(for: columns) else {
 			return
 		}
+
+		NSAnimationContext.runAnimationGroup { context in
+			context.allowsImplicitAnimation = true
+			collectionView.animator().deleteItems(at: removed)
+			collectionView.animator().insertItems(at: inserted)
+		}
+	}
+}
+
+// MARK: - Helpers
+private extension ColumnsViewController {
+
+	func calculateAnimation(for columns: [UUID]) -> (Set<IndexPath>, Set<IndexPath>)? {
+		guard self.columns != columns else {
+			return nil
+		}
+
+		let diff = columns.difference(from: self.columns)
+
+		let removed = diff.compactMap { change -> IndexPath? in
+			guard case let .remove(offset, _, _) = change else {
+				return nil
+			}
+			return .init(item: offset, section: 0)
+		}
+
+		let inserted = diff.compactMap { change -> IndexPath? in
+			guard case let .insert(offset, _, _) = change else {
+				return nil
+			}
+			return .init(item: offset, section: 0)
+		}
+
 		self.columns = columns
-		collectionView.reloadData()
+
+		return (Set(removed), Set(inserted))
 	}
 }
