@@ -46,26 +46,13 @@ class ColumnViewController: NSCollectionViewItem {
 		return view
 	}()
 
-	lazy var backgroundView: NSView = {
-		let view = NSView()
-		view.wantsLayer = true
-		if #available(macOS 14.0, *) {
-			view.layer?.backgroundColor = NSColor.tertiarySystemFill.cgColor
-		} else {
-			// Fallback on earlier versions
-		}
-		view.layer?.cornerRadius = 8
+	lazy var backgroundView: NSBox = {
+		let view = NSBox()
+		view.boxType = .primary
+		view.titlePosition = .noTitle
+		view.title = ""
 		return view
 	}()
-
-	override func viewDidLayout() {
-		super.viewDidLayout()
-		if #available(macOS 14.0, *) {
-			backgroundView.layer?.backgroundColor = ColorToken.gray.value.withAlphaComponent(0.05).cgColor
-		} else {
-			// Fallback on earlier versions
-		}
-	}
 
 	// MARK: - Initialization
 
@@ -146,13 +133,13 @@ private extension ColumnViewController {
 
 		addChild(content)
 
-		backgroundView.pin(edges: [.leading, .bottom, .trailing], to: view, with: 12)
-		headerView.pin(edges: [.leading, .top, .trailing], to: view, with: 12)
-		content.view.pin(edges: .all, to: backgroundView, with: 0)
+		backgroundView.pin(edges: [.leading, .top, .bottom, .trailing], to: view, with: 12)
+		content.view.pin(edges: [.leading, .bottom, .trailing], to: backgroundView, with: 0)
+		headerView.pin(edges: [.leading, .top, .trailing], to: backgroundView)
 
 		NSLayoutConstraint.activate(
 			[
-				headerView.bottomAnchor.constraint(equalTo: backgroundView.topAnchor)
+				headerView.bottomAnchor.constraint(equalTo: content.view.topAnchor)
 			]
 		)
 	}

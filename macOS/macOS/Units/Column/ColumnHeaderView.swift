@@ -34,7 +34,7 @@ class ColumnHeaderView: NSView {
 	lazy var buttons: NSStackView = {
 		let view = NSStackView(views: [plusButton, actionButton])
 		view.orientation = .horizontal
-		view.spacing = 0
+		view.spacing = 4
 		return view
 	}()
 
@@ -109,10 +109,9 @@ private extension ColumnHeaderView {
 			titleTextfield.trailingAnchor.constraint(equalTo: buttons.leadingAnchor, constant: -12),
 
 			buttons.firstBaselineAnchor.constraint(equalTo: titleTextfield.firstBaselineAnchor),
-			buttons.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4)
+			buttons.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12)
 		]
 			.forEach { $0.isActive = true }
-
 	}
 
 }
