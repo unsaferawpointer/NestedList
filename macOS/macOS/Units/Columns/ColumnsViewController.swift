@@ -142,8 +142,10 @@ extension ColumnsViewController: ColumnsUnitView {
 
 		NSAnimationContext.runAnimationGroup { context in
 			context.allowsImplicitAnimation = true
-			collectionView.animator().deleteItems(at: removed)
-			collectionView.animator().insertItems(at: inserted)
+			collectionView.performBatchUpdates {
+				collectionView.animator().deleteItems(at: removed)
+				collectionView.animator().insertItems(at: inserted)
+			}
 		}
 	}
 }
