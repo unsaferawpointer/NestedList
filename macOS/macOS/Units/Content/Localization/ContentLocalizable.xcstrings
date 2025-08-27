@@ -32,6 +32,38 @@
           }
         }
       }
+    },
+    "placeholder-description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To add a new item, click the «plus» button or use the keyboard shortcut ⌘T"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для добавления элемента нажмите «плюс» или сочетание клавиш ⌘T"
+          }
+        }
+      }
+    },
+    "placeholder-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No items yet"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пока нет ни одного элемента"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

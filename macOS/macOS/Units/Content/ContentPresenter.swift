@@ -88,7 +88,17 @@ extension ContentPresenter: ContentPresenterProtocol {
 			)
 		}
 
-		view?.display(converted)
+		guard !converted.identifiers.isEmpty else {
+			let placeholderModel: PlaceholderModel = .init(
+				icon: "shippingbox",
+				title: localization.placeholderTitle,
+				subtitle: localization.placeholderDescription
+			)
+			view?.display(.placeholder(model: placeholderModel))
+			return
+		}
+
+		view?.display(.list(snapshot: converted))
 	}
 }
 

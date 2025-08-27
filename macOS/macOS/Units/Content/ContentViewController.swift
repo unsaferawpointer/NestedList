@@ -15,7 +15,7 @@ import SwiftUI
 protocol UnitViewOutput: ViewDelegate, MenuDelegate { }
 
 protocol UnitView: AnyObject, ListSupportable {
-	func display(_ snapshot: Snapshot<ItemModel>)
+	func display(_ state: ContentViewState)
 
 	func showDetails(
 		with model: DetailsView.Model,
@@ -39,15 +39,7 @@ class ContentViewController: NSCollectionViewItem {
 
 	// MARK: - UI-Properties
 
-	lazy var placeholderView: NSView = {
-		let view = NSHostingView(
-			rootView: PlaceholderView.init(
-				title: "No items yet",
-				subtitle: "To add a new item, click the «plus» button or use the keyboard shortcut ⌘T"
-			)
-		)
-		return view
-	}()
+	var placeholderView: NSView?
 
 	lazy var scrollview: NSScrollView = {
 		let view = NSScrollView()
@@ -137,9 +129,16 @@ extension ContentViewController: UnitView {
 		presentAsSheet(contentViewController)
 	}
 
-	func display(_ snapshot: Snapshot<ItemModel>) {
-		adapter?.apply(snapshot)
-		placeholderView.isHidden = !snapshot.root.isEmpty
+	func display(_ state: ContentViewState) {
+		placeholderView?.removeFromSuperview()
+		switch state {
+		case let .placeholder(model):
+			placeholderView = NSHostingView(rootView: PlaceholderView(model: model))
+			placeholderView?.pin(edges: .all, to: view)
+			adapter?.apply(.init())
+		case let .list(snapshot):
+			adapter?.apply(snapshot)
+		}
 	}
 }
 
@@ -185,7 +184,6 @@ private extension ContentViewController {
 
 	func configureConstraints() {
 		scrollview.pin(edges: .all, to: view)
-		placeholderView.pin(edges: .all, to: view)
 	}
 }
 

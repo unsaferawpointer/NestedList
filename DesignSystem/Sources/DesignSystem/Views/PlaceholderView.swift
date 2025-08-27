@@ -7,30 +7,45 @@
 
 import SwiftUI
 
-public struct PlaceholderView: View {
 
-	@State public var title: String
+public struct PlaceholderModel {
 
-	@State public var subtitle: String
+	let icon: String
 
-	public init(title: String, subtitle: String) {
+	let title: String
+
+	let subtitle: String
+
+	// MARK: - Initialization
+
+	public init(icon: String, title: String, subtitle: String) {
+		self.icon = icon
 		self.title = title
 		self.subtitle = subtitle
+	}
+}
+
+public struct PlaceholderView: View {
+
+	let model: PlaceholderModel
+
+	public init(model: PlaceholderModel) {
+		self.model = model
 	}
 
 	public var body: some View {
 		ZStack(alignment: .center) {
 			VStack {
-				Image(systemName: "shippingbox")
+				Image(systemName: model.icon)
 					.resizable()
 					.scaledToFit()
 					.frame(width: 80, height: 80)
 					.foregroundStyle(.quaternary)
-				Text(title)
+				Text(model.title)
 					.font(.title2)
 					.foregroundStyle(.secondary)
 					.lineLimit(1)
-				Text(subtitle)
+				Text(model.subtitle)
 					.font(.body)
 					.multilineTextAlignment(.center)
 					.foregroundStyle(.tertiary)
@@ -45,7 +60,10 @@ public struct PlaceholderView: View {
 
 #Preview {
 	PlaceholderView(
-		title: "No items yet",
-		subtitle: "To add a new item, click the «plus» button or use the keyboard shortcut cmd + t"
+		model: .init(
+			icon: "folder",
+			title: "No items yet",
+			subtitle: "To add a new item, click the «plus» button or use the keyboard shortcut cmd + t"
+		)
 	)
 }

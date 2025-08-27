@@ -51,8 +51,13 @@ extension UnitPresenterTests {
 		sut.present(content)
 
 		// Assert
-		guard case let .display(snapshot) = view.invocations.first else {
+		guard case let .display(state) = view.invocations.first else {
 			Issue.record("Expect display invocation")
+			return
+		}
+
+		guard case let .list(snapshot) = state else {
+			Issue.record("Expect list state")
 			return
 		}
 

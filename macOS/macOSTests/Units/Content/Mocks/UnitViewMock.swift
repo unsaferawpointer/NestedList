@@ -30,10 +30,10 @@ extension UnitViewMock: UnitView {
 		invocations.append(.hideDetails)
 	}
 
-	func display(_ snapshot: Snapshot<ItemModel>) {
-		invocations.append(.display(snapshot))
+	func display(_ state: ContentViewState) {
+		invocations.append(.display(state))
 	}
-	
+
 	func expand(_ ids: [UUID]?) {
 		invocations.append(.expand(ids))
 	}
@@ -64,7 +64,7 @@ extension UnitViewMock: UnitView {
 extension UnitViewMock {
 
 	enum Action {
-		case display(_ snapshot: Snapshot<ItemModel>)
+		case display(_ snapshot: ContentViewState)
 		case expand(_ ids: [UUID]?)
 		case scroll(_ id: UUID)
 		case select(_ id: UUID)
