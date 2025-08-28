@@ -17,7 +17,8 @@ protocol ContentInteractorProtocol {
 
 	func copy(_ ids: [UUID], to destination: Destination<UUID>)
 
-	func newItem(_ text: String, target: UUID?) -> UUID
+	@discardableResult
+	func newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool)
 	func toggleStrikethrough(for id: UUID, moveToEnd: Bool)
 	func setMark(_ isMarked: Bool, for ids: [UUID], moveToTop: Bool)
@@ -100,9 +101,16 @@ extension ContentInteractor: ContentInteractorProtocol {
 		}
 	}
 
-	func newItem(_ text: String, target: UUID?) -> UUID {
-		let new = Item(uuid: .random, text: text)
-		let destination = Destination(target: target).relative(to: root)
+	func newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID {
+		var options = ItemOptions()
+		if isMarked {
+			options.insert(.marked)
+		}
+		if isStrikethrough {
+			options.insert(.strikethrough)
+		}
+		let new = Item(uuid: UUID(), text: text, note: note, options: options, style: style)
+		let destination = Destination(target: target)
 		storage.modificate { content in
 			content.root.insertItems(with: [new], to: destination)
 		}

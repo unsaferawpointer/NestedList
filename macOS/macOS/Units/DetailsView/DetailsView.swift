@@ -49,7 +49,6 @@ extension DetailsView: View {
 			}
 			.formStyle(.grouped)
 			.scrollIndicators(.hidden)
-			.navigationTitle(model.navigationTitle)
 			.toolbar {
 				ToolbarItem(placement: .cancellationAction) {
 					Button(strings.cancelButtonTitle, role: .cancel) {
@@ -67,6 +66,7 @@ extension DetailsView: View {
 				}
 			}
 			.frame(minWidth: 360, idealWidth: 420, maxWidth: 640, minHeight: 480, idealHeight: 640)
+			.navigationTitle(model.navigationTitle)
 		}
 	}
 }

@@ -134,24 +134,29 @@ extension UnitPresenterTests {
 		sut.menuItemClicked(.newItem)
 
 		// Assert
-		guard case let .scroll(id) = view.invocations[0] else {
-			Issue.record("Expect scroll invocation")
+
+		guard case let .showDetails(_, completionHandler) = view.invocations[0] else {
+			Issue.record("Expect show details")
 			return
 		}
-		#expect(id == interactor.stubs.newItem)
 
-		guard case let .expand(id) = view.invocations[1] else {
+		completionHandler(.init(text: .random), true)
+
+		guard case .hideDetails = view.invocations[1] else {
+			Issue.record("Expect hideDetails invocation")
+			return
+		}
+
+		guard case let .expand(id) = view.invocations[2] else {
 			Issue.record("Expect expand invocation")
 			return
 		}
 		#expect(id?.first == view.selection.first)
 
-		guard case let .focus(id, key) = view.invocations[2] else {
-			Issue.record("Expect focus invocation")
+		guard case let .scroll(id) = view.invocations[3] else {
+			Issue.record("Expect scroll invocation")
 			return
 		}
-
-		#expect(key == "title")
 		#expect(id == interactor.stubs.newItem)
 	}
 

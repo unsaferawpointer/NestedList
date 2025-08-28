@@ -39,12 +39,21 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 	func copy(_ ids: [UUID], to destination: Destination<UUID>) {
 		invocations.append(.copy(ids, destination: destination))
 	}
-	
-	func newItem(_ text: String, target: UUID?) -> UUID {
-		invocations.append(.newItem(text, target: target))
+
+	func newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: CoreModule.ItemStyle, target: UUID?) -> UUID {
+		invocations.append(
+			.newItem(
+				text,
+				isStrikethrough: isStrikethrough,
+				note: note,
+				isMarked: isMarked,
+				style: style,
+				target: target
+			)
+		)
 		return stubs.newItem
 	}
-	
+
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool) {
 		invocations.append(.setStatus(status, ids: ids, moveToEnd: moveToEnd))
 	}
@@ -117,7 +126,7 @@ extension UnitInteractorMock {
 		case move(_ ids: [UUID], destination: Destination<UUID>)
 		case validateMovement(_ ids: [UUID], destination: Destination<UUID>)
 		case copy(_ ids: [UUID], destination: Destination<UUID>)
-		case newItem(_ text: String, target: UUID?)
+		case newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?)
 		case setStatus(_ status: Bool, ids: [UUID], moveToEnd: Bool)
 		case toggleStatus(id: UUID, moveToEnd: Bool)
 		case setMark(_ isMarked: Bool, ids: [UUID], moveToTop: Bool)

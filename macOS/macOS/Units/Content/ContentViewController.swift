@@ -126,6 +126,7 @@ extension ContentViewController: UnitView {
 			rootView:
 				DetailsView(item: model, completionHandler: completionHandler)
 		)
+		contentViewController.title = model.navigationTitle
 		presentAsSheet(contentViewController)
 	}
 

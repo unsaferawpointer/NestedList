@@ -256,24 +256,40 @@ extension ContentPresenter: UnitViewOutput {
 private extension ContentPresenter {
 
 	func newItem(in selection: [UUID]) {
-		guard let interactor else {
-			return
-		}
-		let first = selection.first
-		let id = interactor.newItem(localization.newItemText, target: first)
 
-		view?.scroll(to: id)
-		if let first {
-			view?.expand([first])
+		let target = selection.first
+
+		let details = DetailsView.Properties.init(text: localization.newItemText)
+		let model = DetailsView.Model(navigationTitle: localization.newItemDetailsTitle, properties: details)
+		view?.showDetails(with: model) { [weak self] saved, success in
+			self?.view?.hideDetails()
+			if success {
+				let note = saved.description.isEmpty ? nil : saved.description
+				let style: ItemStyle = saved.isSection ? .section(icon: saved.icon) : .item
+
+				guard let id = self?.interactor?.newItem(
+					saved.text,
+					isStrikethrough: saved.isStrikethrough,
+					note: note,
+					isMarked: saved.isMarked,
+					style: style,
+					target: target
+				) else {
+					return
+				}
+				if let target {
+					self?.view?.expand([target])
+				}
+				self?.view?.scroll(to: id)
+			}
 		}
-		view?.focus(on: id, key: "title")
 	}
 
 	func editItem(with selection: [UUID]) {
 		guard let id = selection.first, let item = interactor?.nodes(for: [id]).first?.value else {
 			return
 		}
-		let model = DetailsView.Model(navigationTitle: "Edit Item", properties: item.details)
+		let model = DetailsView.Model(navigationTitle: localization.editItemDetailsTitle, properties: item.details)
 		view?.showDetails(with: model) { [weak self] saved, success in
 			self?.view?.hideDetails()
 			if success {

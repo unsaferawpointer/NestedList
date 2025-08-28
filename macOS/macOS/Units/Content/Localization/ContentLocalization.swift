@@ -12,6 +12,8 @@ protocol ContentLocalizationProtocol {
 	var newNoteText: String { get }
 	var placeholderTitle: String { get }
 	var placeholderDescription: String { get }
+	var newItemDetailsTitle: String { get }
+	var editItemDetailsTitle: String { get }
 }
 
 // MARK: - ContentLocalizationProtocol
@@ -31,5 +33,13 @@ final class ContentLocalization: ContentLocalizationProtocol {
 
 	var placeholderDescription: String {
 		return String(localized: "placeholder-description", table: "ContentLocalizable")
+	}
+
+	var newItemDetailsTitle: String {
+		return String(localized: "new-item-details-title", table: "ContentLocalizable")
+	}
+
+	var editItemDetailsTitle: String {
+		return String(localized: "edit-item-details-title", table: "ContentLocalizable")
 	}
 }
