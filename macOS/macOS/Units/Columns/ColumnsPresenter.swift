@@ -55,7 +55,16 @@ extension ColumnsPresenter: ColumnsViewOutput {
 extension ColumnsPresenter: ColumnsPresenterProtocol {
 
 	func present(_ nodes: [Node<Item>]) {
-		let columns = nodes.map(\.id)
-		view?.display(columns)
+		let ids = nodes.map(\.id)
+		guard !ids.isEmpty else {
+			let placeholderModel: PlaceholderModel = .init(
+				icon: "rectangle.split.3x1",
+				title: localization.placeholderTitle,
+				subtitle: localization.placeholderDescription
+			)
+			view?.display(state: .placeholder(model: placeholderModel))
+			return
+		}
+		view?.display(state: .columns(ids: ids))
 	}
 }

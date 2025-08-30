@@ -6,6 +6,7 @@
 //
 
 import AppKit
+import SwiftUI
 import DesignSystem
 
 protocol ColumnsViewOutput: ViewDelegate {
@@ -13,7 +14,7 @@ protocol ColumnsViewOutput: ViewDelegate {
 }
 
 protocol ColumnsUnitView: AnyObject {
-	func display(_ columns: [UUID])
+	func display(state: ColumnsViewState)
 }
 
 class ColumnsViewController: NSViewController {
@@ -27,6 +28,8 @@ class ColumnsViewController: NSViewController {
 	let columnsFactory: ColumnsFactory
 
 	// MARK: - UI
+
+	var placeholderView: NSView?
 
 	lazy var scrollview: NSScrollView = {
 		let view = NSScrollView()
@@ -133,6 +136,19 @@ extension ColumnsViewController: NSCollectionViewDelegate { }
 
 // MARK: - ColumnsUnitView
 extension ColumnsViewController: ColumnsUnitView {
+
+	func display(state: ColumnsViewState) {
+		placeholderView?.removeFromSuperview()
+		switch state {
+		case let .placeholder(model):
+			placeholderView = NSHostingView(rootView: PlaceholderView(model: model))
+			placeholderView?.pin(edges: .all, to: view)
+			columns = []
+			collectionView.reloadData()
+		case let .columns(ids):
+			display(ids)
+		}
+	}
 
 	func display(_ columns: [UUID]) {
 
