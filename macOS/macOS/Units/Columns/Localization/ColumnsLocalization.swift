@@ -9,6 +9,7 @@ import Foundation
 
 protocol ColumnsLocalizationProtocol {
 	var newItemText: String { get }
+	var editItemText: String { get }
 }
 
 // MARK: - ColumnsLocalizationProtocol
@@ -16,5 +17,9 @@ final class ColumnsLocalization: ColumnsLocalizationProtocol {
 
 	var newItemText: String {
 		return String(localized: "new-item-text", table: "ColumnsLocalizable")
+	}
+
+	var editItemText: String {
+		return String(localized: "edit-item-text", table: "ColumnsLocalizable")
 	}
 }

@@ -10,12 +10,17 @@ import SwiftUI
 import CoreModule
 import DesignSystem
 
-protocol ColumnViewOutput: ViewDelegate, MenuDelegate { }
+protocol ColumnViewOutput: ViewDelegate, MenuDelegate {
+	func userClickedOnPlusButton()
+}
 
-protocol ColumnUnitView: AnyObject {
+protocol ColumnUnitView: AnyObject, ListSupportable {
 	func display(_ title: String)
 	func hideDetails()
-	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void)
+	func showDetails(
+		with model: DetailsView.Model,
+		completionHandler: @escaping (DetailsView.Properties, Bool) -> Void
+	)
 }
 
 class ColumnViewController: NSCollectionViewItem {
@@ -28,7 +33,7 @@ class ColumnViewController: NSCollectionViewItem {
 
 	// MARK: - UI
 
-	var content: NSViewController
+	var content: ContentViewController
 
 	lazy var headerView: ColumnHeaderView = {
 		let menu = MenuBuilder.build(
@@ -36,16 +41,9 @@ class ColumnViewController: NSCollectionViewItem {
 			target: self
 		)
 		let view = ColumnHeaderView(menu: menu)
-		return view
-	}()
-
-	lazy var scrollview: NSScrollView = {
-		let view = NSScrollView()
-		view.borderType = .noBorder
-		view.hasHorizontalScroller = false
-		view.autohidesScrollers = true
-		view.hasVerticalScroller = false
-		view.automaticallyAdjustsContentInsets = true
+		view.leadingAction = { [weak self] in
+			self?.output?.userClickedOnPlusButton()
+		}
 		return view
 	}()
 
@@ -59,7 +57,7 @@ class ColumnViewController: NSCollectionViewItem {
 
 	// MARK: - Initialization
 
-	init(_ content: NSViewController, configure: (ColumnViewController) -> Void) {
+	init(_ content: ContentViewController, configure: (ColumnViewController) -> Void) {
 		self.content = content
 		super.init(nibName: nil, bundle: nil)
 		configure(self)
@@ -86,6 +84,30 @@ class ColumnViewController: NSCollectionViewItem {
 	override func viewWillAppear() {
 		super.viewWillAppear()
 		output?.viewDidChange(state: .willAppear)
+	}
+}
+
+// MARK: - ListSupportable
+extension ColumnViewController: ListSupportable {
+
+	func expand(_ ids: [UUID]?) {
+		content.expand(ids)
+	}
+
+	func scroll(to id: UUID) {
+		content.scroll(to: id)
+	}
+
+	func select(_ id: UUID) {
+		content.select(id)
+	}
+
+	func focus(on id: UUID, key: String) {
+		content.focus(on: id, key: key)
+	}
+
+	var selection: [UUID] {
+		content.selection
 	}
 }
 

@@ -40,6 +40,37 @@ extension ColumnPresenter: ColumnViewOutput {
 		}
 		interactor?.fetchData()
 	}
+
+	func userClickedOnPlusButton() {
+
+		let target = view?.selection.first
+
+		let details = DetailsView.Properties.init(text: localization.newItemText)
+
+		let model = DetailsView.Model(navigationTitle: localization.newItemDetailsTitle, properties: details)
+		view?.showDetails(with: model) { [weak self] saved, success in
+			self?.view?.hideDetails()
+			if success {
+				let note = saved.description.isEmpty ? nil : saved.description
+				let style: ItemStyle = saved.isSection ? .section(icon: saved.icon) : .item
+
+				guard let id = self?.interactor?.newItem(
+					saved.text,
+					isStrikethrough: saved.isStrikethrough,
+					note: note,
+					isMarked: saved.isMarked,
+					style: style,
+					target: target
+				) else {
+					return
+				}
+				if let target {
+					self?.view?.expand([target])
+				}
+				self?.view?.scroll(to: id)
+			}
+		}
+	}
 }
 
 // MARK: - MenuDelegate

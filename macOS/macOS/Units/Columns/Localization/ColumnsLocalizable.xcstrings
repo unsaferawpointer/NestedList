@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "edit-item-text" : {
+
+    },
     "new-item-text" : {
       "localizations" : {
         "en" : {

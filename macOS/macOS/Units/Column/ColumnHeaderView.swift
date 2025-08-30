@@ -25,8 +25,6 @@ class ColumnHeaderView: NSView {
 		view.usesSingleLineMode = true
 		view.lineBreakMode = .byTruncatingMiddle
 		view.font = NSFont.preferredFont(forTextStyle: .headline)
-		view.target = self
-		view.action = #selector(textfieldDidChange(_:))
 		view.allowsEditingTextAttributes = false
 		return view
 	}()
@@ -56,6 +54,8 @@ class ColumnHeaderView: NSView {
 		return button
 	}()
 
+	var leadingAction: (() -> Void)?
+
 	// MARK: - Initialization
 
 	init(menu: NSMenu) {
@@ -81,7 +81,7 @@ extension ColumnHeaderView {
 				in: sender
 			)
 		} else if plusButton === sender {
-
+			leadingAction?()
 		}
 	}
 }
@@ -112,23 +112,6 @@ private extension ColumnHeaderView {
 			buttons.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12)
 		]
 			.forEach { $0.isActive = true }
-	}
-
-}
-
-// MARK: - Actions
-extension ColumnHeaderView {
-
-	@objc
-	func textfieldDidChange(_ sender: NSTextField) {
-
-		guard sender === titleTextfield else {
-			return
-		}
-
-		let title = titleTextfield.stringValue
-
-//		fatalError()
 	}
 
 }

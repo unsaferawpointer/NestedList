@@ -14,7 +14,7 @@ final class ContentUnitAssembly {
 		for root: UUID? = nil,
 		storage: DocumentStorage<Content>,
 		configuration: ContentConfiguration
-	) -> NSViewController {
+	) -> ContentViewController {
 		let presenter = ContentPresenter()
 		let interactor = ContentInteractor(storage: storage, root: root)
 		return ContentViewController(configuration: configuration) { viewController in

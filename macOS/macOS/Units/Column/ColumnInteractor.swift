@@ -12,6 +12,8 @@ import CoreModule
 protocol ColumnInteractorProtocol {
 	func fetchData()
 	func rootItem() -> Node<Item>?
+	@discardableResult
+	func newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID
 	func set(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle)
 	func deleteColumn()
 }
@@ -53,6 +55,22 @@ extension ColumnInteractor: ColumnInteractorProtocol {
 			return nil
 		}
 		return node.map { $0 }
+	}
+
+	func newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID {
+		var options = ItemOptions()
+		if isMarked {
+			options.insert(.marked)
+		}
+		if isStrikethrough {
+			options.insert(.strikethrough)
+		}
+		let new = Item(uuid: UUID(), text: text, note: note, options: options, style: style)
+		let destination = Destination(target: target ?? root)
+		storage.modificate { content in
+			content.root.insertItems(with: [new], to: destination)
+		}
+		return new.id
 	}
 
 	func set(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle) {

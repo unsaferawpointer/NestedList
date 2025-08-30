@@ -20,6 +20,16 @@
           }
         }
       }
+    },
+    "new-item-text" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Item"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
