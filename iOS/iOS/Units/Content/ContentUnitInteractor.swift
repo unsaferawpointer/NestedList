@@ -36,10 +36,13 @@ final class ContentUnitInteractor {
 
 	var presenter: ContentPresenterProtocol?
 
+	var base: CommonInteractorProtocol
+
 	// MARK: - Initialization
 
 	init(storage: DocumentStorage<Content>) {
 		self.storage = storage
+		self.base = CommonInteractor(storage: storage)
 		storage.addObservation(for: self) { [weak self] _, content in
 			guard let self else {
 				return
@@ -57,16 +60,7 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 	}
 
 	func newItem(_ text: String, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID {
-		var options = ItemOptions()
-		if isMarked {
-			options.insert(.marked)
-		}
-		let new = Item(uuid: UUID(), text: text, note: note, options: options, style: style)
-		let destination = Destination(target: target)
-		storage.modificate { content in
-			content.root.insertItems(with: [new], to: destination)
-		}
-		return new.id
+		return base.newItem(text, isStrikethrough: nil, note: note, isMarked: isMarked, style: style, target: target)
 	}
 
 	func item(for id: UUID) -> Item {
@@ -77,9 +71,7 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 	}
 
 	func deleteItems(_ ids: [UUID]) {
-		storage.modificate { content in
-			content.root.deleteItems(ids)
-		}
+		base.deleteItems(ids)
 	}
 
 	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool) {
@@ -142,14 +134,8 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 		return try? JSONEncoder().encode(node)
 	}
 
-	func insertStrings(_ strings: [String], to destination: Hierarchy.Destination<UUID>) {
-		let parser = Parser()
-		let nodes = strings.flatMap { string in
-			parser.parse(from: string)
-		}
-		storage.modificate { content in
-			content.root.insertItems(from: nodes, to: destination)
-		}
+	func insertStrings(_ strings: [String], to destination: Destination<UUID>) {
+		base.insertStrings(strings, to: destination)
 	}
 
 	func insertNodes(_ nodes: [any TreeNode<Item>], to destination: Destination<UUID>) {
@@ -159,12 +145,10 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 	}
 
 	func move(ids: [UUID], to destination: Destination<UUID>) {
-		storage.modificate { content in
-			content.root.moveItems(with: ids, to: destination)
-		}
+		base.move(ids, to: destination)
 	}
 
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
-		storage.state.root.validateMoving(ids, to: destination)
+		base.validateMovement(ids, to: destination)
 	}
 }

@@ -52,6 +52,8 @@ final class ContentInteractor {
 
 	weak var presenter: ContentPresenterProtocol?
 
+	var base: CommonInteractorProtocol
+
 	// MARK: - Internal State
 
 	private var root: UUID?
@@ -60,6 +62,7 @@ final class ContentInteractor {
 
 	init(storage: DocumentStorage<Content>, root: UUID? = nil) {
 		self.storage = storage
+		self.base = CommonInteractor(storage: storage)
 		self.root = root
 		storage.addObservation(for: self) { [weak self] _, content in
 			guard let self else {
@@ -80,13 +83,11 @@ extension ContentInteractor: ContentInteractorProtocol {
 	}
 
 	func move(_ ids: [UUID], to destination: Destination<UUID>) {
-		storage.modificate { content in
-			content.root.moveItems(with: ids, to: destination.relative(to: root))
-		}
+		base.move(ids, to: destination.relative(to: root))
 	}
 
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
-		storage.state.root.validateMoving(ids, to: destination.relative(to: root))
+		base.validateMovement(ids, to: destination.relative(to: root))
 	}
 
 	func copy(_ ids: [UUID], to destination: Destination<UUID>) {
@@ -102,19 +103,14 @@ extension ContentInteractor: ContentInteractorProtocol {
 	}
 
 	func newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID {
-		var options = ItemOptions()
-		if isMarked {
-			options.insert(.marked)
-		}
-		if isStrikethrough {
-			options.insert(.strikethrough)
-		}
-		let new = Item(uuid: UUID(), text: text, note: note, options: options, style: style)
-		let destination = Destination(target: target)
-		storage.modificate { content in
-			content.root.insertItems(with: [new], to: destination)
-		}
-		return new.id
+		return base.newItem(
+			text,
+			isStrikethrough: isStrikethrough,
+			note: note,
+			isMarked: isMarked,
+			style: style,
+			target: target
+		)
 	}
 
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool) {
@@ -201,9 +197,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 	}
 
 	func deleteItems(_ ids: [UUID]) {
-		storage.modificate { content in
-			content.root.deleteItems(ids)
-		}
+		base.deleteItems(ids)
 	}
 
 	func strings(for ids: [UUID]) -> [String] {
@@ -227,13 +221,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 	}
 
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>) {
-		let parser = Parser()
-		let nodes = strings.flatMap { string in
-			parser.parse(from: string)
-		}
-		storage.modificate { content in
-			content.root.insertItems(from: nodes, to: destination.relative(to: root))
-		}
+		base.insertStrings(strings, to: destination.relative(to: root))
 	}
 
 	func set(note: String?, for ids: [UUID]) {

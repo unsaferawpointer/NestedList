@@ -26,11 +26,14 @@ final class ColumnInteractor {
 
 	weak var presenter: ColumnPresenterProtocol?
 
+	var base: CommonInteractorProtocol
+
 	// MARK: - Initialization
 
 	init(root: UUID, storage: DocumentStorage<Content>) {
 		self.root = root
 		self.storage = storage
+		self.base = CommonInteractor(storage: storage)
 		storage.addObservation(for: self) { [weak self] _, content in
 			guard let item = storage.state.root.node(with: root)?.value else {
 				return
@@ -58,19 +61,14 @@ extension ColumnInteractor: ColumnInteractorProtocol {
 	}
 
 	func newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID {
-		var options = ItemOptions()
-		if isMarked {
-			options.insert(.marked)
-		}
-		if isStrikethrough {
-			options.insert(.strikethrough)
-		}
-		let new = Item(uuid: UUID(), text: text, note: note, options: options, style: style)
-		let destination = Destination(target: target ?? root)
-		storage.modificate { content in
-			content.root.insertItems(with: [new], to: destination)
-		}
-		return new.id
+		return base.newItem(
+			text,
+			isStrikethrough: isStrikethrough,
+			note: note,
+			isMarked: isMarked,
+			style: style,
+			target: target ?? root
+		)
 	}
 
 	func set(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle) {
@@ -84,8 +82,6 @@ extension ColumnInteractor: ColumnInteractorProtocol {
 	}
 
 	func deleteColumn() {
-		storage.modificate { content in
-			content.root.deleteItem(root)
-		}
+		base.deleteItems([root])
 	}
 }
