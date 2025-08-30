@@ -6,6 +6,7 @@
 //
 
 import AppKit
+import SwiftUI
 import CoreModule
 import DesignSystem
 
@@ -13,6 +14,8 @@ protocol ColumnViewOutput: ViewDelegate, MenuDelegate { }
 
 protocol ColumnUnitView: AnyObject {
 	func display(_ title: String)
+	func hideDetails()
+	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void)
 }
 
 class ColumnViewController: NSCollectionViewItem {
@@ -91,6 +94,22 @@ extension ColumnViewController: ColumnUnitView {
 
 	func display(_ title: String) {
 		headerView.titleTextfield.stringValue = title
+	}
+
+	func hideDetails() {
+		if let sheet = presentedViewControllers?.first {
+			dismiss(sheet)
+		}
+	}
+
+	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void) {
+
+		let contentViewController = NSHostingController(
+			rootView:
+				DetailsView(item: model, completionHandler: completionHandler)
+		)
+		contentViewController.title = model.navigationTitle
+		presentAsSheet(contentViewController)
 	}
 }
 

@@ -6,11 +6,13 @@
 //
 
 import Foundation
+import Hierarchy
 import CoreModule
 
 protocol ColumnInteractorProtocol {
 	func fetchData()
-
+	func rootItem() -> Node<Item>?
+	func set(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle)
 	func deleteColumn()
 }
 
@@ -44,6 +46,23 @@ extension ColumnInteractor: ColumnInteractorProtocol {
 			return
 		}
 		presenter?.present(item)
+	}
+
+	func rootItem() -> Node<Item>? {
+		guard let node = storage.state.root.nodes(with: [root]).first else {
+			return nil
+		}
+		return node.map { $0 }
+	}
+
+	func set(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle) {
+		storage.modificate { content in
+			content.root.setProperty(\.text, to: text, for: [root])
+			content.root.setProperty(\.isStrikethrough, to: isStrikethrough, for: [root])
+			content.root.setProperty(\.note, to: note, for: [root])
+			content.root.setProperty(\.isMarked, to: isMarked, for: [root], downstream: true)
+			content.root.setProperty(\.style, to: style, for: [root])
+		}
 	}
 
 	func deleteColumn() {
