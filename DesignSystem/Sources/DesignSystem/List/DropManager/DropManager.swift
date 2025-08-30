@@ -83,7 +83,7 @@ private extension DropManager {
 		guard let source = info.draggingSource as? NSOutlineView else {
 			return false
 		}
-		return source === list
+		return source.window === list.window
 	}
 
 	func register() {
