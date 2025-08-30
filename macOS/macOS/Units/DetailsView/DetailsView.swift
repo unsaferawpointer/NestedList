@@ -78,7 +78,7 @@ private extension DetailsView {
 	func buildInfoSection() -> some View {
 		Section {
 			TextField(
-				"",
+				"Text",
 				text: $model.properties.text,
 				prompt: Text(strings.textfieldPlaceholder)
 			)
@@ -97,7 +97,7 @@ private extension DetailsView {
 			)
 				.focused($focusedField, equals: .note)
 				.font(.callout)
-				.foregroundStyle(.secondary)
+				.foregroundStyle(.primary)
 				.submitLabel(.return)
 				.accessibilityIdentifier("textfield-description")
 		} footer: {
