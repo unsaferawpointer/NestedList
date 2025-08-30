@@ -87,19 +87,6 @@ public extension Item {
 			}
 		}
 	}
-
-	var isFolded: Bool {
-		get {
-			options.contains(.folded)
-		}
-		set {
-			if newValue {
-				options.insert(.folded)
-			} else {
-				options.remove(.folded)
-			}
-		}
-	}
 }
 
 // MARK: - Codable

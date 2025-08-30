@@ -75,7 +75,6 @@ extension Parser: ParserProtocol {
 
 			let isStrikethrough = contains(prefix: .ex, orAnnotation: .done, in: line)
 			let isMarked = contains(prefix: .asterisk, orAnnotation: .mark, in: line)
-			let isFolded = contains(prefix: .greaterThan, orAnnotation: .fold, in: line)
 
 			var options: ItemOptions = []
 			if isStrikethrough && !line.hasColon {
@@ -83,9 +82,6 @@ extension Parser: ParserProtocol {
 			}
 			if isMarked && !line.hasColon {
 				options.insert(.marked)
-			}
-			if isFolded {
-				options.insert(.folded)
 			}
 
 			let item = Item(
@@ -139,7 +135,7 @@ private extension Parser {
 
 		let prefixSign: Prefix = {
 			guard item.style == .item else {
-				return item.isFolded ? .greaterThan : .dash
+				return .dash
 			}
 
 			return switch (item.isStrikethrough, item.isMarked) {
