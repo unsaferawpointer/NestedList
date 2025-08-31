@@ -23,6 +23,14 @@ public enum Destination<ID> {
 			self = .toRoot
 		}
 	}
+
+	public init(target: ID?, index: Int) {
+		if let target {
+			self = .inItem(with: target, atIndex: index)
+		} else {
+			self = .inRoot(atIndex: index)
+		}
+	}
 }
 
 // MARK: - Public interface

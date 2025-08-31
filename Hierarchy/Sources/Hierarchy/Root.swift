@@ -266,6 +266,48 @@ public extension Root {
 			moveItems(with: items.map(\.id), to: .inItem(with: container.id, atIndex: 0))
 		}
 	}
+
+	func moveForward(_ id: ID) {
+		let parent = cache[id]?.parent
+		guard let parent else {
+			if let index = nodes.firstIndex(where: \.id, equalsTo: id) {
+				guard (index + 2) <= nodes.count else {
+					return
+				}
+				let destination = Destination<ID>(target: nil, index: index + 2)
+				moveItems(with: [id], to: destination)
+			}
+			return
+		}
+
+		guard let index = parent.children.firstIndex(where: \.id, equalsTo: id) else {
+			return
+		}
+
+		guard (index + 1) < parent.children.count else {
+			return
+		}
+
+		let destination = Destination(target: parent.id, index: index + 1)
+		moveItems(with: [id], to: destination)
+	}
+
+	func moveBackward(_ id: ID) {
+		let target = cache[id]?.parent?.id
+		let index: Int = if let parent = cache[id]?.parent {
+			parent.children.firstIndex(where: \.id, equalsTo: id) ?? 0
+		} else {
+			nodes.firstIndex(where: \.id, equalsTo: id) ?? 0
+		}
+
+		let nextIndex = index - 1
+		guard nextIndex >= 0 else {
+			return
+		}
+
+		let destination = Destination<ID>(target: target, index: nextIndex)
+		moveItems(with: [id], to: destination)
+	}
 }
 
 // MARK: - Equatable

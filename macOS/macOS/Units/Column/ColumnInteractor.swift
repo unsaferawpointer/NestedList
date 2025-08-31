@@ -15,6 +15,8 @@ protocol ColumnInteractorProtocol {
 	@discardableResult
 	func newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID
 	func set(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle)
+	func moveForward()
+	func moveBackward()
 	func deleteColumn()
 }
 
@@ -79,6 +81,14 @@ extension ColumnInteractor: ColumnInteractorProtocol {
 			content.root.setProperty(\.isMarked, to: isMarked, for: [root], downstream: true)
 			content.root.setProperty(\.style, to: style, for: [root])
 		}
+	}
+
+	func moveForward() {
+		base.moveForward(root)
+	}
+
+	func moveBackward() {
+		base.moveBackward(root)
 	}
 
 	func deleteColumn() {

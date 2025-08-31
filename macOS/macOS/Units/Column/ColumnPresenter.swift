@@ -85,9 +85,9 @@ extension ColumnPresenter: MenuDelegate {
 		case .columnDelete:
 			interactor?.deleteColumn()
 		case .moveForward:
-			fatalError()
+			interactor?.moveForward()
 		case .moveBackward:
-			fatalError()
+			interactor?.moveBackward()
 		default:
 			fatalError()
 		}

@@ -14,7 +14,8 @@ public protocol CommonInteractorProtocol {
 
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool
 	func move(_ ids: [UUID], to destination: Destination<UUID>)
-
+	func moveForward(_ id: UUID)
+	func moveBackward(_ id: UUID)
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>)
 }
 
@@ -53,6 +54,18 @@ extension CommonInteractor: CommonInteractorProtocol {
 	public func move(_ ids: [UUID], to destination: Destination<UUID>) {
 		storage.modificate { content in
 			content.root.moveItems(with: ids, to: destination)
+		}
+	}
+
+	public func moveForward(_ id: UUID) {
+		storage.modificate { content in
+			content.root.moveForward(id)
+		}
+	}
+
+	public func moveBackward(_ id: UUID) {
+		storage.modificate { content in
+			content.root.moveBackward(id)
 		}
 	}
 
