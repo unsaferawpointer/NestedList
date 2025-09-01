@@ -61,6 +61,7 @@ extension DetailsView: View {
 					Button(strings.saveButtonTitle, role: .none) {
 						completionHandler(model.properties, true)
 					}
+					.keyboardShortcut(.return)
 					.disabled(!isValid)
 					.accessibilityIdentifier("button-save")
 				}
