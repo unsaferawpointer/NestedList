@@ -158,9 +158,16 @@ extension ColumnsViewController: ColumnsUnitView {
 
 		NSAnimationContext.runAnimationGroup { context in
 			context.allowsImplicitAnimation = true
+
+			if removed.count == 1, inserted.count == 1, removed.first == inserted.first,
+			   let atIndex = removed.first?.source, let toIndex = inserted.first?.destination {
+				collectionView.animator().moveItem(at: atIndex, to: toIndex)
+				return
+			}
+
 			collectionView.performBatchUpdates {
-				collectionView.animator().deleteItems(at: removed)
-				collectionView.animator().insertItems(at: inserted)
+				collectionView.animator().deleteItems(at: Set(removed.compactMap(\.source)))
+				collectionView.animator().insertItems(at: Set(inserted.compactMap(\.destination)))
 			}
 		}
 	}
@@ -169,29 +176,59 @@ extension ColumnsViewController: ColumnsUnitView {
 // MARK: - Helpers
 private extension ColumnsViewController {
 
-	func calculateAnimation(for columns: [UUID]) -> (Set<IndexPath>, Set<IndexPath>)? {
+	func calculateAnimation(for columns: [UUID]) -> (Set<Operation>, Set<Operation>)? {
 		guard self.columns != columns else {
 			return nil
 		}
 
-		let diff = columns.difference(from: self.columns)
+		let diff = columns.difference(from: self.columns).inferringMoves()
 
-		let removed = diff.compactMap { change -> IndexPath? in
-			guard case let .remove(offset, _, _) = change else {
+		let removed = diff.compactMap { change -> Operation? in
+			guard case let .remove(offset, _, destination) = change else {
 				return nil
 			}
-			return .init(item: offset, section: 0)
+			return Operation(source: offset, destination: destination)
 		}
 
-		let inserted = diff.compactMap { change -> IndexPath? in
-			guard case let .insert(offset, _, _) = change else {
+		let inserted = diff.compactMap { change -> Operation? in
+			guard case let .insert(offset, _, source) = change else {
 				return nil
 			}
-			return .init(item: offset, section: 0)
+			return Operation(source: source, destination: offset)
 		}
 
 		self.columns = columns
 
 		return (Set(removed), Set(inserted))
+	}
+}
+
+// MARK: - Nested data structs
+extension ColumnsViewController {
+
+	struct Operation: Hashable {
+
+		var source: IndexPath?
+		var destination: IndexPath?
+
+		// MARK: - Initialization
+
+		init(source: Int, destination: Int? = nil) {
+			self.source = IndexPath(item: source, section: 0)
+			self.destination = if let destination {
+				IndexPath(item: destination, section: 0)
+			} else {
+				nil
+			}
+		}
+
+		init(source: Int? = nil, destination: Int) {
+			self.destination = IndexPath(item: destination, section: 0)
+			self.source = if let source {
+				IndexPath(item: source, section: 0)
+			} else {
+				nil
+			}
+		}
 	}
 }
