@@ -16,7 +16,9 @@ protocol ColumnInteractorProtocol {
 	func newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID
 	func set(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle)
 	func moveForward()
+	func validateMovingForward() -> Bool
 	func moveBackward()
+	func validateMovingBackward() -> Bool
 	func deleteColumn()
 }
 
@@ -87,8 +89,16 @@ extension ColumnInteractor: ColumnInteractorProtocol {
 		base.moveForward(root)
 	}
 
+	func validateMovingForward() -> Bool {
+		base.validateMovingForward(root)
+	}
+
 	func moveBackward() {
 		base.moveBackward(root)
+	}
+
+	func validateMovingBackward() -> Bool {
+		base.validateMovingBackward(root)
 	}
 
 	func deleteColumn() {

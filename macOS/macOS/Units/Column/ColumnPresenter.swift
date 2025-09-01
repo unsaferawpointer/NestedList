@@ -94,7 +94,14 @@ extension ColumnPresenter: MenuDelegate {
 	}
 	
 	func validateMenuItem(_ item: ElementIdentifier) -> Bool {
-		return true
+		switch item {
+		case .moveForward:
+			interactor?.validateMovingForward() ?? false
+		case .moveBackward:
+			interactor?.validateMovingBackward() ?? false
+		default:
+			true
+		}
 	}
 	
 	func isHidden(_ item: ElementIdentifier) -> Bool {

@@ -153,17 +153,15 @@ extension ColumnViewController: NSMenuItemValidation {
 
 	func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
 
-		return true
+		guard let rawValue = menuItem.identifier?.rawValue, let output else {
+			return false
+		}
 
-//		guard let rawValue = menuItem.identifier?.rawValue, let output else {
-//			return false
-//		}
-//
-//		let id = ElementIdentifier(rawValue: rawValue)
-//
-//		menuItem.state = output.stateForMenuItem(id).value
-//		menuItem.isHidden = output.isHidden(id)
-//		return output.validateMenuItem(id)
+		let id = ElementIdentifier(rawValue: rawValue)
+
+		menuItem.state = output.stateForMenuItem(id).value
+		menuItem.isHidden = output.isHidden(id)
+		return output.validateMenuItem(id)
 	}
 }
 
