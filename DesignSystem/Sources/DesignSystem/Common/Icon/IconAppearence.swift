@@ -21,7 +21,7 @@ import AppKit
 public extension IconAppearence {
 
 	var configuration: NSImage.SymbolConfiguration {
-		switch self {
+		let result: NSImage.SymbolConfiguration = switch self {
 		case .monochrome:
 			.preferringMonochrome()
 		case let .hierarchical(token):
@@ -30,6 +30,12 @@ public extension IconAppearence {
 			.init(paletteColors: tokens.map(\.value))
 		case .multicolor:
 			.preferringMulticolor()
+		}
+
+		return if #available(macOS 26.0, *) {
+			result.applying(NSImage.SymbolConfiguration(colorRenderingMode: .gradient))
+		} else {
+			result
 		}
 	}
 
@@ -63,7 +69,7 @@ public extension IconAppearence {
 		}
 
 		return if #available(iOS 26.0, *) {
-			result.applying(UIImage.SymbolConfiguration.init(colorRenderingMode: .gradient))
+			result.applying(UIImage.SymbolConfiguration(colorRenderingMode: .gradient))
 		} else {
 			result
 		}
