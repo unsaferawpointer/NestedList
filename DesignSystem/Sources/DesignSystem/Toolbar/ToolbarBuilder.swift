@@ -52,7 +52,14 @@ public extension ToolbarBuilder {
 			case let .status(text):
 				let label = UILabel()
 				label.text = text
+
+				label.translatesAutoresizingMaskIntoConstraints = false
+				label.widthAnchor.constraint(equalToConstant: 156).isActive = true
+
 				let result = UIBarButtonItem(customView: label)
+				if #available(iOS 26.0, *) {
+					result.hidesSharedBackground = true
+				}
 				result.isEnabled = item.isEnabled
 				return result
 			}
