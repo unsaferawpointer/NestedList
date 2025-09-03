@@ -52,9 +52,11 @@ public extension ToolbarBuilder {
 			case let .status(text):
 				let label = UILabel()
 				label.text = text
+				label.font = UIFont.preferredFont(forTextStyle: .caption1)
 
 				label.translatesAutoresizingMaskIntoConstraints = false
-				label.widthAnchor.constraint(equalToConstant: 156).isActive = true
+				label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+				label.setContentHuggingPriority(.defaultLow, for: .horizontal)
 
 				let result = UIBarButtonItem(customView: label)
 				if #available(iOS 26.0, *) {
