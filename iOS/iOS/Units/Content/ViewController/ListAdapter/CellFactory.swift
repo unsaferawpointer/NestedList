@@ -38,15 +38,26 @@ extension CellFactory {
 
 	static func updateCell(_ cell: any ListCell, with configuration: RowConfiguration) {
 
-		let iconName = configuration.isExpanded ? "chevron.down" : "chevron.right"
-		let image = UIImage(systemName: iconName)?.withTintColor(.label)
-
-		let imageView = !configuration.isLeaf ? UIImageView(image: image) : nil
-		if #available(iOS 26.0, *) {
-			imageView?.tintColor = .label
+		if let imageView = cell.accessoryView as? UIImageView {
+			if configuration.isLeaf {
+				cell.accessoryView = nil
+			} else {
+				UIView.animate(withDuration: 0.3) {
+					imageView.transform = configuration.isExpanded ? .init(rotationAngle: .pi / 2) : .identity
+				}
+			}
+		} else {
+			if !configuration.isLeaf {
+				let image = UIImage(systemName: "chevron.right")
+				let imageView = UIImageView(image: image)
+				imageView.contentMode = .center
+				if #available(iOS 26.0, *) {
+					imageView.tintColor = .label
+				}
+				imageView.transform = configuration.isExpanded ? .init(rotationAngle: .pi / 2) : .identity
+				cell.accessoryView = imageView
+			}
 		}
-
-		cell.accessoryView = imageView
 
 		cell.indentationLevel = configuration.level
 		cell.validateIndent()
