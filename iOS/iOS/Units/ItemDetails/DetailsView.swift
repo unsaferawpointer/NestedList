@@ -57,11 +57,19 @@ extension DetailsView: View {
 				}
 
 				ToolbarItem(placement: .confirmationAction) {
-					Button(strings.saveButtonTitle, role: .none) {
-						completionHandler(model.properties, true)
+					if #available(iOS 26.0, *) {
+						Button(strings.saveButtonTitle, role: .confirm) {
+							completionHandler(model.properties, true)
+						}
+						.disabled(!isValid)
+						.accessibilityIdentifier("button-save")
+					} else {
+						Button(strings.saveButtonTitle, role: .none) {
+							completionHandler(model.properties, true)
+						}
+						.disabled(!isValid)
+						.accessibilityIdentifier("button-save")
 					}
-					.disabled(!isValid)
-					.accessibilityIdentifier("button-save")
 				}
 			}
 			.navigationTitle(model.navigationTitle)
