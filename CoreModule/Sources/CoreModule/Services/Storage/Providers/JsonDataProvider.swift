@@ -10,11 +10,7 @@ import Foundation
 /// Data provider of board document
 public final class JsonDataProvider {
 
-	private let parser: ParserProtocol
-
-	public init(parser: ParserProtocol = Parser()) {
-		self.parser = parser
-	}
+	public init() { }
 }
 
 // MARK: - ContentProvider
