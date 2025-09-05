@@ -103,13 +103,14 @@ extension ContentInteractor: ContentInteractorProtocol {
 	}
 
 	func newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID {
+		let destination = Destination(target: target)
 		return base.newItem(
 			text,
 			isStrikethrough: isStrikethrough,
 			note: note,
 			isMarked: isMarked,
 			style: style,
-			target: target
+			target: destination.relative(to: root).id
 		)
 	}
 
