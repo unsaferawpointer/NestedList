@@ -17,6 +17,9 @@
       location = "group:DesignSystem">
    </FileRef>
    <FileRef
+      location = "group:Multiplatform/Multiplatform.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:iOS/iOS.xcodeproj">
    </FileRef>
    <FileRef
