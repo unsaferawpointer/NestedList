@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4C159D322E6B4CF800D94CF3 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 4C159D312E6B4CF800D94CF3 /* AppIcon.icon */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		4C159D042E6B48E200D94CF3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +31,7 @@
 		4C159CF32E6B48E000D94CF3 /* Multiplatform.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Multiplatform.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C159D032E6B48E200D94CF3 /* MultiplatformTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MultiplatformTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C159D0D2E6B48E200D94CF3 /* MultiplatformUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MultiplatformUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C159D312E6B4CF800D94CF3 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -92,6 +97,7 @@
 				4C159D062E6B48E200D94CF3 /* MultiplatformTests */,
 				4C159D102E6B48E200D94CF3 /* MultiplatformUITests */,
 				4C159CF42E6B48E000D94CF3 /* Products */,
+				4C159D312E6B4CF800D94CF3 /* AppIcon.icon */,
 			);
 			sourceTree = "<group>";
 		};
@@ -225,6 +231,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C159D322E6B4CF800D94CF3 /* AppIcon.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
