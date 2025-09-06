@@ -11,6 +11,7 @@ import CoreModule
 
 protocol ContentInteractorProtocol {
 	func fetchData()
+	func configure(for root: UUID?)
 
 	func move(_ ids: [UUID], to destination: Destination<UUID>)
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool
@@ -68,7 +69,7 @@ final class ContentInteractor {
 			guard let self else {
 				return
 			}
-			let nodes = content.root.children(of: root)
+			let nodes = content.root.children(of: self.root)
 			self.presenter?.present(nodes)
 		}
 	}
@@ -80,6 +81,11 @@ extension ContentInteractor: ContentInteractorProtocol {
 	func fetchData() {
 		let nodes = storage.state.root.children(of: root)
 		presenter?.present(nodes)
+	}
+
+	func configure(for root: UUID?) {
+		self.root = root
+		fetchData()
 	}
 
 	func move(_ ids: [UUID], to destination: Destination<UUID>) {

@@ -12,7 +12,9 @@ import DesignSystem
 
 import SwiftUI
 
-protocol UnitViewOutput: ViewDelegate, MenuDelegate { }
+protocol UnitViewOutput: ViewDelegate, MenuDelegate {
+	func configure(for root: UUID?)
+}
 
 protocol UnitView: AnyObject, ListSupportable {
 	func display(_ state: ContentViewState)
@@ -109,6 +111,13 @@ class ContentViewController: NSCollectionViewItem {
 	}
 
 	var sheet: NSViewController?
+}
+
+extension ContentViewController {
+
+	func configure(for root: UUID?) {
+		output?.configure(for: root)
+	}
 }
 
 // MARK: - ContentView

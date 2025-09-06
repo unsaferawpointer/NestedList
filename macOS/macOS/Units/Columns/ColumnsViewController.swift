@@ -8,6 +8,7 @@
 import AppKit
 import SwiftUI
 import DesignSystem
+import CoreModule
 
 protocol ColumnsViewOutput: ViewDelegate {
 	func handleNewColumnClick()
@@ -25,7 +26,7 @@ class ColumnsViewController: NSViewController {
 
 	var output: ColumnsViewOutput?
 
-	let columnsFactory: ColumnsFactory
+	let storage: DocumentStorage<Content>
 
 	// MARK: - UI
 
@@ -43,16 +44,13 @@ class ColumnsViewController: NSViewController {
 
 	lazy var collectionView: NSCollectionView = {
 		let view = NSCollectionView()
-
-		view.dataSource = self
-		view.delegate = self
 		return view
 	}()
 
 	// MARK: - Initialization
 
-	init(columnsFactory: ColumnsFactory, configure: (ColumnsViewController) -> Void) {
-		self.columnsFactory = columnsFactory
+	init(storage: DocumentStorage<Content>, configure: (ColumnsViewController) -> Void) {
+		self.storage = storage
 		super.init(nibName: nil, bundle: nil)
 		configure(self)
 	}
@@ -73,6 +71,11 @@ class ColumnsViewController: NSViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
+
+		collectionView.register(ColumnViewController.self, forItemWithIdentifier: .init("column"))
+		collectionView.dataSource = self
+		collectionView.delegate = self
+
 		output?.viewDidChange(state: .didLoad)
 	}
 
@@ -126,8 +129,11 @@ extension ColumnsViewController: NSCollectionViewDataSource {
 	}
 	
 	func collectionView(_ collectionView: NSCollectionView, itemForRepresentedObjectAt indexPath: IndexPath) -> NSCollectionViewItem {
+		let identifier = NSUserInterfaceItemIdentifier("column")
 		let root = columns[indexPath.item]
-		return columnsFactory.build(for: root)
+		let item = collectionView.makeItem(withIdentifier: identifier, for: indexPath) as! ColumnViewController
+		item.configure(for: root, with: storage)
+		return item
 	}
 }
 

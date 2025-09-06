@@ -11,6 +11,7 @@ import CoreModule
 
 protocol ColumnInteractorProtocol {
 	func fetchData()
+	func configure(for root: UUID)
 	func rootItem() -> Node<Item>?
 	@discardableResult
 	func newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID
@@ -24,7 +25,7 @@ protocol ColumnInteractorProtocol {
 
 final class ColumnInteractor {
 
-	let root: UUID
+	private var root: UUID
 
 	private let storage: DocumentStorage<Content>
 
@@ -39,10 +40,13 @@ final class ColumnInteractor {
 		self.storage = storage
 		self.base = CommonInteractor(storage: storage)
 		storage.addObservation(for: self) { [weak self] _, content in
-			guard let item = storage.state.root.node(with: root)?.value else {
+			guard let self else {
 				return
 			}
-			self?.presenter?.present(item)
+			guard let item = storage.state.root.node(with: self.root)?.value else {
+				return
+			}
+			self.presenter?.present(item)
 		}
 	}
 }
@@ -55,6 +59,11 @@ extension ColumnInteractor: ColumnInteractorProtocol {
 			return
 		}
 		presenter?.present(item)
+	}
+
+	func configure(for root: UUID) {
+		self.root = root
+		fetchData()
 	}
 
 	func rootItem() -> Node<Item>? {

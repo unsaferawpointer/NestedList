@@ -12,6 +12,7 @@ import DesignSystem
 
 protocol ColumnViewOutput: ViewDelegate, MenuDelegate {
 	func userClickedOnPlusButton()
+	func configure(for id: UUID)
 }
 
 protocol ColumnUnitView: AnyObject, ListSupportable {
@@ -33,14 +34,10 @@ class ColumnViewController: NSCollectionViewItem {
 
 	// MARK: - UI
 
-	var content: ContentViewController
+	var content: ContentViewController?
 
 	lazy var headerView: ColumnHeaderView = {
-		let menu = MenuBuilder.build(
-			for: output?.menuItems() ?? [],
-			target: self
-		)
-		let view = ColumnHeaderView(menu: menu)
+		let view = ColumnHeaderView(menu: nil)
 		view.leadingAction = { [weak self] in
 			self?.output?.userClickedOnPlusButton()
 		}
@@ -56,6 +53,10 @@ class ColumnViewController: NSCollectionViewItem {
 	}()
 
 	// MARK: - Initialization
+
+	override init(nibName nibNameOrNil: NSNib.Name?, bundle nibBundleOrNil: Bundle?) {
+		super.init(nibName: nil, bundle: nil)
+	}
 
 	init(_ content: ContentViewController, configure: (ColumnViewController) -> Void) {
 		self.content = content
@@ -73,7 +74,6 @@ class ColumnViewController: NSCollectionViewItem {
 	override func loadView() {
 		self.view = NSView()
 		configureUserInterface()
-		configureConstraints()
 	}
 
 	override func viewDidLoad() {
@@ -91,23 +91,49 @@ class ColumnViewController: NSCollectionViewItem {
 extension ColumnViewController: ListSupportable {
 
 	func expand(_ ids: [UUID]?) {
-		content.expand(ids)
+		content?.expand(ids)
 	}
 
 	func scroll(to id: UUID) {
-		content.scroll(to: id)
+		content?.scroll(to: id)
 	}
 
 	func select(_ id: UUID) {
-		content.select(id)
+		content?.select(id)
 	}
 
 	func focus(on id: UUID, key: String) {
-		content.focus(on: id, key: key)
+		content?.focus(on: id, key: key)
 	}
 
 	var selection: [UUID] {
-		content.selection
+		content?.selection ?? []
+	}
+}
+
+extension ColumnViewController {
+
+	func configure(for id: UUID, with storage: DocumentStorage<Content>) {
+		if let content {
+			output?.configure(for: id)
+			content.configure(for: id)
+		} else {
+			self.content = ContentUnitAssembly.build(
+				for: id,
+				storage: storage,
+				configuration: .init(drawsBackground: false, hasInsets: false)
+			)
+
+			ColumnUnitAssembly.configure(column: self, root: id, storage: storage)
+
+			let menu = MenuBuilder.build(
+				for: output?.menuItems() ?? [],
+				target: self
+			)
+			headerView.buttonMenu = menu
+			configureUserInterface()
+			output?.configure(for: id)
+		}
 	}
 }
 
@@ -120,7 +146,9 @@ extension ColumnViewController: ColumnUnitView {
 
 	func hideDetails() {
 		if let sheet = presentedViewControllers?.first {
-			dismiss(sheet)
+			DispatchQueue.main.async { [weak self] in
+				self?.dismiss(sheet)
+			}
 		}
 	}
 
@@ -170,6 +198,10 @@ private extension ColumnViewController {
 
 	func configureUserInterface() {
 
+		guard let content else {
+			return
+		}
+
 		addChild(content)
 
 		backgroundView.pin(edges: [.leading, .top, .bottom, .trailing], to: view, with: 12)
@@ -182,9 +214,4 @@ private extension ColumnViewController {
 			]
 		)
 	}
-
-	func configureConstraints() {
-
-	}
-
 }

@@ -34,6 +34,10 @@ final class ColumnPresenter {
 // MARK: - ColumnsViewOutput
 extension ColumnPresenter: ColumnViewOutput {
 
+	func configure(for id: UUID) {
+		interactor?.configure(for: id)
+	}
+
 	func viewDidChange(state: ViewState) {
 		guard state == .didLoad else {
 			return

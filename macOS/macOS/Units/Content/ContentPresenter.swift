@@ -127,6 +127,10 @@ extension ContentPresenter: ViewDelegate {
 // MARK: - UnitViewOutput
 extension ContentPresenter: UnitViewOutput {
 
+	func configure(for root: UUID?) {
+		interactor?.configure(for: root)
+	}
+
 	func menuItems() -> [ElementIdentifier] {
 		return [.newItem,
 				.separator,

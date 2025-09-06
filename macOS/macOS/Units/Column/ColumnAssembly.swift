@@ -25,4 +25,14 @@ final class ColumnUnitAssembly {
 			interactor.presenter = presenter
 		}
 	}
+
+	static func configure(column: ColumnViewController, root: UUID, storage: DocumentStorage<Content>) {
+		let presenter = ColumnPresenter()
+		let interactor = ColumnInteractor(root: root, storage: storage)
+
+		column.output = presenter
+		presenter.view = column
+		presenter.interactor = interactor
+		interactor.presenter = presenter
+	}
 }

@@ -11,7 +11,7 @@ class ColumnHeaderView: NSView {
 
 	// MARK: - UI
 
-	let buttonMenu: NSMenu
+	var buttonMenu: NSMenu?
 
 	// MARK: - UI-Properties
 
@@ -58,7 +58,7 @@ class ColumnHeaderView: NSView {
 
 	// MARK: - Initialization
 
-	init(menu: NSMenu) {
+	init(menu: NSMenu?) {
 		self.buttonMenu = menu
 		super.init(frame: .zero)
 		configureConstraints()
@@ -75,7 +75,7 @@ extension ColumnHeaderView {
 	@objc
 	func buttonDidClick(_ sender: NSButton) {
 		if actionButton === sender {
-			buttonMenu.popUp(
+			buttonMenu?.popUp(
 				positioning: nil,
 				at: .init(x: actionButton.bounds.midX, y: actionButton.bounds.maxY),
 				in: sender
