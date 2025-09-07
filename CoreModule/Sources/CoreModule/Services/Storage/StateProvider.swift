@@ -17,17 +17,21 @@ public protocol StateProviderProtocol<State>: AnyObject {
 
 	func addObservation<O: AnyObject>(
 		for object: O,
-		handler: @escaping (O, State) -> Void
+		handler: @escaping (State) -> Void
 	)
+
+	func removeObserver(_ object: AnyObject)
 }
 
 public final class StateProvider<State> {
 
-	private var observations = [(State) -> Bool]()
+	private var observations = [ObjectIdentifier: (State) -> Void]()
 
 	public var state: State {
 		didSet {
-			observations = observations.filter { $0(state) }
+			observations.values.forEach {
+				$0(state)
+			}
 		}
 	}
 
@@ -47,17 +51,16 @@ extension StateProvider: StateProviderProtocol {
 	
 	public func addObservation<O: AnyObject>(
 		for object: O,
-		handler: @escaping (O, State) -> Void
+		handler: @escaping (State) -> Void
 	) {
-		handler(object, state)
+		handler(state)
 
-		observations.append { [weak object] value in
-			guard let object = object else {
-				return false
-			}
-
-			handler(object, value)
-			return true
+		observations[ObjectIdentifier(object)] = { value in
+			handler(value)
 		}
+	}
+
+	public func removeObserver(_ object: AnyObject) {
+		observations[ObjectIdentifier(object)] = nil
 	}
 }

@@ -23,9 +23,13 @@ final class ColumnsInteractor {
 
 	init(storage: DocumentStorage<Content>) {
 		self.storage = storage
-		storage.addObservation(for: self) { [weak self] _, content in
+		storage.addObservation(for: self) { [weak self] content in
 			self?.presenter?.present(storage.state.root.nodes)
 		}
+	}
+
+	deinit {
+		storage.removeObserver(self)
 	}
 }
 

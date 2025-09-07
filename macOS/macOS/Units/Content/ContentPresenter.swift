@@ -50,9 +50,13 @@ final class ContentPresenter {
 		self.settingsProvider = settingsProvider
 		self.localization = localization
 
-		settingsProvider.addObservation(for: self) { [weak self] _, settings in
+		settingsProvider.addObservation(for: self) { [weak self] settings in
 			self?.interactor?.fetchData()
 		}
+	}
+
+	deinit {
+		settingsProvider.removeObserver(self)
 	}
 }
 

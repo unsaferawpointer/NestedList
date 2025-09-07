@@ -37,7 +37,7 @@ public final class SettingsProvider {
 
 	public typealias State = Settings
 
-	private var observations = [(State) -> Bool]()
+	private var observations = [ObjectIdentifier: (State) -> Void]()
 
 	public var state: State {
 		didSet {
@@ -54,7 +54,9 @@ public final class SettingsProvider {
 				]
 			)
 
-			observations = observations.filter { $0(state) }
+			observations.values.forEach {
+				$0(state)
+			}
 		}
 	}
 
@@ -124,23 +126,19 @@ extension SettingsProvider {
 // MARK: - StateProviderProtocol
 extension SettingsProvider: StateProviderProtocol {
 
-	public func modificate(_ block: (inout State) -> Void) {
-		block(&state)
+	public func addObservation<O>(for object: O, handler: @escaping (Settings) -> Void) where O : AnyObject {
+		handler(state)
+
+		observations[ObjectIdentifier(object)] = { value in
+			handler(value)
+		}
+	}
+	
+	public func removeObserver(_ object: AnyObject) {
+		observations[ObjectIdentifier(object)] = nil
 	}
 
-	public func addObservation<O: AnyObject>(
-		for object: O,
-		handler: @escaping (O, State) -> Void
-	) {
-		handler(object, state)
-
-		observations.append { [weak object] value in
-			guard let object = object else {
-				return false
-			}
-
-			handler(object, value)
-			return true
-		}
+	public func modificate(_ block: (inout State) -> Void) {
+		block(&state)
 	}
 }

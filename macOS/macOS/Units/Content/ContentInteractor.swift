@@ -65,13 +65,17 @@ final class ContentInteractor {
 		self.storage = storage
 		self.base = CommonInteractor(storage: storage)
 		self.root = root
-		storage.addObservation(for: self) { [weak self] _, content in
+		storage.addObservation(for: self) { [weak self] content in
 			guard let self else {
 				return
 			}
 			let nodes = content.root.children(of: self.root)
 			self.presenter?.present(nodes)
 		}
+	}
+
+	deinit {
+		storage.removeObserver(self)
 	}
 }
 

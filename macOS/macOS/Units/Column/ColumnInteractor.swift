@@ -39,7 +39,7 @@ final class ColumnInteractor {
 		self.root = root
 		self.storage = storage
 		self.base = CommonInteractor(storage: storage)
-		storage.addObservation(for: self) { [weak self] _, content in
+		storage.addObservation(for: self) { [weak self] content in
 			guard let self else {
 				return
 			}
@@ -48,6 +48,10 @@ final class ColumnInteractor {
 			}
 			self.presenter?.present(item)
 		}
+	}
+
+	deinit {
+		storage.removeObserver(self)
 	}
 }
 
