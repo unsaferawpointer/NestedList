@@ -15,7 +15,8 @@ protocol ColumnsViewOutput: ViewDelegate {
 }
 
 protocol ColumnsUnitView: AnyObject {
-	func display(state: ColumnsViewState)
+	func display(state: ColumnsViewState, completionHandler: @escaping () -> Void)
+	func scroll(to id: UUID)
 }
 
 class ColumnsViewController: NSViewController {
@@ -143,7 +144,16 @@ extension ColumnsViewController: NSCollectionViewDelegate { }
 // MARK: - ColumnsUnitView
 extension ColumnsViewController: ColumnsUnitView {
 
-	func display(state: ColumnsViewState) {
+	func scroll(to id: UUID) {
+		guard let index = columns.firstIndex(of: id) else { return }
+		let indexPath = IndexPath(item: index, section: 0)
+		NSAnimationContext.runAnimationGroup { context in
+			context.allowsImplicitAnimation = true
+			collectionView.animator().scrollToItems(at: .init([indexPath]), scrollPosition: .trailingEdge)
+		}
+	}
+
+	func display(state: ColumnsViewState, completionHandler: @escaping () -> Void) {
 		placeholderView?.removeFromSuperview()
 		switch state {
 		case let .placeholder(model):
@@ -152,11 +162,11 @@ extension ColumnsViewController: ColumnsUnitView {
 			columns = []
 			collectionView.reloadData()
 		case let .columns(ids):
-			display(ids)
+			display(ids, completionHandler: completionHandler)
 		}
 	}
 
-	func display(_ columns: [UUID]) {
+	func display(_ columns: [UUID], completionHandler: @escaping () -> Void) {
 
 		guard let (removed, inserted) = calculateAnimation(for: columns) else {
 			return
@@ -174,7 +184,14 @@ extension ColumnsViewController: ColumnsUnitView {
 			collectionView.performBatchUpdates {
 				collectionView.animator().deleteItems(at: Set(removed.compactMap(\.source)))
 				collectionView.animator().insertItems(at: Set(inserted.compactMap(\.destination)))
+			} completionHandler: { finished in
+				guard finished else {
+					return
+				}
+				completionHandler()
 			}
+		} completionHandler: {
+
 		}
 	}
 }

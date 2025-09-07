@@ -5,6 +5,7 @@
 //  Created by Anton Cherkasov on 14.08.2025.
 //
 
+import Foundation
 import Hierarchy
 import CoreModule
 import DesignSystem
@@ -14,6 +15,10 @@ protocol ColumnsPresenterProtocol: AnyObject {
 }
 
 final class ColumnsPresenter {
+
+	// MARK: - Internal state
+
+	var scrollPosition: UUID?
 
 	// MARK: - DI by init
 
@@ -47,7 +52,8 @@ extension ColumnsPresenter: ViewDelegate {
 extension ColumnsPresenter: ColumnsViewOutput {
 
 	func handleNewColumnClick() {
-		_ = interactor?.createNewItem(with: localization.newItemText)
+		let id = interactor?.createNewItem(with: localization.newItemText)
+		self.scrollPosition = id
 	}
 }
 
@@ -62,9 +68,15 @@ extension ColumnsPresenter: ColumnsPresenterProtocol {
 				title: localization.placeholderTitle,
 				subtitle: localization.placeholderDescription
 			)
-			view?.display(state: .placeholder(model: placeholderModel))
+			view?.display(state: .placeholder(model: placeholderModel)) { }
 			return
 		}
-		view?.display(state: .columns(ids: ids))
+		view?.display(state: .columns(ids: ids)) { [weak self] in
+			guard let self, let position = self.scrollPosition else {
+				return
+			}
+			view?.scroll(to: position)
+			self.scrollPosition = nil
+		}
 	}
 }
