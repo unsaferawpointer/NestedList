@@ -24,7 +24,7 @@ final class ItemCell: NSView, ListCell {
 		}
 	}
 
-	var delegate: (any CellDelegate<ItemModel>)?
+	weak var delegate: (any CellDelegate<ItemModel>)?
 
 	func focus(on field: String) {
 		switch field {
