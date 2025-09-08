@@ -16,7 +16,7 @@ protocol ColumnViewOutput: ViewDelegate, MenuDelegate {
 }
 
 protocol ColumnUnitView: AnyObject, ListSupportable {
-	func display(_ title: String)
+	func display(_ model: ColumnModel)
 	func hideDetails()
 	func showDetails(
 		with model: DetailsView.Model,
@@ -140,8 +140,8 @@ extension ColumnViewController {
 // MARK: - ColumnUnitView
 extension ColumnViewController: ColumnUnitView {
 
-	func display(_ title: String) {
-		headerView.titleTextfield.stringValue = title
+	func display(_ model: ColumnModel) {
+		headerView.model = model
 	}
 
 	func hideDetails() {

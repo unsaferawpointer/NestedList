@@ -9,6 +9,7 @@ import Foundation
 import Hierarchy
 import CoreModule
 import DesignSystem
+import CoreSettings
 
 protocol ColumnPresenterProtocol: AnyObject {
 	func present(_ item: Item)
@@ -24,10 +25,28 @@ final class ColumnPresenter {
 
 	var localization: ColumnLocalizationProtocol
 
+	private(set) var settingsProvider: any StateProviderProtocol<Settings>
+
+	private let factory: ItemsFactoryProtocol
+
 	// MARK: - Initialization
 
-	init(localization: ColumnLocalizationProtocol = ColumnLocalization()) {
+	init(
+		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared,
+		localization: ColumnLocalizationProtocol = ColumnLocalization(),
+		factory: ItemsFactoryProtocol = ItemsFactory()
+	) {
+		self.settingsProvider = settingsProvider
 		self.localization = localization
+		self.factory = factory
+
+		settingsProvider.addObservation(for: self) { [weak self] settings in
+			self?.interactor?.fetchData()
+		}
+	}
+
+	deinit {
+		settingsProvider.removeObserver(self)
 	}
 }
 
@@ -125,7 +144,9 @@ extension ColumnPresenter: MenuDelegate {
 extension ColumnPresenter: ColumnPresenterProtocol {
 
 	func present(_ item: Item) {
-		view?.display(item.text)
+		let itemModel = factory.makeItem(item: item, level: 0, iconColor: settingsProvider.state.iconColor)
+		let model = ColumnModel(title: item.text, configuration: itemModel.configuration)
+		view?.display(model)
 	}
 }
 

@@ -9,11 +9,23 @@ import AppKit
 
 class ColumnHeaderView: NSView {
 
+	var model: ColumnModel? {
+		didSet {
+			update()
+		}
+	}
+
 	// MARK: - UI
 
 	var buttonMenu: NSMenu?
 
 	// MARK: - UI-Properties
+
+	lazy var iconView: NSImageView = {
+		let view = NSImageView()
+		view.image?.isTemplate = true
+		return view
+	}()
 
 	lazy var titleTextfield: NSTextField = {
 		let view = NSTextField()
@@ -26,6 +38,12 @@ class ColumnHeaderView: NSView {
 		view.lineBreakMode = .byTruncatingMiddle
 		view.font = NSFont.preferredFont(forTextStyle: .headline)
 		view.allowsEditingTextAttributes = false
+		return view
+	}()
+
+	lazy var leadingContainer: NSStackView = {
+		let view = NSStackView(views: [iconView, titleTextfield])
+		view.orientation = .horizontal
 		return view
 	}()
 
@@ -86,15 +104,54 @@ extension ColumnHeaderView {
 	}
 }
 
+// MARK: - Public Interface
+extension ColumnHeaderView {
+
+	func update() {
+
+		guard let model else {
+			return
+		}
+
+		let title = model.title
+		let configuration = model.configuration
+
+		let attrString = NSAttributedString(
+			string: title,
+			textColor: configuration.text.colorToken.value,
+			strikethrough: configuration.text.strikethrough
+		)
+		titleTextfield.font = NSFont.preferredFont(forTextStyle: configuration.text.style)
+
+		if let iconConfiguration = configuration.icon {
+			iconView.isHidden = false
+			let image = iconConfiguration.name?.nsImage
+
+			let symbolConfiguration = iconConfiguration.appearence.configuration
+			iconView.image = image?
+				.withSymbolConfiguration(symbolConfiguration)
+			iconView.contentTintColor = iconConfiguration.appearence.tint
+		} else {
+			iconView.isHidden = true
+		}
+
+		// Value
+		titleTextfield.attributedStringValue = attrString
+	}
+}
+
 // MARK: - Helpers
 private extension ColumnHeaderView {
 
 	func configureConstraints() {
 
-		[titleTextfield, buttons].map { $0 }.forEach {
+		[leadingContainer, buttons].map { $0 }.forEach {
 			$0.translatesAutoresizingMaskIntoConstraints = false
 			addSubview($0)
 		}
+
+		iconView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+		iconView.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
 
 		titleTextfield.setContentHuggingPriority(.defaultLow, for: .horizontal)
 		titleTextfield.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
@@ -102,14 +159,18 @@ private extension ColumnHeaderView {
 		buttons.setHuggingPriority(.defaultHigh, for: .horizontal)
 		buttons.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
 
-		[
-			titleTextfield.topAnchor.constraint(equalTo: topAnchor, constant: 12),
-			titleTextfield.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12),
-			titleTextfield.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
-			titleTextfield.trailingAnchor.constraint(equalTo: buttons.leadingAnchor, constant: -12),
+		leadingContainer.setHuggingPriority(.defaultHigh, for: .vertical)
+		leadingContainer.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
 
-			buttons.firstBaselineAnchor.constraint(equalTo: titleTextfield.firstBaselineAnchor),
-			buttons.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12)
+		[
+			leadingContainer.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
+			leadingContainer.topAnchor.constraint(equalTo: topAnchor, constant: 12),
+			leadingContainer.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12),
+
+			buttons.firstBaselineAnchor.constraint(equalTo: leadingContainer.firstBaselineAnchor),
+			buttons.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12),
+			buttons.trailingAnchor.constraint(equalTo: leadingContainer.trailingAnchor, constant: -12),
+
 		]
 			.forEach { $0.isActive = true }
 	}
