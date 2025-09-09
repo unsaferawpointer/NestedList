@@ -65,7 +65,7 @@ final class ContentPresenter {
 	init(settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared) {
 		self.settingsProvider = settingsProvider
 
-		settingsProvider.addObservation(for: self) { [weak self] _, settings in
+		settingsProvider.addObservation(for: self) { [weak self] settings in
 			self?.interactor?.fetchData()
 		}
 	}

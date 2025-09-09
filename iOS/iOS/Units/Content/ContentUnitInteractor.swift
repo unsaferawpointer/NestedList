@@ -43,7 +43,7 @@ final class ContentUnitInteractor {
 	init(storage: DocumentStorage<Content>) {
 		self.storage = storage
 		self.base = CommonInteractor(storage: storage)
-		storage.addObservation(for: self) { [weak self] _, content in
+		storage.addObservation(for: self) { [weak self] content in
 			guard let self else {
 				return
 			}
