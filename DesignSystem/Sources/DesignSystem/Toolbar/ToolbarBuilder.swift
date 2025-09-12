@@ -34,6 +34,9 @@ public extension ToolbarBuilder {
 					image: UIImage(systemName: item.icon ?? ""),
 					primaryAction: action
 				)
+				if #available(iOS 26.0, *) {
+					result.style = item.isPrimaryAction ? .prominent : .plain
+				}
 				result.isEnabled = item.isEnabled
 				return result
 			case .flexible:

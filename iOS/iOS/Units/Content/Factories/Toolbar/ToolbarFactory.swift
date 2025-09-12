@@ -40,7 +40,13 @@ extension ToolbarFactory {
 
 	func buildTop(editingMode: EditingMode?) -> [ToolbarItem] {
 		guard editingMode == nil else {
-			return [.init(id: ElementIdentifier.done.rawValue, title: localization.doneItemTitle)]
+			return [
+				.init(
+					id: ElementIdentifier.done.rawValue,
+					title: localization.doneItemTitle,
+					isPrimaryAction: true
+				)
+			]
 		}
 
 		return [
