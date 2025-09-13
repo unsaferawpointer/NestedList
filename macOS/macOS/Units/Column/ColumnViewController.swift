@@ -32,6 +32,11 @@ class ColumnViewController: NSCollectionViewItem {
 
 	var output: ColumnViewOutput?
 
+	lazy var router: Router = {
+		return .init(root: self)
+	}()
+
+
 	// MARK: - UI
 
 	var content: ContentViewController?
@@ -153,13 +158,7 @@ extension ColumnViewController: ColumnUnitView {
 	}
 
 	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void) {
-
-		let contentViewController = NSHostingController(
-			rootView:
-				DetailsView(item: model, completionHandler: completionHandler)
-		)
-		contentViewController.title = model.navigationTitle
-		presentAsSheet(contentViewController)
+		router.showDetails(with: model, completionHandler: completionHandler)
 	}
 }
 

@@ -30,6 +30,12 @@ class ContentViewController: NSCollectionViewItem {
 
 	var adapter: ListAdapter<ItemModel>?
 
+	// MARK: - DI
+
+	lazy var router: Router = {
+		return .init(root: self)
+	}()
+
 	var output: UnitViewOutput?
 
 	weak var listDelegate: (any DesignSystem.ListDelegate<UUID>)?
@@ -130,13 +136,7 @@ extension ContentViewController: UnitView {
 	}
 
 	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void) {
-
-		let contentViewController = NSHostingController(
-			rootView:
-				DetailsView(item: model, completionHandler: completionHandler)
-		)
-		contentViewController.title = model.navigationTitle
-		presentAsSheet(contentViewController)
+		router.showDetails(with: model, completionHandler: completionHandler)
 	}
 
 	func display(_ state: ContentViewState) {
