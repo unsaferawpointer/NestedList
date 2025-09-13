@@ -68,9 +68,9 @@ extension ColumnPresenter: ColumnViewOutput {
 
 		let target = view?.selection.first
 
-		let details = DetailsView.Properties.init(text: localization.newItemText)
+		let details = ItemDetailsView.Properties.init(text: localization.newItemText)
 
-		let model = DetailsView.Model(navigationTitle: localization.newItemDetailsTitle, properties: details)
+		let model = ItemDetailsView.Model(navigationTitle: localization.newItemDetailsTitle, properties: details)
 		view?.showDetails(with: model) { [weak self] saved, success in
 			self?.view?.hideDetails()
 			if success {
@@ -157,7 +157,7 @@ private extension ColumnPresenter {
 		guard let item = interactor?.rootItem()?.value else {
 			return
 		}
-		let details = DetailsView.Properties(
+		let details = ItemDetailsView.Properties(
 			text: item.text,
 			description: item.note ?? "",
 			isStrikethrough: item.isStrikethrough,
@@ -165,7 +165,7 @@ private extension ColumnPresenter {
 			isSection: item.style != .item,
 			icon: item.style.icon
 		)
-		let model = DetailsView.Model(
+		let model = ItemDetailsView.Model(
 			navigationTitle: localization.editItemDetailsTitle,
 			properties: details
 		)

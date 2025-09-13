@@ -9,7 +9,7 @@ import SwiftUI
 import DesignSystem
 import CoreModule
 
-struct DetailsView {
+struct ItemDetailsView {
 
 	@State var model: Model
 
@@ -32,7 +32,7 @@ struct DetailsView {
 }
 
 // MARK: - View
-extension DetailsView: View {
+extension ItemDetailsView: View {
 
 	var body: some View {
 		NavigationStack {
@@ -73,7 +73,7 @@ extension DetailsView: View {
 }
 
 // MARK: - Helpers
-private extension DetailsView {
+private extension ItemDetailsView {
 
 	@ViewBuilder
 	func buildInfoSection() -> some View {
@@ -206,7 +206,7 @@ private extension DetailsView {
 }
 
 // MARK: - Nested data structs
-extension DetailsView {
+extension ItemDetailsView {
 
 	enum Field: Hashable {
 		case title
@@ -216,7 +216,7 @@ extension DetailsView {
 	struct Model {
 		var navigationTitle: String
 		var properties: Properties
-		var focus: DetailsView.Field?
+		var focus: ItemDetailsView.Field?
 	}
 
 	struct Properties {
@@ -230,7 +230,7 @@ extension DetailsView {
 }
 
 #Preview {
-	DetailsView(item: .init(
+	ItemDetailsView(item: .init(
 		navigationTitle: "New Item",
 		properties: .init(text: "", isSection: false)
 	)

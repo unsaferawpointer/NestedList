@@ -20,8 +20,8 @@ protocol UnitView: AnyObject, ListSupportable {
 	func display(_ state: ContentViewState)
 
 	func showDetails(
-		with model: DetailsView.Model,
-		completionHandler: @escaping (DetailsView.Properties, Bool) -> Void
+		with model: ItemDetailsView.Model,
+		completionHandler: @escaping (ItemDetailsView.Properties, Bool) -> Void
 	)
 	func hideDetails()
 }
@@ -135,7 +135,7 @@ extension ContentViewController: UnitView {
 		}
 	}
 
-	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void) {
+	func showDetails(with model: ItemDetailsView.Model, completionHandler: @escaping (ItemDetailsView.Properties, Bool) -> Void) {
 		router.showDetails(with: model, completionHandler: completionHandler)
 	}
 

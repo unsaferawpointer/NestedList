@@ -267,8 +267,8 @@ private extension ContentPresenter {
 
 		let target = selection.first
 
-		let details = DetailsView.Properties.init(text: localization.newItemText)
-		let model = DetailsView.Model(navigationTitle: localization.newItemDetailsTitle, properties: details)
+		let details = ItemDetailsView.Properties.init(text: localization.newItemText)
+		let model = ItemDetailsView.Model(navigationTitle: localization.newItemDetailsTitle, properties: details)
 		view?.showDetails(with: model) { [weak self] saved, success in
 			self?.view?.hideDetails()
 			if success {
@@ -297,7 +297,7 @@ private extension ContentPresenter {
 		guard let id = selection.first, let item = interactor?.nodes(for: [id]).first?.value else {
 			return
 		}
-		let model = DetailsView.Model(navigationTitle: localization.editItemDetailsTitle, properties: item.details)
+		let model = ItemDetailsView.Model(navigationTitle: localization.editItemDetailsTitle, properties: item.details)
 		view?.showDetails(with: model) { [weak self] saved, success in
 			self?.view?.hideDetails()
 			if success {
@@ -549,7 +549,7 @@ extension Optional<Bool> {
 
 private extension Item {
 
-	var details: DetailsView.Properties {
+	var details: ItemDetailsView.Properties {
 		return .init(
 			text: text,
 			description: note ?? "",

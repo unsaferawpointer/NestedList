@@ -21,11 +21,11 @@ final class Router {
 
 extension Router {
 
-	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void) {
+	func showDetails(with model: ItemDetailsView.Model, completionHandler: @escaping (ItemDetailsView.Properties, Bool) -> Void) {
 
 		let contentViewController = NSHostingController(
 			rootView:
-				DetailsView(item: model, completionHandler: completionHandler)
+				ItemDetailsView(item: model, completionHandler: completionHandler)
 		)
 		contentViewController.title = model.navigationTitle
 		root.presentAsSheet(contentViewController)

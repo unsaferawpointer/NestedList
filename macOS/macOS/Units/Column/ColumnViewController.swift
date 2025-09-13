@@ -19,8 +19,8 @@ protocol ColumnUnitView: AnyObject, ListSupportable {
 	func display(_ model: ColumnModel)
 	func hideDetails()
 	func showDetails(
-		with model: DetailsView.Model,
-		completionHandler: @escaping (DetailsView.Properties, Bool) -> Void
+		with model: ItemDetailsView.Model,
+		completionHandler: @escaping (ItemDetailsView.Properties, Bool) -> Void
 	)
 }
 
@@ -157,7 +157,7 @@ extension ColumnViewController: ColumnUnitView {
 		}
 	}
 
-	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void) {
+	func showDetails(with model: ItemDetailsView.Model, completionHandler: @escaping (ItemDetailsView.Properties, Bool) -> Void) {
 		router.showDetails(with: model, completionHandler: completionHandler)
 	}
 }
