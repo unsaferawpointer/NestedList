@@ -8,15 +8,11 @@
 import Foundation
 import Hierarchy
 
-protocol ContentView: AnyObject {
+protocol ContentView: AnyObject, RouterProtocol {
 
 	func display(_ snapshot: Snapshot<ItemModel>)
 	func display(_ toolbar: ToolbarModel)
 	func setEditing(_ editingMode: EditingMode?)
-
-	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void)
-	func showSettings()
-	func hideDetails()
 
 	func scroll(to id: UUID)
 	func expand(_ id: UUID)

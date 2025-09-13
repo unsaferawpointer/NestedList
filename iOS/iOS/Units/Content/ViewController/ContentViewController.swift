@@ -17,6 +17,12 @@ import UniformTypeIdentifiers
 
 class ContentViewController: UIDocumentViewController {
 
+	// MARK: - DI
+
+	lazy var router: Router = {
+		return Router(root: self)
+	}()
+
 	var delegate: (any ContentViewDelegate<UUID>)?
 
 	// MARK: - Data
@@ -110,6 +116,22 @@ private extension ContentViewController {
 	}
 }
 
+// MARK: - RouterProtocol
+extension ContentViewController: RouterProtocol {
+
+	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void) {
+		router.showDetails(with: model, completionHandler: completionHandler)
+	}
+
+	func showSettings() {
+		router.showSettings()
+	}
+
+	func hideDetails() {
+		router.hideDetails()
+	}
+}
+
 // MARK: - DocumentView
 extension ContentViewController: ContentView {
 
@@ -134,24 +156,6 @@ extension ContentViewController: ContentView {
 			self?.adapter?.apply(newSnapshot: snapshot)
 			self?.setNeedsUpdateContentUnavailableConfiguration()
 		}
-	}
-
-	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void) {
-		let details = DetailsView(item: model, completionHandler: completionHandler)
-		let controller = UIHostingController(rootView: details)
-		present(controller, animated: true)
-	}
-
-	func showSettings() {
-		let settings = SettingsView(provider: SettingsProvider.shared)
-		let controller = UIHostingController(rootView: settings)
-		controller.title = String(localized: "settings-viewcontroller-title", table: "UnitLocalizable")
-		let navigationController = UINavigationController(rootViewController: controller)
-		present(navigationController, animated: true)
-	}
-
-	func hideDetails() {
-		presentedViewController?.dismiss(animated: true)
 	}
 
 	func expand(_ id: UUID) {
