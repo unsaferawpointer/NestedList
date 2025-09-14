@@ -9,9 +9,10 @@ import SwiftUI
 
 @main
 struct MultiplatformApp: App {
-    var body: some Scene {
-        DocumentGroup(newDocument: MultiplatformDocument()) { file in
-            ContentView(document: file.$document)
-        }
-    }
+
+	var body: some Scene {
+		DocumentGroup(newDocument: MultiplatformDocument()) { file in
+			ContentView(document: file.$document)
+		}
+	}
 }

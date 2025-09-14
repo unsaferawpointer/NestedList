@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct ContentView: View {
-    @Binding var document: MultiplatformDocument
+	@Binding var document: MultiplatformDocument
 
-    var body: some View {
-        TextEditor(text: $document.text)
-    }
+	var body: some View {
+		NestedList()
+	}
 }
 
 #Preview {
-    ContentView(document: .constant(MultiplatformDocument()))
+	ContentView(document: .constant(MultiplatformDocument()))
 }
