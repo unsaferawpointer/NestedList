@@ -2,7 +2,7 @@
 //  MultiplatformUITests.swift
 //  MultiplatformUITests
 //
-//  Created by Anton Cherkasov on 05.09.2025.
+//  Created by Anton Cherkasov on 14.09.2025.
 //
 
 import XCTest
