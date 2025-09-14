@@ -16,8 +16,12 @@ nonisolated struct MultiplatformDocument: FileDocument {
     }
 
     static let readableContentTypes = [
-        UTType(importedAs: "com.example.plain-text")
+		UTType(exportedAs: "dev.zeroindex.nested-list.doc", conformingTo: .data)
     ]
+
+	static var writableContentTypes: [UTType] = [
+		UTType(exportedAs: "dev.zeroindex.nested-list.doc", conformingTo: .data)
+	]
 
     init(configuration: ReadConfiguration) throws {
         guard let data = configuration.file.regularFileContents,
