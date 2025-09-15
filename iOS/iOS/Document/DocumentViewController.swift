@@ -6,6 +6,9 @@
 //
 
 import UIKit
+import os.log
+
+import CoreModule
 
 // MARK: - Interfaces
 
@@ -19,14 +22,99 @@ class DocumentViewController: UIDocumentViewController {
 
 	var delegate: DocumentViewDelegate?
 
-	// MARK: - Life-Cycle
+	// MARK: - DI by Initialization
+
+	let localization: AppLocalizable = AppLocalization()
+
+	// MARK: - UIDocumentViewController Life-Cycle
+
+	override func documentDidOpen() {
+		configureViewForCurrentDocument()
+	}
+
+	// MARK: - UIViewController Life-Cycle
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		configureBrowserViewController()
+		configureViewForCurrentDocument()
+	}
+}
 
-		// Do any additional setup after loading the view.
+// MARK: - Helpers
+private extension DocumentViewController {
+
+	func configureBrowserViewController() {
+		if #available(iOS 18.0, *) {
+			launchOptions.browserViewController.allowsDocumentCreation = true
+			launchOptions.browserViewController.allowsPickingMultipleItems = false
+			launchOptions.browserViewController.delegate = self
+		}
+	}
+
+	func configureViewForCurrentDocument() {
+		guard let document = self.document as? Document,
+			  !document.documentState.contains(.closed) && isViewLoaded else {
+			return
+		}
 	}
 }
 
 // MARK: - DocumentView
 extension DocumentViewController: DocumentView { }
+
+// MARK: - UIDocumentBrowserViewControllerDelegate
+extension DocumentViewController: UIDocumentBrowserViewControllerDelegate {
+
+	func documentBrowser(_ controller: UIDocumentBrowserViewController, didPickDocumentsAt documentURLs: [URL]) {
+		guard let url = documentURLs.first else {
+			return
+		}
+		presentDocument(at: url)
+	}
+
+	func documentBrowser(
+		_ controller: UIDocumentBrowserViewController,
+		didRequestDocumentCreationWithHandler importHandler: @escaping (URL?, UIDocumentBrowserViewController.ImportMode) -> Void
+	) {
+		os_log("DocumensManager. Creating A New Document.", log: .default, type: .debug)
+		createDocument(importHandler: importHandler)
+	}
+}
+
+// MARK: - Helpers
+private extension DocumentViewController {
+
+	func createDocument(importHandler: @escaping (URL?, UIDocumentBrowserViewController.ImportMode) -> Void) {
+
+		let fileName = [localization.newFileName, DocumentType.nlist.fileExtension]
+			.joined(separator: ".")
+		let url = FileManager.default.temporaryDirectory
+			.appendingPathComponent(fileName)
+		let doc = Document(fileURL: url)
+
+		doc.save(to: url, for: .forCreating) { (saveSuccess) in
+
+			guard saveSuccess else {
+				os_log("DocumensManager. Unable to create a new document.", log: .default, type: .error)
+				importHandler(nil, .none)
+				return
+			}
+
+			doc.close(completionHandler: { (closeSuccess) in
+
+				guard closeSuccess else {
+					os_log("DocumensManager. Unable to create a new document.", log: .default, type: .error)
+					importHandler(nil, .none)
+					return
+				}
+
+				importHandler(url, .move)
+			})
+		}
+	}
+
+	func presentDocument(at url: URL) {
+
+	}
+}

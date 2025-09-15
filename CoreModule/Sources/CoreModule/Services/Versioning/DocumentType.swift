@@ -13,7 +13,7 @@ public enum DocumentType: String {
 }
 
 // MARK: - Computed properties
-extension DocumentType {
+public extension DocumentType {
 
 	var lastVersion: Version {
 		switch self {
@@ -21,6 +21,13 @@ extension DocumentType {
 			return .init(major: 1)
 		default:
 			fatalError("Can`t support other types")
+		}
+	}
+
+	var fileExtension: String {
+		switch self {
+		case .text: 	"txt"
+		case .nlist: 	"nlist"
 		}
 	}
 }

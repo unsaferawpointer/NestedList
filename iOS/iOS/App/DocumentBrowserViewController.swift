@@ -100,23 +100,11 @@ class DocumentBrowserViewController: UIDocumentBrowserViewController, UIDocument
 
 	// UIDocumentBrowserViewController is telling us to open a selected a document.
 	func documentBrowser(_ controller: UIDocumentBrowserViewController, didPickDocumentsAt documentURLs: [URL]) {
-		
-		if let url = documentURLs.first {
-			os_log("==> didPickDocumentsAt %@.", log: .default, type: .debug, [url])
-
-			if ImportManager.shouldImport(file: url) {
-				ImportManager.importFile(from: url) { document in
-					let tempURL = document.fileURL
-					self.revealDocument(at: document.fileURL, importIfNeeded: true) { url, error in
-						try? FileManager.default.removeItem(at: tempURL)
-					}
-				}
-			} else {
-				presentDocument(at: url)
-			}
-
-
+		os_log("==> didPickDocumentsAt %@.", log: .default, type: .debug, documentURLs)
+		guard let url = documentURLs.first else {
+			return
 		}
+		presentDocument(at: url)
 	}
 
 	// MARK: - Document Presentation
