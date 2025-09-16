@@ -70,7 +70,7 @@ extension DocumentViewController: UIDocumentBrowserViewControllerDelegate {
 		guard let url = documentURLs.first else {
 			return
 		}
-		presentDocument(at: url)
+		presentDocument(at: url, in: controller)
 	}
 
 	func documentBrowser(
@@ -114,7 +114,16 @@ private extension DocumentViewController {
 		}
 	}
 
-	func presentDocument(at url: URL) {
+	func presentDocument(at url: URL, in controller: UIDocumentBrowserViewController) {
+
+		let document = Document(fileURL: url)
+		let rootViewController = DocumentViewController(document: document)
+		let documentViewController = UINavigationController(rootViewController: rootViewController)
+		documentViewController.modalPresentationStyle = .fullScreen
+
+		rootViewController.openDocument { isSuccess in
+			controller.present(documentViewController, animated: true)
+		}
 
 	}
 }
