@@ -27,8 +27,6 @@ class ContentViewController: UIDocumentViewController {
 
 	// MARK: - Data
 
-	var adapter: ListAdapter?
-
 	var toolbarBuilder: ToolbarBuilder<UUID> = ToolbarBuilder<UUID>()
 
 	var listDocument: Document? {
@@ -45,15 +43,8 @@ class ContentViewController: UIDocumentViewController {
 
 	// MARK: - UI-Properties
 
-	lazy var tableView: UITableView = {
-		let tableView = UITableView(frame: .zero, style: .plain)
-		tableView.separatorStyle = .none
-		tableView.showsVerticalScrollIndicator = false
-
-		tableView.allowsMultipleSelection = false
-
-		tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-		return tableView
+	lazy var nestedList: NestedList = {
+		return NestedList(frame: .zero)
 	}()
 
 	// MARK: - View-Controller life - cycle
@@ -93,7 +84,7 @@ class ContentViewController: UIDocumentViewController {
 	}
 
 	override func updateContentUnavailableConfiguration(using state: UIContentUnavailableConfigurationState) {
-		if adapter?.isEmpty ?? true {
+		if nestedList.isEmpty {
 			var configuration = UIContentUnavailableConfiguration.empty()
 			configuration.text = String(localized: "empty-view-placeholder-text", table: "UnitLocalizable")
 			configuration.secondaryText = String(localized: "empty-view-placeholder-secondary-text", table: "UnitLocalizable")
@@ -112,7 +103,7 @@ private extension ContentViewController {
 			return
 		}
 		self.delegate = ContentUnitAssembly.build(self, storage: document.storage)
-		self.adapter = ListAdapter(tableView: tableView, delegate: delegate)
+		self.nestedList.setDelegate(delegate)
 	}
 }
 
@@ -136,7 +127,7 @@ extension ContentViewController: RouterProtocol {
 extension ContentViewController: ContentView {
 
 	func setEditing(_ editingMode: EditingMode?) {
-		self.adapter?.editingMode = editingMode
+		nestedList.setEditing(editingMode)
 	}
 
 	func display(_ toolbar: ToolbarModel) {
@@ -147,31 +138,27 @@ extension ContentViewController: ContentView {
 	}
 
 	var selection: [UUID] {
-		return adapter?.selection ?? []
+		nestedList.selection
 	}
 
 	func display(_ snapshot: Snapshot<ItemModel>) {
-
-		performUpdate { [weak self] in
-			self?.adapter?.apply(newSnapshot: snapshot)
-			self?.setNeedsUpdateContentUnavailableConfiguration()
-		}
+		nestedList.display(snapshot)
 	}
 
 	func expand(_ id: UUID) {
-		adapter?.expand(id)
+		nestedList.expand(id)
 	}
 
 	func scroll(to id: UUID) {
-		adapter?.scroll(to: id)
+		nestedList.scroll(to: id)
 	}
 
 	func expandAll() {
-		adapter?.expandAll()
+		nestedList.expandAll()
 	}
 
 	func collapseAll() {
-		adapter?.collapseAll()
+		nestedList.collapseAll()
 	}
 
 }
@@ -179,29 +166,7 @@ extension ContentViewController: ContentView {
 // MARK: - Helpers
 private extension ContentViewController {
 
-	func performUpdate(_ block: @escaping () -> Void) {
-		if Thread.isMainThread {
-			block()
-		} else {
-			DispatchQueue.main.async {
-				block()
-			}
-		}
-	}
-
 	func configureLayout() {
-		[tableView].forEach {
-			$0.translatesAutoresizingMaskIntoConstraints = false
-			view.addSubview($0)
-		}
-
-		NSLayoutConstraint.activate(
-			[
-				tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-				tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-				tableView.topAnchor.constraint(equalTo: view.topAnchor),
-				tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-			]
-		)
+		nestedList.pin(edges: .all, to: view)
 	}
 }
