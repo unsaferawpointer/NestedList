@@ -195,7 +195,7 @@ extension ToolbarFactory {
 				)
 			]
 		case .reordering:
-			[]
+			[.init(id: "", title: "", content: .flexible)]
 		case nil:
 			[
 				.init(id: "", title: "", content: .flexible),
