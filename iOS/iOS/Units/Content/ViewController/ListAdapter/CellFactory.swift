@@ -48,7 +48,8 @@ extension CellFactory {
 			}
 		} else {
 			if !configuration.isLeaf {
-				let image = UIImage(systemName: "chevron.right")
+				let image = UIImage(systemName: "chevron.right")?
+					.withConfiguration(UIImage.SymbolConfiguration(scale: .small))
 				let imageView = UIImageView(image: image)
 				imageView.contentMode = .center
 				if #available(iOS 26.0, *) {
