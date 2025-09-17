@@ -48,6 +48,11 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		4C0641FF2E7B5641008AC89A /* Resource */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Resource;
+			sourceTree = "<group>";
+		};
 		4C1F87EC2D458C020093C0BC /* macOSUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = macOSUITests;
@@ -127,6 +132,7 @@
 				4CF92CF12CE8CD9600135033 /* macOS.entitlements */,
 				4C2CF87C2D329D7000CA19FB /* macOSRelease.entitlements */,
 				4CF92CED2CE8CD9600135033 /* AppDelegate.swift */,
+				4C0641FF2E7B5641008AC89A /* Resource */,
 				4CF92D222CEA291200135033 /* Common */,
 				4CB8A7562DC3B66700D3F484 /* Units */,
 				4CF92CEE2CE8CD9600135033 /* Assets.xcassets */,
@@ -197,6 +203,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				4C0641FF2E7B5641008AC89A /* Resource */,
 				4CB8A7562DC3B66700D3F484 /* Units */,
 				4CF92D222CEA291200135033 /* Common */,
 			);
@@ -412,7 +419,7 @@
 		4CF92C722CE8A94E00135033 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-alpha";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
