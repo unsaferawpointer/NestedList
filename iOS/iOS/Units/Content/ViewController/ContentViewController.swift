@@ -44,7 +44,7 @@ class ContentViewController: UIDocumentViewController {
 	// MARK: - UI-Properties
 
 	lazy var nestedList: NestedList = {
-		return NestedList(frame: .zero)
+		return NestedList()
 	}()
 
 	// MARK: - View-Controller life - cycle
@@ -131,10 +131,10 @@ extension ContentViewController: ContentView {
 	}
 
 	func display(_ toolbar: ToolbarModel) {
-		let topItems = DesignSystem.ToolbarBuilder.build(from: toolbar.top, delegate: delegate) ?? []
+		let topItems = ToolbarBuilder.build(from: toolbar.top, delegate: delegate) ?? []
 		navigationItem.setRightBarButtonItems(topItems, animated: true)
 
-		toolbarItems = undoRedoItems + (DesignSystem.ToolbarBuilder.build(from: toolbar.bottom, delegate: delegate) ?? [])
+		toolbarItems = undoRedoItems + (ToolbarBuilder.build(from: toolbar.bottom, delegate: delegate) ?? [])
 	}
 
 	var selection: [UUID] {
@@ -143,6 +143,7 @@ extension ContentViewController: ContentView {
 
 	func display(_ snapshot: Snapshot<ItemModel>) {
 		nestedList.display(snapshot)
+		self.setNeedsUpdateContentUnavailableConfiguration()
 	}
 
 	func expand(_ id: UUID) {

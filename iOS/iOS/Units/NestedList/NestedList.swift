@@ -26,6 +26,17 @@ final class NestedList: UIView {
 		tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
 		return tableView
 	}()
+
+	// MARK: - Initialization
+
+	init() {
+		super.init(frame: .zero)
+		configureLayout()
+	}
+	
+	required init?(coder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
+	}
 }
 
 // MARK: - Public Interface
