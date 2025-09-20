@@ -7,7 +7,12 @@
 
 import Foundation
 
-protocol DocumentPresenterProtocol: AnyObject { }
+import CoreModule
+import DesignSystem
+
+protocol DocumentPresenterProtocol: AnyObject {
+	func present(type: Content.ContentView)
+}
 
 final class DocumentPresenter {
 
@@ -20,7 +25,20 @@ final class DocumentPresenter {
 }
 
 // MARK: - DocumentPresenterProtocol
-extension DocumentPresenter: DocumentPresenterProtocol { }
+extension DocumentPresenter: DocumentPresenterProtocol {
+
+	func present(type: Content.ContentView) {
+		view?.showDocument(type: type)
+	}
+}
 
 // MARK: - DocumentViewDelegate
-extension DocumentPresenter: DocumentViewDelegate { }
+extension DocumentPresenter: DocumentViewDelegate {
+
+	func viewDidChange(state: ViewState) {
+		guard .didLoad == state else {
+			return
+		}
+		interactor?.fetchData()
+	}
+}

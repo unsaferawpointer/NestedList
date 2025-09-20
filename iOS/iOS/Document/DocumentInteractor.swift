@@ -7,7 +7,9 @@
 
 import CoreModule
 
-protocol DocumentInteractorProtocol { }
+protocol DocumentInteractorProtocol {
+	func fetchData()
+}
 
 final class DocumentInteractor {
 
@@ -23,10 +25,20 @@ final class DocumentInteractor {
 
 	init(storage: DocumentStorage<Content>) {
 		self.storage = storage
+		storage.addObservation(for: self) { [weak self] content in
+			guard let self else {
+				return
+			}
+			self.presenter?.present(type: content.view)
+		}
 	}
 }
 
 // MARK: - DocumentInteractorProtocol
 extension DocumentInteractor: DocumentInteractorProtocol {
 
+	func fetchData() {
+		let view = storage.state.view
+		presenter?.present(type: view)
+	}
 }

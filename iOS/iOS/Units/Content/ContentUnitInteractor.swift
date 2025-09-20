@@ -50,6 +50,10 @@ final class ContentUnitInteractor {
 			self.presenter?.present(content)
 		}
 	}
+
+	deinit {
+		storage.removeObserver(self)
+	}
 }
 
 // MARK: - ContentInteractorProtocol
