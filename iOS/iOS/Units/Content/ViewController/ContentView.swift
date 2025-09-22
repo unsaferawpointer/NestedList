@@ -7,6 +7,7 @@
 
 import Foundation
 import Hierarchy
+import DesignSystem
 
 protocol ContentView: AnyObject, RouterProtocol {
 

@@ -28,7 +28,7 @@ class DocumentBrowserViewController: UIDocumentBrowserViewController, UIDocument
 		didRequestDocumentCreationWithHandler importHandler: @escaping (URL?, UIDocumentBrowserViewController.ImportMode) -> Void
 	) {
 
-		os_log("==> Creating A New Document.", log: .default, type: .debug)
+		os_log("DocumentBrowserViewController. Creating A New Document.", log: .default, type: .debug)
 
 		let url = FileManager.default.temporaryDirectory.appendingPathComponent("New List.nlist")
 
@@ -39,7 +39,7 @@ class DocumentBrowserViewController: UIDocumentBrowserViewController, UIDocument
 
 			// Make sure the document saved successfully.
 			guard saveSuccess else {
-				os_log("*** Unable to create a new document. ***", log: .default, type: .error)
+				os_log("DocumentBrowserViewController. Unable to create a new document.", log: .default, type: .error)
 
 				// Cancel document creation.
 				importHandler(nil, .none)
@@ -51,7 +51,7 @@ class DocumentBrowserViewController: UIDocumentBrowserViewController, UIDocument
 
 				// Make sure the document closed successfully.
 				guard closeSuccess else {
-					os_log("*** Unable to create a new document. ***", log: .default, type: .error)
+					os_log("DocumentBrowserViewController. Unable to create a new document.", log: .default, type: .error)
 
 					// Cancel document creation.
 					importHandler(nil, .none)
@@ -66,7 +66,7 @@ class DocumentBrowserViewController: UIDocumentBrowserViewController, UIDocument
 
 	// Import a document.
 	func documentBrowser(_ controller: UIDocumentBrowserViewController, didImportDocumentAt sourceURL: URL, toDestinationURL destinationURL: URL) {
-		os_log("==> Imported A Document from %@ to %@.",
+		os_log("DocumentBrowserViewController. Imported A Document from %@ to %@.",
 			   log: .default,
 			   type: .debug,
 			   sourceURL.path,
@@ -100,7 +100,7 @@ class DocumentBrowserViewController: UIDocumentBrowserViewController, UIDocument
 
 	// UIDocumentBrowserViewController is telling us to open a selected a document.
 	func documentBrowser(_ controller: UIDocumentBrowserViewController, didPickDocumentsAt documentURLs: [URL]) {
-		os_log("==> didPickDocumentsAt %@.", log: .default, type: .debug, documentURLs)
+		os_log("DocumentBrowserViewController. didPickDocumentsAt %@.", log: .default, type: .debug, documentURLs)
 		guard let url = documentURLs.first else {
 			return
 		}
@@ -115,7 +115,7 @@ class DocumentBrowserViewController: UIDocumentBrowserViewController, UIDocument
 
 		// Load the document's view controller from the storyboard.
 		let doc = Document(fileURL: documentURL)
-		let documentViewController = ContentViewController(document: doc)
+		let documentViewController = DocumentViewController(document: doc)
 		let docNavController = UINavigationController(rootViewController: documentViewController)
 		docNavController.setNavigationBarHidden(false, animated: true)
 
@@ -132,8 +132,6 @@ class DocumentBrowserViewController: UIDocumentBrowserViewController, UIDocument
 		// Get the transition controller.
 		transitionController = transitionController(forDocumentAt: documentURL)
 
-
-
 		transitionController!.targetView = documentViewController.view
 
 		// Set up the loading animation.
@@ -149,7 +147,7 @@ class DocumentBrowserViewController: UIDocumentBrowserViewController, UIDocument
 				// Remove the loading animation.
 				self.transitionController!.loadingProgress = nil
 
-				os_log("==> Document Opened", log: .default, type: .debug)
+				os_log("DocumentBrowserViewController. Document Opened", log: .default, type: .debug)
 				if let presented = self.presentedViewController {
 					presented.dismiss(animated: true) {
 						self.present(docNavController, animated: true, completion: nil)

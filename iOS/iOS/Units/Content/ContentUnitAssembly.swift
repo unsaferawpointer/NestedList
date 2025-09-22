@@ -11,13 +11,17 @@ import DesignSystem
 
 final class ContentUnitAssembly {
 
-	static func build(_ view: ContentView, storage: DocumentStorage<Content>) -> any ContentViewDelegate<UUID> {
-		let interactor = ContentUnitInteractor(storage: storage)
-		let presenter  = ContentPresenter()
-		presenter.interactor = interactor
-		presenter.view = view
+	static func build(storage: DocumentStorage<Content>) -> TableViewController {
 
-		interactor.presenter = presenter
-		return presenter
+		let interactor = ContentUnitInteractor(storage: storage)
+		let presenter = ContentPresenter()
+
+		return TableViewController { viewController in
+			presenter.interactor = interactor
+			presenter.view = viewController
+			interactor.presenter = presenter
+			viewController.delegate = presenter
+			viewController.nestedList.setDelegate(presenter)
+		}
 	}
 }
