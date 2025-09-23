@@ -11,12 +11,12 @@ import DesignSystem
 
 final class ContentUnitAssembly {
 
-	static func build(storage: DocumentStorage<Content>) -> TableViewController {
+	static func build(for root: UUID? = nil, storage: DocumentStorage<Content>) -> TableViewController {
 
-		let interactor = ContentUnitInteractor(storage: storage)
+		let interactor = ContentUnitInteractor(root: root, storage: storage)
 		let presenter = ContentPresenter()
 
-		return TableViewController { viewController in
+		return TableViewController(id: root) { viewController in
 			presenter.interactor = interactor
 			presenter.view = viewController
 			interactor.presenter = presenter

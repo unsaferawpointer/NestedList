@@ -38,16 +38,22 @@ final class ContentUnitInteractor {
 
 	var base: CommonInteractorProtocol
 
+	// MARK: - Internal State
+
+	private var root: UUID?
+
 	// MARK: - Initialization
 
-	init(storage: DocumentStorage<Content>) {
+	init(root: UUID?, storage: DocumentStorage<Content>) {
 		self.storage = storage
 		self.base = CommonInteractor(storage: storage)
+		self.root = root
 		storage.addObservation(for: self) { [weak self] content in
 			guard let self else {
 				return
 			}
-			self.presenter?.present(content)
+			let nodes = content.root.children(of: self.root)
+			self.presenter?.present(nodes)
 		}
 	}
 
@@ -60,11 +66,19 @@ final class ContentUnitInteractor {
 extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 
 	func fetchData() {
-		presenter?.present(storage.state)
+		presenter?.present(storage.state.root.children(of: root))
 	}
 
 	func newItem(_ text: String, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID {
-		return base.newItem(text, isStrikethrough: nil, note: note, isMarked: isMarked, style: style, target: target)
+		let destination = Destination(target: target)
+		return base.newItem(
+			text,
+			isStrikethrough: nil,
+			note: note,
+			isMarked: isMarked,
+			style: style,
+			target: destination.id
+		)
 	}
 
 	func item(for id: UUID) -> Item {
@@ -139,20 +153,20 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 	}
 
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>) {
-		base.insertStrings(strings, to: destination)
+		base.insertStrings(strings, to: destination.relative(to: root))
 	}
 
 	func insertNodes(_ nodes: [any TreeNode<Item>], to destination: Destination<UUID>) {
 		storage.modificate { content in
-			content.root.insertItems(from: nodes, to: destination)
+			content.root.insertItems(from: nodes, to: destination.relative(to: root))
 		}
 	}
 
 	func move(ids: [UUID], to destination: Destination<UUID>) {
-		base.move(ids, to: destination)
+		base.move(ids, to: destination.relative(to: root))
 	}
 
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
-		base.validateMovement(ids, to: destination)
+		base.validateMovement(ids, to: destination.relative(to: root))
 	}
 }

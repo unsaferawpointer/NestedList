@@ -19,6 +19,8 @@ class TableViewController: UIViewController {
 
 	// MARK: - DI
 
+	let id: UUID?
+
 	lazy var router: Router = {
 		return Router(root: self)
 	}()
@@ -37,7 +39,8 @@ class TableViewController: UIViewController {
 
 	// MARK: - Initialization
 
-	init(configure: (TableViewController) -> Void) {
+	init(id: UUID?, configure: (TableViewController) -> Void) {
+		self.id = id
 		super.init(nibName: nil, bundle: nil)
 		configure(self)
 	}

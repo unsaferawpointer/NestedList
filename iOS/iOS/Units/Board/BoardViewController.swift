@@ -68,14 +68,17 @@ private extension BoardViewController {
 
 	func configureViewController() {
 		self.dataSource = self
+		self.delegate = self
 
-		setViewControllers(
-			[
-				ContentUnitAssembly.build(storage: storage)
-			],
-			direction: .forward,
-			animated: true
-		)
+		if let first = columns.first {
+			setViewControllers(
+				[
+					ContentUnitAssembly.build(for: first, storage: storage)
+				],
+				direction: .forward,
+				animated: true
+			)
+		}
 
 		let item = UIBarButtonItem(customView: pageControl)
 
@@ -97,6 +100,16 @@ extension BoardViewController: BoardView {
 	func display(columns: [UUID]) {
 		self.columns = columns
 
+		if viewControllers == nil || viewControllers?.isEmpty == true, let first = columns.first {
+			setViewControllers(
+				[
+					ContentUnitAssembly.build(for: first, storage: storage)
+				],
+				direction: .forward,
+				animated: true
+			)
+		}
+
 		updatePageControl()
 	}
 }
@@ -108,14 +121,28 @@ extension BoardViewController: UIPageViewControllerDataSource {
 		_ pageViewController: UIPageViewController,
 		viewControllerBefore viewController: UIViewController
 	) -> UIViewController? {
-		ContentUnitAssembly.build(storage: storage)
+		guard
+			let tableController = viewController as? TableViewController,
+			let root = tableController.id, let index = columns.firstIndex(of: root), index > 0
+		else {
+			return nil
+		}
+		let nextIndex = index - 1
+		return ContentUnitAssembly.build(for: columns[nextIndex], storage: storage)
 	}
 	
 	func pageViewController(
 		_ pageViewController: UIPageViewController,
 		viewControllerAfter viewController: UIViewController
 	) -> UIViewController? {
-		ContentUnitAssembly.build(storage: storage)
+		guard
+			let tableController = viewController as? TableViewController,
+			let root = tableController.id, let index = columns.firstIndex(of: root), index < columns.count - 1
+		else {
+			return nil
+		}
+		let nextIndex = index + 1
+		return ContentUnitAssembly.build(for: columns[nextIndex], storage: storage)
 	}
 }
 
@@ -127,6 +154,13 @@ extension BoardViewController: UIPageViewControllerDelegate {
 		previousViewControllers: [UIViewController],
 		transitionCompleted completed: Bool
 	) {
-		
+		guard
+			completed, let current = pageViewController.viewControllers?.first as? TableViewController,
+			let id = current.id, let index = columns.firstIndex(of: id)
+		else {
+			return
+		}
+
+		pageControl.currentPage = index
 	}
 }

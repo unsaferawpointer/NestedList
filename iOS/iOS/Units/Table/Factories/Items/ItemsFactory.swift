@@ -12,7 +12,7 @@ import CoreModule
 import CoreSettings
 
 protocol ItemsFactoryProtocol {
-	func makeItem(item: Item, level: Int, isGroup: Bool, iconColor: IconColor) -> ItemModel
+	func makeItem(item: Item, level: Int, iconColor: IconColor) -> ItemModel
 }
 
 final class ItemsFactory { }
@@ -20,7 +20,7 @@ final class ItemsFactory { }
 // MARK: - ItemsFactoryProtocol
 extension ItemsFactory: ItemsFactoryProtocol {
 
-	func makeItem(item: Item, level: Int, isGroup: Bool, iconColor: IconColor) -> ItemModel {
+	func makeItem(item: Item, level: Int, iconColor: IconColor) -> ItemModel {
 
 		let titleConfiguration: TextConfiguration = switch item.style {
 		case .item:
@@ -49,8 +49,6 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		} else {
 			nil
 		}
-
-		let iconName = item.style.semanticImage
 
 		let iconAppearence: IconAppearence = {
 			switch (item.isStrikethrough, item.isMarked) {
