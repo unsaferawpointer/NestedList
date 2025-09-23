@@ -22,8 +22,9 @@ class BoardViewController: UIPageViewController {
 
 	// MARK: - UI - Properties
 
-	private var pageControl: UIPageControl = {
+	private lazy var pageControl: UIPageControl = {
 		let control = UIPageControl()
+		control.allowsContinuousInteraction = false
 		return control
 	}()
 
@@ -80,13 +81,10 @@ private extension BoardViewController {
 			)
 		}
 
-		let item = UIBarButtonItem(customView: pageControl)
+		let pageControlItem = UIBarButtonItem(customView: pageControl)
 
-		if #available(iOS 26.0, *) {
-			(parent as? ToolbarSupportable)?.displayToolbar(top: [], bottom: [.fixedSpace(), item, .fixedSpace()])
-		} else {
-			// Fallback on earlier versions
-		}
+		(parent as? ToolbarSupportable)?
+			.displayToolbar(top: [], bottom: [.flexibleSpace(), pageControlItem, .flexibleSpace()])
 	}
 
 	func updatePageControl() {
