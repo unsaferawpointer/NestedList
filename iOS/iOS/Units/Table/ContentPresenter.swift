@@ -108,7 +108,7 @@ extension ContentPresenter: ContentPresenterProtocol {
 extension ContentPresenter: ViewDelegate {
 
 	func viewDidChange(state: ViewState) {
-		guard case .didAppear = state else {
+		guard case .didLoad = state else {
 			return
 		}
 		interactor?.fetchData()
