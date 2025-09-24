@@ -53,7 +53,7 @@ extension ToolbarFactory {
 			.init(
 				id: "more",
 				title: "",
-				icon: "ellipsis.circle",
+				icon: "ellipsis",
 				content: .menu(
 					items:
 						[
@@ -189,7 +189,7 @@ extension ToolbarFactory {
 				.init(
 					id: ElementIdentifier.delete.rawValue,
 					title: "",
-					icon: "ellipsis.circle",
+					icon: "ellipsis",
 					content: .menu(items: items),
 					isEnabled: !isEmpty
 				)
