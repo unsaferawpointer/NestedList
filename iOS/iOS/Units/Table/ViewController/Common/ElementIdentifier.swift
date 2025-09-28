@@ -10,6 +10,7 @@ import Foundation
 enum ElementIdentifier: String {
 	case edit
 	case new
+	case move
 	case cut
 	case copy
 	case paste

@@ -148,6 +148,22 @@ extension ToolbarFactory {
 				)
 			),
 			.init(
+				id: "move-reorder-menu",
+				content: .menu(
+					options: .inline,
+					size: .automatic,
+					items:
+						[
+							.init(
+								id: ElementIdentifier.move.rawValue,
+								title: "Move to...",
+								icon: "arrow.left.arrow.right",
+								content: .item(state: .off, attributes: [])
+							)
+						]
+				)
+			),
+			.init(
 				id: ElementIdentifier.strikethrough.rawValue,
 				title: localization.strikethroughItemTitle,
 				content: .item(state: isCompleted.state, attributes: [])

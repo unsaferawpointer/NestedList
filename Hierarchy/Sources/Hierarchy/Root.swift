@@ -60,6 +60,34 @@ public extension Root {
 		}
 	}
 
+	func flattened(condition: (Value) -> Bool) -> [Value] {
+
+		var result: [Value] = []
+
+		for id in nodes.map(\.id) {
+
+			var queue = [id]
+
+			while !queue.isEmpty {
+
+				let current = queue.removeLast()
+
+				guard let node = cache[current], condition(node.value) else {
+					continue
+				}
+
+				result.append(node.value)
+
+				for child in node.children.reversed() {
+					queue.append(child.id)
+				}
+
+			}
+		}
+
+		return result
+	}
+
 	func setProperty<T>(_ keyPath: WritableKeyPath<Value, T>, to value: T, for ids: [ID], downstream: Bool = false) {
 		for id in ids {
 			guard let item = cache[id] else {
@@ -192,6 +220,21 @@ public extension Root {
 
 // MARK: - Support moving
 public extension Root {
+
+	func invalidTargets(movingItems ids: Set<ID>) -> Set<ID> {
+		var result = Set<ID>()
+
+		for id in ids {
+			guard let node = cache[id] else {
+				continue
+			}
+			node.enumerate {
+				result.insert($0.id)
+			}
+		}
+
+		return result
+	}
 
 	func validateMoving(_ ids: [ID], to destination: Destination<ID>) -> Bool {
 		guard let targetId = destination.id, let item = cache[targetId] else {

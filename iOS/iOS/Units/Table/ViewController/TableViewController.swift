@@ -21,10 +21,6 @@ class TableViewController: UIViewController {
 
 	let id: UUID?
 
-	lazy var router: Router = {
-		return Router(root: self)
-	}()
-
 	var delegate: (any ContentViewDelegate<UUID>)?
 
 	// MARK: - Data
@@ -76,22 +72,6 @@ class TableViewController: UIViewController {
 		} else {
 			self.contentUnavailableConfiguration = nil
 		}
-	}
-}
-
-// MARK: - RouterProtocol
-extension TableViewController: RouterProtocol {
-
-	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void) {
-		router.showDetails(with: model, completionHandler: completionHandler)
-	}
-
-	func showSettings() {
-		router.showSettings()
-	}
-
-	func hideDetails() {
-		router.hideDetails()
 	}
 }
 

@@ -8,6 +8,7 @@
 import UIKit
 import SwiftUI
 
+import CoreModule
 import DesignSystem
 import CoreSettings
 
@@ -15,16 +16,21 @@ protocol RouterProtocol {
 	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void)
 	func showSettings()
 	func hideDetails()
+	func showTargetsScreen(for ids: Set<UUID>, completionHandler: @escaping (UUID?, Bool) -> Void)
+	func hideTargetsScreen()
 }
 
 final class Router {
 
 	unowned var root: UIViewController
 
+	unowned var storage: DocumentStorage<Content>
+
 	// MARK: - Initialization
 
-	init(root: UIViewController) {
+	init(root: UIViewController, storage: DocumentStorage<Content>) {
 		self.root = root
+		self.storage = storage
 	}
 }
 
@@ -46,6 +52,21 @@ extension Router: RouterProtocol {
 	}
 
 	func hideDetails() {
+		root.presentedViewController?.dismiss(animated: true)
+	}
+
+	func showTargetsScreen(for ids: Set<UUID>, completionHandler: @escaping (UUID?, Bool) -> Void) {
+		let controller = UIHostingController(
+			rootView: TargetDestionationView(
+				storage: storage,
+				movingItems: ids,
+				completionHandler: completionHandler
+			)
+		)
+		root.present(controller, animated: true)
+	}
+
+	func hideTargetsScreen() {
 		root.presentedViewController?.dismiss(animated: true)
 	}
 }

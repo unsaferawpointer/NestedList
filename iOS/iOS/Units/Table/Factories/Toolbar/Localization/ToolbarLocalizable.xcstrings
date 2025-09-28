@@ -113,6 +113,22 @@
         }
       }
     },
+    "move_menu_item_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move to…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переместить…"
+          }
+        }
+      }
+    },
     "paste_menu_item_title" : {
       "localizations" : {
         "en" : {

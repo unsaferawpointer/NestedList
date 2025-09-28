@@ -9,7 +9,7 @@ import Foundation
 import Hierarchy
 import DesignSystem
 
-protocol ContentView: AnyObject, RouterProtocol {
+protocol ContentView: AnyObject {
 
 	func display(_ snapshot: Snapshot<ItemModel>)
 	func display(_ toolbar: ToolbarModel)

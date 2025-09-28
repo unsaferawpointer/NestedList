@@ -36,6 +36,8 @@ final class ContentPresenter {
 
 	var toolbarFactory = ToolbarFactory()
 
+	var router: RouterProtocol
+
 	var editingMode: EditingMode? {
 		didSet {
 			let selection = view?.selection ?? []
@@ -63,7 +65,11 @@ final class ContentPresenter {
 
 	// MARK: - Initialization
 
-	init(settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared) {
+	init(
+		router: RouterProtocol,
+		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared
+	) {
+		self.router = router
 		self.settingsProvider = settingsProvider
 
 		settingsProvider.addObservation(for: self) { [weak self] settings in
@@ -142,8 +148,8 @@ extension ContentPresenter: InteractionDelegate {
 				return
 			}
 			let model = DetailsView.Model(navigationTitle: "Edit Item", properties: item.details)
-			view?.showDetails(with: model) { [weak self] saved, success in
-				self?.view?.hideDetails()
+			router.showDetails(with: model) { [weak self] saved, success in
+				self?.router.hideDetails()
 				if success {
 					let note = saved.description.isEmpty ? nil : saved.description
 					let style: ItemStyle = saved.isSection ? .section(icon: saved.icon) : .item
@@ -197,13 +203,27 @@ extension ContentPresenter: InteractionDelegate {
 		case .reorder:
 			editingMode = .reordering
 		case .settings:
-			view?.showSettings()
+			router.showSettings()
 		case .done:
 			editingMode = nil
 		case .expandAll:
 			view?.expandAll()
 		case .collapseAll:
 			view?.collapseAll()
+		case .move:
+			router.showTargetsScreen(for: Set(currentSelection ?? [])) { [weak self] target, isSuccess in
+				self?.router.hideTargetsScreen()
+				guard isSuccess else {
+					return
+				}
+				self?.editingMode = nil
+				let destination: Destination<UUID> = if let target {
+					.onItem(with: target)
+				} else {
+					.toRoot
+				}
+				self?.interactor?.move(ids: currentSelection ?? [], to: destination)
+			}
 		}
 	}
 }
@@ -301,8 +321,8 @@ private extension ContentPresenter {
 
 	func createNew(target: UUID?) {
 		let model = DetailsView.Model(navigationTitle: "New Item", properties: .init(text: ""))
-		view?.showDetails(with: model) { [weak self] saved, success in
-			self?.view?.hideDetails()
+		router.showDetails(with: model) { [weak self] saved, success in
+			self?.router.hideDetails()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
 				let style: ItemStyle = saved.isSection ? .section(icon: saved.icon) : .item
