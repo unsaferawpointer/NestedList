@@ -18,6 +18,8 @@ protocol RouterProtocol {
 	func hideDetails()
 	func showTargetsScreen(for ids: Set<UUID>, completionHandler: @escaping (UUID?, Bool) -> Void)
 	func hideTargetsScreen()
+	func showReorderScreen(for item: UUID, completionHandler: @escaping () -> Void)
+	func dismiss()
 }
 
 final class Router {
@@ -67,6 +69,21 @@ extension Router: RouterProtocol {
 	}
 
 	func hideTargetsScreen() {
+		root.presentedViewController?.dismiss(animated: true)
+	}
+
+	func showReorderScreen(for item: UUID, completionHandler: @escaping () -> Void) {
+		let controller = UIHostingController(
+			rootView: ReorderView(
+				item: item,
+				storage: storage,
+				completionHandler: completionHandler
+			)
+		)
+		root.present(controller, animated: true)
+	}
+
+	func dismiss() {
 		root.presentedViewController?.dismiss(animated: true)
 	}
 }

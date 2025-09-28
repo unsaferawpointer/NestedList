@@ -224,6 +224,13 @@ extension ContentPresenter: InteractionDelegate {
 				}
 				self?.interactor?.move(ids: currentSelection ?? [], to: destination)
 			}
+		case .specialReorder:
+			guard let first = selection?.first else {
+				return
+			}
+			router.showReorderScreen(for: first) { [weak self] in
+				self?.router.dismiss()
+			}
 		}
 	}
 }

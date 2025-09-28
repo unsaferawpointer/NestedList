@@ -40,7 +40,8 @@ extension MenuFactory {
 					size: .automatic,
 					items:
 						[
-							buildItem(id: .move, title: localization.moveItemTitle, iconName: "arrow.left.arrow.right")
+							buildItem(id: .move, title: localization.moveItemTitle, iconName: "arrow.left.arrow.right"),
+							buildItem(id: .specialReorder, title: "Reorder...", iconName: "arrow.up.arrow.down")
 						]
 				)
 			),
