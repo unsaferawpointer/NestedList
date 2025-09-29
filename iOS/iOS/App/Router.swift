@@ -15,9 +15,7 @@ import CoreSettings
 protocol RouterProtocol {
 	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void)
 	func showSettings()
-	func hideDetails()
 	func showTargetsScreen(for ids: Set<UUID>, completionHandler: @escaping (UUID?, Bool) -> Void)
-	func hideTargetsScreen()
 	func showReorderScreen(for item: UUID, completionHandler: @escaping () -> Void)
 	func dismiss()
 }
@@ -53,10 +51,6 @@ extension Router: RouterProtocol {
 		root.present(navigationController, animated: true)
 	}
 
-	func hideDetails() {
-		root.presentedViewController?.dismiss(animated: true)
-	}
-
 	func showTargetsScreen(for ids: Set<UUID>, completionHandler: @escaping (UUID?, Bool) -> Void) {
 		let controller = UIHostingController(
 			rootView: TargetDestionationView(
@@ -66,10 +60,6 @@ extension Router: RouterProtocol {
 			)
 		)
 		root.present(controller, animated: true)
-	}
-
-	func hideTargetsScreen() {
-		root.presentedViewController?.dismiss(animated: true)
 	}
 
 	func showReorderScreen(for item: UUID, completionHandler: @escaping () -> Void) {

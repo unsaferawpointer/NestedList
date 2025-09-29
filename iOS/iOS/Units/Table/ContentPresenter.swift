@@ -149,7 +149,7 @@ extension ContentPresenter: InteractionDelegate {
 			}
 			let model = DetailsView.Model(navigationTitle: "Edit Item", properties: item.details)
 			router.showDetails(with: model) { [weak self] saved, success in
-				self?.router.hideDetails()
+				self?.router.dismiss()
 				if success {
 					let note = saved.description.isEmpty ? nil : saved.description
 					let style: ItemStyle = saved.isSection ? .section(icon: saved.icon) : .item
@@ -212,7 +212,7 @@ extension ContentPresenter: InteractionDelegate {
 			view?.collapseAll()
 		case .move:
 			router.showTargetsScreen(for: Set(currentSelection ?? [])) { [weak self] target, isSuccess in
-				self?.router.hideTargetsScreen()
+				self?.router.dismiss()
 				guard isSuccess else {
 					return
 				}
@@ -329,7 +329,7 @@ private extension ContentPresenter {
 	func createNew(target: UUID?) {
 		let model = DetailsView.Model(navigationTitle: "New Item", properties: .init(text: ""))
 		router.showDetails(with: model) { [weak self] saved, success in
-			self?.router.hideDetails()
+			self?.router.dismiss()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
 				let style: ItemStyle = saved.isSection ? .section(icon: saved.icon) : .item
