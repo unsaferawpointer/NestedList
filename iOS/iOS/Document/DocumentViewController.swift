@@ -93,11 +93,17 @@ extension DocumentViewController: DocumentView {
 		} else if let content {
 			remove(content)
 
-			let viewController = ContentUnitAssembly.build(storage: document.storage)
+			let viewController = ContentUnitAssembly.build(
+				router: Router(root: self, storage: document.storage),
+				storage: document.storage
+			)
 			addContent(viewController)
 			self.content = viewController
 		} else {
-			let viewController = ContentUnitAssembly.build(storage: document.storage)
+			let viewController = ContentUnitAssembly.build(
+				router: Router(root: self, storage: document.storage),
+				storage: document.storage
+			)
 			addContent(viewController)
 			self.content = viewController
 		}

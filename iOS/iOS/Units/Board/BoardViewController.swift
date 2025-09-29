@@ -36,9 +36,12 @@ class BoardViewController: UIPageViewController {
 
 	let storage: DocumentStorage<Content>
 
+	let router: RouterProtocol
+
 	// MARK: - Initialization
 
-	init(storage: DocumentStorage<Content>, configure: (BoardViewController) -> Void) {
+	init(router: RouterProtocol, storage: DocumentStorage<Content>, configure: (BoardViewController) -> Void) {
+		self.router = router
 		self.storage = storage
 		super.init(
 			transitionStyle: .scroll,
@@ -74,7 +77,7 @@ private extension BoardViewController {
 		if let first = columns.first {
 			setViewControllers(
 				[
-					ContentUnitAssembly.build(for: first, storage: storage)
+					ContentUnitAssembly.build(for: first, router: router, storage: storage)
 				],
 				direction: .forward,
 				animated: true
@@ -101,7 +104,7 @@ extension BoardViewController: BoardView {
 		if viewControllers == nil || viewControllers?.isEmpty == true, let first = columns.first {
 			setViewControllers(
 				[
-					ContentUnitAssembly.build(for: first, storage: storage)
+					ContentUnitAssembly.build(for: first, router: router, storage: storage)
 				],
 				direction: .forward,
 				animated: true
@@ -126,7 +129,7 @@ extension BoardViewController: UIPageViewControllerDataSource {
 			return nil
 		}
 		let nextIndex = index - 1
-		return ContentUnitAssembly.build(for: columns[nextIndex], storage: storage)
+		return ContentUnitAssembly.build(for: columns[nextIndex], router: router, storage: storage)
 	}
 	
 	func pageViewController(
@@ -140,7 +143,7 @@ extension BoardViewController: UIPageViewControllerDataSource {
 			return nil
 		}
 		let nextIndex = index + 1
-		return ContentUnitAssembly.build(for: columns[nextIndex], storage: storage)
+		return ContentUnitAssembly.build(for: columns[nextIndex], router: router, storage: storage)
 	}
 }
 
