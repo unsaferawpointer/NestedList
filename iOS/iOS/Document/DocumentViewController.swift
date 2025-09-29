@@ -25,6 +25,10 @@ class DocumentViewController: UIDocumentViewController {
 
 	private var undoRedoItems: [UIBarButtonItem] = []
 
+	// MARK: - DI by Initialization
+
+	var router: RouterProtocol?
+
 	// MARK: - DI by Property
 
 	var delegate: DocumentViewDelegate?
@@ -42,18 +46,6 @@ class DocumentViewController: UIDocumentViewController {
 		configureViewForCurrentDocument()
 
 		self.undoRedoItems = undoRedoItemGroup.barButtonItems
-	}
-
-	override func viewDidDisappear(_ animated: Bool) {
-		super.viewDidDisappear(animated)
-
-		document?.close { (success) in
-			guard success else {
-				fatalError( "*** Error closing document ***")
-			}
-
-			os_log("DocumentViewController. Document saved and closed", log: .default, type: .debug)
-		}
 	}
 }
 
@@ -84,7 +76,11 @@ extension DocumentViewController: DocumentView {
 
 	func showDocument(type: Content.ContentView) {
 
-		guard let document = self.document as? Document else {
+		if !Thread.isMainThread {
+			os_log("DocumentViewController. ShowDocument: Is not main Thread", log: .default, type: .error)
+		}
+
+		guard let document = self.document as? Document, let router else {
 			return
 		}
 
@@ -93,17 +89,11 @@ extension DocumentViewController: DocumentView {
 		} else if let content {
 			remove(content)
 
-			let viewController = ContentUnitAssembly.build(
-				router: Router(root: self, storage: document.storage),
-				storage: document.storage
-			)
+			let viewController = ContentUnitAssembly.build(router: router, storage: document.storage)
 			addContent(viewController)
 			self.content = viewController
 		} else {
-			let viewController = ContentUnitAssembly.build(
-				router: Router(root: self, storage: document.storage),
-				storage: document.storage
-			)
+			let viewController = ContentUnitAssembly.build(router: router, storage: document.storage)
 			addContent(viewController)
 			self.content = viewController
 		}

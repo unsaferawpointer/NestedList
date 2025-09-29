@@ -30,6 +30,7 @@ public extension ToolbarBuilder {
 				primaryAction: action
 			)
 			if #available(iOS 26.0, *) {
+				result.identifier = item.id
 				result.style = item.isPrimaryAction ? .prominent : .plain
 			}
 			result.isEnabled = item.isEnabled

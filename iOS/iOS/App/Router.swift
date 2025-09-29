@@ -13,7 +13,11 @@ import DesignSystem
 import CoreSettings
 
 protocol RouterProtocol {
-	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void)
+	func showDetails(
+		with model: DetailsView.Model,
+		animateBottomBarItem barItem: String?,
+		completionHandler: @escaping (DetailsView.Properties, Bool) -> Void
+	)
 	func showSettings()
 	func showTargetsScreen(for ids: Set<UUID>, completionHandler: @escaping (UUID?, Bool) -> Void)
 	func showReorderScreen(for item: UUID, completionHandler: @escaping () -> Void)
@@ -37,9 +41,22 @@ final class Router {
 // MARK: - RouterProtocol
 extension Router: RouterProtocol {
 
-	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (DetailsView.Properties, Bool) -> Void) {
+	func showDetails(
+		with model: DetailsView.Model,
+		animateBottomBarItem barItem: String?,
+		completionHandler: @escaping (DetailsView.Properties, Bool) -> Void
+	) {
 		let details = DetailsView(item: model, completionHandler: completionHandler)
 		let controller = UIHostingController(rootView: details)
+
+		if #available(iOS 26.0, *) {
+			if let barItem, let toolbarItem = root.toolbarItems?.first(where: { $0.identifier == barItem} ) {
+				controller.preferredTransition = .zoom { context in
+					return toolbarItem
+				}
+			}
+		}
+
 		root.present(controller, animated: true)
 	}
 

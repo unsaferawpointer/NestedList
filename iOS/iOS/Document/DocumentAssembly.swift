@@ -9,10 +9,12 @@ import CoreModule
 
 final class DocumentAssembly {
 
-	static func build(_ view: DocumentView, storage: DocumentStorage<Content>) -> any DocumentViewDelegate {
+	static func build(_ view: DocumentViewController, storage: DocumentStorage<Content>) -> any DocumentViewDelegate {
 
 		let interactor = DocumentInteractor(storage: storage)
 		let presenter  = DocumentPresenter()
+
+		view.router = Router(root: view, storage: storage)
 
 		presenter.interactor = interactor
 		presenter.view = view

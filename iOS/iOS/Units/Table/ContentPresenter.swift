@@ -148,7 +148,7 @@ extension ContentPresenter: InteractionDelegate {
 				return
 			}
 			let model = DetailsView.Model(navigationTitle: "Edit Item", properties: item.details)
-			router.showDetails(with: model) { [weak self] saved, success in
+			router.showDetails(with: model, animateBottomBarItem: ElementIdentifier.new.rawValue) { [weak self] saved, success in
 				self?.router.dismiss()
 				if success {
 					let note = saved.description.isEmpty ? nil : saved.description
@@ -328,7 +328,7 @@ private extension ContentPresenter {
 
 	func createNew(target: UUID?) {
 		let model = DetailsView.Model(navigationTitle: "New Item", properties: .init(text: ""))
-		router.showDetails(with: model) { [weak self] saved, success in
+		router.showDetails(with: model, animateBottomBarItem: ElementIdentifier.new.rawValue) { [weak self] saved, success in
 			self?.router.dismiss()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
