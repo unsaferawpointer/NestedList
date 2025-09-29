@@ -11,6 +11,7 @@ import AppKit
 import DesignSystem
 import CoreModule
 import CoreSettings
+import CorePresentation
 
 protocol ItemsFactoryProtocol {
 	func makeItem(item: Item, level: Int, iconColor: IconColor) -> ItemModel

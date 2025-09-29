@@ -6,13 +6,13 @@
 //
 
 import Foundation
+import AppKit
 
 import CoreModule
 import DesignSystem
 import Hierarchy
 import CoreSettings
-
-import AppKit
+import CorePresentation
 
 protocol ContentPresenterProtocol: AnyObject {
 	func present(_ content: Content)

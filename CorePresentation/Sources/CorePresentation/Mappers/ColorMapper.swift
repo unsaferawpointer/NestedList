@@ -1,16 +1,16 @@
 //
 //  ColorMapper.swift
-//  Nested List
+//  CorePresentation
 //
-//  Created by Anton Cherkasov on 13.05.2025.
+//  Created by Anton Cherkasov on 29.09.2025.
 //
 
 import CoreModule
 import DesignSystem
 
-final class ColorMapper {
+public final class ColorMapper {
 
-	static func map(color: ItemColor?) -> ColorToken {
+	public static func map(color: ItemColor?) -> ColorToken {
 		guard let color else {
 			return .tertiary
 		}
@@ -39,7 +39,7 @@ final class ColorMapper {
 		}
 	}
 
-	static func map(token: ColorToken?) -> ItemColor? {
+	public static func map(token: ColorToken?) -> ItemColor? {
 		guard let token else {
 			return .tertiary
 		}

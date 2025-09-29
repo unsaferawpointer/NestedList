@@ -20,6 +20,9 @@
       location = "group:DesignSystem">
    </FileRef>
    <FileRef
+      location = "group:CorePresentation">
+   </FileRef>
+   <FileRef
       location = "group:iOS/iOS.xcodeproj">
    </FileRef>
    <FileRef

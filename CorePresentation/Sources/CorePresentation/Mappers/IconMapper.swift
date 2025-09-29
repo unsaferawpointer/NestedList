@@ -1,24 +1,23 @@
 //
 //  IconMapper.swift
-//  iOS
+//  CorePresentation
 //
-//  Created by Anton Cherkasov on 04.05.2025.
+//  Created by Anton Cherkasov on 29.09.2025.
 //
 
 import CoreModule
-import CoreSettings
 import DesignSystem
 
-final class IconMapper {
+public final class IconMapper {
 
-	static func map(icon: IconName?, filled: Bool) -> SemanticImage? {
+	public static func map(icon: IconName?, filled: Bool) -> SemanticImage? {
 		guard let icon else {
 			return nil
 		}
 		return map(icon: icon)
 	}
 
-	static func map(icon: IconName) -> SemanticImage {
+	public static func map(icon: IconName) -> SemanticImage {
 		return switch icon {
 		case .document:			.textDoc()
 		case .documents:		.docOnDoc()
@@ -35,7 +34,7 @@ final class IconMapper {
 		}
 	}
 
-	static func map(icon: SemanticImage?) -> IconName {
+	public static func map(icon: SemanticImage?) -> IconName {
 		guard let icon else {
 			return .document
 		}

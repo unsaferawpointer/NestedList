@@ -8,6 +8,7 @@
 import Cocoa
 import CoreModule
 import DesignSystem
+import CorePresentation
 
 protocol MenuBuilderProtocol {
 	static func build(for items: [ElementIdentifier], target: AnyObject?) -> NSMenu

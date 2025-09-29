@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import SwiftUI
+
 import DesignSystem
 
 final class CellFactory {
@@ -31,9 +33,14 @@ extension CellFactory {
 		in table: UITableView,
 		editingMode: EditingMode?
 	) {
-		cell.contentConfiguration = table.isEditing && editingMode == .selection
-			? model.selectionConfiguration
-			: model.configuration
+
+		cell.contentConfiguration = UIHostingConfiguration {
+			ItemView(model: .init(id: model.id as! UUID, title: model.configuration.text ?? "gfdgfd", textStyle: .headline, icon: .book(filled: false)))
+		}
+
+//		cell.contentConfiguration = table.isEditing && editingMode == .selection
+//			? model.selectionConfiguration
+//			: model.configuration
 	}
 
 	static func updateCell(_ cell: any ListCell, with configuration: RowConfiguration) {
