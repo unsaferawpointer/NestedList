@@ -59,7 +59,7 @@ extension DetailsView: View {
 
 				ToolbarItem(placement: .confirmationAction) {
 					if #available(iOS 26.0, *) {
-						Button(strings.saveButtonTitle, role: .confirm) {
+						Button(strings.saveButtonTitle, role: isValid ? .confirm : .none) {
 							completionHandler(model.properties, true)
 						}
 						.disabled(!isValid)
