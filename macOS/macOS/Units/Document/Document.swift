@@ -56,7 +56,7 @@ class Document: NSDocument {
 		// Returns the Storyboard that contains your Document window.
 		let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
 		let windowController = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Document Window Controller")) as! NSWindowController
-		windowController.contentViewController = DocumentAssembly.build(storage: storage, for: storage.state.view)
+		windowController.contentViewController = DocumentAssembly.build(storage: storage, for: .list)
 
 		windowController.window?.toolbar = toolbar
 		windowController.window?.toolbar?.delegate = self
@@ -120,11 +120,11 @@ private extension Document {
 extension Document: NSToolbarDelegate {
 
 	func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-		return [.viewItem, .space, .newItem]
+		return [.space, .newItem]
 	}
 
 	func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-		return [.viewItem, .space, .newItem]
+		return [.space, .newItem]
 	}
 
 	func toolbar(
