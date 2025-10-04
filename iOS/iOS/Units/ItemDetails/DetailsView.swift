@@ -99,6 +99,9 @@ private extension DetailsView {
 					focusedField = .note
 				}
 				.accessibilityIdentifier("textfield-title")
+				.onAppear {
+					focusedField = .title
+				}
 		} footer: {
 			if !isValid {
 				Text(strings.warningText)
@@ -116,14 +119,6 @@ private extension DetailsView {
 			.foregroundStyle(.secondary)
 			.submitLabel(.return)
 			.accessibilityIdentifier("textfield-description")
-		.onSubmit {
-			switch focusedField {
-			case .title:
-				focusedField = .note
-			default:
-				focusedField = nil
-			}
-		}
 	}
 
 	@ViewBuilder
