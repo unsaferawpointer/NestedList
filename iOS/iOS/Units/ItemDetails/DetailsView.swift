@@ -99,16 +99,6 @@ private extension DetailsView {
 					focusedField = .note
 				}
 				.accessibilityIdentifier("textfield-title")
-			TextField(
-				strings.notePlaceholder,
-				text: $model.properties.description,
-				axis: .vertical
-			)
-				.focused($focusedField, equals: .note)
-				.font(.callout)
-				.foregroundStyle(.secondary)
-				.submitLabel(.return)
-				.accessibilityIdentifier("textfield-description")
 		} footer: {
 			if !isValid {
 				Text(strings.warningText)
@@ -116,6 +106,16 @@ private extension DetailsView {
 					.accessibilityIdentifier("label-hint")
 			}
 		}
+		TextField(
+			strings.notePlaceholder,
+			text: $model.properties.description,
+			axis: .vertical
+		)
+			.focused($focusedField, equals: .note)
+			.font(.callout)
+			.foregroundStyle(.secondary)
+			.submitLabel(.return)
+			.accessibilityIdentifier("textfield-description")
 		.onSubmit {
 			switch focusedField {
 			case .title:
