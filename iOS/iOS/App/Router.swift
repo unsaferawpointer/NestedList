@@ -48,6 +48,7 @@ extension Router: RouterProtocol {
 	) {
 		let details = DetailsView(item: model, completionHandler: completionHandler)
 		let controller = UIHostingController(rootView: details)
+		controller.modalPresentationStyle = .formSheet
 
 		if #available(iOS 26.0, *) {
 			if let barItem, let toolbarItem = root.toolbarItems?.first(where: { $0.identifier == barItem} ) {
@@ -63,6 +64,7 @@ extension Router: RouterProtocol {
 	func showSettings() {
 		let settings = SettingsView(provider: SettingsProvider.shared)
 		let controller = UIHostingController(rootView: settings)
+		controller.modalPresentationStyle = .formSheet
 		controller.title = String(localized: "settings-viewcontroller-title", table: "UnitLocalizable")
 		let navigationController = UINavigationController(rootViewController: controller)
 		root.present(navigationController, animated: true)
@@ -76,6 +78,7 @@ extension Router: RouterProtocol {
 				completionHandler: completionHandler
 			)
 		)
+		controller.modalPresentationStyle = .formSheet
 		root.present(controller, animated: true)
 	}
 
@@ -87,6 +90,7 @@ extension Router: RouterProtocol {
 				completionHandler: completionHandler
 			)
 		)
+		controller.modalPresentationStyle = .formSheet
 		root.present(controller, animated: true)
 	}
 
