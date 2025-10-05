@@ -41,7 +41,7 @@ extension MenuFactory {
 					items:
 						[
 							buildItem(id: .move, title: localization.moveItemTitle, iconName: "arrow.left.arrow.right"),
-							buildItem(id: .specialReorder, title: "Reorder...", iconName: "arrow.up.arrow.down")
+							buildItem(id: .specialReorder, title: localization.reorderItemTitle, iconName: "arrow.up.arrow.down")
 						]
 				)
 			),

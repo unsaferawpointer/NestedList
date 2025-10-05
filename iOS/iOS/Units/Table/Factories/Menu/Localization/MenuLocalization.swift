@@ -16,6 +16,7 @@ protocol MenuLocalizationProtocol {
 	var markedItemTitle: String { get }
 	var sectionItemTitle: String { get }
 	var deleteItemTitle: String { get }
+	var reorderItemTitle: String { get }
 }
 
 final class MenuLocalization { }
@@ -61,5 +62,9 @@ extension MenuLocalization: MenuLocalizationProtocol {
 	
 	var deleteItemTitle: String {
 		String(localized: "delete_menu_item_title", table: "MenuLocalizable")
+	}
+
+	var reorderItemTitle: String {
+		String(localized: "reorder_menu_item_title", table: "MenuLocalizable")
 	}
 }
