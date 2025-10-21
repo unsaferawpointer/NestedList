@@ -22,7 +22,7 @@ final class SettingsViewModel: ObservableObject {
 			provider.state = value
 		}
 
-		provider.addObservation(for: self) { [weak self] _, state in
+		provider.addObservation(for: self) { [weak self] state in
 			self?.settings = state
 		}
 	}

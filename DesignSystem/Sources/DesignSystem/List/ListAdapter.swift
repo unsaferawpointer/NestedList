@@ -32,6 +32,8 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		}
 	}
 
+	unowned var tableView: NSOutlineView
+
 	// MARK: - Delegates
 
 	public weak var delegate: (any ListDelegate<ID>)? {
@@ -72,6 +74,7 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 	public init(tableView: NSOutlineView) {
 		self.proxy = .init(tableView: tableView)
+		self.tableView = tableView
 		super.init()
 
 		tableView.dataSource = self
@@ -159,7 +162,10 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 	@objc
 	func handleDoubleClick(_ sender: Any?) {
-		proxy.handleDoubleClick()
+		guard let item = tableView.clickedItem(with: ListAdapterProxy<Model>.Item.self) else {
+			return
+		}
+		proxy.handleDoubleClick(basicId: item.id)
 	}
 
 	// MARK: - Menu Support

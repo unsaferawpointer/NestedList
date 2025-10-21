@@ -6,16 +6,17 @@
 //
 
 import Foundation
+import AppKit
 
 import CoreModule
 import DesignSystem
 import Hierarchy
 import CoreSettings
-
-import AppKit
+import CorePresentation
 
 protocol ContentPresenterProtocol: AnyObject {
 	func present(_ content: Content)
+	func present(_ nodes: [Node<Item>])
 }
 
 final class ContentPresenter {
@@ -49,9 +50,13 @@ final class ContentPresenter {
 		self.settingsProvider = settingsProvider
 		self.localization = localization
 
-		settingsProvider.addObservation(for: self) { [weak self] _, settings in
+		settingsProvider.addObservation(for: self) { [weak self] settings in
 			self?.interactor?.fetchData()
 		}
+	}
+
+	deinit {
+		settingsProvider.removeObserver(self)
 	}
 }
 
@@ -59,8 +64,13 @@ final class ContentPresenter {
 extension ContentPresenter: ContentPresenterProtocol {
 
 	func present(_ content: Content) {
+		let nodes = content.root.nodes
+		present(nodes)
+	}
 
-		var snapshot = Snapshot(content.root.nodes)
+	func present(_ nodes: [Node<Item>]) {
+
+		var snapshot = Snapshot(nodes)
 		snapshot.validate(keyPath: \.isStrikethrough)
 		snapshot.validate(keyPath: \.isMarked)
 
@@ -82,7 +92,17 @@ extension ContentPresenter: ContentPresenterProtocol {
 			)
 		}
 
-		view?.display(converted)
+		guard !converted.identifiers.isEmpty else {
+			let placeholderModel: PlaceholderModel = .init(
+				icon: "shippingbox",
+				title: localization.placeholderTitle,
+				subtitle: localization.placeholderDescription
+			)
+			view?.display(.placeholder(model: placeholderModel))
+			return
+		}
+
+		view?.display(.list(snapshot: converted))
 	}
 }
 
@@ -111,8 +131,14 @@ extension ContentPresenter: ViewDelegate {
 // MARK: - UnitViewOutput
 extension ContentPresenter: UnitViewOutput {
 
+	func configure(for root: UUID?) {
+		interactor?.configure(for: root)
+	}
+
 	func menuItems() -> [ElementIdentifier] {
 		return [.newItem,
+				.separator,
+				.edit,
 				.separator,
 				.completed, .marked, .section,
 				.separator,
@@ -124,6 +150,12 @@ extension ContentPresenter: UnitViewOutput {
 	}
 
 	func isHidden(_ item: ElementIdentifier) -> Bool {
+		guard item != .paste else {
+			let types = Set([stringType, itemType])
+			let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
+			return !pasteboard.contains(types)
+		}
+
 		guard let selection = view?.selection else {
 			return false
 		}
@@ -148,6 +180,7 @@ extension ContentPresenter: UnitViewOutput {
 		case .completed:	toggleStrikethrough(for: selection)
 		case .marked:		toggleMark(for: selection)
 		case .note:			toggleNote(for: selection)
+		case .edit:			editItem(with: selection)
 		case .delete:		delete(ids: selection)
 		case .cut:			cut(ids: selection)
 		case .copy:			copy(ids: selection)
@@ -179,7 +212,7 @@ extension ContentPresenter: UnitViewOutput {
 		case .newItem:
 			return true
 		case .paste:
-			let types = Set([stringType])
+			let types = Set([stringType, itemType])
 			let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
 			return pasteboard.contains(types)
 		case .noIcon:
@@ -231,17 +264,56 @@ extension ContentPresenter: UnitViewOutput {
 private extension ContentPresenter {
 
 	func newItem(in selection: [UUID]) {
-		guard let interactor else {
+
+		let target = selection.first
+
+		let details = ItemDetailsView.Properties.init(text: localization.newItemText)
+		let model = ItemDetailsView.Model(navigationTitle: localization.newItemDetailsTitle, properties: details)
+		view?.showDetails(with: model) { [weak self] saved, success in
+			self?.view?.hideDetails()
+			if success {
+				let note = saved.description.isEmpty ? nil : saved.description
+				let style: ItemStyle = saved.isSection ? .section(icon: saved.icon) : .item
+
+				guard let id = self?.interactor?.newItem(
+					saved.text,
+					isStrikethrough: saved.isStrikethrough,
+					note: note,
+					isMarked: saved.isMarked,
+					style: style,
+					target: target
+				) else {
+					return
+				}
+				if let target {
+					self?.view?.expand([target])
+				}
+				self?.view?.scroll(to: id)
+			}
+		}
+	}
+
+	func editItem(with selection: [UUID]) {
+		guard let id = selection.first, let item = interactor?.nodes(for: [id]).first?.value else {
 			return
 		}
-		let first = selection.first
-		let id = interactor.newItem(localization.newItemText, target: first)
+		let model = ItemDetailsView.Model(navigationTitle: localization.editItemDetailsTitle, properties: item.details)
+		view?.showDetails(with: model) { [weak self] saved, success in
+			self?.view?.hideDetails()
+			if success {
+				let note = saved.description.isEmpty ? nil : saved.description
+				let style: ItemStyle = saved.isSection ? .section(icon: saved.icon) : .item
 
-		view?.scroll(to: id)
-		if let first {
-			view?.expand([first])
+				self?.interactor?.set(
+					saved.text,
+					isStrikethrough: saved.isStrikethrough,
+					note: note,
+					isMarked: saved.isMarked,
+					style: style,
+					for: id
+				)
+			}
 		}
-		view?.focus(on: id, key: "title")
 	}
 
 	func toggleStrikethrough(for ids: [UUID]) {
@@ -281,19 +353,11 @@ private extension ContentPresenter {
 
 	func cut(ids: [UUID]) {
 		guard
-			let selection = view?.selection,
-			let interactor, !selection.isEmpty
+			let selection = view?.selection, let interactor, !selection.isEmpty,
+			let info = pasteboardInfo(for: selection)
 		else {
 			return
 		}
-
-		let strings = interactor.strings(for: selection)
-
-		let items = strings.map { string in
-			PasteboardInfo.Item(string: string)
-		}
-
-		let info = PasteboardInfo(items: items)
 
 		let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
 		pasteboard.setInfo(info, clearContents: true)
@@ -301,22 +365,15 @@ private extension ContentPresenter {
 	}
 
 	func copy(ids: [UUID]) {
-		guard
-			let selection = view?.selection,
-			let interactor, !selection.isEmpty
-		else {
+		guard let selection = view?.selection, !selection.isEmpty else {
 			return
 		}
 
-		let strings = interactor.strings(for: selection)
-
-		let items = strings.map { string in
-			PasteboardInfo.Item(string: string)
+		guard let info = pasteboardInfo(for: selection) else {
+			return
 		}
 
-		let info = PasteboardInfo(items: items)
-
-		let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
+		let pasteboard = Pasteboard(pasteboard: .general)
 		pasteboard.setInfo(info, clearContents: true)
 	}
 
@@ -335,13 +392,17 @@ private extension ContentPresenter {
 			.toRoot
 		}
 
-		let strings = info.items.compactMap { item in
-			item.data[stringType]
-		}.compactMap { data in
-			String(data: data, encoding: .utf8)
+		if info.containsInfo(of: itemType) {
+			let data = info.items.compactMap { item in
+				item.data[itemType]
+			}
+			interactor?.insertItems(data, to: destination)
+		} else {
+			let data = info.items.compactMap { item in
+				item.data[stringType]
+			}
+			interactor?.insertStrings(data, to: destination)
 		}
-
-		interactor?.insertStrings(strings, to: destination)
 	}
 }
 
@@ -389,25 +450,10 @@ extension ContentPresenter: DropDelegate {
 extension ContentPresenter: DragDelegate {
 
 	func write(ids: [UUID], to pasteboard: any PasteboardProtocol) {
-		guard let nodes = interactor?.nodes(for: ids) else {
+		guard let info = pasteboardInfo(for: ids) else {
 			return
 		}
 
-		let encoder = JSONEncoder()
-		let parser = Parser()
-
-
-		let items = nodes.map {
-			PasteboardInfo.Item(
-				data:
-					[
-						itemType : (try? encoder.encode($0)) ?? Data(),
-						stringType: parser.format($0).data(using: .utf8) ?? Data()
-					]
-			)
-		}
-
-		let info = PasteboardInfo(items: items)
 		pasteboard.setInfo(info, clearContents: false)
 	}
 
@@ -431,7 +477,30 @@ extension ContentPresenter: CellDelegate {
 		interactor?.set(text: newValue.title, note: note, for: id)
 	}
 }
-extension ContentPresenter {
+
+// MARK: - Helpers
+private extension ContentPresenter {
+
+	func pasteboardInfo(for ids: [UUID]) -> PasteboardInfo? {
+		guard let nodes = interactor?.nodes(for: ids) else {
+			return nil
+		}
+
+		let encoder = JSONEncoder()
+		let parser = Parser()
+
+		let items = nodes.map {
+			PasteboardInfo.Item(
+				data:
+					[
+						itemType : (try? encoder.encode($0)) ?? Data(),
+						stringType: parser.format($0).data(using: .utf8) ?? Data()
+					]
+			)
+		}
+
+		return PasteboardInfo(items: items)
+	}
 
 	func validateStatus() -> Bool? {
 		guard let selection = view?.selection, !selection.isEmpty else {
@@ -474,6 +543,41 @@ extension Optional<Bool> {
 		switch self {
 		case .none:					.mixed
 		case .some(let wrapped):	wrapped ? .on : .off
+		}
+	}
+}
+
+private extension Item {
+
+	var details: ItemDetailsView.Properties {
+		return .init(
+			text: text,
+			description: note ?? "",
+			isStrikethrough: isStrikethrough,
+			isMarked: isMarked,
+			isSection: style != .item,
+			icon: style.icon
+		)
+	}
+}
+
+extension ItemStyle {
+
+	var icon: ItemIcon? {
+		switch self {
+		case .item:
+			return nil
+		case .section(let icon):
+			return icon
+		}
+	}
+
+	var semanticImage: SemanticImage? {
+		switch self {
+		case .item:
+			return .point
+		case let .section(icon):
+			return IconMapper.map(icon: icon?.name, filled: false)
 		}
 	}
 }

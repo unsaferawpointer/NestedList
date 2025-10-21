@@ -18,22 +18,6 @@
 	<array>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>Plain Text</string>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>LSHandlerRank</key>
-			<string>Alternate</string>
-			<key>LSItemContentTypes</key>
-			<array>
-				<string>public.plain-text</string>
-			</array>
-			<key>NSUbiquitousDocumentUserActivityType</key>
-			<string>dev.zeroindex.NestedList.editing</string>
-			<key>UIDocumentClass</key>
-			<string>$(PRODUCT_MODULE_NAME).Document</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeName</key>
 			<string>Nested List</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
@@ -96,25 +80,6 @@
 	</array>
 	<key>UTImportedTypeDeclarations</key>
 	<array>
-		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.text</string>
-			</array>
-			<key>UTTypeDescription</key>
-			<string>Plain Text</string>
-			<key>UTTypeIconFiles</key>
-			<array/>
-			<key>UTTypeIdentifier</key>
-			<string>public.plain-text</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>txt</string>
-				</array>
-			</dict>
-		</dict>
 	</array>
 </dict>
 </plist>

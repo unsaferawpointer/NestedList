@@ -28,6 +28,4 @@ public extension ItemOptions {
 	static let strikethrough = ItemOptions(rawValue: 1 << 0)
 
 	static let marked = ItemOptions(rawValue: 1 << 1)
-
-	static let folded = ItemOptions(rawValue: 1 << 2)
 }

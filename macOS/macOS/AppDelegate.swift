@@ -44,7 +44,8 @@ private extension AppDelegate {
 				   .separator,
 				   .icon, .color,
 				   .separator,
-				   .delete]
+				   .delete],
+				target: nil
 			)
 
 			menu.insertItem(item, at: 3)

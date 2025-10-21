@@ -17,14 +17,24 @@ public struct ToolbarItem {
 
 	public var isEnabled: Bool
 
+	public var isPrimaryAction: Bool
+
 	// MARK: - Initialization
 
-	public init(id: String, title: String, icon: String? = nil, content: Content = .regular, isEnabled: Bool = true) {
+	public init(
+		id: String,
+		title: String,
+		icon: String? = nil,
+		content: Content = .regular,
+		isEnabled: Bool = true,
+		isPrimaryAction: Bool = false
+	) {
 		self.id = id
 		self.title = title
 		self.icon = icon
 		self.content = content
 		self.isEnabled = isEnabled
+		self.isPrimaryAction = isPrimaryAction
 	}
 }
 

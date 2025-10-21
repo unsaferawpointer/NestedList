@@ -8,6 +8,7 @@
 import SwiftUI
 import DesignSystem
 import CoreModule
+import CorePresentation
 
 struct DetailsView {
 
@@ -57,11 +58,19 @@ extension DetailsView: View {
 				}
 
 				ToolbarItem(placement: .confirmationAction) {
-					Button(strings.saveButtonTitle, role: .none) {
-						completionHandler(model.properties, true)
+					if #available(iOS 26.0, *) {
+						Button(strings.saveButtonTitle, role: isValid ? .confirm : .none) {
+							completionHandler(model.properties, true)
+						}
+						.disabled(!isValid)
+						.accessibilityIdentifier("button-save")
+					} else {
+						Button(strings.saveButtonTitle, role: .none) {
+							completionHandler(model.properties, true)
+						}
+						.disabled(!isValid)
+						.accessibilityIdentifier("button-save")
 					}
-					.disabled(!isValid)
-					.accessibilityIdentifier("button-save")
 				}
 			}
 			.navigationTitle(model.navigationTitle)
@@ -90,16 +99,9 @@ private extension DetailsView {
 					focusedField = .note
 				}
 				.accessibilityIdentifier("textfield-title")
-			TextField(
-				strings.notePlaceholder,
-				text: $model.properties.description,
-				axis: .vertical
-			)
-				.focused($focusedField, equals: .note)
-				.font(.callout)
-				.foregroundStyle(.secondary)
-				.submitLabel(.return)
-				.accessibilityIdentifier("textfield-description")
+				.onAppear {
+					focusedField = .title
+				}
 		} footer: {
 			if !isValid {
 				Text(strings.warningText)
@@ -107,14 +109,16 @@ private extension DetailsView {
 					.accessibilityIdentifier("label-hint")
 			}
 		}
-		.onSubmit {
-			switch focusedField {
-			case .title:
-				focusedField = .note
-			default:
-				focusedField = nil
-			}
-		}
+		TextField(
+			strings.notePlaceholder,
+			text: $model.properties.description,
+			axis: .vertical
+		)
+			.focused($focusedField, equals: .note)
+			.font(.callout)
+			.foregroundStyle(.secondary)
+			.submitLabel(.return)
+			.accessibilityIdentifier("textfield-description")
 	}
 
 	@ViewBuilder
@@ -135,7 +139,7 @@ private extension DetailsView {
 
 	var iconModels: [IconModel] {
 		return IconName.allCases.map {
-			.customIcon($0)
+			.customIcon(IconMapper.map(icon: $0))
 		}
 	}
 
@@ -146,7 +150,10 @@ private extension DetailsView {
 				guard model.properties.isSection else {
 					return .noIcon
 				}
-				guard let icon = model.properties.icon?.name else {
+				guard
+					let name = model.properties.icon?.name,
+					let icon = IconMapper.map(icon: name, filled: false)
+				else {
 					return .noIcon
 				}
 				return .customIcon(icon)
@@ -156,7 +163,7 @@ private extension DetailsView {
 					model.properties.icon = nil
 				case .customIcon(let iconName):
 					let color = model.properties.icon?.color ?? .tertiary
-					model.properties.icon = ItemIcon(name: iconName, color: color)
+					model.properties.icon = ItemIcon(name: IconMapper.map(icon: iconName), color: color)
 				}
 
 			}))

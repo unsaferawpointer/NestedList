@@ -28,6 +28,8 @@ class Document: UIDocument {
 		guard let data = contents as? Data, let typeName else {
 			throw CocoaError(.coderReadCorrupt)
 		}
-		try storage.read(from: data, ofType: typeName)
+		Task { @MainActor in
+			try storage.read(from: data, ofType: typeName)
+		}
 	}
 }

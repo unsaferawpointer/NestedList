@@ -53,9 +53,13 @@ extension DocumentStorage: StateProviderProtocol {
 
 	public func addObservation<O: AnyObject>(
 		for object: O,
-		handler: @escaping (O, State) -> Void
+		handler: @escaping (State) -> Void
 	) {
 		stateProvider.addObservation(for: object, handler: handler)
+	}
+
+	public func removeObserver(_ object: AnyObject) {
+		stateProvider.removeObserver(object)
 	}
 }
 

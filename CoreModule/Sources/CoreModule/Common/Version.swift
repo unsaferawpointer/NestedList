@@ -76,3 +76,11 @@ extension Version: Comparable {
 		return lhs < rhs
 	}
 }
+
+// MARK: - Public interface
+public extension Version {
+
+	func isBackwardCompatible(other: Version) -> Bool {
+		return major <= other.major
+	}
+}

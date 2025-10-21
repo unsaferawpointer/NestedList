@@ -10,11 +10,7 @@ import Foundation
 /// Data provider of board document
 public final class JsonDataProvider {
 
-	private let parser: ParserProtocol
-
-	public init(parser: ParserProtocol = Parser()) {
-		self.parser = parser
-	}
+	public init() { }
 }
 
 // MARK: - ContentProvider
@@ -63,7 +59,7 @@ private extension JsonDataProvider {
 		guard let versionedFile = try? decoder.decode(VersionedFile.self, from: data) else {
 			throw DocumentError.unexpectedFormat
 		}
-		guard versionedFile.version <= type.lastVersion else {
+		guard versionedFile.version.isBackwardCompatible(other: type.lastVersion) else {
 			throw DocumentError.unknownVersion
 		}
 		guard let file = try? decoder.decode(DocumentFile<Content>.self, from: data) else {

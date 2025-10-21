@@ -12,15 +12,29 @@ import DesignSystem
 
 import SwiftUI
 
-protocol UnitViewOutput: ViewDelegate, MenuDelegate { }
-
-protocol UnitView: AnyObject, ListSupportable {
-	func display(_ snapshot: Snapshot<ItemModel>)
+protocol UnitViewOutput: ViewDelegate, MenuDelegate {
+	func configure(for root: UUID?)
 }
 
-class ContentViewController: NSViewController {
+protocol UnitView: AnyObject, ListSupportable {
+	func display(_ state: ContentViewState)
+
+	func showDetails(
+		with model: ItemDetailsView.Model,
+		completionHandler: @escaping (ItemDetailsView.Properties, Bool) -> Void
+	)
+	func hideDetails()
+}
+
+class ContentViewController: NSCollectionViewItem {
 
 	var adapter: ListAdapter<ItemModel>?
+
+	// MARK: - DI
+
+	lazy var router: Router = {
+		return .init(root: self)
+	}()
 
 	var output: UnitViewOutput?
 
@@ -29,17 +43,11 @@ class ContentViewController: NSViewController {
 	weak var dragDelegate: (any DesignSystem.DragDelegate<UUID>)?
 	weak var cellDelegate: (any DesignSystem.CellDelegate<ItemModel>)?
 
+	let configuration: ContentConfiguration
+
 	// MARK: - UI-Properties
 
-	lazy var placeholderView: NSView = {
-		let view = NSHostingView(
-			rootView: PlaceholderView.init(
-				title: "No items yet",
-				subtitle: "To add a new item, click the «plus» button or use the keyboard shortcut ⌘T"
-			)
-		)
-		return view
-	}()
+	var placeholderView: NSView?
 
 	lazy var scrollview: NSScrollView = {
 		let view = NSScrollView()
@@ -48,6 +56,7 @@ class ContentViewController: NSViewController {
 		view.autohidesScrollers = true
 		view.hasVerticalScroller = false
 		view.automaticallyAdjustsContentInsets = true
+		view.drawsBackground = true
 		return view
 	}()
 
@@ -68,7 +77,8 @@ class ContentViewController: NSViewController {
 
 	// MARK: - Initialization
 
-	init(configure: (ContentViewController) -> Void) {
+	init(configuration: ContentConfiguration, configure: (ContentViewController) -> Void) {
+		self.configuration = configuration
 		super.init(nibName: nil, bundle: nil)
 		configure(self)
 		self.adapter = ListAdapter<ItemModel>(tableView: table)
@@ -78,7 +88,7 @@ class ContentViewController: NSViewController {
 		self.adapter?.delegate = listDelegate
 
 		if let items = output?.menuItems() {
-			self.adapter?.menu = MenuBuilder.build(for: items)
+			self.adapter?.menu = MenuBuilder.build(for: items, target: self)
 		}
 	}
 
@@ -105,14 +115,40 @@ class ContentViewController: NSViewController {
 		output?.viewDidChange(state: .willAppear)
 		table.sizeLastColumnToFit()
 	}
+
+	var sheet: NSViewController?
+}
+
+extension ContentViewController {
+
+	func configure(for root: UUID?) {
+		output?.configure(for: root)
+	}
 }
 
 // MARK: - ContentView
 extension ContentViewController: UnitView {
 
-	func display(_ snapshot: Snapshot<ItemModel>) {
-		adapter?.apply(snapshot)
-		placeholderView.isHidden = !snapshot.root.isEmpty
+	func hideDetails() {
+		if let sheet = presentedViewControllers?.first {
+			dismiss(sheet)
+		}
+	}
+
+	func showDetails(with model: ItemDetailsView.Model, completionHandler: @escaping (ItemDetailsView.Properties, Bool) -> Void) {
+		router.showDetails(with: model, completionHandler: completionHandler)
+	}
+
+	func display(_ state: ContentViewState) {
+		placeholderView?.removeFromSuperview()
+		switch state {
+		case let .placeholder(model):
+			placeholderView = NSHostingView(rootView: PlaceholderView(model: model))
+			placeholderView?.pin(edges: .all, to: view)
+			adapter?.apply(.init())
+		case let .list(snapshot):
+			adapter?.apply(snapshot)
+		}
 	}
 }
 
@@ -147,7 +183,8 @@ private extension ContentViewController {
 
 		table.frame = scrollview.bounds
 		table.headerView = nil
-		scrollview.additionalSafeAreaInsets = .horizontal(32)
+		scrollview.additionalSafeAreaInsets = configuration.hasInsets ? .horizontal(32) : .init()
+		scrollview.drawsBackground = configuration.drawsBackground
 
 		let column = NSTableColumn(identifier: .init("main"))
 		table.addTableColumn(column)
@@ -157,7 +194,14 @@ private extension ContentViewController {
 
 	func configureConstraints() {
 		scrollview.pin(edges: .all, to: view)
-		placeholderView.pin(edges: .all, to: view)
+	}
+}
+
+// MARK: - DocumentToolbarSupportable
+extension ContentViewController: DocumentToolbarSupportable {
+
+	func newItem(_ sender: Any) {
+		output?.menuItemClicked(.newItem)
 	}
 }
 
@@ -171,11 +215,6 @@ extension ContentViewController {
 		}
 		let id = ElementIdentifier(rawValue: rawValue)
 		output?.menuItemClicked(id)
-	}
-
-	@IBAction
-	func newItem(_ sender: NSMenuItem) {
-		output?.menuItemClicked(.newItem)
 	}
 
 	@IBAction

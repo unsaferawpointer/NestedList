@@ -41,6 +41,9 @@ extension ColorToken: Codable { }
 // MARK: - Hashable
 extension ColorToken: Hashable { }
 
+// MARK: - CaseIterable
+extension ColorToken: CaseIterable { }
+
 // MARK: - Computed Properties
 public extension ColorToken {
 

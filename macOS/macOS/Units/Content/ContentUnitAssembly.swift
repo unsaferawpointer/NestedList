@@ -10,10 +10,14 @@ import CoreModule
 
 final class ContentUnitAssembly {
 
-	static func build(storage: DocumentStorage<Content>) -> NSViewController {
+	static func build(
+		for root: UUID? = nil,
+		storage: DocumentStorage<Content>,
+		configuration: ContentConfiguration
+	) -> ContentViewController {
 		let presenter = ContentPresenter()
-		let interactor = ContentInteractor(storage: storage)
-		return ContentViewController { viewController in
+		let interactor = ContentInteractor(storage: storage, root: root)
+		return ContentViewController(configuration: configuration) { viewController in
 			viewController.output = presenter
 
 			viewController.dropDelegate = presenter

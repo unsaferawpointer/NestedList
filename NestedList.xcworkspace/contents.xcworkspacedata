@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:Multiplatform/Multiplatform.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:README.md">
    </FileRef>
    <FileRef
@@ -15,6 +18,9 @@
    </FileRef>
    <FileRef
       location = "group:DesignSystem">
+   </FileRef>
+   <FileRef
+      location = "group:CorePresentation">
    </FileRef>
    <FileRef
       location = "group:iOS/iOS.xcodeproj">

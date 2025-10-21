@@ -43,6 +43,13 @@ public extension Root {
 		}
 	}
 
+	func children(of id: ID?) -> [Node<Value>] {
+		guard let id else {
+			return nodes
+		}
+		return cache[id]?.children ?? []
+	}
+
 	func node(with id: ID) -> Node<Value>? {
 		return cache[id]
 	}
@@ -51,6 +58,34 @@ public extension Root {
 		return ids.compactMap {
 			cache[$0]
 		}
+	}
+
+	func flattened(condition: (Value) -> Bool) -> [Value] {
+
+		var result: [Value] = []
+
+		for id in nodes.map(\.id) {
+
+			var queue = [id]
+
+			while !queue.isEmpty {
+
+				let current = queue.removeLast()
+
+				guard let node = cache[current], condition(node.value) else {
+					continue
+				}
+
+				result.append(node.value)
+
+				for child in node.children.reversed() {
+					queue.append(child.id)
+				}
+
+			}
+		}
+
+		return result
 	}
 
 	func setProperty<T>(_ keyPath: WritableKeyPath<Value, T>, to value: T, for ids: [ID], downstream: Bool = false) {
@@ -186,6 +221,21 @@ public extension Root {
 // MARK: - Support moving
 public extension Root {
 
+	func invalidTargets(movingItems ids: Set<ID>) -> Set<ID> {
+		var result = Set<ID>()
+
+		for id in ids {
+			guard let node = cache[id] else {
+				continue
+			}
+			node.enumerate {
+				result.insert($0.id)
+			}
+		}
+
+		return result
+	}
+
 	func validateMoving(_ ids: [ID], to destination: Destination<ID>) -> Bool {
 		guard let targetId = destination.id, let item = cache[targetId] else {
 			return true
@@ -258,6 +308,91 @@ public extension Root {
 			}
 			moveItems(with: items.map(\.id), to: .inItem(with: container.id, atIndex: 0))
 		}
+	}
+
+	func validateMovingForward(_ id: ID) -> Bool {
+		let target = cache[id]?.parent?.id
+		let index = if let parent = cache[id]?.parent {
+			parent.children.firstIndex(where: \.id, equalsTo: id)
+		} else {
+			nodes.firstIndex(where: \.id, equalsTo: id)
+		}
+
+		guard let index else {
+			return false
+		}
+
+		let nextIndex = index + 2
+		let upperBound = if let parent = cache[id]?.parent {
+			parent.children.count
+		} else {
+			nodes.count
+		}
+
+		guard nextIndex <= upperBound else {
+			return false
+		}
+
+		return true
+	}
+
+	func moveForward(_ id: ID) {
+
+		let target = cache[id]?.parent?.id
+		let index = if let parent = cache[id]?.parent {
+			parent.children.firstIndex(where: \.id, equalsTo: id)
+		} else {
+			nodes.firstIndex(where: \.id, equalsTo: id)
+		}
+
+		guard let index else {
+			return
+		}
+
+		let nextIndex = index + 2
+		let upperBound = if let parent = cache[id]?.parent {
+			parent.children.count
+		} else {
+			nodes.count
+		}
+
+		guard nextIndex <= upperBound else {
+			return
+		}
+
+		let destination = Destination(target: target, index: nextIndex)
+		moveItems(with: [id], to: destination)
+	}
+
+	func validateMovingBackward(_ id: ID) -> Bool {
+		let index: Int = if let parent = cache[id]?.parent {
+			parent.children.firstIndex(where: \.id, equalsTo: id) ?? 0
+		} else {
+			nodes.firstIndex(where: \.id, equalsTo: id) ?? 0
+		}
+
+		let nextIndex = index - 1
+		guard nextIndex >= 0 else {
+			return false
+		}
+		return true
+	}
+
+	func moveBackward(_ id: ID) {
+		let target = cache[id]?.parent?.id
+		let index: Int = if let parent = cache[id]?.parent {
+			parent.children.firstIndex(where: \.id, equalsTo: id) ?? 0
+		} else {
+			nodes.firstIndex(where: \.id, equalsTo: id) ?? 0
+		}
+
+		let nextIndex = index - 1
+		guard nextIndex >= 0 else {
+			return
+		}
+
+		let destination = Destination<ID>(target: target, index: nextIndex)
+		moveItems(with: [id], to: destination)
 	}
 }
 

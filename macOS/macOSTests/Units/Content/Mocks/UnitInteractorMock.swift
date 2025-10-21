@@ -39,12 +39,21 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 	func copy(_ ids: [UUID], to destination: Destination<UUID>) {
 		invocations.append(.copy(ids, destination: destination))
 	}
-	
-	func newItem(_ text: String, target: UUID?) -> UUID {
-		invocations.append(.newItem(text, target: target))
+
+	func newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: CoreModule.ItemStyle, target: UUID?) -> UUID {
+		invocations.append(
+			.newItem(
+				text,
+				isStrikethrough: isStrikethrough,
+				note: note,
+				isMarked: isMarked,
+				style: style,
+				target: target
+			)
+		)
 		return stubs.newItem
 	}
-	
+
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool) {
 		invocations.append(.setStatus(status, ids: ids, moveToEnd: moveToEnd))
 	}
@@ -75,6 +84,10 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 
 	func set(note: String?, for ids: [UUID]) {
 		invocations.append(.setNote(note: note, ids: ids))
+	}
+
+	func set(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: CoreModule.ItemStyle, for id: UUID) {
+		invocations.append(.set(text: text, isStrikethrough: isStrikethrough, note: note, isMarked: isMarked, style: style, id: id))
 	}
 
 	func deleteItems(_ ids: [UUID]) {
@@ -113,7 +126,7 @@ extension UnitInteractorMock {
 		case move(_ ids: [UUID], destination: Destination<UUID>)
 		case validateMovement(_ ids: [UUID], destination: Destination<UUID>)
 		case copy(_ ids: [UUID], destination: Destination<UUID>)
-		case newItem(_ text: String, target: UUID?)
+		case newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?)
 		case setStatus(_ status: Bool, ids: [UUID], moveToEnd: Bool)
 		case toggleStatus(id: UUID, moveToEnd: Bool)
 		case setMark(_ isMarked: Bool, ids: [UUID], moveToTop: Bool)
@@ -128,6 +141,7 @@ extension UnitInteractorMock {
 		case nodes(ids: [UUID])
 		case insertStringsFromData(data: [Data], destination: Destination<UUID>)
 		case insertItems(data: [Data], destination: Destination<UUID>)
+		case set(text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, id: UUID)
 	}
 
 	struct Stubs {

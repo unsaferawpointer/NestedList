@@ -63,4 +63,16 @@ extension MenuLocalization {
 	static var noIconItemTitle: String {
 		String(localized: "no-icon-item-title", table: "MenuLocalizable")
 	}
+
+	static var editItemTitle: String {
+		String(localized: "edit-item-title", table: "MenuLocalizable")
+	}
+
+	static var moveForward: String {
+		String(localized: "move-forward-item-title", table: "MenuLocalizable")
+	}
+
+	static var moveBackward: String {
+		String(localized: "move-backward-item-title", table: "MenuLocalizable")
+	}
 }

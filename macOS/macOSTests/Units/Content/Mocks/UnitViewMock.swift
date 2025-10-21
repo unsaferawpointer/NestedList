@@ -22,10 +22,18 @@ final class UnitViewMock {
 // MARK: - ContentView
 extension UnitViewMock: UnitView {
 
-	func display(_ snapshot: Snapshot<ItemModel>) {
-		invocations.append(.display(snapshot))
+	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (Nested_List.DetailsView.Properties, Bool) -> Void) {
+		invocations.append(.showDetails(model: model, completionHandler: completionHandler))
 	}
 	
+	func hideDetails() {
+		invocations.append(.hideDetails)
+	}
+
+	func display(_ state: ContentViewState) {
+		invocations.append(.display(state))
+	}
+
 	func expand(_ ids: [UUID]?) {
 		invocations.append(.expand(ids))
 	}
@@ -56,12 +64,14 @@ extension UnitViewMock: UnitView {
 extension UnitViewMock {
 
 	enum Action {
-		case display(_ snapshot: Snapshot<ItemModel>)
+		case display(_ snapshot: ContentViewState)
 		case expand(_ ids: [UUID]?)
 		case scroll(_ id: UUID)
 		case select(_ id: UUID)
 		case focus(_ id: UUID, key: String)
 		case didSetSelection(selection: [UUID])
+		case showDetails(model: DetailsView.Model, completionHandler: (DetailsView.Properties, Bool) -> Void)
+		case hideDetails
 	}
 
 	struct Stubs {
