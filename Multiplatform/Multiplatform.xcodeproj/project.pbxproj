@@ -29,22 +29,9 @@
 		4C8AE5AE2E77273F00168D26 /* MultiplatformUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MultiplatformUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		4C8AE5B62E77273F00168D26 /* Exceptions for "Multiplatform" folder in "Multiplatform" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 4C8AE5932E77273E00168D26 /* Multiplatform */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		4C8AE5962E77273E00168D26 /* Multiplatform */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				4C8AE5B62E77273F00168D26 /* Exceptions for "Multiplatform" folder in "Multiplatform" target */,
-			);
 			path = Multiplatform;
 			sourceTree = "<group>";
 		};
