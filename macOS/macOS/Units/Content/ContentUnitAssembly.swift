@@ -10,6 +10,7 @@ import CoreModule
 
 final class ContentUnitAssembly {
 
+	@MainActor
 	static func build(
 		for root: UUID? = nil,
 		storage: DocumentStorage<Content>,

@@ -14,11 +14,13 @@ import Hierarchy
 import CoreSettings
 import CorePresentation
 
+@MainActor
 protocol ContentPresenterProtocol: AnyObject {
 	func present(_ content: Content)
 	func present(_ nodes: [Node<Item>])
 }
 
+@MainActor
 final class ContentPresenter {
 
 	// MARK: - DI

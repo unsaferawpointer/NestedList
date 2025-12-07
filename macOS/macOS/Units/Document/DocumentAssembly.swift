@@ -10,6 +10,7 @@ import CoreModule
 
 final class DocumentAssembly {
 
+	@MainActor
 	static func build(storage: DocumentStorage<Content>, for view: Content.ContentView) -> NSViewController {
 		switch view {
 		case .list:
