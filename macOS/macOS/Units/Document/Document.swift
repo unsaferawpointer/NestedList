@@ -120,11 +120,11 @@ private extension Document {
 extension Document: NSToolbarDelegate {
 
 	func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-		return [.viewItem, .space, .newItem]
+		return [.space, .newItem]
 	}
 
 	func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-		return [.viewItem, .space, .newItem]
+		return [.space, .newItem]
 	}
 
 	func toolbar(

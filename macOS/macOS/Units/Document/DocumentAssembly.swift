@@ -12,16 +12,9 @@ final class DocumentAssembly {
 
 	@MainActor
 	static func build(storage: DocumentStorage<Content>, for view: Content.ContentView) -> NSViewController {
-		switch view {
-		case .list:
-			ContentUnitAssembly.build(
-				storage: storage,
-				configuration: .init(drawsBackground: true, hasInsets: true)
-			)
-		case .board:
-			ColumnsUnitAssembly.build(
-				storage: storage
-			)
-		}
+		ContentUnitAssembly.build(
+			storage: storage,
+			configuration: .init(drawsBackground: true, hasInsets: true)
+		)
 	}
 }
