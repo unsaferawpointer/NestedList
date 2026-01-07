@@ -70,7 +70,7 @@ final class ContentInteractor {
 				return
 			}
 			let nodes = content.root.children(of: self.root)
-			Task { @MainActor in
+			MainActor.assumeIsolated {
 				self.presenter?.present(nodes)
 			}
 		}

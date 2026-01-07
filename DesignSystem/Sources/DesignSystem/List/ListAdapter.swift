@@ -14,6 +14,7 @@ import UIKit
 #endif
 
 #if os(macOS)
+@MainActor
 public final class ListAdapter<Model: CellModel>: NSObject,
 												  NSOutlineViewDataSource,
 												  NSMenuDelegate,

@@ -6,6 +6,7 @@
 //
 
 #if os(macOS)
+@MainActor
 public protocol CellDelegate<Model>: AnyObject {
 
 	associatedtype Model: CellModel

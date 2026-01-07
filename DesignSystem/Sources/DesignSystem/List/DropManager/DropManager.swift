@@ -9,6 +9,7 @@
 import AppKit
 import Hierarchy
 
+@MainActor
 final class DropManager<ID: Decodable> {
 
 	unowned var list: NSOutlineView

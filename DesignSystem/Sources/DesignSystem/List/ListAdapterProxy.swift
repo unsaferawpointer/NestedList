@@ -12,6 +12,7 @@ import Cocoa
 #endif
 
 #if os(macOS)
+@MainActor
 public final class ListAdapterProxy<Model: CellModel> where Model.ID: Codable {
 
 	public typealias ID = Model.ID
@@ -225,8 +226,9 @@ extension ListAdapterProxy {
 		guard case let .item(id) = basicId else {
 			return
 		}
-
-		delegate?.handleDoubleClick(on: id)
+		Task { @MainActor [weak self] in
+			self?.delegate?.handleDoubleClick(on: id)
+		}
 	}
 }
 

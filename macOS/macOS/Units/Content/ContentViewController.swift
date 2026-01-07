@@ -12,10 +12,12 @@ import DesignSystem
 
 import SwiftUI
 
+@MainActor
 protocol UnitViewOutput: ViewDelegate, MenuDelegate {
 	func configure(for root: UUID?)
 }
 
+@MainActor
 protocol UnitView: AnyObject, ListSupportable {
 	func display(_ state: ContentViewState)
 

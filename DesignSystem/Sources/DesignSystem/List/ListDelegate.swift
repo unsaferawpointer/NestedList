@@ -8,6 +8,7 @@
 import Foundation
 
 #if os(macOS)
+@MainActor
 public protocol ListDelegate<ID>: AnyObject {
 
 	associatedtype ID

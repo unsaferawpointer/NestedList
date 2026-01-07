@@ -10,6 +10,7 @@ import Hierarchy
 
 #if os(macOS)
 
+@MainActor
 public protocol DropDelegate<ID>: AnyObject {
 
 	associatedtype ID
