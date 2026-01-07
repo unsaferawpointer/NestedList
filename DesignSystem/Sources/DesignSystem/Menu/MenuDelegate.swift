@@ -6,6 +6,7 @@
 //
 
 #if os(macOS)
+@MainActor
 public protocol MenuDelegate: AnyObject {
 	func menuItemClicked(_ item: ElementIdentifier)
 	func validateMenuItem(_ item: ElementIdentifier) -> Bool

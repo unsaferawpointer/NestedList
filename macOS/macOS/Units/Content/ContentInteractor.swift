@@ -86,8 +86,8 @@ extension ContentInteractor: ContentInteractorProtocol {
 
 	func fetchData() {
 		let nodes = storage.state.root.children(of: root)
-		Task { @MainActor in
-			presenter?.present(nodes)
+		MainActor.assumeIsolated { [weak self] in
+			self?.presenter?.present(nodes)
 		}
 	}
 
