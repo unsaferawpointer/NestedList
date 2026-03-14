@@ -13,12 +13,12 @@ protocol ContentUnitInteractorProtocol {
 	func fetchData()
 
 	@discardableResult
-	func newItem(_ text: String, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID
+	func newItem(_ text: String, note: String?, iconName: IconName?, tintColor: ItemColor?, target: UUID?) -> UUID
 	func deleteItems(_ ids: [UUID])
 	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool)
-	func mark(_ isMarked: Bool, ids: [UUID], moveToTop: Bool)
-	func setStyle(_ style: ItemStyle, for ids: [UUID])
-	func set(_ text: String, note: String?, isMarked: Bool, style: ItemStyle, for id: UUID)
+	func setColor(_ color: ItemColor, for ids: [UUID])
+	func setIcon(_ name: IconName?, for ids: [UUID])
+	func set(_ text: String, note: String?, iconName: IconName?, tintColor: ItemColor?, for id: UUID)
 	func item(for id: UUID) -> Item
 
 	func data(of id: UUID) -> Data?
@@ -69,15 +69,15 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 		presenter?.present(storage.state.root.children(of: root))
 	}
 
-	func newItem(_ text: String, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID {
+	func newItem(_ text: String, note: String?, iconName: IconName?, tintColor: ItemColor?, target: UUID?) -> UUID {
 		let destination = Destination(target: target)
 		return base.newItem(
 			text,
 			isStrikethrough: nil,
 			note: note,
-			isMarked: isMarked,
-			style: style,
-			target: destination.id
+			iconName: iconName,
+			tintColor: tintColor,
+			target: destination.relative(to: root).id
 		)
 	}
 
@@ -101,27 +101,28 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 		}
 	}
 
-	func mark(_ isMarked: Bool, ids: [UUID], moveToTop: Bool) {
+	func setIcon(_ name: IconName?, for ids: [UUID]) {
 		storage.modificate { content in
-			content.root.setProperty(\.isMarked, to: isMarked, for: ids, downstream: true)
-			if moveToTop && isMarked {
-				content.root.moveToTop(ids)
+			for node in content.root.nodes(with: ids) {
+				node.value.iconName = name
 			}
 		}
 	}
 
-	func setStyle(_ style: ItemStyle, for ids: [UUID]) {
+	func setColor(_ color: ItemColor, for ids: [UUID]) {
 		storage.modificate { content in
-			content.root.setProperty(\.style, to: style, for: ids)
+			for node in content.root.nodes(with: ids) {
+				node.value.tintColor = color
+			}
 		}
 	}
 
-	func set(_ text: String, note: String?, isMarked: Bool, style: ItemStyle, for id: UUID) {
+	func set(_ text: String, note: String?, iconName: IconName?, tintColor: ItemColor?, for id: UUID) {
 		storage.modificate { content in
 			content.root.setProperty(\.text, to: text, for: [id])
 			content.root.setProperty(\.note, to: note, for: [id])
-			content.root.setProperty(\.isMarked, to: isMarked, for: [id], downstream: true)
-			content.root.setProperty(\.style, to: style, for: [id])
+			content.root.setProperty(\.iconName, to: iconName, for: [id])
+			content.root.setProperty(\.tintColor, to: tintColor, for: [id])
 		}
 	}
 

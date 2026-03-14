@@ -138,7 +138,10 @@ private extension ItemCell {
 
 			let symbolConfiguration = iconConfiguration.appearence.configuration
 			iconView.image = image?
-				.withSymbolConfiguration(symbolConfiguration)
+				.withSymbolConfiguration(
+					symbolConfiguration
+						.applying(.init(textStyle: .caption2))
+				)
 			iconView.contentTintColor = iconConfiguration.appearence.tint
 		} else {
 			iconView.isHidden = true

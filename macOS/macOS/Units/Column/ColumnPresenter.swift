@@ -72,8 +72,8 @@ extension ColumnPresenter: ColumnViewOutput {
 			localization.newItemText,
 			isStrikethrough: false,
 			note: nil,
-			isMarked: false,
-			style: .item,
+			iconName: nil,
+			tintColor: nil,
 			target: target
 		) else {
 			return
@@ -135,7 +135,7 @@ extension ColumnPresenter: MenuDelegate {
 extension ColumnPresenter: ColumnPresenterProtocol {
 
 	func present(_ item: Item) {
-		let itemModel = factory.makeItem(item: item, level: 0, iconColor: settingsProvider.state.iconColor)
+		let itemModel = factory.makeItem(item: item, isLeaf: true, iconColor: settingsProvider.state.iconColor)
 		let model = ColumnModel(title: item.text, configuration: itemModel.configuration)
 		view?.display(model)
 	}
@@ -152,9 +152,7 @@ private extension ColumnPresenter {
 			text: item.text,
 			description: item.note ?? "",
 			isStrikethrough: item.isStrikethrough,
-			isMarked: item.isMarked,
-			isSection: item.style != .item,
-			icon: item.style.icon
+			icon: item.iconName
 		)
 		let model = ItemDetailsView.Model(
 			navigationTitle: localization.editItemDetailsTitle,
@@ -164,14 +162,13 @@ private extension ColumnPresenter {
 			self?.view?.hideDetails()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
-				let style: ItemStyle = saved.isSection ? .section(icon: saved.icon) : .item
 
 				self?.interactor?.set(
 					saved.text,
 					isStrikethrough: saved.isStrikethrough,
 					note: note,
-					isMarked: saved.isMarked,
-					style: style
+					iconName: saved.icon,
+					tintColor: saved.tintColor
 				)
 			}
 		}

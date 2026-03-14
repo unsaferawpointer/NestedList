@@ -281,7 +281,7 @@ public extension ListAdapterProxy {
 			guard model.isGroup, case let .model(value) = model, model.id != first else {
 				return nil
 			}
-			return .spacer(before: value.id, height: level == 0 ? .large : .small)
+			return .spacer(before: value.id, height: level == 0 ? .medium : .small)
 		}
 
 		apply(converted)

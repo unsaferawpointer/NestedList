@@ -25,18 +25,18 @@ public enum SemanticImage {
 
 	case point
 	case circleSlash
-	case folder(filled: Bool = false)
-	case textDoc(filled: Bool = false)
-	case docOnDoc(filled: Bool = false)
-	case shippingbox(filled: Bool = false)
-	case archivebox(filled: Bool = false)
-	case squareStack(filled: Bool = false)
-	case book(filled: Bool = false)
-	case squareGrid2x2(filled: Bool = false)
-	case star(filled: Bool = false)
-	case heart(filled: Bool = false)
+	case folder(filled: Bool = true)
+	case textDoc(filled: Bool = true)
+	case docOnDoc(filled: Bool = true)
+	case shippingbox(filled: Bool = true)
+	case archivebox(filled: Bool = true)
+	case squareStack(filled: Bool = true)
+	case book(filled: Bool = true)
+	case squareGrid2x2(filled: Bool = true)
+	case star(filled: Bool = true)
+	case heart(filled: Bool = true)
 	case listStar(filled: Bool = false)
-	case bolt(filled: Bool = false)
+	case bolt(filled: Bool = true)
 }
 
 // MARK: - Codable

@@ -40,7 +40,7 @@ private extension AppDelegate {
 			item.submenu = MenuBuilder.build(
 				for: [.newItem,
 					  .separator,
-				   .completed, .marked, .section,
+				   .completed,
 				   .separator,
 				   .icon, .color,
 				   .separator,

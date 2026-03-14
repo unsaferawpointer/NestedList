@@ -37,12 +37,6 @@ private extension MenuBuilder {
 			item.identifier = .init(elementIdentifier: .completed)
 			item.title = MenuLocalization.strikethroughItemTitle
 			item.keyEquivalent = "\r"
-		case .marked:
-			item.identifier = .init(elementIdentifier: .marked)
-			item.title = MenuLocalization.markedItemTitle
-		case .section:
-			item.identifier = .init(elementIdentifier: .section)
-			item.title = MenuLocalization.sectionItemTitle
 		case .icon:
 			if #available(macOS 14.0, *) {
 				configureIconPallete(item, action: action, target: target)

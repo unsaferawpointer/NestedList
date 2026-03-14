@@ -65,14 +65,15 @@ class ContentViewController: NSCollectionViewItem {
 	lazy var table: NSOutlineView = {
 		let view = NSOutlineView()
 		view.style = .inset
-		view.rowSizeStyle = .custom
+		view.rowSizeStyle = .large
 		view.floatsGroupRows = false
 		view.allowsMultipleSelection = true
 		view.allowsColumnResizing = false
 		view.usesAlternatingRowBackgroundColors = false
 		view.autoresizesOutlineColumn = false
 		view.usesAutomaticRowHeights = false
-		view.indentationPerLevel = 24
+		view.indentationPerLevel = 16
+		view.intercellSpacing = .init(width: 0, height: 2)
 		view.backgroundColor = .clear
 		return view
 	}()
@@ -185,7 +186,7 @@ private extension ContentViewController {
 
 		table.frame = scrollview.bounds
 		table.headerView = nil
-		scrollview.additionalSafeAreaInsets = configuration.hasInsets ? .horizontal(32) : .init()
+		scrollview.additionalSafeAreaInsets = .horizontal(10)
 		scrollview.drawsBackground = configuration.drawsBackground
 
 		let column = NSTableColumn(identifier: .init("main"))

@@ -19,11 +19,16 @@ protocol ContentInteractorProtocol {
 	func copy(_ ids: [UUID], to destination: Destination<UUID>)
 
 	@discardableResult
-	func newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID
+	func newItem(
+		_ text: String,
+		isStrikethrough: Bool,
+		note: String?,
+		iconName: IconName?,
+		tintColor: ItemColor?,
+		target: UUID?
+	) -> UUID
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool)
 	func toggleStrikethrough(for id: UUID, moveToEnd: Bool)
-	func setMark(_ isMarked: Bool, for ids: [UUID], moveToTop: Bool)
-	func setStyle(_ style: ItemStyle, for ids: [UUID])
 	func setColor(_ color: ItemColor, for ids: [UUID])
 	func setIcon(_ name: IconName?, for ids: [UUID])
 	func set(text: String, note: String?, for id: UUID)
@@ -32,8 +37,8 @@ protocol ContentInteractorProtocol {
 		_ text: String,
 		isStrikethrough: Bool,
 		note: String?,
-		isMarked: Bool,
-		style: ItemStyle,
+		iconName: IconName?,
+		tintColor: ItemColor?,
 		for id: UUID
 	)
 	func deleteItems(_ ids: [UUID])
@@ -116,14 +121,21 @@ extension ContentInteractor: ContentInteractorProtocol {
 		}
 	}
 
-	func newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID {
+	func newItem(
+		_ text: String,
+		isStrikethrough: Bool,
+		note: String?,
+		iconName: IconName?,
+		tintColor: ItemColor?,
+		target: UUID?
+	) -> UUID {
 		let destination = Destination(target: target)
 		return base.newItem(
 			text,
 			isStrikethrough: isStrikethrough,
 			note: note,
-			isMarked: isMarked,
-			style: style,
+			iconName: iconName,
+			tintColor: tintColor,
 			target: destination.relative(to: root).id
 		)
 	}
@@ -147,37 +159,10 @@ extension ContentInteractor: ContentInteractorProtocol {
 		}
 	}
 
-	func setMark(_ isMarked: Bool, for ids: [UUID], moveToTop: Bool) {
-		storage.modificate { content in
-			content.root.setProperty(\.isMarked, to: isMarked, for: ids, downstream: true)
-			if moveToTop && isMarked {
-				content.root.moveToTop(ids)
-			}
-		}
-	}
-
-	func setStyle(_ style: ItemStyle, for ids: [UUID]) {
-		storage.modificate { content in
-			content.root.setProperty(\.style, to: style, for: ids, downstream: false)
-		}
-	}
-
 	func setIcon(_ name: IconName?, for ids: [UUID]) {
 		storage.modificate { content in
 			for node in content.root.nodes(with: ids) {
-				guard case let .section(icon) = node.value.style else {
-					continue
-				}
-				guard let name else {
-					node.value.style = .section(icon: nil)
-					continue
-				}
-				if var icon {
-					icon.name = name
-					node.value.style = .section(icon: icon)
-				} else {
-					node.value.style = .section(icon: .init(name: name, color: .tertiary))
-				}
+				node.value.iconName = name
 			}
 		}
 	}
@@ -185,11 +170,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 	func setColor(_ color: ItemColor, for ids: [UUID]) {
 		storage.modificate { content in
 			for node in content.root.nodes(with: ids) {
-				guard case var .section(icon) = node.value.style else {
-					continue
-				}
-				icon?.color = color
-				node.value.style = .section(icon: icon)
+				node.value.tintColor = color
 			}
 		}
 	}
@@ -201,13 +182,20 @@ extension ContentInteractor: ContentInteractorProtocol {
 		}
 	}
 
-	func set(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, for id: UUID) {
+	func set(
+		_ text: String,
+		isStrikethrough: Bool,
+		note: String?,
+		iconName: IconName?,
+		tintColor: ItemColor?,
+		for id: UUID
+	) {
 		storage.modificate { content in
 			content.root.setProperty(\.text, to: text, for: [id])
 			content.root.setProperty(\.isStrikethrough, to: isStrikethrough, for: [id])
 			content.root.setProperty(\.note, to: note, for: [id])
-			content.root.setProperty(\.isMarked, to: isMarked, for: [id], downstream: true)
-			content.root.setProperty(\.style, to: style, for: [id])
+			content.root.setProperty(\.iconName, to: iconName, for: [id])
+			content.root.setProperty(\.tintColor, to: tintColor, for: [id])
 		}
 	}
 

@@ -12,6 +12,8 @@ public struct NodeInfo<Model: Identifiable> {
 	/// Wrapped model
 	public var model: Model
 
+	public var isLeaf: Bool
+
 	/// Node level
 	public var level: Int
 

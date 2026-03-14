@@ -27,11 +27,7 @@ extension MenuLocalization {
 	static var strikethroughItemTitle: String {
 		String(localized: "strikethrough-item-title", table: "MenuLocalizable")
 	}
-	
-	static var markedItemTitle: String {
-		String(localized: "marked-item-title", table: "MenuLocalizable")
-	}
-	
+
 	static var displayAsItemTitle: String {
 		String(localized: "display-as-item-title", table: "MenuLocalizable")
 	}
@@ -54,10 +50,6 @@ extension MenuLocalization {
 
 	static var plainItemTitle: String {
 		String(localized: "plain-item-item-title", table: "MenuLocalizable")
-	}
-
-	static var sectionItemTitle: String {
-		String(localized: "section-item-title", table: "MenuLocalizable")
 	}
 
 	static var noIconItemTitle: String {

@@ -66,6 +66,7 @@
       }
     },
     "marked-item-title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -226,6 +227,7 @@
       }
     },
     "section-item-title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
