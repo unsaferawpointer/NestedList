@@ -67,7 +67,7 @@ extension ItemDetailsView: View {
 					.accessibilityIdentifier("button-save")
 				}
 			}
-			.frame(minWidth: 360, idealWidth: 420, maxWidth: 640, minHeight: 480, idealHeight: 640)
+			.frame(minWidth: 420, idealWidth: 560, maxWidth: 640, minHeight: 480, idealHeight: 640)
 			.navigationTitle(model.navigationTitle)
 		}
 	}

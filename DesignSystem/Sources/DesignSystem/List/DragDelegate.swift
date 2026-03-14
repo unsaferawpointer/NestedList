@@ -8,6 +8,7 @@
 import Foundation
 
 #if os(macOS)
+@MainActor
 public protocol DragDelegate<ID>: AnyObject {
 
 	associatedtype ID

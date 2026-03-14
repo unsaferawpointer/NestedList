@@ -10,6 +10,7 @@ import CoreModule
 
 final class ColumnUnitAssembly {
 
+	@MainActor
 	static func build(root: UUID, storage: DocumentStorage<Content>) -> NSCollectionViewItem {
 		let presenter = ColumnPresenter()
 		let interactor = ColumnInteractor(root: root, storage: storage)

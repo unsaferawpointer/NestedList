@@ -56,7 +56,7 @@ class Document: NSDocument {
 		// Returns the Storyboard that contains your Document window.
 		let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
 		let windowController = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Document Window Controller")) as! NSWindowController
-		windowController.contentViewController = DocumentAssembly.build(storage: storage, for: .list)
+		windowController.contentViewController = DocumentAssembly.build(storage: storage, for: storage.state.view)
 
 		windowController.window?.toolbar = toolbar
 		windowController.window?.toolbar?.delegate = self

@@ -70,7 +70,9 @@ final class ContentInteractor {
 				return
 			}
 			let nodes = content.root.children(of: self.root)
-			self.presenter?.present(nodes)
+			MainActor.assumeIsolated {
+				self.presenter?.present(nodes)
+			}
 		}
 	}
 
@@ -84,7 +86,9 @@ extension ContentInteractor: ContentInteractorProtocol {
 
 	func fetchData() {
 		let nodes = storage.state.root.children(of: root)
-		presenter?.present(nodes)
+		MainActor.assumeIsolated { [weak self] in
+			self?.presenter?.present(nodes)
+		}
 	}
 
 	func configure(for root: UUID?) {

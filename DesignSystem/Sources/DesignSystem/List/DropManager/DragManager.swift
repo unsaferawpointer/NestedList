@@ -8,6 +8,7 @@
 #if canImport(AppKit)
 import AppKit
 
+@MainActor
 final class DragManager<ID: Encodable> {
 
 	unowned var list: NSOutlineView

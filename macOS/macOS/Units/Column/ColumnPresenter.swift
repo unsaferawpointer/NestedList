@@ -68,31 +68,22 @@ extension ColumnPresenter: ColumnViewOutput {
 
 		let target = view?.selection.first
 
-		let details = ItemDetailsView.Properties.init(text: localization.newItemText)
-
-		let model = ItemDetailsView.Model(navigationTitle: localization.newItemDetailsTitle, properties: details)
-		view?.showDetails(with: model) { [weak self] saved, success in
-			self?.view?.hideDetails()
-			if success {
-				let note = saved.description.isEmpty ? nil : saved.description
-				let style: ItemStyle = saved.isSection ? .section(icon: saved.icon) : .item
-
-				guard let id = self?.interactor?.newItem(
-					saved.text,
-					isStrikethrough: saved.isStrikethrough,
-					note: note,
-					isMarked: saved.isMarked,
-					style: style,
-					target: target
-				) else {
-					return
-				}
-				if let target {
-					self?.view?.expand([target])
-				}
-				self?.view?.scroll(to: id)
-			}
+		guard let id = interactor?.newItem(
+			localization.newItemText,
+			isStrikethrough: false,
+			note: nil,
+			isMarked: false,
+			style: .item,
+			target: target
+		) else {
+			return
 		}
+
+		if let target {
+			view?.expand([target])
+		}
+		view?.scroll(to: id)
+		view?.focus(on: id, key: "title")
 	}
 }
 
