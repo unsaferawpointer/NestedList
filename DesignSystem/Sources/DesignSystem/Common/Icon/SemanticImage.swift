@@ -37,6 +37,14 @@ public enum SemanticImage {
 	case heart(filled: Bool = true)
 	case listStar(filled: Bool = false)
 	case bolt(filled: Bool = true)
+	case person(filled: Bool = true)
+	case cloud(filled: Bool = true)
+	case sun(filled: Bool = true)
+	case sparkles(filled: Bool = true)
+	case flame(filled: Bool = true)
+	case creditcard(filled: Bool = true)
+	case giftcard(filled: Bool = true)
+	case banknote(filled: Bool = true)
 }
 
 // MARK: - Codable
@@ -78,8 +86,24 @@ public extension SemanticImage {
 			String(localized: "semantic-image-list-star", table: "Localizable", bundle: .module)
 		case .bolt:
 			String(localized: "semantic-image-bolt", table: "Localizable", bundle: .module)
+			case .person:
+				String(localized: "semantic-image-person", table: "Localizable", bundle: .module)
+			case .cloud:
+				String(localized: "semantic-image-cloud", table: "Localizable", bundle: .module)
+			case .sun:
+				String(localized: "semantic-image-sun", table: "Localizable", bundle: .module)
+			case .sparkles:
+				String(localized: "semantic-image-sparkles", table: "Localizable", bundle: .module)
+			case .flame:
+				String(localized: "semantic-image-flame", table: "Localizable", bundle: .module)
+			case .creditcard:
+				String(localized: "semantic-image-creditcard", table: "Localizable", bundle: .module)
+			case .giftcard:
+				String(localized: "semantic-image-giftcard", table: "Localizable", bundle: .module)
+			case .banknote:
+				String(localized: "semantic-image-banknote", table: "Localizable", bundle: .module)
+			}
 		}
-	}
 
 	var systemName: String? {
 		switch self {
@@ -111,8 +135,24 @@ public extension SemanticImage {
 			filled ? nil : "text.badge.star"
 		case let .bolt(filled):
 			filled ? "bolt.fill" : "bolt"
+			case let .person(filled):
+				filled ? "person.fill" : "person"
+			case let .cloud(filled):
+				filled ? "cloud.fill" : "cloud"
+			case let .sun(filled):
+				filled ? "sun.max.fill" : "sun.max"
+			case .sparkles:
+				"sparkles"
+			case let .flame(filled):
+				filled ? "flame.fill" : "flame"
+			case let .creditcard(filled):
+				filled ? "creditcard.fill" : "creditcard"
+			case let .giftcard(filled):
+				filled ? "giftcard.fill" : "giftcard"
+			case let .banknote(filled):
+				filled ? "banknote.fill" : "banknote"
+			}
 		}
-	}
 }
 
 // MARK: - Helpers

@@ -19,6 +19,20 @@ public enum IconName: Int {
 	case squareGrid2x2 = 17
 	case listStar = 18
 
+	// MARK: - v2.0.0
+
+	case person = 19
+	case cloud = 20
+	case sun = 21
+	case sparkles = 22
+	case flame = 23
+
+	case creditcard = 24
+	case giftcard = 25
+	case banknote = 26
+
+	// MARK: - v1.0.0
+
 	case star = 100
 	case heart = 101
 	case bolt = 102

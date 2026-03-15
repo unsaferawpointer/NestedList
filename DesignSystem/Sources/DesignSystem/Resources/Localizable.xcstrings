@@ -103,6 +103,23 @@
         }
       }
     },
+    "semantic-image-creditcard" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Credit Card"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Карта"
+          }
+        }
+      }
+    },
     "semantic-image-book" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -116,6 +133,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Книга"
+          }
+        }
+      }
+    },
+    "semantic-image-banknote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Banknote"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Купюра"
           }
         }
       }
@@ -188,6 +222,23 @@
         }
       }
     },
+    "semantic-image-giftcard" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gift Card"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подарочная карта"
+          }
+        }
+      }
+    },
     "semantic-image-heart" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -256,6 +307,23 @@
         }
       }
     },
+    "semantic-image-sparkles" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sparkles"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Искры"
+          }
+        }
+      }
+    },
     "semantic-image-stack" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -286,6 +354,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Звездочка"
+          }
+        }
+      }
+    },
+    "semantic-image-flame" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flame"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пламя"
           }
         }
       }
