@@ -48,7 +48,6 @@ public final class SettingsProvider {
 			defaults.setValuesForKeys(
 				[
 					CompletionBehavior.key: state.completionBehaviour.rawValue,
-					MarkingBehavior.key: state.markingBehaviour.rawValue,
 					IconColor.key: state.iconColor.rawValue,
 					OnboardingVersion.key: state.lastOnboardingVersion?.rawValue
 				]
@@ -69,13 +68,11 @@ public final class SettingsProvider {
 	public init() {
 
 		let completionBehaviour = defaults.getProperty(as: CompletionBehavior.self) ?? CompletionBehavior.defaultValue
-		let markingBehaviour = defaults.getProperty(as: MarkingBehavior.self) ?? MarkingBehavior.defaultValue
 		let iconColor = defaults.getProperty(as: IconColor.self) ?? IconColor.defaultValue
 		let lastOnboardingVersion = defaults.getProperty(as: OnboardingVersion.self)
 
 		self.state = Settings(
 			completionBehaviour: completionBehaviour ?? .regular,
-			markingBehaviour: markingBehaviour ?? .regular,
 			iconColor: iconColor ?? .accent,
 			lastOnboardingVersion: lastOnboardingVersion
 		)
@@ -84,7 +81,6 @@ public final class SettingsProvider {
 			defaults:
 				[
 					CompletionBehavior.key: CompletionBehavior.defaultValue?.rawValue,
-					MarkingBehavior.key: MarkingBehavior.defaultValue?.rawValue,
 					IconColor.key: IconColor.defaultValue?.rawValue
 				]
 		)
@@ -104,13 +100,11 @@ extension SettingsProvider {
 	func userDefaultsDidChange(_ notification: Notification) {
 		// Реакция на изменение настроек
 		let completionBehaviour = defaults.getProperty(as: CompletionBehavior.self)
-		let markingBehaviour = defaults.getProperty(as: MarkingBehavior.self)
 		let iconColor = defaults.getProperty(as: IconColor.self) ?? IconColor.defaultValue
 		let lastOnboardingVersion = defaults.getProperty(as: OnboardingVersion.self)
 
 		let current = Settings(
 			completionBehaviour: completionBehaviour ?? .regular,
-			markingBehaviour: markingBehaviour ?? .regular,
 			iconColor: iconColor ?? .accent,
 			lastOnboardingVersion: lastOnboardingVersion
 		)
