@@ -32,12 +32,12 @@ extension MenuLocalization {
 		String(localized: "display-as-item-title", table: "MenuLocalizable")
 	}
 
-	static var sectionIconItemTitle: String {
-		String(localized: "section-icon-item-title", table: "MenuLocalizable")
+	static var iconItemTitle: String {
+		String(localized: "icon-item-title", table: "MenuLocalizable")
 	}
 
-	static var sectionColorItemTitle: String {
-		String(localized: "section-color-item-title", table: "MenuLocalizable")
+	static var colorItemTitle: String {
+		String(localized: "color-item-title", table: "MenuLocalizable")
 	}
 
 	static var noteItemTitle: String {

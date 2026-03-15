@@ -125,7 +125,7 @@ private extension MenuBuilder {
 	}
 
 	static func configureColorItem(_ item: NSMenuItem, action: Selector) {
-		item.title = MenuLocalization.sectionColorItemTitle
+		item.title = MenuLocalization.colorItemTitle
 		item.identifier = .init(elementIdentifier: .color)
 		item.submenu = {
 			let menu = NSMenu()
@@ -142,7 +142,7 @@ private extension MenuBuilder {
 
 	@available(macOS 14.0, *)
 	static func configureColorPallete(_ item: NSMenuItem, action: Selector) {
-		item.title = MenuLocalization.sectionColorItemTitle
+		item.title = MenuLocalization.colorItemTitle
 		item.identifier = .init(elementIdentifier: .color)
 		item.submenu = {
 			let menu = NSMenu()
@@ -193,7 +193,7 @@ private extension MenuBuilder {
 
 	static func configureIconItem(_ item: NSMenuItem, action: Selector, target: AnyObject?) {
 		item.identifier = .init(elementIdentifier: .icon)
-		item.title = MenuLocalization.sectionIconItemTitle
+		item.title = MenuLocalization.iconItemTitle
 		item.submenu = {
 			let menu = NSMenu()
 			menu.addItem(
@@ -223,7 +223,7 @@ private extension MenuBuilder {
 
 	@available(macOS 14.0, *)
 	static func configureIconPallete(_ item: NSMenuItem, action: Selector, target: AnyObject?) {
-		item.title = MenuLocalization.sectionIconItemTitle
+		item.title = MenuLocalization.iconItemTitle
 		item.identifier = .init(elementIdentifier: .icon)
 		item.submenu = {
 			let menu = NSMenu()
