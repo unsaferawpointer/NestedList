@@ -1,0 +1,28 @@
+name: CoreModule Tests
+
+on:
+  push:
+    paths:
+      - 'CoreModule/**'
+      - '.github/workflows/coremodule-tests.yml'
+  pull_request:
+    paths:
+      - 'CoreModule/**'
+      - '.github/workflows/coremodule-tests.yml'
+  workflow_dispatch:
+
+jobs:
+  coremodule-tests:
+    runs-on: macos-26
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Print Swift version
+        run: swift --version
+
+      - name: Run CoreModule package tests
+        run: swift test --package-path CoreModule --parallel
