@@ -12,7 +12,6 @@ extension Settings {
 	static var standart: Self {
 		return .init(
 			completionBehaviour: .regular,
-			markingBehaviour: .regular,
 			lastOnboardingVersion: nil
 		)
 	}

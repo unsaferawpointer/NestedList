@@ -9,11 +9,21 @@ import XCTest
 
 final class macOSUITests: XCTestCase {
 
+	var app: AppPage!
+
 	override func setUpWithError() throws {
 		continueAfterFailure = false
+		app = AppPage(app: XCUIApplication())
+		app.launch(with: ["onboarding_version": "999.0.0"])
+		app.closeAll()
+		_ = app.waitUntilNoWindows()
 	}
 
-	override func tearDownWithError() throws { }
+	override func tearDownWithError() throws {
+		app.closeAll()
+		app.app.terminate()
+		app = nil
+	}
 }
 
 // MARK: - Common cases
@@ -37,7 +47,7 @@ extension macOSUITests {
 		let app = prepareApp()
 
 		// Act
-		app.newDoc()
+		app.press("n", modifierFlags: .command)
 
 		let window = app.firstWindow()
 		let doc = DocumentPage(window: window)
@@ -102,11 +112,6 @@ extension macOSUITests {
 private extension macOSUITests {
 
 	func prepareApp() -> AppPage {
-		let app = AppPage(app: XCUIApplication())
-
-		app.launch(with: ["onboarding_version": "1.5.0"])
-		app.closeAll()
-
 		return app
 	}
 }

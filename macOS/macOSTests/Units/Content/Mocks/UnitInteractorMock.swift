@@ -26,6 +26,10 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 	func fetchData() {
 		invocations.append(.fetchData)
 	}
+
+	func configure(for root: UUID?) {
+		invocations.append(.configure(root: root))
+	}
 	
 	func move(_ ids: [UUID], to destination: Destination<UUID>) {
 		invocations.append(.move(ids, destination: destination))
@@ -40,14 +44,14 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 		invocations.append(.copy(ids, destination: destination))
 	}
 
-	func newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: CoreModule.ItemStyle, target: UUID?) -> UUID {
+	func newItem(_ text: String, isStrikethrough: Bool, note: String?, iconName: IconName?, tintColor: ItemColor?, target: UUID?) -> UUID {
 		invocations.append(
 			.newItem(
 				text,
 				isStrikethrough: isStrikethrough,
 				note: note,
-				isMarked: isMarked,
-				style: style,
+				iconName: iconName,
+				tintColor: tintColor,
 				target: target
 			)
 		)
@@ -86,8 +90,8 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 		invocations.append(.setNote(note: note, ids: ids))
 	}
 
-	func set(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: CoreModule.ItemStyle, for id: UUID) {
-		invocations.append(.set(text: text, isStrikethrough: isStrikethrough, note: note, isMarked: isMarked, style: style, id: id))
+	func set(_ text: String, isStrikethrough: Bool, note: String?, iconName: IconName?, tintColor: ItemColor?, for id: UUID) {
+		invocations.append(.set(text: text, isStrikethrough: isStrikethrough, note: note, iconName: iconName, tintColor: tintColor, id: id))
 	}
 
 	func deleteItems(_ ids: [UUID]) {
@@ -123,10 +127,11 @@ extension UnitInteractorMock {
 
 	enum Action {
 		case fetchData
+		case configure(root: UUID?)
 		case move(_ ids: [UUID], destination: Destination<UUID>)
 		case validateMovement(_ ids: [UUID], destination: Destination<UUID>)
 		case copy(_ ids: [UUID], destination: Destination<UUID>)
-		case newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?)
+		case newItem(_ text: String, isStrikethrough: Bool, note: String?, iconName: IconName?, tintColor: ItemColor?, target: UUID?)
 		case setStatus(_ status: Bool, ids: [UUID], moveToEnd: Bool)
 		case toggleStatus(id: UUID, moveToEnd: Bool)
 		case setMark(_ isMarked: Bool, ids: [UUID], moveToTop: Bool)
@@ -141,7 +146,7 @@ extension UnitInteractorMock {
 		case nodes(ids: [UUID])
 		case insertStringsFromData(data: [Data], destination: Destination<UUID>)
 		case insertItems(data: [Data], destination: Destination<UUID>)
-		case set(text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, id: UUID)
+		case set(text: String, isStrikethrough: Bool, note: String?, iconName: IconName?, tintColor: ItemColor?, id: UUID)
 	}
 
 	struct Stubs {

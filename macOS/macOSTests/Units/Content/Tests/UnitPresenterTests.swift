@@ -12,6 +12,7 @@ import CoreModule
 import CoreSettings
 @testable import Nested_List
 
+@MainActor
 final class UnitPresenterTests {
 
 	var sut: ContentPresenter!
@@ -134,30 +135,35 @@ extension UnitPresenterTests {
 		sut.menuItemClicked(.newItem)
 
 		// Assert
-
-		guard case let .showDetails(_, completionHandler) = view.invocations[0] else {
-			Issue.record("Expect show details")
+		guard case let .newItem(text, isStrikethrough, note, iconName, tintColor, target) = interactor.invocations[0] else {
+			Issue.record("Expect newItem invocation")
 			return
 		}
+		#expect(!text.isEmpty)
+		#expect(isStrikethrough == false)
+		#expect(note == nil)
+		#expect(iconName == nil)
+		#expect(tintColor == nil)
+		#expect(target == view.selection.first)
 
-		completionHandler(.init(text: .random), true)
-
-		guard case .hideDetails = view.invocations[1] else {
-			Issue.record("Expect hideDetails invocation")
-			return
-		}
-
-		guard case let .expand(id) = view.invocations[2] else {
+		guard case let .expand(id) = view.invocations[0] else {
 			Issue.record("Expect expand invocation")
 			return
 		}
 		#expect(id?.first == view.selection.first)
 
-		guard case let .scroll(id) = view.invocations[3] else {
+		guard case let .scroll(id) = view.invocations[1] else {
 			Issue.record("Expect scroll invocation")
 			return
 		}
 		#expect(id == interactor.stubs.newItem)
+
+		guard case let .focus(id, key) = view.invocations[2] else {
+			Issue.record("Expect focus invocation")
+			return
+		}
+		#expect(id == interactor.stubs.newItem)
+		#expect(key == "title")
 	}
 
 	@Test func test_userDeleteItem() {
@@ -235,60 +241,37 @@ extension UnitPresenterTests {
 		#expect(moveToEnd == true)
 	}
 
-	@Test func test_userChangedMark() {
+	@Test func test_userChangedColor() {
 		// Arrange
-
-		let firstId = UUID()
-		let secondId = UUID()
 
 		view.stubs.selection = [.random, .random]
-		settingsProvider.stubs.state = .standart
-
-		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random))
-		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
-
-		sut.present(.init(nodes: [firstNode, secondNode]))
-
-		interactor.clear()
 
 		// Act
-		sut.menuItemClicked(.marked)
+		sut.menuItemClicked(.init(rawValue: "color-\(ItemColor.yellow.rawValue)"))
 
 		// Assert
-		guard case let .setMark(isMarked, ids, moveToTop) = interactor.invocations[0] else {
-			Issue.record("Expect setMark invocation")
+		guard case let .setColor(color, ids) = interactor.invocations[0] else {
+			Issue.record("Expect setColor invocation")
 			return
 		}
 
-		#expect(isMarked == true)
+		#expect(color == .yellow)
 		#expect(ids == view.stubs.selection)
-		#expect(moveToTop == false)
 	}
 
-	@Test func test_userChangedStyle() {
+	@Test func test_userChangedIcon() {
 		// Arrange
-		let firstId = UUID()
-		let secondId = UUID()
-
-		view.stubs.selection = [firstId, secondId]
-		settingsProvider.stubs.state = .standart
-
-		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random))
-		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
-
-		sut.present(.init(nodes: [firstNode, secondNode]))
-
-		interactor.clear()
+		view.stubs.selection = [.random, .random]
 		// Act
-		sut.menuItemClicked(.section)
+		sut.menuItemClicked(.init(rawValue: "icon-\(IconName.package.rawValue)"))
 
 		// Assert
-		guard case let .setStyle(style, ids) = interactor.invocations[0] else {
-			Issue.record("Expect setStyle invocation")
+		guard case let .setIcon(icon, ids) = interactor.invocations[0] else {
+			Issue.record("Expect setIcon invocation")
 			return
 		}
 
-		#expect(style == .section(icon: nil))
+		#expect(icon == .package)
 		#expect(ids == view.stubs.selection)
 	}
 

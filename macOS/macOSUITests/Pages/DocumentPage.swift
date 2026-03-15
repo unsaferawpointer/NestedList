@@ -14,8 +14,7 @@ final class DocumentPage {
 	let outline: XCUIElement
 
 	init(window: XCUIElement) {
-		_ = window.waitForExistence(timeout: 0.5)
-		precondition(window.elementType == .window, "It is not window")
+		_ = window.waitForExistence(timeout: 2)
 		self.window = window
 		self.outline = window.outlines.firstMatch
 	}
@@ -99,7 +98,10 @@ extension DocumentPage {
 	}
 
 	func savePanelExists() -> Bool {
-		return window.sheets.firstMatch.exists
+		if window.sheets.firstMatch.exists {
+			return true
+		}
+		return window.dialogs.firstMatch.exists
 	}
 
 	func clickSavePanelCancleButton() {

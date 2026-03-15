@@ -25,6 +25,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 
 	func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
+		#if DEBUG
+		if CommandLine.arguments.contains("--UITesting") {
+			return false
+		}
+		#endif
 		return true
 	}
 }

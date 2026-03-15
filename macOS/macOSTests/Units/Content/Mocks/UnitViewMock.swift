@@ -22,7 +22,7 @@ final class UnitViewMock {
 // MARK: - ContentView
 extension UnitViewMock: UnitView {
 
-	func showDetails(with model: DetailsView.Model, completionHandler: @escaping (Nested_List.DetailsView.Properties, Bool) -> Void) {
+	func showDetails(with model: ItemDetailsView.Model, completionHandler: @escaping (ItemDetailsView.Properties, Bool) -> Void) {
 		invocations.append(.showDetails(model: model, completionHandler: completionHandler))
 	}
 	
@@ -70,7 +70,7 @@ extension UnitViewMock {
 		case select(_ id: UUID)
 		case focus(_ id: UUID, key: String)
 		case didSetSelection(selection: [UUID])
-		case showDetails(model: DetailsView.Model, completionHandler: (DetailsView.Properties, Bool) -> Void)
+		case showDetails(model: ItemDetailsView.Model, completionHandler: (ItemDetailsView.Properties, Bool) -> Void)
 		case hideDetails
 	}
 
