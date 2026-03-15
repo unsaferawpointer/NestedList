@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 public struct PlaceholderModel {
 
 	let icon: String
@@ -39,10 +38,12 @@ public struct PlaceholderView: View {
 				Image(systemName: model.icon)
 					.resizable()
 					.scaledToFit()
-					.frame(width: 80, height: 80)
-					.foregroundStyle(.quaternary)
+					.frame(width: 56, height: 56)
+					.foregroundStyle(.quinary)
+					.accessibilityHidden(true)
 				Text(model.title)
-					.font(.title2)
+					.font(.title)
+					.fontWeight(.semibold)
 					.foregroundStyle(.secondary)
 					.lineLimit(1)
 				Text(model.subtitle)
@@ -51,7 +52,7 @@ public struct PlaceholderView: View {
 					.foregroundStyle(.tertiary)
 					.lineLimit(nil)
 			}
-			.frame(maxWidth: 320)
+			.frame(maxWidth: 280)
 			.padding()
 		}
 		.frame(maxWidth: .infinity, maxHeight: .infinity)
