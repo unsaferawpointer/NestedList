@@ -77,10 +77,10 @@ extension Parser: ParserProtocol {
 			let isMarked = contains(prefix: .asterisk, orAnnotation: .mark, in: line)
 
 			var options: ItemOptions = []
-			if isStrikethrough && !line.hasColon {
+			if isStrikethrough {
 				options.insert(.strikethrough)
 			}
-			if isMarked && !line.hasColon {
+			if isMarked {
 				options.insert(.marked)
 			}
 
@@ -89,7 +89,7 @@ extension Parser: ParserProtocol {
 				text: line.text,
 				options: options,
 				iconName: line.hasColon ? .document : nil,
-				tintColor: .tertiary
+				tintColor: isMarked ? .yellow : nil
 			)
 
 			let node = Node<Model>(value: item)

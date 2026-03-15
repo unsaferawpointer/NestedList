@@ -85,7 +85,7 @@ public extension ItemV2 {
 
 // MARK: - Codable
 extension ItemV2: Codable {
-
+	
 	enum CodingKeys: String, CodingKey {
 		case uuid
 		case text
@@ -95,28 +95,32 @@ extension ItemV2: Codable {
 		case tintColor
 		case style
 	}
-
+	
 	public init(from decoder: any Decoder) throws {
 		let container = try decoder.container(keyedBy: CodingKeys.self)
-
+		
 		self.uuid = try container.decode(UUID.self, forKey: .uuid)
 		self.text = try container.decode(String.self, forKey: .text)
 		self.note = try container.decodeIfPresent(String.self, forKey: .note)
 		self.options = try container.decode(ItemOptions.self, forKey: .options)
-
-		let decodedIconName = try container.decodeIfPresent(IconName.self, forKey: .iconName)
-		let decodedTintColor = try container.decodeIfPresent(ItemColor.self, forKey: .tintColor)
-
+		
+		let decodedIconName = try? container.decodeIfPresent(IconName.self, forKey: .iconName)
+		let decodedTintColor = try? container.decodeIfPresent(ItemColor.self, forKey: .tintColor)
+		
 		if let style = try container.decodeIfPresent(ItemStyle.self, forKey: .style),
 		   case let .section(icon) = style {
 			self.iconName = decodedIconName ?? icon?.name
-			self.tintColor = decodedTintColor ?? icon?.color
+			if options.contains(.marked) {
+				self.tintColor = .yellow
+			} else {
+				self.tintColor = decodedTintColor ?? icon?.color
+			}
 		} else {
 			self.iconName = decodedIconName
 			self.tintColor = decodedTintColor
 		}
 	}
-
+	
 	public func encode(to encoder: any Encoder) throws {
 		var container = encoder.container(keyedBy: CodingKeys.self)
 		try container.encode(uuid, forKey: .uuid)
