@@ -56,14 +56,7 @@ private extension JsonDataProvider {
 		let decoder = JSONDecoder()
 		decoder.dateDecodingStrategy = .secondsSince1970
 
-		let versionedFile: VersionedFile
-		do {
-			versionedFile = try decoder.decode(VersionedFile.self, from: data)
-		} catch let error as DecodingError {
-			print("VersionedFile decode error:", error)
-			throw DocumentError.unexpectedFormat
-		} catch {
-			print("VersionedFile other error:", error)
+		guard let versionedFile = try? decoder.decode(VersionedFile.self, from: data) else {
 			throw DocumentError.unexpectedFormat
 		}
 
@@ -71,15 +64,10 @@ private extension JsonDataProvider {
 			throw DocumentError.unknownVersion
 		}
 
-		do {
-			let file = try decoder.decode(DocumentFile<Content>.self, from: data)
-			return file.content
-		} catch let error as DecodingError {
-			print("DocumentFile decode error:", error)
-			throw DocumentError.unexpectedFormat
-		} catch {
-			print("DocumentFile other error:", error)
+		guard let file = try? decoder.decode(DocumentFile<Content>.self, from: data) else {
 			throw DocumentError.unexpectedFormat
 		}
+
+		return file.content
 	}
 }
