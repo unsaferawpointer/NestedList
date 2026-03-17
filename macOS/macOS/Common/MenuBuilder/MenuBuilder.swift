@@ -37,6 +37,8 @@ private extension MenuBuilder {
 			item.identifier = .init(elementIdentifier: .completed)
 			item.title = MenuLocalization.strikethroughItemTitle
 			item.keyEquivalent = "\r"
+		case .appearanceHeader:
+			return NSMenuItem.sectionHeader(title: MenuLocalization.appearanceHeaderItemTitle)
 		case .icon:
 			if #available(macOS 14.0, *) {
 				configureIconPallete(item, action: action, target: target)
@@ -52,6 +54,7 @@ private extension MenuBuilder {
 		case .note:
 			item.identifier = .init(elementIdentifier: .note)
 			item.title = MenuLocalization.noteItemTitle
+			item.image = NSImage(systemSymbolName: "note.text", accessibilityDescription: nil)
 		case .delete:
 			item.identifier = .init(elementIdentifier: .delete)
 			item.title = MenuLocalization.deleteItemTitle
@@ -61,6 +64,7 @@ private extension MenuBuilder {
 		case .edit:
 			item.identifier = .init(elementIdentifier: .edit)
 			item.title = MenuLocalization.editItemTitle
+			item.image = NSImage(systemSymbolName: "square.and.pencil", accessibilityDescription: nil)
 			return item
 		case .separator:
 			return NSMenuItem.separator()
@@ -71,6 +75,7 @@ private extension MenuBuilder {
 		case .columnEdit:
 			item.identifier = .init(elementIdentifier: .columnEdit)
 			item.title = MenuLocalization.editItemTitle
+			item.image = NSImage(systemSymbolName: "square.and.pencil", accessibilityDescription: nil)
 			return item
 		case .columnDelete:
 			item.identifier = .init(elementIdentifier: .columnDelete)
@@ -127,6 +132,7 @@ private extension MenuBuilder {
 	static func configureColorItem(_ item: NSMenuItem, action: Selector) {
 		item.title = MenuLocalization.colorItemTitle
 		item.identifier = .init(elementIdentifier: .color)
+		item.image = NSImage(systemSymbolName: "paintpalette", accessibilityDescription: nil)
 		item.submenu = {
 			let menu = NSMenu()
 			for color in ItemColor.allCases {
@@ -144,6 +150,7 @@ private extension MenuBuilder {
 	static func configureColorPallete(_ item: NSMenuItem, action: Selector) {
 		item.title = MenuLocalization.colorItemTitle
 		item.identifier = .init(elementIdentifier: .color)
+		item.image = NSImage(systemSymbolName: "paintpalette", accessibilityDescription: nil)
 		item.submenu = {
 			let menu = NSMenu()
 
@@ -194,6 +201,7 @@ private extension MenuBuilder {
 	static func configureIconItem(_ item: NSMenuItem, action: Selector, target: AnyObject?) {
 		item.identifier = .init(elementIdentifier: .icon)
 		item.title = MenuLocalization.iconItemTitle
+		item.image = NSImage(systemSymbolName: "star", accessibilityDescription: nil)
 		item.submenu = {
 			let menu = NSMenu()
 			menu.addItem(
@@ -225,6 +233,7 @@ private extension MenuBuilder {
 	static func configureIconPallete(_ item: NSMenuItem, action: Selector, target: AnyObject?) {
 		item.title = MenuLocalization.iconItemTitle
 		item.identifier = .init(elementIdentifier: .icon)
+		item.image = NSImage(systemSymbolName: "photo", accessibilityDescription: nil)
 		item.submenu = {
 			let menu = NSMenu()
 

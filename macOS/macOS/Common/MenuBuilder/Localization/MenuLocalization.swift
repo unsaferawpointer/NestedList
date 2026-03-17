@@ -32,6 +32,10 @@ extension MenuLocalization {
 		String(localized: "display-as-item-title", table: "MenuLocalizable")
 	}
 
+	static var appearanceHeaderItemTitle: String {
+		String(localized: "appearance-header-item-title", table: "MenuLocalizable")
+	}
+
 	static var iconItemTitle: String {
 		String(localized: "icon-item-title", table: "MenuLocalizable")
 	}

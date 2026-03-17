@@ -138,6 +138,7 @@ extension ContentPresenter: UnitViewOutput {
 				.separator,
 				.note,
 				.separator,
+				.appearanceHeader,
 				.icon, .color,
 				.separator,
 				.delete]
