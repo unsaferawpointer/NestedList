@@ -25,26 +25,26 @@ public enum SemanticImage {
 
 	case point
 	case circleSlash
-	case folder(filled: Bool = true)
-	case textDoc(filled: Bool = true)
-	case docOnDoc(filled: Bool = true)
-	case shippingbox(filled: Bool = true)
-	case archivebox(filled: Bool = true)
-	case squareStack(filled: Bool = true)
-	case book(filled: Bool = true)
-	case squareGrid2x2(filled: Bool = true)
-	case star(filled: Bool = true)
-	case heart(filled: Bool = true)
-	case listStar(filled: Bool = false)
-	case bolt(filled: Bool = true)
-	case person(filled: Bool = true)
-	case cloud(filled: Bool = true)
-	case sun(filled: Bool = true)
-	case sparkles(filled: Bool = true)
-	case flame(filled: Bool = true)
-	case creditcard(filled: Bool = true)
-	case giftcard(filled: Bool = true)
-	case banknote(filled: Bool = true)
+	case folder
+	case textDoc
+	case docOnDoc
+	case shippingbox
+	case archivebox
+	case squareStack
+	case book
+	case squareGrid2x2
+	case star
+	case heart
+	case listStar
+	case bolt
+	case person
+	case cloud
+	case sun
+	case sparkles
+	case flame
+	case creditcard
+	case giftcard
+	case banknote
 }
 
 // MARK: - Codable
@@ -86,24 +86,24 @@ public extension SemanticImage {
 			String(localized: "semantic-image-list-star", table: "Localizable", bundle: .module)
 		case .bolt:
 			String(localized: "semantic-image-bolt", table: "Localizable", bundle: .module)
-			case .person:
-				String(localized: "semantic-image-person", table: "Localizable", bundle: .module)
-			case .cloud:
-				String(localized: "semantic-image-cloud", table: "Localizable", bundle: .module)
-			case .sun:
-				String(localized: "semantic-image-sun", table: "Localizable", bundle: .module)
-			case .sparkles:
-				String(localized: "semantic-image-sparkles", table: "Localizable", bundle: .module)
-			case .flame:
-				String(localized: "semantic-image-flame", table: "Localizable", bundle: .module)
-			case .creditcard:
-				String(localized: "semantic-image-creditcard", table: "Localizable", bundle: .module)
-			case .giftcard:
-				String(localized: "semantic-image-giftcard", table: "Localizable", bundle: .module)
-			case .banknote:
-				String(localized: "semantic-image-banknote", table: "Localizable", bundle: .module)
-			}
+		case .person:
+			String(localized: "semantic-image-person", table: "Localizable", bundle: .module)
+		case .cloud:
+			String(localized: "semantic-image-cloud", table: "Localizable", bundle: .module)
+		case .sun:
+			String(localized: "semantic-image-sun", table: "Localizable", bundle: .module)
+		case .sparkles:
+			String(localized: "semantic-image-sparkles", table: "Localizable", bundle: .module)
+		case .flame:
+			String(localized: "semantic-image-flame", table: "Localizable", bundle: .module)
+		case .creditcard:
+			String(localized: "semantic-image-creditcard", table: "Localizable", bundle: .module)
+		case .giftcard:
+			String(localized: "semantic-image-giftcard", table: "Localizable", bundle: .module)
+		case .banknote:
+			String(localized: "semantic-image-banknote", table: "Localizable", bundle: .module)
 		}
+	}
 
 	var systemName: String? {
 		switch self {
@@ -111,48 +111,48 @@ public extension SemanticImage {
 			"circle.slash"
 		case .point:
 			nil
-		case let .folder(filled):
-			filled ? "folder.fill" : "folder"
-		case let .textDoc(filled):
-			filled ? "doc.text.fill" : "doc.text"
-		case let .docOnDoc(filled):
-			filled ? "doc.on.doc.fill" : "doc.on.doc"
-		case let .shippingbox(filled):
-			filled ? "shippingbox.fill" : "shippingbox"
-		case let .star(filled):
-			filled ? "star.fill" : "star"
-		case let .archivebox(filled):
-			filled ? "archivebox.fill" : "archivebox"
-		case let .squareStack(filled):
-			filled ? "square.stack.3d.up.fill" : "square.stack.3d.up"
-		case let .book(filled):
-			filled ? "book.closed.fill" : "book.closed"
-		case let .squareGrid2x2(filled):
-			filled ? "square.grid.2x2.fill" : "square.grid.2x2"
-		case let .heart(filled):
-			filled ? "heart.fill" : "heart"
-		case let .listStar(filled):
-			filled ? nil : "text.badge.star"
-		case let .bolt(filled):
-			filled ? "bolt.fill" : "bolt"
-			case let .person(filled):
-				filled ? "person.fill" : "person"
-			case let .cloud(filled):
-				filled ? "cloud.fill" : "cloud"
-			case let .sun(filled):
-				filled ? "sun.max.fill" : "sun.max"
-			case .sparkles:
-				"sparkles"
-			case let .flame(filled):
-				filled ? "flame.fill" : "flame"
-			case let .creditcard(filled):
-				filled ? "creditcard.fill" : "creditcard"
-			case let .giftcard(filled):
-				filled ? "giftcard.fill" : "giftcard"
-			case let .banknote(filled):
-				filled ? "banknote.fill" : "banknote"
-			}
+		case .folder:
+			"folder.fill"
+		case .textDoc:
+			"doc.text.fill"
+		case .docOnDoc:
+			"doc.on.doc.fill"
+		case .shippingbox:
+			"shippingbox.fill"
+		case .star:
+			"star.fill"
+		case .archivebox:
+			"archivebox.fill"
+		case .squareStack:
+			"square.stack.3d.up.fill"
+		case .book:
+			"book.closed.fill"
+		case .squareGrid2x2:
+			"square.grid.2x2.fill"
+		case .heart:
+			"heart.fill"
+		case .listStar:
+			"text.badge.star"
+		case .bolt:
+			"bolt.fill"
+		case .person:
+			"person.fill"
+		case .cloud:
+			"cloud.fill"
+		case .sun:
+			"sun.max.fill"
+		case .sparkles:
+			"sparkles"
+		case .flame:
+			"flame.fill"
+		case .creditcard:
+			"creditcard.fill"
+		case .giftcard:
+			"giftcard.fill"
+		case .banknote:
+			"banknote.fill"
 		}
+	}
 }
 
 // MARK: - Helpers
@@ -161,7 +161,7 @@ private extension SemanticImage {
 	var resource: ImageResource? {
 		switch self {
 		case .point:
-			.point
+				.point
 		default:
 			nil
 		}

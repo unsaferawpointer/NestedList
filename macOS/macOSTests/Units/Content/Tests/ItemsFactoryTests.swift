@@ -80,7 +80,7 @@ struct ItemsFactoryTests {
 		#expect(result.value.title == item.text)
 		#expect(result.configuration.text.colorToken == .primary)
 		#expect(!result.configuration.text.strikethrough)
-		#expect(result.configuration.icon?.name == .textDoc(filled: true))
+		#expect(result.configuration.icon?.name == .textDoc)
 		#expect(result.configuration.icon?.appearence == .monochrome(token: .accent))
 	}
 
@@ -98,7 +98,7 @@ struct ItemsFactoryTests {
 		#expect(result.value.title == item.text)
 		#expect(result.configuration.text.colorToken == .primary)
 		#expect(!result.configuration.text.strikethrough)
-		#expect(result.configuration.icon?.name == .folder(filled: true))
+		#expect(result.configuration.icon?.name == .folder)
 		#expect(result.configuration.icon?.appearence == .monochrome(token: .tertiary))
 	}
 
@@ -116,7 +116,7 @@ struct ItemsFactoryTests {
 		#expect(result.value.title == item.text)
 		#expect(result.configuration.text.colorToken == .primary)
 		#expect(!result.configuration.text.strikethrough)
-		#expect(result.configuration.icon?.name == .shippingbox(filled: true))
+		#expect(result.configuration.icon?.name == .shippingbox)
 		#expect(result.configuration.icon?.appearence == .hierarchical(token: .yellow))
 	}
 

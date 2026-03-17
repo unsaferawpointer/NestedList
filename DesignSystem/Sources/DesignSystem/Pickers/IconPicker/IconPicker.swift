@@ -42,24 +42,23 @@ public struct IconPicker: View {
 extension SemanticImage {
 
 	static var available: [SemanticImage] {
-		return
-		[
-			.textDoc(filled: false),
-			.docOnDoc(filled: false),
-			.folder(filled: false),
-			.shippingbox(filled: false),
-			.archivebox(filled: false),
-			.squareStack(filled: false),
-			.book(filled: false),
-			.squareGrid2x2(filled: false),
-			.listStar(filled: false),
-			.star(filled: false),
-			.heart(filled: false),
-			.bolt(filled: false)
+		return [
+			.textDoc,
+			.docOnDoc,
+			.folder,
+			.shippingbox,
+			.archivebox,
+			.squareStack,
+			.book,
+			.squareGrid2x2,
+			.listStar,
+			.star,
+			.heart,
+			.bolt
 		]
 	}
 }
 
 #Preview {
-	IconPicker(selection: .constant(.customIcon(.docOnDoc(filled: false))))
+	IconPicker(selection: .constant(.customIcon(.docOnDoc)))
 }

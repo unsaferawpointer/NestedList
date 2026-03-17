@@ -127,7 +127,7 @@ private extension ItemDetailsView {
 
 	var iconModels: [IconModel] {
 		return IconName.allCases.map {
-			.customIcon(IconMapper.map(icon: $0, filled: false) ?? .textDoc(filled: false))
+			.customIcon(IconMapper.map(icon: $0, filled: false) ?? .textDoc)
 		}
 	}
 

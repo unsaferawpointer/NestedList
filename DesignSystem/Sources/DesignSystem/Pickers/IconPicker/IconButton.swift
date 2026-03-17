@@ -47,6 +47,6 @@ struct IconButton: View {
 }
 
 #Preview {
-	IconButton(icon: .book(filled: false), isSelected: false, action: { })
-	IconButton(icon: .book(filled: false), isSelected: true, action: { })
+	IconButton(icon: .book, isSelected: false, action: { })
+	IconButton(icon: .book, isSelected: true, action: { })
 }
