@@ -33,6 +33,9 @@ public enum Destination<ID> {
 	}
 }
 
+// MARK: - Equatable
+extension Destination: Equatable where ID: Equatable { }
+
 // MARK: - Public interface
 public extension Destination {
 

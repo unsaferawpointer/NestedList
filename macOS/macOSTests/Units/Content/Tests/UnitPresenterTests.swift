@@ -7,9 +7,11 @@
 
 import Testing
 import Foundation
+import AppKit
 import Hierarchy
 import CoreModule
 import CoreSettings
+import DesignSystem
 @testable import Nested_List
 
 @MainActor
@@ -344,10 +346,210 @@ extension UnitPresenterTests {
 	}
 }
 
+// MARK: - DropDelegate test-cases
+extension UnitPresenterTests {
+
+	@Test func test_moveItems() {
+		// Arrange
+		let expectedIds: [UUID] = [.random, .random]
+		let expectedDestination: Destination<UUID> = .toRoot
+
+		// Act
+		sut.move(expectedIds, to: expectedDestination)
+
+		// Assert
+		guard case let .move(ids, destination) = interactor.invocations.first else {
+			Issue.record("Expect move invocation")
+			return
+		}
+		#expect(ids == expectedIds)
+		#expect(destination == expectedDestination)
+	}
+
+	@Test func test_copyItems() {
+		// Arrange
+		let expectedIds: [UUID] = [.random]
+		let expectedDestination: Destination<UUID> = .onItem(with: .random)
+
+		// Act
+		sut.copy(expectedIds, to: expectedDestination)
+
+		// Assert
+		guard case let .copy(ids, destination) = interactor.invocations.first else {
+			Issue.record("Expect copy invocation")
+			return
+		}
+		#expect(ids == expectedIds)
+		#expect(destination == expectedDestination)
+	}
+
+	@Test func test_validateMovement() {
+		// Arrange
+		let expectedIds: [UUID] = [.random]
+		let expectedDestination: Destination<UUID> = .onItem(with: .random)
+
+		interactor.stubs.validateMovement = true
+
+		// Act
+		let result = sut.validateMovement(expectedIds, to: expectedDestination)
+
+		// Assert
+		#expect(result)
+		guard case let .validateMovement(ids, destination) = interactor.invocations.first else {
+			Issue.record("Expect validateMovement invocation")
+			return
+		}
+		#expect(ids == expectedIds)
+		#expect(destination == expectedDestination)
+	}
+
+	@Test func test_validateDrop() {
+		// Arrange
+		let destination: Destination<UUID> = .toRoot
+		let stringType = NSPasteboard.PasteboardType.string.rawValue
+		let itemType = "dev.zeroindex.ListAdapter.item"
+		let stringInfo = PasteboardInfo(items: [.init(data: [stringType: Data("value".utf8)])])
+		let itemInfo = PasteboardInfo(items: [.init(data: [itemType: Data([0x01])])])
+		let unknownInfo = PasteboardInfo(items: [.init(data: ["unknown/type": Data([0x02])])])
+
+		// Act
+		let validStringResult = sut.validateDrop(stringInfo, to: destination)
+		let validItemResult = sut.validateDrop(itemInfo, to: destination)
+		let invalidResult = sut.validateDrop(unknownInfo, to: destination)
+
+		// Assert
+		#expect(validStringResult)
+		#expect(validItemResult)
+		#expect(!invalidResult)
+	}
+
+	@Test func test_dropItemsFromPasteboard() {
+		// Arrange
+		let destination: Destination<UUID> = .toRoot
+		let itemType = "dev.zeroindex.ListAdapter.item"
+		let first = Data([0x01])
+		let second = Data([0x02])
+		let info = PasteboardInfo(
+			items: [
+				.init(data: [itemType: first]),
+				.init(data: [itemType: second])
+			]
+		)
+
+		// Act
+		sut.drop(info, to: destination)
+
+		// Assert
+		guard case let .insertItems(data, destination: actualDestination) = interactor.invocations.first else {
+			Issue.record("Expect insertItems invocation")
+			return
+		}
+		#expect(data == [first, second])
+		#expect(actualDestination == destination)
+	}
+
+	@Test func test_dropStringsFromPasteboard() {
+		// Arrange
+		let destination: Destination<UUID> = .toRoot
+		let stringType = NSPasteboard.PasteboardType.string.rawValue
+		let first = Data("one".utf8)
+		let second = Data("two".utf8)
+		let info = PasteboardInfo(
+			items: [
+				.init(data: [stringType: first]),
+				.init(data: [stringType: second])
+			]
+		)
+
+		// Act
+		sut.drop(info, to: destination)
+
+		// Assert
+		guard case let .insertStringsFromData(data, destination: actualDestination) = interactor.invocations.first else {
+			Issue.record("Expect insertStringsFromData invocation")
+			return
+		}
+		#expect(data == [first, second])
+		#expect(actualDestination == destination)
+	}
+
+	@Test func test_availableTypes() {
+		// Act
+		let result = sut.availableTypes()
+
+		// Assert
+		#expect(result.contains(NSPasteboard.PasteboardType.string.rawValue))
+		#expect(result.contains("dev.zeroindex.ListAdapter.item"))
+		#expect(result.count == 2)
+	}
+}
+
+// MARK: - DragDelegate test-cases
+extension UnitPresenterTests {
+
+	@Test func test_writeToPasteboard() {
+		// Arrange
+		let id = UUID()
+		let node: Node<Item> = .init(value: .init(uuid: id, text: "Title"))
+		interactor.stubs.nodes = [node]
+		let pasteboard = PasteboardMock()
+
+		// Act
+		sut.write(ids: [id], to: pasteboard)
+
+		// Assert
+		guard case let .nodes(ids) = interactor.invocations.first else {
+			Issue.record("Expect nodes invocation")
+			return
+		}
+		#expect(ids == [id])
+		#expect(pasteboard.invocations.count == 1)
+		guard case let .setInfo(info, clearContents) = pasteboard.invocations.first else {
+			Issue.record("Expect setInfo invocation")
+			return
+		}
+		#expect(clearContents == false)
+		#expect(info.containsInfo(of: NSPasteboard.PasteboardType.string.rawValue))
+		#expect(info.containsInfo(of: "dev.zeroindex.ListAdapter.item"))
+	}
+}
+
 // MARK: - Helpers
 private extension UnitPresenterTests {
 
 	func makeContent() -> Content {
 		.init(nodes: [.init(value: .random), .init(value: .random)])
+	}
+}
+
+private final class PasteboardMock {
+
+	private(set) var invocations: [Action] = []
+}
+
+// MARK: - PasteboardProtocol
+extension PasteboardMock: PasteboardProtocol {
+
+	func contains(_ types: Set<String>) -> Bool {
+		invocations.append(.contains(types))
+		return false
+	}
+
+	func setInfo(_ info: PasteboardInfo, clearContents: Bool) {
+		invocations.append(.setInfo(info, clearContents: clearContents))
+	}
+
+	func getInfo() -> PasteboardInfo? {
+		invocations.append(.getInfo)
+		return nil
+	}
+}
+
+private extension PasteboardMock {
+
+	enum Action {
+		case contains(Set<String>)
+		case setInfo(PasteboardInfo, clearContents: Bool)
+		case getInfo
 	}
 }
