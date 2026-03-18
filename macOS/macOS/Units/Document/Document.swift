@@ -67,11 +67,19 @@ class Document: NSDocument {
 	}
 
 	override func data(ofType typeName: String) throws -> Data {
-		try storage.data(ofType: typeName)
+		do {
+			return try storage.data(ofType: typeName)
+		} catch let error as DocumentError {
+			throw DocumentErrorMapper.map(error: error)
+		}
 	}
 
 	override func read(from data: Data, ofType typeName: String) throws {
-		try storage.read(from: data, ofType: typeName)
+		do {
+			try storage.read(from: data, ofType: typeName)
+		} catch let error as DocumentError {
+			throw DocumentErrorMapper.map(error: error)
+		}
 	}
 
 }

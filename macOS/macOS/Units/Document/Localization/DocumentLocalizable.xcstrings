@@ -1,6 +1,38 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "document-error-unexpected-format-reason" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The document has an unsupported or corrupted format."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Документ имеет неподдерживаемый формат или поврежден."
+          }
+        }
+      }
+    },
+    "document-error-unknown-version-reason" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This document was created in a newer app version. Please update the app to the latest version and try again."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Этот документ создан в более новой версии приложения. Пожалуйста, обновите приложение до последней версии и повторите попытку."
+          }
+        }
+      }
+    },
     "new-item-toolbar-item-label" : {
       "localizations" : {
         "en" : {
