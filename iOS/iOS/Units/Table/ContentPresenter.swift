@@ -95,12 +95,12 @@ extension ContentPresenter: ContentPresenterProtocol {
 		let converted = snapshot
 			.map { info in
 
-				return factory.makeItem(
-					item: info.model,
-					level: info.level,
-					iconColor: settingsProvider.state.iconColor
-				)
-			}
+					return factory.makeItem(
+						item: info.model,
+						isLeaf: info.isLeaf,
+						iconColor: settingsProvider.state.iconColor
+					)
+				}
 		view?.display(converted)
 	}
 }

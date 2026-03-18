@@ -13,7 +13,7 @@ import CoreSettings
 import CorePresentation
 
 protocol ItemsFactoryProtocol {
-	func makeItem(item: Item, level: Int, iconColor: IconColor) -> ItemModel
+	func makeItem(item: Item, isLeaf: Bool, iconColor: IconColor) -> ItemModel
 }
 
 final class ItemsFactory { }
@@ -21,11 +21,11 @@ final class ItemsFactory { }
 // MARK: - ItemsFactoryProtocol
 extension ItemsFactory: ItemsFactoryProtocol {
 
-	func makeItem(item: Item, level: Int, iconColor: IconColor) -> ItemModel {
+	func makeItem(item: Item, isLeaf: Bool, iconColor: IconColor) -> ItemModel {
 
 		let titleConfiguration = TextConfiguration(
 			text: item.text,
-			style: level == 0 ? .headline : .body,
+			style: isLeaf ? .body : .headline,
 			colorToken: item.isStrikethrough ? .disabledText : .primary,
 			strikethrough: item.isStrikethrough
 		)
