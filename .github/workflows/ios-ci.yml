@@ -1,0 +1,78 @@
+name: iOS CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-26
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Print Xcode version
+        run: xcodebuild -version
+
+      - name: Select available iOS Simulator
+        run: |
+          set -euo pipefail
+          SIMULATOR_ID="$(
+            xcrun simctl list devices available \
+            | awk '/-- iOS/{flag=1; next} /^--/{flag=0} flag {print}' \
+            | grep -Eo '[0-9A-Fa-f-]{36}' \
+            | head -n 1
+          )"
+          if [ -z "$SIMULATOR_ID" ]; then
+            echo "No available iOS Simulator destination found"
+            xcodebuild -workspace NestedList.xcworkspace -scheme iOS -showdestinations || true
+            xcrun simctl list devices available || true
+            exit 1
+          fi
+
+          echo "Using simulator: $SIMULATOR_ID"
+          echo "IOS_DESTINATION=platform=iOS Simulator,id=$SIMULATOR_ID" >> "$GITHUB_ENV"
+
+      - name: Build iOS target (Debug)
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -workspace NestedList.xcworkspace \
+            -scheme iOS \
+            -destination "$IOS_DESTINATION" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            build | tee xcodebuild.log
+
+      - name: Print build errors
+        if: failure()
+        run: |
+          echo "==== xcodebuild errors ===="
+          grep -n " error: " xcodebuild.log || true
+
+      - name: Run unit tests
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -workspace NestedList.xcworkspace \
+            -scheme iOS \
+            -destination "$IOS_DESTINATION" \
+            -only-testing:iOSTests \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            test | tee unit-tests.log
+
+      - name: Print unit test errors
+        if: failure()
+        run: |
+          echo "==== unit test errors ===="
+          grep -n " error: " unit-tests.log || true
+          grep -n " failed" unit-tests.log || true
