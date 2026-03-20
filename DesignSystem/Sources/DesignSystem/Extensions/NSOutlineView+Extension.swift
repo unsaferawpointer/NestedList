@@ -7,9 +7,26 @@
 
 #if canImport(Cocoa)
 import Cocoa
-#endif
 
-#if os(macOS)
+public extension NSOutlineView {
+
+	static var standart: NSOutlineView {
+		let view = NSOutlineView()
+		view.style = .inset
+		view.rowSizeStyle = .large
+		view.floatsGroupRows = false
+		view.allowsMultipleSelection = true
+		view.allowsColumnResizing = false
+		view.usesAlternatingRowBackgroundColors = false
+		view.autoresizesOutlineColumn = false
+		view.usesAutomaticRowHeights = false
+		view.indentationPerLevel = 16
+		view.intercellSpacing = .init(width: 0, height: 2)
+		view.backgroundColor = .clear
+		return view
+	}
+}
+
 extension NSOutlineView {
 
 	func clickedItem<T>(with type: T.Type) -> T? {

@@ -40,43 +40,22 @@ class ContentViewController: NSCollectionViewItem {
 
 	var output: UnitViewOutput?
 
+	// MARK: - Delegates
+
 	weak var listDelegate: (any DesignSystem.ListDelegate<UUID>)?
 	weak var dropDelegate: (any DesignSystem.DropDelegate<UUID>)?
 	weak var dragDelegate: (any DesignSystem.DragDelegate<UUID>)?
 	weak var cellDelegate: (any DesignSystem.CellDelegate<ItemModel>)?
 
-	let configuration: ContentConfiguration
+	private let configuration: ContentConfiguration
 
 	// MARK: - UI-Properties
 
-	var placeholderView: NSView?
+	private var placeholderView: NSView?
 
-	lazy var scrollview: NSScrollView = {
-		let view = NSScrollView()
-		view.borderType = .noBorder
-		view.hasHorizontalScroller = false
-		view.autohidesScrollers = true
-		view.hasVerticalScroller = false
-		view.automaticallyAdjustsContentInsets = true
-		view.drawsBackground = true
-		return view
-	}()
+	private let scrollview: NSScrollView = .standart
 
-	lazy var table: NSOutlineView = {
-		let view = NSOutlineView()
-		view.style = .inset
-		view.rowSizeStyle = .large
-		view.floatsGroupRows = false
-		view.allowsMultipleSelection = true
-		view.allowsColumnResizing = false
-		view.usesAlternatingRowBackgroundColors = false
-		view.autoresizesOutlineColumn = false
-		view.usesAutomaticRowHeights = false
-		view.indentationPerLevel = 16
-		view.intercellSpacing = .init(width: 0, height: 2)
-		view.backgroundColor = .clear
-		return view
-	}()
+	private let table: NSOutlineView = .standart
 
 	// MARK: - Initialization
 
@@ -84,6 +63,7 @@ class ContentViewController: NSCollectionViewItem {
 		self.configuration = configuration
 		super.init(nibName: nil, bundle: nil)
 		configure(self)
+
 		self.adapter = ListAdapter<ItemModel>(tableView: table)
 		self.adapter?.dropDelegate = dropDelegate
 		self.adapter?.cellDelegate = cellDelegate
