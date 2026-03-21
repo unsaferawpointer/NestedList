@@ -74,14 +74,10 @@ extension Parser: ParserProtocol {
 			}
 
 			let isStrikethrough = contains(prefix: .ex, orAnnotation: .done, in: line)
-			let isMarked = contains(prefix: .asterisk, orAnnotation: .mark, in: line)
 
 			var options: ItemOptions = []
 			if isStrikethrough {
 				options.insert(.strikethrough)
-			}
-			if isMarked {
-				options.insert(.marked)
 			}
 
 			let item = Item(
@@ -89,7 +85,7 @@ extension Parser: ParserProtocol {
 				text: line.text,
 				options: options,
 				iconName: line.hasColon ? .document : nil,
-				tintColor: isMarked ? .yellow : nil
+				tintColor: nil
 			)
 
 			let node = Node<Model>(value: item)

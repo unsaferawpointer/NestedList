@@ -97,7 +97,7 @@ private extension ParserTests {
 		let item00 = project0.children[0]
 		#expect(item00.value.isStrikethrough == false)
 		#expect(item00.value.iconName == nil)
-		#expect(item00.value.tintColor == .yellow)
+		#expect(item00.value.tintColor == nil)
 		#expect(item00.value.note == "Note 0 0")
 
 		#expect(item00.children.count == 0)
