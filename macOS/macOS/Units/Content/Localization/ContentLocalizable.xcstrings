@@ -6,7 +6,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Редактирование"
+            "value" : "Edit Item"
           }
         },
         "ru" : {
@@ -22,7 +22,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Новый пункт"
+            "value" : "New Item"
           }
         },
         "ru" : {
