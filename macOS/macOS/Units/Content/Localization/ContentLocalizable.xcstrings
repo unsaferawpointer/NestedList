@@ -11,8 +11,8 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Edit Item"
+            "state" : "translated",
+            "value" : "Редактирование"
           }
         }
       }
@@ -27,8 +27,8 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "New Item"
+            "state" : "translated",
+            "value" : "Новый пункт"
           }
         }
       }
@@ -92,7 +92,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Пока нет ни одного элемента"
+            "value" : "Список пуст"
           }
         }
       }
