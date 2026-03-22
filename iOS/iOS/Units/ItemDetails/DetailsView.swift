@@ -121,16 +121,26 @@ private extension DetailsView {
 		}
 	}
 
+	@MainActor
 	var availableColors: [ColorToken] {
-		return ItemColor.allCases.compactMap {
+		ColorsPalette.colors.map {
 			ColorMapper.map(color: $0)
 		}
 	}
 
+	@MainActor
+	var availableIcons: [SemanticImage] {
+		return IconsPalette.icons
+			.map {
+				IconMapper.map(icon: $0)
+			}
+	}
+
+	@MainActor
 	@ViewBuilder
 	func buildIconPicker() -> some View {
 		Section(strings.iconsPickerTitle) {
-			IconPicker(selection: .init(get: {
+			IconPicker(icons: availableIcons, selection: .init(get: {
 				guard
 					let name = model.properties.icon,
 					let icon = IconMapper.map(icon: name, filled: false)
@@ -150,6 +160,7 @@ private extension DetailsView {
 		}
 	}
 
+	@MainActor
 	@ViewBuilder
 	func buildColorPicker() -> some View {
 		Section(strings.colorPickerTitle) {

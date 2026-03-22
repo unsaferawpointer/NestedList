@@ -41,7 +41,7 @@ public extension IconAppearence {
 
 	var tint: NSColor? {
 		switch self {
-		case let .monochrome(token):
+		case let .monochrome(token), let .hierarchical(token):
 			token.value
 		default:
 			.controlAccentColor

@@ -14,6 +14,7 @@ protocol MenuBuilderProtocol {
 	static func build(for items: [ElementIdentifier], target: AnyObject?) -> NSMenu
 }
 
+@MainActor
 final class MenuBuilder { }
 
 // MARK: - Helpers
@@ -46,11 +47,7 @@ private extension MenuBuilder {
 				configureIconItem(item, action: action, target: target)
 			}
 		case .color:
-			if #available(macOS 14.0, *) {
-				configureColorPallete(item, action: action)
-			} else {
-				configureColorItem(item, action: action)
-			}
+			configureColorItem(item, action: action)
 		case .note:
 			item.identifier = .init(elementIdentifier: .note)
 			item.title = MenuLocalization.noteItemTitle
@@ -135,49 +132,15 @@ private extension MenuBuilder {
 		item.image = NSImage(systemSymbolName: "paintpalette", accessibilityDescription: nil)
 		item.submenu = {
 			let menu = NSMenu()
-			for color in ItemColor.allCases {
-				let item = buildColorItem(
-					color: color,
-					action: action
-				)
-				menu.addItem(item)
-			}
-			return menu
-		}()
-	}
-
-	@available(macOS 14.0, *)
-	static func configureColorPallete(_ item: NSMenuItem, action: Selector) {
-		item.title = MenuLocalization.colorItemTitle
-		item.identifier = .init(elementIdentifier: .color)
-		item.image = NSImage(systemSymbolName: "paintpalette", accessibilityDescription: nil)
-		item.submenu = {
-			let menu = NSMenu()
-
-			let item = buildColorItem(
-				color: .accent,
-				action: action
-			)
-			menu.addItem(item)
-
-			menu.addItem(.separator())
-
-			for chunk in Array(ItemColor.allCases.dropFirst()).chunked(into: 4) {
-				let row = NSMenuItem()
-				row.submenu = {
-					let menu = NSMenu()
-					menu.presentationStyle = .palette
-					for color in chunk {
-
-						let item = buildColorItem(
-							color: color,
-							action: action
-						)
-						menu.addItem(item)
-					}
-					return menu
-				}()
-				menu.addItem(row)
+			for group in ColorsPalette.grouped() {
+				for color in group {
+					let item = buildColorItem(
+						color: color,
+						action: action
+					)
+					menu.addItem(item)
+				}
+				menu.addItem(.separator())
 			}
 			return menu
 		}()
@@ -194,7 +157,7 @@ private extension MenuBuilder {
 		item.target = target
 		item.title = IconMapper.map(icon: icon, filled: false)?.title ?? ""
 		item.image = IconMapper.map(icon: icon, filled: false)?.nsImage?
-			.withSymbolConfiguration(.preferringHierarchical())
+			.withSymbolConfiguration(.preferringMonochrome())
 		return item
 	}
 
@@ -251,7 +214,7 @@ private extension MenuBuilder {
 
 			menu.addItem(.separator())
 
-			for chunk in IconName.allCases.chunked(into: 4) {
+			for chunk in IconsPalette.chunked() {
 				let row = NSMenuItem()
 				row.submenu = {
 					let menu = NSMenu()
@@ -271,13 +234,5 @@ private extension MenuBuilder {
 			}
 			return menu
 		}()
-	}
-}
-
-extension Array {
-	func chunked(into size: Int) -> [[Element]] {
-		return stride(from: 0, to: count, by: size).map {
-			Array(self[$0 ..< Swift.min($0 + size, count)])
-		}
 	}
 }

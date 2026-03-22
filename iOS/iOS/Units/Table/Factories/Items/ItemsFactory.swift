@@ -41,6 +41,8 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			nil
 		}
 
+		let iconName = IconMapper.map(icon: item.iconName, filled: true)
+
 		let iconAppearence: IconAppearence = {
 			switch item.isStrikethrough {
 			case true:
@@ -49,11 +51,14 @@ extension ItemsFactory: ItemsFactoryProtocol {
 				if let color = iconColor.color {
 					return .monochrome(token: color)
 				}
-				return .hierarchical(token: ColorMapper.map(color: item.tintColor))
+				let token = ColorMapper.map(color: item.tintColor)
+				guard let preffered = iconName?.preferredAppearance(with: token) else {
+					return .monochrome(token: ColorMapper.map(color: item.tintColor))
+				}
+				return preffered
 			}
 		}()
 
-		let iconName = IconMapper.map(icon: item.iconName, filled: true)
 		let iconConfiguration: IconConfiguration? = if let iconName {
 			IconConfiguration(name: iconName, appearence: iconAppearence)
 		} else {

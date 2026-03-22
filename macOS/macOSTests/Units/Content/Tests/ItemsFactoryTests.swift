@@ -117,7 +117,25 @@ struct ItemsFactoryTests {
 		#expect(result.configuration.text.colorToken == .primary)
 		#expect(!result.configuration.text.strikethrough)
 		#expect(result.configuration.icon?.name == .shippingbox)
-		#expect(result.configuration.icon?.appearence == .hierarchical(token: .yellow))
+		#expect(result.configuration.icon?.appearence == .monochrome(token: .yellow))
+	}
+
+	@Test func makeItem_whenIconImageHasPreferredAppearance() {
+		// Arrange
+		let sut = ItemsFactory()
+
+		let item = Item(text: .random, options: [.marked], iconName: .xmarkDiamond, tintColor: .yellow)
+
+		// Act
+		let result = sut.makeItem(item: item, isLeaf: false, iconColor: .multicolor)
+
+		// Assert
+		#expect(result.isGroup)
+		#expect(result.value.title == item.text)
+		#expect(result.configuration.text.colorToken == .primary)
+		#expect(!result.configuration.text.strikethrough)
+		#expect(result.configuration.icon?.name == .xmarkDiamond)
+		#expect(result.configuration.icon?.appearence == .monochrome(token: .yellow))
 	}
 
 	@Test func makeSection_when_sectionIsCompleted() {

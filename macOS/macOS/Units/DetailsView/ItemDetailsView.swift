@@ -22,6 +22,11 @@ struct ItemDetailsView {
 		return !model.properties.text.isEmpty
 	}
 
+	@MainActor
+	let icons = IconsPalette.chunked()
+		.flatMap{ $0 }
+		.map { IconMapper.map(icon: $0) }
+
 	@FocusState private var focusedField: Field?
 
 	// MARK: - Initialization
@@ -137,10 +142,11 @@ private extension ItemDetailsView {
 		}
 	}
 
+	@MainActor
 	@ViewBuilder
 	func buildIconPicker() -> some View {
 		Section(strings.iconsPickerTitle) {
-			IconPicker(selection: .init(get: {
+			IconPicker(icons: icons, selection: .init(get: {
 				guard
 					let name = model.properties.icon,
 					let icon = IconMapper.map(icon: name, filled: false)

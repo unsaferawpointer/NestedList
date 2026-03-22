@@ -140,7 +140,7 @@ private extension ItemCell {
 			iconView.image = image?
 				.withSymbolConfiguration(
 					symbolConfiguration
-						.applying(.init(textStyle: .caption2))
+						.applying(.init(textStyle: .body))
 				)
 			iconView.contentTintColor = iconConfiguration.appearence.tint
 		} else {

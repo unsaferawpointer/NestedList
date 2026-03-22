@@ -38,7 +38,7 @@ struct ItemsFactoryTests {
 		#expect(result.title.colorToken == .primary)
 		#expect(!result.title.strikethrough)
 
-		#expect(result.icon?.appearence == .hierarchical(token: .cyan))
+		#expect(result.icon?.appearence == .monochrome(token: .cyan))
 		#expect(result.icon?.name == .bolt)
 	}
 
@@ -92,7 +92,7 @@ struct ItemsFactoryTests {
 		#expect(result.title.colorToken == .primary)
 		#expect(!result.title.strikethrough)
 
-		#expect(result.icon?.appearence == .hierarchical(token: .tertiary))
+		#expect(result.icon?.appearence == .monochrome(token: .tertiary))
 	}
 
 	@Test func makeItem_when_itemIsSectionAndStrikethrough() {

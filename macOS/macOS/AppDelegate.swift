@@ -37,6 +37,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 // MARK: - Helpers
 private extension AppDelegate {
 
+	@MainActor
 	func prepareMenu() {
 		if let menu = NSApplication.shared.mainMenu {
 
