@@ -127,6 +127,10 @@ extension ContentViewController: UnitView {
 		switch state {
 		case let .placeholder(model):
 			placeholderView = NSHostingView(rootView: PlaceholderView(model: model))
+
+			placeholderView?.setAccessibilityIdentifier("document-placeholder")
+			placeholderView?.setAccessibilityRole(.group)
+
 			placeholderView?.pin(edges: .all, to: view)
 			adapter?.apply(.init())
 		case let .list(snapshot):
@@ -228,7 +232,6 @@ extension ContentViewController: NSMenuItemValidation {
 		let id = ElementIdentifier(rawValue: rawValue)
 
 		menuItem.state = output.stateForMenuItem(id).value
-		menuItem.isHidden = output.isHidden(id)
 		return output.validateMenuItem(id)
 	}
 }

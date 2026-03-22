@@ -75,6 +75,7 @@ extension ContentPresenter: ContentPresenterProtocol {
 		var snapshot = Snapshot(nodes)
 		snapshot.validate(keyPath: \.isStrikethrough)
 
+		// MARK: - Cache
 		cache.store(.isStrikethrough, keyPath: \.isStrikethrough, equalsTo: true, from: snapshot)
 		cache.store(.hasNote, keyPath: \.note, notEqualsTo: nil, from: snapshot)
 
@@ -142,24 +143,6 @@ extension ContentPresenter: UnitViewOutput {
 				.icon, .color,
 				.separator,
 				.delete]
-	}
-
-	func isHidden(_ item: ElementIdentifier) -> Bool {
-		guard item != .paste else {
-			let types = Set([stringType, itemType])
-			let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
-			return !pasteboard.contains(types)
-		}
-
-		guard let selection = view?.selection else {
-			return false
-		}
-
-		if selection.isEmpty {
-			return item != .newItem
-		}
-
-		return false
 	}
 
 	func menuItemClicked(_ item: ElementIdentifier) {

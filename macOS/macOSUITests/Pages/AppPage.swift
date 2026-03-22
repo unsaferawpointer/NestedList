@@ -78,7 +78,12 @@ extension AppPage {
 	func closeAll() {
 		while !app.windows.allElementsBoundByIndex.isEmpty {
 			for window in app.windows.allElementsBoundByIndex.reversed() {
-				DocumentPage(window: window).close()
+				if hasOpenPanel() {
+					let button = window.buttons["CancelButton"]
+					button.click()
+				} else {
+					DocumentPage(window: window).close()
+				}
 			}
 		}
 	}
@@ -92,10 +97,7 @@ extension AppPage {
 		if app.windows["open-panel"].waitForExistence(timeout: 0.5) {
 			return true
 		}
-		if app.dialogs.firstMatch.waitForExistence(timeout: 0.5) {
-			return true
-		}
-		return app.sheets.firstMatch.waitForExistence(timeout: 0.5)
+		return false
 	}
 
 	func waitUntilNoWindows() -> Bool {

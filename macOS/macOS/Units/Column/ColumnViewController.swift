@@ -187,7 +187,6 @@ extension ColumnViewController: NSMenuItemValidation {
 		let id = ElementIdentifier(rawValue: rawValue)
 
 		menuItem.state = output.stateForMenuItem(id).value
-		menuItem.isHidden = output.isHidden(id)
 		return output.validateMenuItem(id)
 	}
 }

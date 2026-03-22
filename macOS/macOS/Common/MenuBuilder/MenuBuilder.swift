@@ -102,6 +102,7 @@ extension MenuBuilder: MenuBuilderProtocol {
 
 	static func build(for items: [ElementIdentifier], target: AnyObject?) -> NSMenu {
 		let menu = NSMenu()
+		menu.identifier = .init("outline_context_menu")
 		for item in items {
 			menu.addItem(build(id: item, target: target))
 		}

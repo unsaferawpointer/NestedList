@@ -62,7 +62,11 @@ extension DocumentPage {
 		row.cells.element(boundBy: 0).click()
 	}
 
-	func rightClick(_ index: Int) {
+	func rightClick(_ index: Int?) {
+		guard let index else {
+			window.groups["document-placeholder"].rightClick()
+			return
+		}
 		let row = row(for: index)
 		row.rightClick()
 	}
@@ -129,6 +133,13 @@ extension DocumentPage {
 			return
 		}
 		block(menu.menuItems[id])
+	}
+
+	func checkMenuItem(with id: String, title: String, isEnabled: Bool) {
+		menuItem(for: id) { element in
+			XCTAssertEqual(element.isEnabled, isEnabled)
+			XCTAssertEqual(element.title, title)
+		}
 	}
 }
 
