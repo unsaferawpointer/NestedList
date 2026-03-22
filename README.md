@@ -43,8 +43,9 @@ Nested List — a **minimalist editor** for working with hierarchical lists
 	- Open the context menu to delete selected items
 	- Press ⌘⌫ to delete selected items
 * Customization:
-	- Go to Edit > Display As to change the style of the selected items
-	- Access the context menu to change the style of selected items
+	- Use Editor > Icon to set or remove an icon for selected items
+	- Use Editor > Color to set a color for selected items
+	- Access the context menu to change icon and color of selected items
 	- Choose Editor > Strikethrough to toggle the completion status
 * Drag & Drop:
 	- Drag plain text to the document
