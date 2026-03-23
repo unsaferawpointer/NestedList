@@ -12,6 +12,8 @@ import SwiftUI
 
 final class ItemCell: NSView, ListCell {
 
+	private let iconSlotWidth: CGFloat = 20
+
 	// MARK: - ListCell
 
 	typealias Model = ItemModel
@@ -87,6 +89,7 @@ final class ItemCell: NSView, ListCell {
 	lazy var iconView: NSImageView = {
 		let view = NSImageView()
 		view.image?.isTemplate = true
+		view.imageAlignment = .alignCenter
 		return view
 	}()
 
@@ -153,6 +156,7 @@ private extension ItemCell {
 		}
 
 		[
+			iconView.widthAnchor.constraint(equalToConstant: iconSlotWidth),
 			container.centerYAnchor.constraint(equalTo: centerYAnchor),
 			container.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
 			container.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4)
