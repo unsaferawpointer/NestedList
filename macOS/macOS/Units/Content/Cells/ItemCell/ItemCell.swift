@@ -20,7 +20,11 @@ final class ItemCell: NSView, ListCell {
 
 	var model: Model {
 		didSet {
-			updateUserInterface()
+			let oldValue = oldValue.configuration.icon?.name
+			let newValue = model.configuration.icon?.name
+			updateUserInterface(
+				animateIcon: oldValue != newValue
+			)
 		}
 	}
 
@@ -101,7 +105,7 @@ final class ItemCell: NSView, ListCell {
 		self.model = model
 		super.init(frame: .zero)
 		configureConstraints()
-		updateUserInterface()
+		updateUserInterface(animateIcon: false)
 	}
 
 	@available(*, unavailable, message: "Use init(textDidChange: checkboxDidChange:)")
@@ -120,7 +124,7 @@ final class ItemCell: NSView, ListCell {
 // MARK: - Helpers
 private extension ItemCell {
 
-	func updateUserInterface() {
+	func updateUserInterface(animateIcon: Bool) {
 
 		let value = model.value
 		let configuration = model.configuration
@@ -132,20 +136,7 @@ private extension ItemCell {
 		)
 		titleTextfield.font = NSFont.preferredFont(forTextStyle: configuration.text.style)
 
-		if let iconConfiguration = configuration.icon {
-			iconView.isHidden = false
-			let image = iconConfiguration.name?.nsImage
-
-			let symbolConfiguration = iconConfiguration.appearence.configuration
-			iconView.image = image?
-				.withSymbolConfiguration(
-					symbolConfiguration
-						.applying(.init(textStyle: .body))
-				)
-			iconView.contentTintColor = iconConfiguration.appearence.tint
-		} else {
-			iconView.isHidden = true
-		}
+		setIcon(configuration: model.configuration.icon, animateIcon: animateIcon)
 
 		// Value
 		titleTextfield.attributedStringValue = attrString
@@ -168,6 +159,34 @@ private extension ItemCell {
 		]
 			.forEach { $0.isActive = true }
 
+	}
+
+	func setIcon(configuration: IconConfiguration?, animateIcon: Bool) {
+
+		iconView.isHidden = configuration == nil
+
+		guard let configuration else {
+			iconView.image = nil
+			return
+		}
+
+		let image = configuration.name?.nsImage?
+			.withSymbolConfiguration(
+				configuration.appearence.configuration
+					.applying(.init(textStyle: .body))
+			)
+
+		iconView.contentTintColor = configuration.appearence.tint
+		guard let image else {
+			iconView.image = nil
+			return
+		}
+
+		if #available(macOS 14.0, *), animateIcon {
+			iconView.setSymbolImage(image, contentTransition: .replace)
+		} else {
+			iconView.image = image
+		}
 	}
 }
 
