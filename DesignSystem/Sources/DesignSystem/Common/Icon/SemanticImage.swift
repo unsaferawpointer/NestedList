@@ -615,10 +615,8 @@ private extension SemanticImage {
 
 	var resource: ImageResource? {
 		switch self {
-		case .point:
-			.point
-		default:
-			nil
+		case .point:	.point
+		default:		nil
 		}
 	}
 }
