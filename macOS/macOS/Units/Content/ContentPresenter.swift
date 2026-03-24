@@ -162,10 +162,8 @@ extension ContentPresenter: UnitViewOutput {
 		case .noIcon:		interactor?.setIcon(nil, for: selection)
 		default:
 			let components = item.rawValue.split(separator: "-")
-			guard
-				components.count == 2, let last = components.last, let index = Int(last), let key = components.first
-			else {
-				assertionFailure("Undefined menu item: \(item)")
+			guard components.count == 2, let last = components.last,
+				  let index = Int(last), let key = components.first else {
 				return
 			}
 
