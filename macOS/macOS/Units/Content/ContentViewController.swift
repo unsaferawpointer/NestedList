@@ -173,7 +173,7 @@ private extension ContentViewController {
 
 		table.frame = scrollview.bounds
 		table.headerView = nil
-		scrollview.additionalSafeAreaInsets = .horizontal(10)
+		scrollview.additionalSafeAreaInsets = .horizontal(16)
 		scrollview.drawsBackground = configuration.drawsBackground
 
 		let column = NSTableColumn(identifier: .init("main"))
