@@ -22,10 +22,11 @@ final class ItemCell: NSView, ListCell {
 
 	var model: Model {
 		didSet {
-			let oldValue = oldValue.configuration.icon?.name
-			let newValue = model.configuration.icon?.name
+			let oldIconValue = oldValue.configuration.icon?.name
+			let newIconValue = model.configuration.icon?.name
+			let shouldAnimateIcon = oldValue.id == model.id && oldIconValue != newIconValue
 			updateUserInterface(
-				animateIcon: oldValue != newValue
+				animateIcon: shouldAnimateIcon
 			)
 		}
 	}
