@@ -38,6 +38,7 @@ extension ItemModel: CellModel {
 					let symbolConfiguration = iconConfiguration.appearence.configuration
 					return iconConfiguration.name?.uiImage
 						.applyingSymbolConfiguration(symbolConfiguration)?
+						.applyingSymbolConfiguration(.init(textStyle: title.style))?
 						.applyingSymbolConfiguration(.init(scale: .medium))
 				} else {
 					return nil

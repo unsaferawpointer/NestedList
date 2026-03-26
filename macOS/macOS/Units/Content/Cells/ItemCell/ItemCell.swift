@@ -178,7 +178,9 @@ private extension ItemCell {
 		let image = configuration.name?.nsImage?
 			.withSymbolConfiguration(
 				configuration.appearence.configuration
-					.applying(.init(textStyle: .body))
+					.applying(
+						.init(textStyle: model.configuration.text.style)
+					)
 			)
 
 		iconView.contentTintColor = configuration.appearence.tint
