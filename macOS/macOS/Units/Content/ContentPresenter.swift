@@ -89,7 +89,7 @@ extension ContentPresenter: ContentPresenterProtocol {
 
 		guard !converted.identifiers.isEmpty else {
 			let placeholderModel: PlaceholderModel = .init(
-				icon: "shippingbox",
+				icon: "plus.square.on.square",
 				title: localization.placeholderTitle,
 				subtitle: localization.placeholderDescription
 			)

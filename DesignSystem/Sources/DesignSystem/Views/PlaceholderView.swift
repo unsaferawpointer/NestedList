@@ -34,17 +34,17 @@ public struct PlaceholderView: View {
 
 	public var body: some View {
 		ZStack(alignment: .center) {
-			VStack {
+			VStack(spacing: 8) {
 				Image(systemName: model.icon)
 					.resizable()
 					.scaledToFit()
-					.frame(width: 56, height: 56)
+					.frame(width: 64, height: 64)
 					.foregroundStyle(.quinary)
 					.accessibilityHidden(true)
 				Text(model.title)
 					.font(.title)
 					.fontWeight(.semibold)
-					.foregroundStyle(.secondary)
+					.foregroundStyle(.primary)
 					.lineLimit(1)
 				Text(model.subtitle)
 					.font(.body)
@@ -62,7 +62,7 @@ public struct PlaceholderView: View {
 #Preview {
 	PlaceholderView(
 		model: .init(
-			icon: "folder",
+			icon: "plus.square.on.square",
 			title: "No items yet",
 			subtitle: "To add a new item, click the «plus» button or use the keyboard shortcut cmd + t"
 		)
