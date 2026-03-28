@@ -151,7 +151,6 @@ private extension ColumnPresenter {
 		let details = ItemDetailsView.Properties(
 			text: item.text,
 			description: item.note ?? "",
-			isStrikethrough: item.isStrikethrough,
 			icon: item.iconName
 		)
 		let model = ItemDetailsView.Model(
@@ -165,7 +164,6 @@ private extension ColumnPresenter {
 
 				self?.interactor?.set(
 					saved.text,
-					isStrikethrough: saved.isStrikethrough,
 					note: note,
 					iconName: saved.icon,
 					tintColor: saved.tintColor

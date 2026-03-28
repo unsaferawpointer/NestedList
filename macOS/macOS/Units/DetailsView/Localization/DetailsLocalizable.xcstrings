@@ -129,38 +129,6 @@
         }
       }
     },
-    "section-toggle-title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Section"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Секция"
-          }
-        }
-      }
-    },
-    "strike-through-toggle-title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Strikethrough"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Зачеркнуть"
-          }
-        }
-      }
-    },
     "textfield-placeholder" : {
       "localizations" : {
         "en" : {

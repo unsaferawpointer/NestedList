@@ -35,7 +35,6 @@ protocol ContentInteractorProtocol {
 	func set(note: String?, for ids: [UUID])
 	func set(
 		_ text: String,
-		isStrikethrough: Bool,
 		note: String?,
 		iconName: IconName?,
 		tintColor: ItemColor?,
@@ -184,7 +183,6 @@ extension ContentInteractor: ContentInteractorProtocol {
 
 	func set(
 		_ text: String,
-		isStrikethrough: Bool,
 		note: String?,
 		iconName: IconName?,
 		tintColor: ItemColor?,
@@ -192,7 +190,6 @@ extension ContentInteractor: ContentInteractorProtocol {
 	) {
 		storage.modificate { content in
 			content.root.setProperty(\.text, to: text, for: [id])
-			content.root.setProperty(\.isStrikethrough, to: isStrikethrough, for: [id])
 			content.root.setProperty(\.note, to: note, for: [id])
 			content.root.setProperty(\.iconName, to: iconName, for: [id])
 			content.root.setProperty(\.tintColor, to: tintColor, for: [id])

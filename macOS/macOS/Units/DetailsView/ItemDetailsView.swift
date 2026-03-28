@@ -44,7 +44,6 @@ extension ItemDetailsView: View {
 		NavigationStack {
 			Form {
 				buildInfoSection()
-				buildProperties()
 				buildIconPicker()
 				buildColorPicker()
 			}
@@ -119,17 +118,6 @@ private extension ItemDetailsView {
 		}
 	}
 
-	@ViewBuilder
-	func buildProperties() -> some View {
-		Section(strings.propertiesSectionTitle) {
-			Toggle(isOn: $model.properties.isStrikethrough) {
-				Text(strings.strikeThroughToggleTitle)
-			}
-			.tint(.accentColor)
-			.accessibilityIdentifier("toggle-strikethrough")
-		}
-	}
-
 	var iconModels: [IconModel] {
 		return IconName.allCases.map {
 			.customIcon(IconMapper.map(icon: $0, filled: false) ?? .textDoc)
@@ -201,7 +189,6 @@ extension ItemDetailsView {
 	struct Properties {
 		var text: String
 		var description: String = ""
-		var isStrikethrough: Bool = false
 		var icon: IconName?
 		var tintColor: ItemColor?
 	}

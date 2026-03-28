@@ -256,14 +256,16 @@ private extension ContentPresenter {
 		guard let id = selection.first, let item = interactor?.nodes(for: [id]).first?.value else {
 			return
 		}
-		let model = ItemDetailsView.Model(navigationTitle: localization.editItemDetailsTitle, properties: item.details)
+		let model = ItemDetailsView.Model(
+			navigationTitle: localization.editItemDetailsTitle,
+			properties: item.details
+		)
 		view?.showDetails(with: model) { [weak self] saved, success in
 			self?.view?.hideDetails()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
 				self?.interactor?.set(
 					saved.text,
-					isStrikethrough: saved.isStrikethrough,
 					note: note,
 					iconName: saved.icon,
 					tintColor: saved.tintColor,
@@ -476,7 +478,6 @@ private extension Item {
 		return .init(
 			text: text,
 			description: note ?? "",
-			isStrikethrough: isStrikethrough,
 			icon: iconName,
 			tintColor: tintColor
 		)
