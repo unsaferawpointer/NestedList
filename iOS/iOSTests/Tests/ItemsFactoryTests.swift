@@ -38,23 +38,23 @@ struct ItemsFactoryTests {
 		#expect(result.title.colorToken == .primary)
 		#expect(!result.title.strikethrough)
 
-		#expect(result.icon?.appearence == .monochrome(token: .cyan))
+		#expect(result.icon?.appearence == .hierarchical(token: .cyan))
 		#expect(result.icon?.name == .bolt)
 	}
 
 	@Test func makeItem_whenAppearanceIsNeutral() {
 		// Act
-		checkTint(reference: .monochrome(token: .tertiary), for: .neutral)
+		checkTint(reference: .hierarchical(token: .tertiary), for: .neutral)
 	}
 
 	@Test func makeItem_whenAppearanceIsAccent() {
 		// Act
-		checkTint(reference: .monochrome(token: .accent), for: .accent)
+		checkTint(reference: .hierarchical(token: .accent), for: .accent)
 	}
 
 	@Test func makeItem_whenAppearanceIsPrimary() {
 		// Act
-		checkTint(reference: .monochrome(token: .primary), for: .primary)
+		checkTint(reference: .hierarchical(token: .primary), for: .primary)
 	}
 
 	@Test func makeItem_when_itemIsStrikethrough() {
@@ -92,7 +92,7 @@ struct ItemsFactoryTests {
 		#expect(result.title.colorToken == .primary)
 		#expect(!result.title.strikethrough)
 
-		#expect(result.icon?.appearence == .monochrome(token: .tertiary))
+		#expect(result.icon?.appearence == .hierarchical(token: .tertiary))
 	}
 
 	@Test func makeItem_when_itemIsSectionAndStrikethrough() {
