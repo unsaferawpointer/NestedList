@@ -1,16 +1,21 @@
 //
-//  DocumentErrorMapper.swift
-//  Nested List
+//  ErrorMapper.swift
+//  CorePresentation
 //
-//  Created by Anton Cherkasov on 18.03.2026.
+//  Created by Anton Cherkasov on 28.03.2026.
 //
 
+#if canImport(AppKit)
 import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
+
 import CoreModule
 
-struct DocumentErrorMapper { }
+public struct ErrorMapper { }
 
-extension DocumentErrorMapper {
+public extension ErrorMapper {
 
 	static func map(error: DocumentError) -> NSError {
 		let userInfo: [String: Any] = [
@@ -25,11 +30,7 @@ extension DocumentErrorMapper {
 }
 
 // MARK: - Helpers
-private extension DocumentErrorMapper {
-
-	static var localization: DocumentLocalizationProtocol {
-		return DocumentLocalization()
-	}
+private extension ErrorMapper {
 
 	static func code(for error: DocumentError) -> Int {
 		switch error {
@@ -43,9 +44,17 @@ private extension DocumentErrorMapper {
 	static func reason(for error: DocumentError) -> String {
 		switch error {
 		case .unexpectedFormat:
-			return localization.unexpectedFormatErrorReason
+			return String(
+				localized: "document-error-unexpected-format-reason",
+				table: "Localizable",
+				bundle: .module
+			)
 		case .unknownVersion:
-			return localization.unknownVersionErrorReason
+			return String(
+				localized: "document-error-unknown-version-reason",
+				table: "Localizable",
+				bundle: .module
+			)
 		}
 	}
 }

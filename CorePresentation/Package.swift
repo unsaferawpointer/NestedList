@@ -26,6 +26,7 @@ let package = Package(
 				.product(name: "CoreModule", package: "CoreModule"),
 				.product(name: "DesignSystem", package: "DesignSystem"),
 			],
+			resources: [.process("Resources")]
         ),
         .testTarget(
             name: "CorePresentationTests",

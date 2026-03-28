@@ -7,6 +7,7 @@
 
 import Cocoa
 import CoreModule
+import CorePresentation
 
 class Document: NSDocument {
 
@@ -70,7 +71,7 @@ class Document: NSDocument {
 		do {
 			return try storage.data(ofType: typeName)
 		} catch let error as DocumentError {
-			throw DocumentErrorMapper.map(error: error)
+			throw ErrorMapper.map(error: error)
 		}
 	}
 
@@ -78,7 +79,7 @@ class Document: NSDocument {
 		do {
 			try storage.read(from: data, ofType: typeName)
 		} catch let error as DocumentError {
-			throw DocumentErrorMapper.map(error: error)
+			throw ErrorMapper.map(error: error)
 		}
 	}
 

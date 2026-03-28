@@ -1,0 +1,40 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "document-error-unexpected-format-reason" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Document format is invalid."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неверный формат документа."
+          }
+        }
+      }
+    },
+    "document-error-unknown-version-reason" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This document was created in a newer app version. Please update the app to the latest version and try again."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Этот документ был создан в более новой версии приложения. Пожалуйста, обновите приложение до последней версии и попробуйте снова."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.1"
+}
