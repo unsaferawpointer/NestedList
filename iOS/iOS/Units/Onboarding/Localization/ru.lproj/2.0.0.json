@@ -1,0 +1,32 @@
+[
+  {
+	"title": "Что нового в 2.0",
+	"description": "Изменение формата данных",
+	"features": [
+	  {
+		"icon": "arrow.triangle.2.circlepath",
+		"iconColor": 16,
+		"title": "Переход на новый формат документа",
+		"id": "document_format_update",
+		"description": "Обновите приложение на всех платформах."
+	  },
+	  {
+		"icon": "list.bullet.indent",
+		"iconColor": 17,
+		"title": "Отказ от стиля секции",
+		"id": "section_style_removed",
+		"description": "Стиль секции теперь применяется автоматически к пунктам с подпунктами."
+	  },
+	  {
+		"icon": "paintpalette.fill",
+		"iconColor": 18,
+		"title": "Цвет и иконка для каждого пункта",
+		"id": "item_color_icon",
+		"description": "Для каждого пункта можно настроить цвет и иконку."
+	  }
+	],
+	"id": "welcome_2_0_0",
+	"image": "sparkles",
+	"iconColor": 12
+  }
+]
