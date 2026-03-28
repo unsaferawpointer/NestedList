@@ -35,7 +35,7 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		let iconAppearence: IconAppearence = {
 			switch (item.isStrikethrough) {
 			case true:
-				return .monochrome(token: .tertiary)
+				return .hierarchical(token: .tertiary)
 			case false:
 				if let color = iconColor.color {
 					return .hierarchical(token: color)

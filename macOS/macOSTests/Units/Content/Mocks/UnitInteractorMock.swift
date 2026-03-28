@@ -90,8 +90,8 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 		invocations.append(.setNote(note: note, ids: ids))
 	}
 
-	func set(_ text: String, isStrikethrough: Bool, note: String?, iconName: IconName?, tintColor: ItemColor?, for id: UUID) {
-		invocations.append(.set(text: text, isStrikethrough: isStrikethrough, note: note, iconName: iconName, tintColor: tintColor, id: id))
+	func set(_ text: String, note: String?, iconName: IconName?, tintColor: ItemColor?, for id: UUID) {
+		invocations.append(.set(text: text, note: note, iconName: iconName, tintColor: tintColor, id: id))
 	}
 
 	func deleteItems(_ ids: [UUID]) {
@@ -146,7 +146,7 @@ extension UnitInteractorMock {
 		case nodes(ids: [UUID])
 		case insertStringsFromData(data: [Data], destination: Destination<UUID>)
 		case insertItems(data: [Data], destination: Destination<UUID>)
-		case set(text: String, isStrikethrough: Bool, note: String?, iconName: IconName?, tintColor: ItemColor?, id: UUID)
+		case set(text: String, note: String?, iconName: IconName?, tintColor: ItemColor?, id: UUID)
 	}
 
 	struct Stubs {

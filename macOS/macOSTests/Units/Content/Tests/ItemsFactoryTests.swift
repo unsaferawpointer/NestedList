@@ -81,7 +81,7 @@ struct ItemsFactoryTests {
 		#expect(result.configuration.text.colorToken == .primary)
 		#expect(!result.configuration.text.strikethrough)
 		#expect(result.configuration.icon?.name == .textDoc)
-		#expect(result.configuration.icon?.appearence == .monochrome(token: .accent))
+		#expect(result.configuration.icon?.appearence == .hierarchical(token: .accent))
 	}
 
 	@Test func makeSection_whenSectionIsGroup() {
@@ -99,7 +99,7 @@ struct ItemsFactoryTests {
 		#expect(result.configuration.text.colorToken == .primary)
 		#expect(!result.configuration.text.strikethrough)
 		#expect(result.configuration.icon?.name == .folder)
-		#expect(result.configuration.icon?.appearence == .monochrome(token: .tertiary))
+		#expect(result.configuration.icon?.appearence == .hierarchical(token: .tertiary))
 	}
 
 	@Test func makeSection_whenStyleIsIconAndMarked() {
@@ -117,7 +117,7 @@ struct ItemsFactoryTests {
 		#expect(result.configuration.text.colorToken == .primary)
 		#expect(!result.configuration.text.strikethrough)
 		#expect(result.configuration.icon?.name == .shippingbox)
-		#expect(result.configuration.icon?.appearence == .monochrome(token: .yellow))
+		#expect(result.configuration.icon?.appearence == .hierarchical(token: .yellow))
 	}
 
 	@Test func makeItem_whenIconImageHasPreferredAppearance() {

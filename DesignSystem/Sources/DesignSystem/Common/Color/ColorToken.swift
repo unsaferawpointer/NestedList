@@ -145,7 +145,7 @@ public extension ColorToken {
 			return NSColor(name: nil) { appearance in
 				appearance.name == .darkAqua
 					? NSColor(white: 0.8, alpha: 0.85)
-					: NSColor(white: 0.2, alpha: 0.85)
+					: NSColor(white: 0.3, alpha: 0.85)
 			}
 		case .gray:
 			return NSColor(name: nil) { appearance in
@@ -210,7 +210,7 @@ public extension ColorToken {
 			return UIColor { traits in
 				traits.userInterfaceStyle == .dark
 					? UIColor(white: 0.8, alpha: 0.75)
-					: UIColor(white: 0.2, alpha: 0.75)
+					: UIColor(white: 0.3, alpha: 0.75)
 			}
 		case .gray:
 			return UIColor { traits in
