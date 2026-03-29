@@ -39,7 +39,8 @@ extension JsonDataProviderTests {
 							text: "item 0",
 							note: nil,
 							options: [],
-							style: .section(icon: .init(name: .document, color: .secondary))
+							iconName: .document,
+							tintColor: .secondary
 						),
 						children:
 							[
@@ -49,7 +50,8 @@ extension JsonDataProviderTests {
 										text: "item 0 0",
 										note: nil,
 										options: [],
-										style: .section(icon: nil)
+										iconName: nil,
+										tintColor: nil
 									),
 									children:
 										[
@@ -134,6 +136,81 @@ extension JsonDataProviderTests {
 
 		// Assert
 		XCTAssertTrue(isError)
+	}
+}
+
+// MARK: - ContentProvider interface testing (v2.0.0)
+extension JsonDataProviderTests {
+
+	func test_readFromDataOfType_whenV2_0_0() throws {
+		// Arrange
+
+		let expectedContent = Content(
+			nodes:
+				[
+					Node<Item>(
+						value: .init(
+							uuid: .uuid0,
+							text: "item 0",
+							note: nil,
+							options: [],
+							iconName: .document,
+							tintColor: .secondary
+						),
+						children:
+							[
+								Node<Item>(
+									value: .init(
+										uuid: .uuid00,
+										text: "item 0 0",
+										note: nil,
+										options: [],
+										iconName: nil,
+										tintColor: nil
+									),
+									children:
+										[
+											Node<Item>(
+												value: .init(
+													uuid: .uuid000,
+													text: "item 0 0 0",
+													note: "note 0 0 0",
+													options: []
+												)
+											)
+										]
+								)
+							]
+					),
+					Node<Item>(
+						value: .init(
+							uuid: .uuid1,
+							text: "item 1",
+							note: nil,
+							options: [.strikethrough]
+						)
+					),
+					Node<Item>(
+						value: .init(
+							uuid: .uuid2,
+							text: "item 2",
+							note: nil,
+							options: [.strikethrough, .marked]
+						)
+					),
+				],
+			view: .board
+		)
+
+		let version = "2-0-0"
+
+		let data = loadFile("document-\(version)")
+
+		// Act
+		let content = try sut.read(from: XCTUnwrap(data), ofType: type.rawValue)
+
+		// Assert
+		XCTAssertEqual(content, expectedContent)
 	}
 }
 

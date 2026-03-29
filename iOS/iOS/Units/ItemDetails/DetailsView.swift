@@ -37,17 +37,11 @@ extension DetailsView: View {
 
 	var body: some View {
 		NavigationStack {
-			Form {
-				buildInfoSection()
-				buildProperties()
-				if model.properties.isSection {
-					buildIconPicker()
-				}
-
-				if model.properties.icon != nil && model.properties.isSection {
-					buildColorPicker()
-				}
-			}
+            Form {
+                buildInfoSection()
+                buildIconPicker()
+                buildColorPicker()
+            }
 			.formStyle(.automatic)
 			.toolbar {
 				ToolbarItem(placement: .cancellationAction) {
@@ -121,37 +115,34 @@ private extension DetailsView {
 			.accessibilityIdentifier("textfield-description")
 	}
 
-	@ViewBuilder
-	func buildProperties() -> some View {
-		Section(strings.propertiesSectionTitle) {
-			Toggle(isOn: $model.properties.isMarked) {
-				Text(strings.markToggleTitle)
-			}
-			.tint(.accentColor)
-			.accessibilityIdentifier("toggle-is-marked")
-			Toggle(isOn: $model.properties.isSection) {
-				Text(strings.sectionToggleTitle)
-			}
-			.tint(.accentColor)
-			.accessibilityIdentifier("toggle-is-section")
+    var iconModels: [IconModel] {
+        return IconName.allCases.map {
+            .customIcon(IconMapper.map(icon: $0))
 		}
 	}
 
-	var iconModels: [IconModel] {
-		return IconName.allCases.map {
-			.customIcon(IconMapper.map(icon: $0))
+	@MainActor
+	var availableColors: [ColorToken] {
+		ColorsPalette.colors.map {
+			ColorMapper.map(color: $0)
 		}
 	}
 
+	@MainActor
+	var availableIcons: [SemanticImage] {
+		return IconsPalette.icons
+			.map {
+				IconMapper.map(icon: $0)
+			}
+	}
+
+	@MainActor
 	@ViewBuilder
 	func buildIconPicker() -> some View {
 		Section(strings.iconsPickerTitle) {
-			IconPicker(selection: .init(get: {
-				guard model.properties.isSection else {
-					return .noIcon
-				}
+			IconPicker(icons: availableIcons, selection: .init(get: {
 				guard
-					let name = model.properties.icon?.name,
+					let name = model.properties.icon,
 					let icon = IconMapper.map(icon: name, filled: false)
 				else {
 					return .noIcon
@@ -162,31 +153,25 @@ private extension DetailsView {
 				case .noIcon:
 					model.properties.icon = nil
 				case .customIcon(let iconName):
-					let color = model.properties.icon?.color ?? .tertiary
-					model.properties.icon = ItemIcon(name: IconMapper.map(icon: iconName), color: color)
+					model.properties.icon = IconMapper.map(icon: iconName)
 				}
 
 			}))
 		}
 	}
 
+	@MainActor
 	@ViewBuilder
 	func buildColorPicker() -> some View {
 		Section(strings.colorPickerTitle) {
-			ColorPicker(selection: .init(get: {
-				guard model.properties.isSection else {
+			DesignSystem.ColorPicker(selection: .init(get: {
+				guard let color = model.properties.tintColor else {
 					return .tertiary
 				}
-				guard let color = model.properties.icon?.color else {
-					return .tertiary
-				}
-				return color
-			}, set: { (newValue: ItemColor) in
-				guard let icon = model.properties.icon else {
-					return
-				}
-				model.properties.icon? = ItemIcon(name: icon.name, color: newValue)
-			}))
+				return ColorMapper.map(color: color)
+			}, set: { (newValue: ColorToken) in
+				model.properties.tintColor = ColorMapper.map(token: newValue)
+			}), availableColors: availableColors)
 		}
 	}
 }
@@ -205,19 +190,18 @@ extension DetailsView {
 		var focus: DetailsView.Field?
 	}
 
-	struct Properties {
-		var text: String
-		var description: String = ""
-		var isMarked: Bool = false
-		var isSection: Bool = false
-		var icon: ItemIcon?
-	}
+    struct Properties {
+        var text: String
+        var description: String = ""
+        var icon: IconName?
+        var tintColor: ItemColor?
+    }
 }
 
 #Preview {
 	DetailsView(item: .init(
 		navigationTitle: "New Item",
-		properties: .init(text: "", isSection: false)
+		properties: .init(text: "")
 	)
 	) { _, _ in
 

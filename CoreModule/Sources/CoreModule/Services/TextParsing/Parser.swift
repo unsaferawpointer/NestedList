@@ -74,23 +74,18 @@ extension Parser: ParserProtocol {
 			}
 
 			let isStrikethrough = contains(prefix: .ex, orAnnotation: .done, in: line)
-			let isMarked = contains(prefix: .asterisk, orAnnotation: .mark, in: line)
 
 			var options: ItemOptions = []
-			if isStrikethrough && !line.hasColon {
+			if isStrikethrough {
 				options.insert(.strikethrough)
-			}
-			if isMarked && !line.hasColon {
-				options.insert(.marked)
 			}
 
 			let item = Item(
 				uuid: .init(),
 				text: line.text,
 				options: options,
-				style: line.hasColon
-					? .section(icon: .init(name: .document, color: .tertiary))
-					: .item
+				iconName: line.hasColon ? .document : nil,
+				tintColor: nil
 			)
 
 			let node = Node<Model>(value: item)
@@ -133,22 +128,11 @@ private extension Parser {
 
 		let indentPrefix = Array(repeating: format.indent.value, count: indent).joined()
 
-		let prefixSign: Prefix = {
-			guard item.style == .item else {
-				return .dash
-			}
+		let prefixSign: Prefix = item.isStrikethrough ? .ex : .dash
 
-			return switch (item.isStrikethrough, item.isMarked) {
-			case (true, _): 		.ex
-			case (false, true): 	.asterisk
-			default: 				.dash
-			}
-		}()
+		let isLeaf = node.children.isEmpty
 
-		let trailingSign = switch item.style {
-			case .section: ":"
-			case .item: ""
-		}
+		let trailingSign = isLeaf ? "" : ":"
 
 		let line = indentPrefix + [String(prefixSign.rawValue), item.text, trailingSign]
 			.filter { !$0.isEmpty }

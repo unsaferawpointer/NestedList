@@ -74,29 +74,22 @@ extension ContentPresenter: ContentPresenterProtocol {
 
 		var snapshot = Snapshot(nodes)
 		snapshot.validate(keyPath: \.isStrikethrough)
-		snapshot.validate(keyPath: \.isMarked)
 
+		// MARK: - Cache
 		cache.store(.isStrikethrough, keyPath: \.isStrikethrough, equalsTo: true, from: snapshot)
-		cache.store(.isMarked, keyPath: \.isMarked, equalsTo: true, from: snapshot)
-		cache.store(property: .isSection, from: snapshot) { item in
-			guard case .section = item.style else {
-				return false
-			}
-			return true
-		}
 		cache.store(.hasNote, keyPath: \.note, notEqualsTo: nil, from: snapshot)
 
 		let converted = snapshot.map { info in
 			factory.makeItem(
 				item: info.model,
-				level: info.level,
+				isLeaf: info.isLeaf,
 				iconColor: settingsProvider.state.iconColor
 			)
 		}
 
 		guard !converted.identifiers.isEmpty else {
 			let placeholderModel: PlaceholderModel = .init(
-				icon: "shippingbox",
+				icon: "plus.square.on.square",
 				title: localization.placeholderTitle,
 				subtitle: localization.placeholderDescription
 			)
@@ -142,34 +135,14 @@ extension ContentPresenter: UnitViewOutput {
 				.separator,
 				.edit,
 				.separator,
-				.completed, .marked, .section,
+				.completed,
 				.separator,
 				.note,
 				.separator,
+				.appearanceHeader,
 				.icon, .color,
 				.separator,
 				.delete]
-	}
-
-	func isHidden(_ item: ElementIdentifier) -> Bool {
-		guard item != .paste else {
-			let types = Set([stringType, itemType])
-			let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
-			return !pasteboard.contains(types)
-		}
-
-		guard let selection = view?.selection else {
-			return false
-		}
-
-		if selection.isEmpty {
-			return item != .newItem
-		} else {
-			if item == .color || item == .icon {
-				return cache.validate(.isSection, other: selection) == false
-			}
-			return false
-		}
 	}
 
 	func menuItemClicked(_ item: ElementIdentifier) {
@@ -180,21 +153,17 @@ extension ContentPresenter: UnitViewOutput {
 		switch item {
 		case .newItem:		newItem(in: selection)
 		case .completed:	toggleStrikethrough(for: selection)
-		case .marked:		toggleMark(for: selection)
 		case .note:			toggleNote(for: selection)
 		case .edit:			editItem(with: selection)
 		case .delete:		delete(ids: selection)
 		case .cut:			cut(ids: selection)
 		case .copy:			copy(ids: selection)
 		case .paste:		paste(ids: selection)
-		case .section:		toggleStyle(for: selection)
 		case .noIcon:		interactor?.setIcon(nil, for: selection)
 		default:
 			let components = item.rawValue.split(separator: "-")
-			guard
-				components.count == 2, let last = components.last, let index = Int(last), let key = components.first
-			else {
-				assertionFailure("Undefined menu item: \(item)")
+			guard components.count == 2, let last = components.last,
+				  let index = Int(last), let key = components.first else {
 				return
 			}
 
@@ -218,7 +187,7 @@ extension ContentPresenter: UnitViewOutput {
 			let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
 			return pasteboard.contains(types)
 		case .noIcon:
-			guard let selection = view?.selection, cache.validate(.isSection, other: selection) != false else {
+			guard let selection = view?.selection else {
 				return false
 			}
 			return true
@@ -233,7 +202,7 @@ extension ContentPresenter: UnitViewOutput {
 
 			switch key {
 			case "icon", "color":
-				guard let selection = view?.selection, cache.validate(.isSection, other: selection) != false else {
+				guard let selection = view?.selection else {
 					return false
 				}
 				return true
@@ -250,10 +219,6 @@ extension ContentPresenter: UnitViewOutput {
 		return switch item {
 		case .completed:
 			cache.validate(.isStrikethrough, other: selection).state
-		case .marked:
-			cache.validate(.isMarked, other: selection).state
-		case .section:
-			cache.validate(.isSection, other: selection).state
 		case .note:
 			cache.validate(.hasNote, other: selection).state
 		default:
@@ -273,8 +238,8 @@ private extension ContentPresenter {
 			localization.newItemText,
 			isStrikethrough: false,
 			note: nil,
-			isMarked: false,
-			style: .item,
+			iconName: nil,
+			tintColor: nil,
 			target: target
 		) else {
 			return
@@ -291,19 +256,19 @@ private extension ContentPresenter {
 		guard let id = selection.first, let item = interactor?.nodes(for: [id]).first?.value else {
 			return
 		}
-		let model = ItemDetailsView.Model(navigationTitle: localization.editItemDetailsTitle, properties: item.details)
+		let model = ItemDetailsView.Model(
+			navigationTitle: localization.editItemDetailsTitle,
+			properties: item.details
+		)
 		view?.showDetails(with: model) { [weak self] saved, success in
 			self?.view?.hideDetails()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
-				let style: ItemStyle = saved.isSection ? .section(icon: saved.icon) : .item
-
 				self?.interactor?.set(
 					saved.text,
-					isStrikethrough: saved.isStrikethrough,
 					note: note,
-					isMarked: saved.isMarked,
-					style: style,
+					iconName: saved.icon,
+					tintColor: saved.tintColor,
 					for: id
 				)
 			}
@@ -317,24 +282,12 @@ private extension ContentPresenter {
 		interactor?.setStatus(!status, for: ids, moveToEnd: moveToEnd)
 	}
 
-	func toggleMark(for ids: [UUID]) {
-		let markingBehaviour = settingsProvider.state.markingBehaviour
-		let moveToTop = markingBehaviour == .moveToTop
-		let mark = cache.validate(.isMarked, other: ids) ?? false
-		interactor?.setMark(!mark, for: ids, moveToTop: moveToTop)
-	}
-
 	func toggleNote(for ids: [UUID]) {
 		let hasNote = cache.validate(.hasNote, other: ids) ?? false
 		interactor?.set(note: !hasNote ? localization.newNoteText : nil, for: ids)
 		if !hasNote, let first = ids.first {
 			view?.focus(on: first, key: "subtitle")
 		}
-	}
-
-	func toggleStyle(for ids: [UUID]) {
-		let isSection = cache.validate(.isSection, other: ids) ?? false
-		interactor?.setStyle(isSection ? .item : .section(icon: nil), for: ids)
 	}
 
 	func delete(ids: [UUID]) {
@@ -502,32 +455,10 @@ private extension ContentPresenter {
 		}
 		return cache.validate(.isStrikethrough, other: selection)
 	}
-
-	func validateMark() -> Bool? {
-		guard let selection = view?.selection, !selection.isEmpty else {
-			return false
-		}
-		return cache.validate(.isMarked, other: selection)
-	}
-
-	func validateStyle(_ style: Item.Style) -> Bool? {
-		guard let selection = view?.selection, !selection.isEmpty else {
-			return false
-		}
-		switch style {
-		case .item:
-			return cache.validate(.isItem, other: selection)
-		case .section:
-			return cache.validate(.isSection, other: selection)
-		}
-	}
 }
 
 enum Property: Hashable {
 	case isStrikethrough
-	case isMarked
-	case isItem
-	case isSection
 	case hasNote
 }
 
@@ -547,10 +478,8 @@ private extension Item {
 		return .init(
 			text: text,
 			description: note ?? "",
-			isStrikethrough: isStrikethrough,
-			isMarked: isMarked,
-			isSection: style != .item,
-			icon: style.icon
+			icon: iconName,
+			tintColor: tintColor
 		)
 	}
 }

@@ -32,8 +32,12 @@ extension StateProviderMock: StateProviderProtocol {
 		invocations.append(.modificate)
 	}
 	
-	func addObservation<O>(for object: O, handler: @escaping (O, State) -> Void) where O : AnyObject {
+	func addObservation<O>(for object: O, handler: @escaping (State) -> Void) where O : AnyObject {
 		invocations.append(.addObservation)
+	}
+
+	func removeObserver(_ object: AnyObject) {
+		invocations.append(.removeObserver)
 	}
 }
 
@@ -44,6 +48,7 @@ extension StateProviderMock {
 		case setState(value: State)
 		case modificate
 		case addObservation
+		case removeObserver
 	}
 
 	struct Stubs {

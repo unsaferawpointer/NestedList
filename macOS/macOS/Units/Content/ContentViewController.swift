@@ -40,42 +40,22 @@ class ContentViewController: NSCollectionViewItem {
 
 	var output: UnitViewOutput?
 
+	// MARK: - Delegates
+
 	weak var listDelegate: (any DesignSystem.ListDelegate<UUID>)?
 	weak var dropDelegate: (any DesignSystem.DropDelegate<UUID>)?
 	weak var dragDelegate: (any DesignSystem.DragDelegate<UUID>)?
 	weak var cellDelegate: (any DesignSystem.CellDelegate<ItemModel>)?
 
-	let configuration: ContentConfiguration
+	private let configuration: ContentConfiguration
 
 	// MARK: - UI-Properties
 
-	var placeholderView: NSView?
+	private var placeholderView: NSView?
 
-	lazy var scrollview: NSScrollView = {
-		let view = NSScrollView()
-		view.borderType = .noBorder
-		view.hasHorizontalScroller = false
-		view.autohidesScrollers = true
-		view.hasVerticalScroller = false
-		view.automaticallyAdjustsContentInsets = true
-		view.drawsBackground = true
-		return view
-	}()
+	private let scrollview: NSScrollView = .standart
 
-	lazy var table: NSOutlineView = {
-		let view = NSOutlineView()
-		view.style = .inset
-		view.rowSizeStyle = .custom
-		view.floatsGroupRows = false
-		view.allowsMultipleSelection = true
-		view.allowsColumnResizing = false
-		view.usesAlternatingRowBackgroundColors = false
-		view.autoresizesOutlineColumn = false
-		view.usesAutomaticRowHeights = false
-		view.indentationPerLevel = 24
-		view.backgroundColor = .clear
-		return view
-	}()
+	private let table: NSOutlineView = .standart
 
 	// MARK: - Initialization
 
@@ -83,6 +63,7 @@ class ContentViewController: NSCollectionViewItem {
 		self.configuration = configuration
 		super.init(nibName: nil, bundle: nil)
 		configure(self)
+
 		self.adapter = ListAdapter<ItemModel>(tableView: table)
 		self.adapter?.dropDelegate = dropDelegate
 		self.adapter?.cellDelegate = cellDelegate
@@ -137,7 +118,10 @@ extension ContentViewController: UnitView {
 		}
 	}
 
-	func showDetails(with model: ItemDetailsView.Model, completionHandler: @escaping (ItemDetailsView.Properties, Bool) -> Void) {
+	func showDetails(
+		with model: ItemDetailsView.Model,
+		completionHandler: @escaping (ItemDetailsView.Properties, Bool) -> Void
+	) {
 		router.showDetails(with: model, completionHandler: completionHandler)
 	}
 
@@ -146,6 +130,10 @@ extension ContentViewController: UnitView {
 		switch state {
 		case let .placeholder(model):
 			placeholderView = NSHostingView(rootView: PlaceholderView(model: model))
+
+			placeholderView?.setAccessibilityIdentifier("document-placeholder")
+			placeholderView?.setAccessibilityRole(.group)
+
 			placeholderView?.pin(edges: .all, to: view)
 			adapter?.apply(.init())
 		case let .list(snapshot):
@@ -185,7 +173,7 @@ private extension ContentViewController {
 
 		table.frame = scrollview.bounds
 		table.headerView = nil
-		scrollview.additionalSafeAreaInsets = configuration.hasInsets ? .horizontal(32) : .init()
+		scrollview.additionalSafeAreaInsets = .horizontal(16)
 		scrollview.drawsBackground = configuration.drawsBackground
 
 		let column = NSTableColumn(identifier: .init("main"))
@@ -247,7 +235,6 @@ extension ContentViewController: NSMenuItemValidation {
 		let id = ElementIdentifier(rawValue: rawValue)
 
 		menuItem.state = output.stateForMenuItem(id).value
-		menuItem.isHidden = output.isHidden(id)
 		return output.validateMenuItem(id)
 	}
 }

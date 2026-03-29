@@ -89,23 +89,18 @@ extension ContentPresenter: ContentPresenterProtocol {
 	func present(_ nodes: [Node<Item>]) {
 		var snapshot = Snapshot(nodes)
 		snapshot.validate(keyPath: \.isStrikethrough)
-		snapshot.validate(keyPath: \.isMarked)
 
 		cache.store(.isStrikethrough, keyPath: \.isStrikethrough, equalsTo: true, from: snapshot)
-		cache.store(.isMarked, keyPath: \.isMarked, equalsTo: true, from: snapshot)
-		cache.store(property: .isSection, from: snapshot) { item in
-			item.style.isSection
-		}
 
 		let converted = snapshot
 			.map { info in
 
-				return factory.makeItem(
-					item: info.model,
-					level: info.level,
-					iconColor: settingsProvider.state.iconColor
-				)
-			}
+					return factory.makeItem(
+						item: info.model,
+						isLeaf: info.isLeaf,
+						iconColor: settingsProvider.state.iconColor
+					)
+				}
 		view?.display(converted)
 	}
 }
@@ -149,14 +144,18 @@ extension ContentPresenter: InteractionDelegate {
 			}
 			let model = DetailsView.Model(navigationTitle: "Edit Item", properties: item.details)
 			router.showDetails(with: model, animateBottomBarItem: ElementIdentifier.new.rawValue) { [weak self] saved, success in
-				self?.router.dismiss()
-				if success {
-					let note = saved.description.isEmpty ? nil : saved.description
-					let style: ItemStyle = saved.isSection ? .section(icon: saved.icon) : .item
-
-					self?.interactor?.set(saved.text, note: note, isMarked: saved.isMarked, style: style, for: id)
+					self?.router.dismiss()
+					if success {
+						let note = saved.description.isEmpty ? nil : saved.description
+						self?.interactor?.set(
+							saved.text,
+							note: note,
+							iconName: saved.icon,
+							tintColor: saved.tintColor,
+							for: id
+						)
+					}
 				}
-			}
 		case .new:
 			editingMode = nil
 			createNew(target: currentSelection?.first)
@@ -189,17 +188,12 @@ extension ContentPresenter: InteractionDelegate {
 			let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
 			let newValue = !(cache.validate(.isStrikethrough, other: currentSelection ?? []) ?? false)
 			interactor?.setStatus(newValue, for: currentSelection ?? [], moveToEnd: moveToEnd)
-		case .marked:
-			editingMode = nil
-			let moveToTop = settingsProvider.state.markingBehaviour == .moveToTop
-			let newValue = !(cache.validate(.isMarked, other: currentSelection ?? []) ?? false)
-			interactor?.mark(newValue, ids: currentSelection ?? [], moveToTop: moveToTop)
-		case .style:
-			editingMode = nil
-			let newValue = !(cache.validate(.isSection, other: currentSelection ?? []) ?? false)
-			interactor?.setStyle(newValue ? .section(icon: nil) : .item, for: currentSelection ?? [])
-		case .select:
-			editingMode = .selection
+			case .marked:
+				editingMode = nil
+			case .style:
+				editingMode = nil
+			case .select:
+				editingMode = .selection
 		case .reorder:
 			editingMode = .reordering
 		case .settings:
@@ -332,13 +326,12 @@ private extension ContentPresenter {
 			self?.router.dismiss()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
-				let style: ItemStyle = saved.isSection ? .section(icon: saved.icon) : .item
 
 				guard let id = self?.interactor?.newItem(
 					saved.text,
 					note: note,
-					isMarked: saved.isMarked,
-					style: style,
+					iconName: saved.icon,
+					tintColor: saved.tintColor,
 					target: target
 				) else {
 					return
@@ -362,12 +355,11 @@ enum Property: Hashable {
 private extension Item {
 
 	var details: DetailsView.Properties {
-		return .init(
-			text: text,
-			description: note ?? "",
-			isMarked: isMarked,
-			isSection: style != .item,
-			icon: style.icon
-		)
+        return .init(
+            text: text,
+            description: note ?? "",
+            icon: iconName,
+            tintColor: tintColor
+        )
 	}
 }

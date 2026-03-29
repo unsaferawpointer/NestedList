@@ -66,6 +66,8 @@ class TableViewController: UIViewController {
 	override func updateContentUnavailableConfiguration(using state: UIContentUnavailableConfigurationState) {
 		if nestedList.isEmpty {
 			var configuration = UIContentUnavailableConfiguration.empty()
+			configuration.image = UIImage(systemName: "plus.square.on.square")
+			configuration.imageProperties.tintColor = .quaternaryLabel
 			configuration.text = String(localized: "empty-view-placeholder-text", table: "UnitLocalizable")
 			configuration.secondaryText = String(localized: "empty-view-placeholder-secondary-text", table: "UnitLocalizable")
 			self.contentUnavailableConfiguration = configuration

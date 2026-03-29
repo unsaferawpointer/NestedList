@@ -6,13 +6,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Редактирование"
+            "value" : "Edit Item"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Edit Item"
+            "state" : "translated",
+            "value" : "Редактирование"
           }
         }
       }
@@ -22,13 +22,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Новый пункт"
+            "value" : "New Item"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "New Item"
+            "state" : "translated",
+            "value" : "Новый пункт"
           }
         }
       }
@@ -92,7 +92,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Пока нет ни одного элемента"
+            "value" : "Список пуст"
           }
         }
       }

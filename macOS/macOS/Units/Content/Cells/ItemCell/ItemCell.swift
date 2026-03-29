@@ -12,6 +12,8 @@ import SwiftUI
 
 final class ItemCell: NSView, ListCell {
 
+	private let iconSlotWidth: CGFloat = 20
+
 	// MARK: - ListCell
 
 	typealias Model = ItemModel
@@ -20,7 +22,12 @@ final class ItemCell: NSView, ListCell {
 
 	var model: Model {
 		didSet {
-			updateUserInterface()
+			let oldIconValue = oldValue.configuration.icon?.name
+			let newIconValue = model.configuration.icon?.name
+			let shouldAnimateIcon = oldValue.id == model.id && oldIconValue != newIconValue
+			updateUserInterface(
+				animateIcon: shouldAnimateIcon
+			)
 		}
 	}
 
@@ -83,6 +90,7 @@ final class ItemCell: NSView, ListCell {
 	lazy var iconView: NSImageView = {
 		let view = NSImageView()
 		view.image?.isTemplate = true
+		view.imageAlignment = .alignCenter
 		return view
 	}()
 
@@ -101,7 +109,7 @@ final class ItemCell: NSView, ListCell {
 		self.model = model
 		super.init(frame: .zero)
 		configureConstraints()
-		updateUserInterface()
+		updateUserInterface(animateIcon: false)
 	}
 
 	@available(*, unavailable, message: "Use init(textDidChange: checkboxDidChange:)")
@@ -120,7 +128,7 @@ final class ItemCell: NSView, ListCell {
 // MARK: - Helpers
 private extension ItemCell {
 
-	func updateUserInterface() {
+	func updateUserInterface(animateIcon: Bool) {
 
 		let value = model.value
 		let configuration = model.configuration
@@ -132,17 +140,7 @@ private extension ItemCell {
 		)
 		titleTextfield.font = NSFont.preferredFont(forTextStyle: configuration.text.style)
 
-		if let iconConfiguration = configuration.icon {
-			iconView.isHidden = false
-			let image = iconConfiguration.name?.nsImage
-
-			let symbolConfiguration = iconConfiguration.appearence.configuration
-			iconView.image = image?
-				.withSymbolConfiguration(symbolConfiguration)
-			iconView.contentTintColor = iconConfiguration.appearence.tint
-		} else {
-			iconView.isHidden = true
-		}
+		setIcon(configuration: model.configuration.icon, animateIcon: animateIcon)
 
 		// Value
 		titleTextfield.attributedStringValue = attrString
@@ -159,12 +157,43 @@ private extension ItemCell {
 		}
 
 		[
+			iconView.widthAnchor.constraint(equalToConstant: iconSlotWidth),
 			container.centerYAnchor.constraint(equalTo: centerYAnchor),
 			container.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
 			container.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4)
 		]
 			.forEach { $0.isActive = true }
 
+	}
+
+	func setIcon(configuration: IconConfiguration?, animateIcon: Bool) {
+
+		iconView.isHidden = configuration == nil
+
+		guard let configuration else {
+			iconView.image = nil
+			return
+		}
+
+		let image = configuration.name?.nsImage?
+			.withSymbolConfiguration(
+				configuration.appearence.configuration
+					.applying(
+						.init(textStyle: model.configuration.text.style)
+					)
+			)
+
+		iconView.contentTintColor = configuration.appearence.tint
+		guard let image else {
+			iconView.image = nil
+			return
+		}
+
+		if #available(macOS 14.0, *), animateIcon {
+			iconView.setSymbolImage(image, contentTransition: .replace)
+		} else {
+			iconView.image = image
+		}
 	}
 }
 

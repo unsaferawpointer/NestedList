@@ -13,8 +13,6 @@ extension ElementIdentifier {
 
 	static let completed: ElementIdentifier = .init(rawValue: "strikethrough-menu-item")
 
-	static let marked: ElementIdentifier = .init(rawValue: "marked-menu-item")
-
 	static let note: ElementIdentifier = .init(rawValue: "note-menu-item")
 
 	static let delete: ElementIdentifier = .init(rawValue: "delete-menu-item")
@@ -25,9 +23,9 @@ extension ElementIdentifier {
 
 	static let paste: ElementIdentifier = .init(rawValue: "paste-menu-item")
 
-	static let section: ElementIdentifier = .init(rawValue: "section-menu-item")
-
 	static let noIcon: ElementIdentifier = .init(rawValue: "no-icon-menu-item")
+
+	static let appearanceHeader: ElementIdentifier = .init(rawValue: "appearance-header-menu-item")
 
 	static let icon: ElementIdentifier = .init(rawValue: "icon-menu-item")
 

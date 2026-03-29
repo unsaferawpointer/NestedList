@@ -85,10 +85,10 @@ private extension ParserTests {
 		// project 0
 		let project0 = result[0]
 
-		#expect(project0.value.style == .section(icon: .init(name: .document, color: .tertiary)))
+		#expect(project0.value.iconName == .document)
+		#expect(project0.value.tintColor == nil)
 		#expect(project0.value.text == "project 0")
 		#expect(project0.value.isStrikethrough == false)
-		#expect(project0.value.isMarked == false)
 		#expect(project0.value.note == "Note 0")
 
 		#expect(project0.children.count == 2)
@@ -96,8 +96,8 @@ private extension ParserTests {
 		// item 00
 		let item00 = project0.children[0]
 		#expect(item00.value.isStrikethrough == false)
-		#expect(item00.value.isMarked == true)
-		#expect(item00.value.style == .item)
+		#expect(item00.value.iconName == nil)
+		#expect(item00.value.tintColor == nil)
 		#expect(item00.value.note == "Note 0 0")
 
 		#expect(item00.children.count == 0)
@@ -106,8 +106,8 @@ private extension ParserTests {
 		let item01 = project0.children[1]
 
 		#expect(item01.value.isStrikethrough == false)
-		#expect(item01.value.isMarked == false)
-		#expect(item01.value.style == .item)
+		#expect(item01.value.iconName == nil)
+		#expect(item01.value.tintColor == nil)
 		#expect(item01.value.note == nil)
 
 		#expect(item01.children.count == 1)
@@ -117,8 +117,8 @@ private extension ParserTests {
 
 		#expect(item010.value.text == "item 0 1 0")
 		#expect(item010.value.isStrikethrough == true)
-		#expect(item010.value.isMarked == false)
-		#expect(item010.value.style == .item)
+		#expect(item010.value.iconName == nil)
+		#expect(item010.value.tintColor == nil)
 		#expect(item010.value.note == "Note 0 1 0")
 
 		#expect(item010.children.count == 0)
@@ -126,7 +126,8 @@ private extension ParserTests {
 		// project 1
 
 		let project1 = result[1]
-		#expect(project1.value.style == .section(icon: .init(name: .document, color: .tertiary)))
+		#expect(project0.value.iconName == .document)
+		#expect(project0.value.tintColor == nil)
 		#expect(project1.value.text == "project 1")
 
 		#expect(project1.children.count == 2)
@@ -135,8 +136,8 @@ private extension ParserTests {
 		let item10 = project1.children[0]
 
 		#expect(item10.value.isStrikethrough == false)
-		#expect(item10.value.isMarked == false)
-		#expect(item10.value.style == .item)
+		#expect(item10.value.iconName == nil)
+		#expect(item10.value.tintColor == nil)
 		#expect(item10.value.note == nil)
 
 		#expect(item10.children.count == 0)
@@ -146,8 +147,8 @@ private extension ParserTests {
 
 		#expect(item11.value.text == "item 1 1")
 		#expect(item11.value.isStrikethrough == false)
-		#expect(item11.value.isMarked == false)
-		#expect(item11.value.style == .item)
+		#expect(item11.value.iconName == nil)
+		#expect(item11.value.tintColor == nil)
 		#expect(item11.value.note == nil)
 
 		#expect(item11.children.count == 0)

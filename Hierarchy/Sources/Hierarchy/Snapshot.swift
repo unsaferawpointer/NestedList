@@ -262,6 +262,7 @@ public extension Snapshot {
 			let model = transform(info)
 			modificated[id] = NodeInfo(
 				model: model,
+				isLeaf: info.isLeaf,
 				level: info.level,
 				localIndex: info.localIndex,
 				globalIndex: info.globalIndex,
@@ -332,6 +333,7 @@ private extension Snapshot {
 
 		storage[base.id] = NodeInfo(
 			model: base.value,
+			isLeaf: base.children.isEmpty,
 			level: level,
 			localIndex: index,
 			globalIndex: cache.flattened.count - 1,

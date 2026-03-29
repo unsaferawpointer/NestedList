@@ -5,7 +5,7 @@
 //  Created by Anton Cherkasov on 16.11.2024.
 //
 
-enum DocumentError: Error {
+public enum DocumentError: Error {
 	case unexpectedFormat
 	case unknownVersion
 }

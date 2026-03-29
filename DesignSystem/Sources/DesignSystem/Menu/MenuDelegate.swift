@@ -10,7 +10,6 @@
 public protocol MenuDelegate: AnyObject {
 	func menuItemClicked(_ item: ElementIdentifier)
 	func validateMenuItem(_ item: ElementIdentifier) -> Bool
-	func isHidden(_ item: ElementIdentifier) -> Bool
 	func stateForMenuItem(_ item: ElementIdentifier) -> ControlState
 	func menuItems() -> [ElementIdentifier]
 }

@@ -25,6 +25,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 
 	func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
+		#if DEBUG
+		if CommandLine.arguments.contains("--UITesting") {
+			return false
+		}
+		#endif
 		return true
 	}
 }
@@ -32,6 +37,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 // MARK: - Helpers
 private extension AppDelegate {
 
+	@MainActor
 	func prepareMenu() {
 		if let menu = NSApplication.shared.mainMenu {
 
@@ -40,7 +46,7 @@ private extension AppDelegate {
 			item.submenu = MenuBuilder.build(
 				for: [.newItem,
 					  .separator,
-				   .completed, .marked, .section,
+				   .completed,
 				   .separator,
 				   .icon, .color,
 				   .separator,

@@ -52,9 +52,7 @@ extension MenuFactory {
 					size: .automatic,
 					items:
 						[
-							buildItem(id: .strikethrough, title: localization.strikethroughItemTitle, state: isCompleted.state),
-							buildItem(id: .marked, title: localization.markedItemTitle, state: isMarked.state),
-							buildItem(id: .style, title: localization.sectionItemTitle, state: isSection.state)
+								buildItem(id: .strikethrough, title: localization.strikethroughItemTitle, state: isCompleted.state)
 						]
 				)
 			),

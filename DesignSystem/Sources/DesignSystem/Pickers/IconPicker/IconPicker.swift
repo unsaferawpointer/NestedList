@@ -7,13 +7,18 @@
 
 import SwiftUI
 
+@MainActor
 public struct IconPicker: View {
 
 	@Binding var selection: IconModel
 
+	let icons: [SemanticImage]
+
 	// MARK: - Initialization
 
-	public init(selection: Binding<IconModel>) {
+	@MainActor
+	public init(icons: [SemanticImage], selection: Binding<IconModel>) {
+		self.icons = icons
 		self._selection = selection
 	}
 
@@ -28,7 +33,7 @@ public struct IconPicker: View {
 			IconButton(icon: .circleSlash, isSelected: selection == .noIcon) {
 				selection = .noIcon
 			}
-			ForEach(SemanticImage.available, id: \.self) { icon in
+			ForEach(icons, id: \.self) { icon in
 				IconButton(icon: icon, isSelected: icon == selection.icon) {
 					selection = .customIcon(icon)
 				}
@@ -39,27 +44,9 @@ public struct IconPicker: View {
 	}
 }
 
-extension SemanticImage {
-
-	static var available: [SemanticImage] {
-		return
-		[
-			.textDoc(filled: false),
-			.docOnDoc(filled: false),
-			.folder(filled: false),
-			.shippingbox(filled: false),
-			.archivebox(filled: false),
-			.squareStack(filled: false),
-			.book(filled: false),
-			.squareGrid2x2(filled: false),
-			.listStar(filled: false),
-			.star(filled: false),
-			.heart(filled: false),
-			.bolt(filled: false)
-		]
-	}
-}
-
 #Preview {
-	IconPicker(selection: .constant(.customIcon(.docOnDoc(filled: false))))
+	IconPicker(
+		icons: [.airplane , .archivebox, .book],
+		selection: .constant(.customIcon(.docOnDoc))
+	)
 }

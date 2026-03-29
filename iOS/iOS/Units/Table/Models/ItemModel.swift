@@ -36,12 +36,16 @@ extension ItemModel: CellModel {
 			let image: UIImage? = {
 				if let iconConfiguration = icon {
 					let symbolConfiguration = iconConfiguration.appearence.configuration
-					return iconConfiguration.name?.uiImage.applyingSymbolConfiguration(symbolConfiguration)
+					return iconConfiguration.name?.uiImage
+						.applyingSymbolConfiguration(symbolConfiguration)?
+						.applyingSymbolConfiguration(.init(textStyle: title.style))?
+						.applyingSymbolConfiguration(.init(scale: .medium))
 				} else {
 					return nil
 				}
 			}()
 			configuration.image = image
+			configuration.imageToTextPadding = 8
 
 			if let iconConfiguration = icon {
 				configuration.imageProperties.tintColor = iconConfiguration.appearence.tint

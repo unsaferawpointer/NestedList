@@ -22,6 +22,11 @@ struct ItemDetailsView {
 		return !model.properties.text.isEmpty
 	}
 
+	@MainActor
+	let icons = IconsPalette.chunked()
+		.flatMap{ $0 }
+		.map { IconMapper.map(icon: $0) }
+
 	@FocusState private var focusedField: Field?
 
 	// MARK: - Initialization
@@ -39,14 +44,8 @@ extension ItemDetailsView: View {
 		NavigationStack {
 			Form {
 				buildInfoSection()
-				buildProperties()
-				if model.properties.isSection {
-					buildIconPicker()
-				}
-
-				if model.properties.icon != nil && model.properties.isSection {
-					buildColorPicker()
-				}
+				buildIconPicker()
+				buildColorPicker()
 			}
 			.formStyle(.grouped)
 			.scrollIndicators(.hidden)
@@ -119,30 +118,9 @@ private extension ItemDetailsView {
 		}
 	}
 
-	@ViewBuilder
-	func buildProperties() -> some View {
-		Section(strings.propertiesSectionTitle) {
-			Toggle(isOn: $model.properties.isStrikethrough) {
-				Text(strings.strikeThroughToggleTitle)
-			}
-			.tint(.accentColor)
-			.accessibilityIdentifier("toggle-strikethrough")
-			Toggle(isOn: $model.properties.isMarked) {
-				Text(strings.markToggleTitle)
-			}
-			.tint(.accentColor)
-			.accessibilityIdentifier("toggle-is-marked")
-			Toggle(isOn: $model.properties.isSection) {
-				Text(strings.sectionToggleTitle)
-			}
-			.tint(.accentColor)
-			.accessibilityIdentifier("toggle-is-section")
-		}
-	}
-
 	var iconModels: [IconModel] {
 		return IconName.allCases.map {
-			.customIcon(IconMapper.map(icon: $0, filled: false) ?? .textDoc(filled: false))
+			.customIcon(IconMapper.map(icon: $0, filled: false) ?? .textDoc)
 		}
 	}
 
@@ -152,16 +130,13 @@ private extension ItemDetailsView {
 		}
 	}
 
+	@MainActor
 	@ViewBuilder
 	func buildIconPicker() -> some View {
 		Section(strings.iconsPickerTitle) {
-			IconPicker(selection: .init(get: {
-				guard model.properties.isSection else {
-					return .noIcon
-				}
-
+			IconPicker(icons: icons, selection: .init(get: {
 				guard
-					let name = model.properties.icon?.name,
+					let name = model.properties.icon,
 					let icon = IconMapper.map(icon: name, filled: false)
 				else {
 					return .noIcon
@@ -172,8 +147,8 @@ private extension ItemDetailsView {
 				case .noIcon:
 					model.properties.icon = nil
 				case .customIcon(let iconName):
-					let color = model.properties.icon?.color ?? .tertiary
-					model.properties.icon = ItemIcon(name: IconMapper.map(icon: iconName), color: color)
+					let color = model.properties.tintColor ?? .tertiary
+					model.properties.icon = IconMapper.map(icon: iconName)
 				}
 
 			}))
@@ -184,21 +159,12 @@ private extension ItemDetailsView {
 	func buildColorPicker() -> some View {
 		Section(strings.colorPickerTitle) {
 			DesignSystem.ColorPicker(selection: .init(get: {
-				guard model.properties.isSection else {
-					return .tertiary
-				}
-				guard let color = model.properties.icon?.color else {
+				guard let color = model.properties.tintColor else {
 					return .tertiary
 				}
 				return ColorMapper.map(color: color)
 			}, set: { newValue in
-				guard let icon = model.properties.icon else {
-					return
-				}
-				model.properties.icon? = ItemIcon(
-					name: icon.name,
-					color: ColorMapper.map(token: newValue) ?? .quaternary
-				)
+				model.properties.tintColor = ColorMapper.map(token: newValue)
 			}),
 				availableColors: availableColors
 			)
@@ -223,17 +189,15 @@ extension ItemDetailsView {
 	struct Properties {
 		var text: String
 		var description: String = ""
-		var isStrikethrough: Bool = false
-		var isMarked: Bool = false
-		var isSection: Bool = false
-		var icon: ItemIcon?
+		var icon: IconName?
+		var tintColor: ItemColor?
 	}
 }
 
 #Preview {
 	ItemDetailsView(item: .init(
 		navigationTitle: "New Item",
-		properties: .init(text: "", isSection: false)
+		properties: .init(text: "")
 	)
 	) { _, _ in
 

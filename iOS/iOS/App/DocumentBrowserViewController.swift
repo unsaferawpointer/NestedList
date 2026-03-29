@@ -115,6 +115,8 @@ class DocumentBrowserViewController: UIDocumentBrowserViewController, UIDocument
 
 		// Load the document's view controller from the storyboard.
 		let doc = Document(fileURL: documentURL)
+		doc.errorHandler = self
+
 		let documentViewController = DocumentViewController(document: doc)
 		let docNavController = UINavigationController(rootViewController: documentViewController)
 		docNavController.setNavigationBarHidden(false, animated: true)
@@ -182,3 +184,36 @@ extension DocumentBrowserViewController: UIViewControllerTransitioningDelegate {
 
 }
 
+// MARK: - DocumentHandler
+extension DocumentBrowserViewController: DocumentHandler {
+
+	func handleError(_ error: any Error) {
+		Task { @MainActor in
+			presentAlert(for: error)
+		}
+	}
+}
+
+// MARK: - Private Methods
+private extension DocumentBrowserViewController {
+
+	func presentAlert(for error: Error) {
+
+		let nsError = error as NSError
+
+		let title = nsError.localizedDescription
+		let reason = nsError.localizedFailureReason
+		let suggestion = nsError.localizedRecoverySuggestion
+
+		let alert = UIAlertController(
+			title: title,
+			message: [reason, suggestion].compactMap(\.self).joined(separator: ". "),
+			preferredStyle: .alert
+		)
+
+		let action = UIAlertAction(title: "OK", style: .cancel)
+		alert.addAction(action)
+
+		present(alert, animated: true)
+	}
+}

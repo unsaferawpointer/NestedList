@@ -14,8 +14,7 @@ final class DocumentPage {
 	let outline: XCUIElement
 
 	init(window: XCUIElement) {
-		_ = window.waitForExistence(timeout: 0.5)
-		precondition(window.elementType == .window, "It is not window")
+		_ = window.waitForExistence(timeout: 2)
 		self.window = window
 		self.outline = window.outlines.firstMatch
 	}
@@ -63,7 +62,11 @@ extension DocumentPage {
 		row.cells.element(boundBy: 0).click()
 	}
 
-	func rightClick(_ index: Int) {
+	func rightClick(_ index: Int?) {
+		guard let index else {
+			window.groups["document-placeholder"].rightClick()
+			return
+		}
 		let row = row(for: index)
 		row.rightClick()
 	}
@@ -99,7 +102,10 @@ extension DocumentPage {
 	}
 
 	func savePanelExists() -> Bool {
-		return window.sheets.firstMatch.exists
+		if window.sheets.firstMatch.exists {
+			return true
+		}
+		return window.dialogs.firstMatch.exists
 	}
 
 	func clickSavePanelCancleButton() {
@@ -127,6 +133,13 @@ extension DocumentPage {
 			return
 		}
 		block(menu.menuItems[id])
+	}
+
+	func checkMenuItem(with id: String, title: String, isEnabled: Bool) {
+		menuItem(for: id) { element in
+			XCTAssertEqual(element.isEnabled, isEnabled)
+			XCTAssertEqual(element.title, title)
+		}
 	}
 }
 

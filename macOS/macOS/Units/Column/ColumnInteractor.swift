@@ -14,8 +14,20 @@ protocol ColumnInteractorProtocol {
 	func configure(for root: UUID)
 	func rootItem() -> Node<Item>?
 	@discardableResult
-	func newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID
-	func set(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle)
+	func newItem(
+		_ text: String,
+		isStrikethrough: Bool,
+		note: String?,
+		iconName: IconName?,
+		tintColor: ItemColor?,
+		target: UUID?
+	) -> UUID
+	func set(
+		_ text: String,
+		note: String?,
+		iconName: IconName?,
+		tintColor: ItemColor?
+	)
 	func moveForward()
 	func validateMovingForward() -> Bool
 	func moveBackward()
@@ -77,24 +89,30 @@ extension ColumnInteractor: ColumnInteractorProtocol {
 		return node.map { $0 }
 	}
 
-	func newItem(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle, target: UUID?) -> UUID {
+	func newItem(
+		_ text: String,
+		isStrikethrough: Bool,
+		note: String?,
+		iconName: IconName?,
+		tintColor: ItemColor?,
+		target: UUID?
+	) -> UUID {
 		return base.newItem(
 			text,
 			isStrikethrough: isStrikethrough,
 			note: note,
-			isMarked: isMarked,
-			style: style,
+			iconName: iconName,
+			tintColor: tintColor,
 			target: target ?? root
 		)
 	}
 
-	func set(_ text: String, isStrikethrough: Bool, note: String?, isMarked: Bool, style: ItemStyle) {
+	func set(_ text: String, note: String?, iconName: IconName?, tintColor: ItemColor?) {
 		storage.modificate { content in
 			content.root.setProperty(\.text, to: text, for: [root])
-			content.root.setProperty(\.isStrikethrough, to: isStrikethrough, for: [root])
 			content.root.setProperty(\.note, to: note, for: [root])
-			content.root.setProperty(\.isMarked, to: isMarked, for: [root], downstream: true)
-			content.root.setProperty(\.style, to: style, for: [root])
+			content.root.setProperty(\.iconName, to: iconName, for: [root])
+			content.root.setProperty(\.tintColor, to: tintColor, for: [root], downstream: true)
 		}
 	}
 

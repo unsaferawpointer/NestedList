@@ -27,21 +27,21 @@ extension MenuLocalization {
 	static var strikethroughItemTitle: String {
 		String(localized: "strikethrough-item-title", table: "MenuLocalizable")
 	}
-	
-	static var markedItemTitle: String {
-		String(localized: "marked-item-title", table: "MenuLocalizable")
-	}
-	
+
 	static var displayAsItemTitle: String {
 		String(localized: "display-as-item-title", table: "MenuLocalizable")
 	}
 
-	static var sectionIconItemTitle: String {
-		String(localized: "section-icon-item-title", table: "MenuLocalizable")
+	static var appearanceHeaderItemTitle: String {
+		String(localized: "appearance-header-item-title", table: "MenuLocalizable")
 	}
 
-	static var sectionColorItemTitle: String {
-		String(localized: "section-color-item-title", table: "MenuLocalizable")
+	static var iconItemTitle: String {
+		String(localized: "icon-item-title", table: "MenuLocalizable")
+	}
+
+	static var colorItemTitle: String {
+		String(localized: "color-item-title", table: "MenuLocalizable")
 	}
 
 	static var noteItemTitle: String {
@@ -54,10 +54,6 @@ extension MenuLocalization {
 
 	static var plainItemTitle: String {
 		String(localized: "plain-item-item-title", table: "MenuLocalizable")
-	}
-
-	static var sectionItemTitle: String {
-		String(localized: "section-item-title", table: "MenuLocalizable")
 	}
 
 	static var noIconItemTitle: String {

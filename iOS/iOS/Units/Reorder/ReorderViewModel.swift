@@ -9,6 +9,7 @@ import SwiftUI
 
 import Hierarchy
 import CoreModule
+import CorePresentation
 
 @Observable
 final class ReorderViewModel {
@@ -61,8 +62,8 @@ private extension ReorderViewModel {
 				ItemViewModel(
 					id: $0.id,
 					title: $0.text,
-					textStyle: $0.style.isSection ? .headline : .body,
-					icon: $0.style.semanticImage
+					textStyle: .body,
+					icon: IconMapper.map(icon: $0.iconName, filled: true)
 				)
 			}
 	}

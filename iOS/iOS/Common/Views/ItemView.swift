@@ -28,12 +28,12 @@ struct ItemView: View {
 	VStack(alignment: .leading, spacing: 4) {
 		ItemView(
 			model: .init(
-				id: UUID(),
-				title: "Section Item",
-				textStyle: .headline,
-				icon: .folder(filled: false)
+					id: UUID(),
+					title: "Section Item",
+					textStyle: .headline,
+					icon: .folder
+				)
 			)
-		)
 		ItemView(
 			model: .init(
 				id: UUID(),

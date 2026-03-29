@@ -21,24 +21,15 @@ public struct SettingsView: View {
 	public var body: some View {
 		Form {
 			Section(localization.behaviorsSectionTitle) {
-				Toggle(isOn: .init(get: {
-					model.settings.completionBehaviour == .moveToEnd
-				}, set: { newValue in
-					model.settings.completionBehaviour = newValue ? .moveToEnd : .regular
-				})) {
-					Text(localization.strikethroughBehaviourText)
-					Text(localization.strikethroughBehaviourDescription)
-				}
-
-				Toggle(isOn: .init(get: {
-					model.settings.markingBehaviour == .moveToTop
-				}, set: { newValue in
-					model.settings.markingBehaviour = newValue ? .moveToTop : .regular
-				})) {
-					Text(localization.markingBehaviourText)
-					Text(localization.markingBehaviourDescription)
-				}
-			}
+                Toggle(isOn: .init(get: {
+                    model.settings.completionBehaviour == .moveToEnd
+                }, set: { newValue in
+                    model.settings.completionBehaviour = newValue ? .moveToEnd : .regular
+                })) {
+                    Text(localization.strikethroughBehaviourText)
+                    Text(localization.strikethroughBehaviourDescription)
+                }
+            }
 			Section(localization.styleSectionTitle) {
 				Picker(selection: $model.settings.iconColor) {
 					Text(localization.neutralSectionIconColorName)

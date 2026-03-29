@@ -14,7 +14,7 @@ import CoreSettings
 import CorePresentation
 
 protocol ItemsFactoryProtocol {
-	func makeItem(item: Item, level: Int, iconColor: IconColor) -> ItemModel
+	func makeItem(item: Item, isLeaf: Bool, iconColor: IconColor) -> ItemModel
 }
 
 final class ItemsFactory { }
@@ -22,66 +22,44 @@ final class ItemsFactory { }
 // MARK: - ItemsFactoryProtocol
 extension ItemsFactory: ItemsFactoryProtocol {
 
-	func makeItem(item: Item, level: Int, iconColor: IconColor) -> ItemModel {
+	func makeItem(item: Item, isLeaf: Bool, iconColor: IconColor) -> ItemModel {
 
-		let textConfiguration: TextConfiguration = switch item.style {
-		case .item:
-			TextConfiguration(
-				style: .body,
-				colorToken: item.isStrikethrough ? .disabledText : .primary,
-				strikethrough: item.isStrikethrough
-			)
-		case .section:
-			TextConfiguration(
-				style: .headline,
-				colorToken: item.isStrikethrough ? .disabledText : .primary,
-				strikethrough: item.isStrikethrough
-			)
-		}
+		let textConfiguration = TextConfiguration(
+			style: isLeaf ? .body : .headline,
+			colorToken: item.isStrikethrough ? .disabledText : .primary,
+			strikethrough: item.isStrikethrough
+		)
 
-		let iconName = item.style.icon(filled: false)
+		let iconName = IconMapper.map(icon: item.iconName, filled: true)
 
 		let iconAppearence: IconAppearence = {
-			switch (item.isStrikethrough, item.isMarked) {
-			case (true, _):
-				return .monochrome(token: .tertiary)
-			case (false, true):
-				return .hierarchical(token: .yellow)
-			case (false, false):
-				guard item.style != .item else {
-					return .monochrome(token: .tertiary)
-				}
+			switch (item.isStrikethrough) {
+			case true:
+				return .hierarchical(token: .tertiary)
+			case false:
 				if let color = iconColor.color {
-					return .monochrome(token: color)
+					return .hierarchical(token: color)
 				}
-				return .hierarchical(token: ColorMapper.map(color: item.style.color))
+				let token = ColorMapper.map(color: item.tintColor)
+				guard let preffered = iconName?.preferredAppearance(with: token) else {
+					return .hierarchical(token: ColorMapper.map(color: item.tintColor))
+				}
+				return preffered
 			}
 		}()
 
 		let iconConfiguration: IconConfiguration? = if let iconName {
 			IconConfiguration(name: iconName, appearence: iconAppearence)
 		} else {
-			nil
+			IconConfiguration(name: .point, appearence: iconAppearence)
 		}
 
 		return ItemModel(
 			id: item.id,
 			value: .init(title: item.text, subtitle: item.note),
 			configuration: .init(icon: iconConfiguration, text: textConfiguration),
-			isGroup: item.style.isSection,
+			isGroup: !isLeaf,
 			height: item.note != nil ? 36 : nil
 		)
-	}
-}
-
-extension ItemStyle {
-
-	func icon(filled: Bool) -> SemanticImage? {
-		switch self {
-		case .item:
-			.point
-		case let .section(icon):
-			IconMapper.map(icon: icon?.name, filled: filled)
-		}
 	}
 }

@@ -7,8 +7,13 @@
 
 import UIKit
 import CoreModule
+import CorePresentation
 
 class Document: UIDocument {
+
+	weak var errorHandler: DocumentHandler?
+
+	// MARK: - DI by property
 
 	// MARK: - DI
 
@@ -20,6 +25,8 @@ class Document: UIDocument {
 		)
 	}()
 
+	// MARK: - Document life-cycle
+
 	override func contents(forType typeName: String) throws -> Any {
 		try storage.data(ofType: typeName)
 	}
@@ -28,8 +35,22 @@ class Document: UIDocument {
 		guard let data = contents as? Data, let typeName else {
 			throw CocoaError(.coderReadCorrupt)
 		}
-		Task { @MainActor in
+		do {
 			try storage.read(from: data, ofType: typeName)
+		} catch let error as DocumentError {
+			throw ErrorMapper.map(error: error)
 		}
 	}
+
+	override func handleError(_ error: any Error, userInteractionPermitted: Bool) {
+		super.handleError(error, userInteractionPermitted: userInteractionPermitted)
+
+		if userInteractionPermitted {
+			errorHandler?.handleError(error)
+		}
+	}
+}
+
+protocol DocumentHandler: AnyObject {
+	func handleError(_ error: Error)
 }

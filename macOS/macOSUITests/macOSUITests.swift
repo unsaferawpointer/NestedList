@@ -9,11 +9,21 @@ import XCTest
 
 final class macOSUITests: XCTestCase {
 
+	var app: AppPage!
+
 	override func setUpWithError() throws {
 		continueAfterFailure = false
+		app = AppPage(app: XCUIApplication())
+		app.launch(with: ["onboarding_version": "999.0.0"])
+		app.closeAll()
+		_ = app.waitUntilNoWindows()
 	}
 
-	override func tearDownWithError() throws { }
+	override func tearDownWithError() throws {
+		app.closeAll()
+		app.app.terminate()
+		app = nil
+	}
 }
 
 // MARK: - Common cases
@@ -37,7 +47,7 @@ extension macOSUITests {
 		let app = prepareApp()
 
 		// Act
-		app.newDoc()
+		app.press("n", modifierFlags: .command)
 
 		let window = app.firstWindow()
 		let doc = DocumentPage(window: window)
@@ -98,15 +108,58 @@ extension macOSUITests {
 	}
 }
 
+// MARK: - Test context menu
+extension macOSUITests {
+
+	func test_contextMenu_whenDocumentIsEmpty() {
+		// Arrange
+		let app = prepareApp()
+		app.newDoc()
+
+		let window = app.firstWindow()
+		let doc = DocumentPage(window: window)
+
+		// Act
+		doc.rightClick(nil)
+
+		// Assert
+		doc.checkMenuItem(with: "newItem-menu-item", title: "New Item", isEnabled: true)
+		doc.checkMenuItem(with: "edit-menu-item", title: "Edit…", isEnabled: false)
+		doc.checkMenuItem(with: "strikethrough-menu-item", title: "Strikethrough", isEnabled: false)
+		doc.checkMenuItem(with: "note-menu-item", title: "Note", isEnabled: false)
+		doc.checkMenuItem(with: "icon-menu-item", title: "Icon", isEnabled: false)
+		doc.checkMenuItem(with: "delete-menu-item", title: "Delete", isEnabled: false)
+
+	}
+
+	func test_contextMenu_whenDocumentIsNotEmpty() {
+		// Arrange
+		let app = prepareApp()
+		app.newDoc()
+
+		let window = app.firstWindow()
+		let doc = DocumentPage(window: window)
+
+		// Act
+		for _ in 0..<3 {
+			app.press("t", modifierFlags: .command)
+		}
+		doc.rightClick(0)
+
+		// Assert
+		doc.checkMenuItem(with: "newItem-menu-item", title: "New Item", isEnabled: true)
+		doc.checkMenuItem(with: "edit-menu-item", title: "Edit…", isEnabled: true)
+		doc.checkMenuItem(with: "strikethrough-menu-item", title: "Strikethrough", isEnabled: true)
+		doc.checkMenuItem(with: "note-menu-item", title: "Note", isEnabled: true)
+		doc.checkMenuItem(with: "icon-menu-item", title: "Icon", isEnabled: true)
+		doc.checkMenuItem(with: "delete-menu-item", title: "Delete", isEnabled: true)
+	}
+}
+
 // MARK: - Helpers
 private extension macOSUITests {
 
 	func prepareApp() -> AppPage {
-		let app = AppPage(app: XCUIApplication())
-
-		app.launch(with: ["onboarding_version": "1.5.0"])
-		app.closeAll()
-
 		return app
 	}
 }

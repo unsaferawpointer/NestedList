@@ -26,22 +26,10 @@ struct SettingsLocalization {
 		bundle: .module
 	)
 
-	let markingBehaviourText = String(
-		localized: "marking-behavior-text",
-		table: "SettingsLocalizable",
-		bundle: .module
-	)
-
-	let markingBehaviourDescription = String(
-		localized: "marking-behavior-description",
-		table: "SettingsLocalizable",
-		bundle: .module
-	)
-
-	let styleSectionTitle = String(
-		localized: "style-section-title",
-		table: "SettingsLocalizable",
-		bundle: .module
+    let styleSectionTitle = String(
+        localized: "style-section-title",
+        table: "SettingsLocalizable",
+        bundle: .module
 	)
 
 	let sectionIconsColorTitle = String(

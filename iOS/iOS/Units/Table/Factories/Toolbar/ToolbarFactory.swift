@@ -163,24 +163,14 @@ extension ToolbarFactory {
 						]
 				)
 			),
-			.init(
-				id: ElementIdentifier.strikethrough.rawValue,
-				title: localization.strikethroughItemTitle,
-				content: .item(state: isCompleted.state, attributes: [])
-			),
-			.init(
-				id: ElementIdentifier.marked.rawValue,
-				title: localization.markedItemTitle,
-				content: .item(state: isMarked.state, attributes: [])
-			),
-			.init(
-				id: ElementIdentifier.style.rawValue,
-				title: localization.sectionItemTitle,
-				content: .item(state: isSection.state, attributes: [])
-			),
-			.init(
-				id: "",
-				content: .menu(
+				.init(
+					id: ElementIdentifier.strikethrough.rawValue,
+					title: localization.strikethroughItemTitle,
+					content: .item(state: isCompleted.state, attributes: [])
+				),
+				.init(
+					id: "",
+					content: .menu(
 					options: .inline,
 					size: .large,
 					items:

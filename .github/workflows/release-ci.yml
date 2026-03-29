@@ -1,0 +1,153 @@
+name: Release Branch CI
+
+on:
+  push:
+    branches:
+      - release
+  pull_request:
+    branches:
+      - release
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-26
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Print Xcode version
+        run: xcodebuild -version
+
+      - name: Select available iOS Simulator
+        run: |
+          set -euo pipefail
+          SIMULATOR_ID="$(
+            xcrun simctl list devices available \
+            | awk '/-- iOS/{flag=1; next} /^--/{flag=0} flag {print}' \
+            | grep -Eo '[0-9A-Fa-f-]{36}' \
+            | head -n 1
+          )"
+          if [ -z "$SIMULATOR_ID" ]; then
+            echo "No available iOS Simulator destination found"
+            xcodebuild -workspace NestedList.xcworkspace -scheme iOS -showdestinations || true
+            xcrun simctl list devices available || true
+            exit 1
+          fi
+
+          echo "Using simulator: $SIMULATOR_ID"
+          echo "IOS_DESTINATION=platform=iOS Simulator,id=$SIMULATOR_ID" >> "$GITHUB_ENV"
+
+      - name: Build iOS target (Debug)
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -workspace NestedList.xcworkspace \
+            -scheme iOS \
+            -destination "$IOS_DESTINATION" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            build | tee xcodebuild.log
+
+      - name: Print iOS build errors
+        if: failure()
+        run: |
+          echo "==== xcodebuild errors ===="
+          grep -n " error: " xcodebuild.log || true
+
+      - name: Run iOS unit tests
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -workspace NestedList.xcworkspace \
+            -scheme iOS \
+            -destination "$IOS_DESTINATION" \
+            -only-testing:iOSTests \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            test | tee unit-tests.log
+
+      - name: Print iOS unit test errors
+        if: failure()
+        run: |
+          echo "==== unit test errors ===="
+          grep -n " error: " unit-tests.log || true
+          grep -n " failed" unit-tests.log || true
+
+  build-macos:
+    runs-on: macos-26
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Print Xcode version
+        run: xcodebuild -version
+
+      - name: Build macOS target
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -workspace NestedList.xcworkspace \
+            -scheme macOS \
+            -destination 'platform=macOS,arch=arm64' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            build | tee xcodebuild.log
+
+      - name: Print macOS build errors
+        if: failure()
+        run: |
+          echo "==== xcodebuild errors ===="
+          grep -n " error: " xcodebuild.log || true
+
+      - name: Run macOS unit tests
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -workspace NestedList.xcworkspace \
+            -scheme macOS \
+            -destination 'platform=macOS,arch=arm64' \
+            -only-testing:macOSTests \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            test | tee unit-tests.log
+
+      - name: Print macOS unit test errors
+        if: failure()
+        run: |
+          echo "==== unit test errors ===="
+          grep -n " error: " unit-tests.log || true
+          grep -n " failed" unit-tests.log || true
+
+      - name: Run macOS UI tests
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -workspace NestedList.xcworkspace \
+            -scheme macOS \
+            -destination 'platform=macOS,arch=arm64' \
+            -only-testing:macOSUITests \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            test | tee ui-tests.log
+
+      - name: Print macOS UI test errors
+        if: failure()
+        run: |
+          echo "==== UI test errors ===="
+          grep -n " error: " ui-tests.log || true
+          grep -n " failed" ui-tests.log || true

@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-
 public struct PlaceholderModel {
 
 	let icon: String
@@ -35,15 +34,17 @@ public struct PlaceholderView: View {
 
 	public var body: some View {
 		ZStack(alignment: .center) {
-			VStack {
+			VStack(spacing: 8) {
 				Image(systemName: model.icon)
 					.resizable()
 					.scaledToFit()
-					.frame(width: 80, height: 80)
-					.foregroundStyle(.quaternary)
+					.frame(width: 64, height: 64)
+					.foregroundStyle(.quinary)
+					.accessibilityHidden(true)
 				Text(model.title)
-					.font(.title2)
-					.foregroundStyle(.secondary)
+					.font(.title)
+					.fontWeight(.semibold)
+					.foregroundStyle(.primary)
 					.lineLimit(1)
 				Text(model.subtitle)
 					.font(.body)
@@ -51,7 +52,7 @@ public struct PlaceholderView: View {
 					.foregroundStyle(.tertiary)
 					.lineLimit(nil)
 			}
-			.frame(maxWidth: 320)
+			.frame(maxWidth: 280)
 			.padding()
 		}
 		.frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -61,7 +62,7 @@ public struct PlaceholderView: View {
 #Preview {
 	PlaceholderView(
 		model: .init(
-			icon: "folder",
+			icon: "plus.square.on.square",
 			title: "No items yet",
 			subtitle: "To add a new item, click the «plus» button or use the keyboard shortcut cmd + t"
 		)
