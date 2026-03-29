@@ -146,18 +146,40 @@ extension ToolbarFactory {
 				)
 			),
 			.init(
+				id: "appearance-menu",
+				content: .menu(
+					options: .inline,
+					size: .automatic,
+					items:
+						[
+								.init(
+									id: ElementIdentifier.icon.rawValue,
+									title: localization.iconItemTitle,
+									icon: "photo",
+									content: .item(state: .off, attributes: [])
+								),
+								.init(
+									id: ElementIdentifier.color.rawValue,
+									title: localization.colorItemTitle,
+									icon: "paintpalette",
+									content: .item(state: .off, attributes: [])
+								)
+						]
+				)
+			),
+			.init(
 				id: "move-reorder-menu",
 				content: .menu(
 					options: .inline,
 					size: .automatic,
 					items:
 						[
-							.init(
-								id: ElementIdentifier.move.rawValue,
-								title: "Move to...",
-								icon: "arrow.left.arrow.right",
-								content: .item(state: .off, attributes: [])
-							)
+								.init(
+									id: ElementIdentifier.move.rawValue,
+									title: localization.moveItemTitle,
+									icon: "arrow.left.arrow.right",
+									content: .item(state: .off, attributes: [])
+								)
 						]
 				)
 			),

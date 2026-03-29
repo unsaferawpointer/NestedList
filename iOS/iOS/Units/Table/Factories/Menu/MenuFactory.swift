@@ -34,6 +34,18 @@ extension MenuFactory {
 			buildItem(id: .edit, title: localization.editItemTitle, iconName: "pencil"),
 			buildItem(id: .new, title: localization.newItemTitle, iconName: "plus"),
 			.init(
+				id: "appearance-menu",
+				content: .menu(
+					options: .inline,
+					size: .automatic,
+					items:
+						[
+							buildItem(id: .icon, title: localization.iconItemTitle, iconName: "photo"),
+							buildItem(id: .color, title: localization.colorItemTitle, iconName: "paintpalette")
+						]
+				)
+			),
+			.init(
 				id: "move-reorder-menu",
 				content: .menu(
 					options: .inline,

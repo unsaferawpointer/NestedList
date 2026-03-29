@@ -16,7 +16,7 @@ protocol ContentUnitInteractorProtocol {
 	func newItem(_ text: String, note: String?, iconName: IconName?, tintColor: ItemColor?, target: UUID?) -> UUID
 	func deleteItems(_ ids: [UUID])
 	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool)
-	func setColor(_ color: ItemColor, for ids: [UUID])
+	func setColor(_ color: ItemColor?, for ids: [UUID])
 	func setIcon(_ name: IconName?, for ids: [UUID])
 	func set(_ text: String, note: String?, iconName: IconName?, tintColor: ItemColor?, for id: UUID)
 	func item(for id: UUID) -> Item
@@ -109,7 +109,7 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 		}
 	}
 
-	func setColor(_ color: ItemColor, for ids: [UUID]) {
+	func setColor(_ color: ItemColor?, for ids: [UUID]) {
 		storage.modificate { content in
 			for node in content.root.nodes(with: ids) {
 				node.value.tintColor = color

@@ -1,6 +1,22 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "color_menu_item_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Color…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цвет…"
+          }
+        }
+      }
+    },
     "copy_menu_item_title" : {
       "localizations" : {
         "en" : {
@@ -61,6 +77,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Редактировать…"
+          }
+        }
+      }
+    },
+    "icon_menu_item_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icon…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Иконка…"
           }
         }
       }

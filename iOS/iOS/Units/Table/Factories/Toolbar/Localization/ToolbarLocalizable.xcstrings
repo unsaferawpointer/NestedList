@@ -97,6 +97,22 @@
         }
       }
     },
+    "icon_menu_item_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icon…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Иконка…"
+          }
+        }
+      }
+    },
     "marked_menu_item_title" : {
       "localizations" : {
         "en" : {
@@ -141,6 +157,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Вставить"
+          }
+        }
+      }
+    },
+    "color_menu_item_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Color…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цвет…"
           }
         }
       }

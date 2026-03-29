@@ -21,6 +21,8 @@ protocol RouterProtocol {
 	func showSettings()
 	func showTargetsScreen(for ids: Set<UUID>, completionHandler: @escaping (UUID?, Bool) -> Void)
 	func showReorderScreen(for item: UUID, completionHandler: @escaping () -> Void)
+	func showIconPicker(completionHandler: @escaping @MainActor (IconName?) -> Void)
+	func showColorPicker(completionHandler: @escaping @MainActor (ItemColor?) -> Void)
 	func dismiss()
 }
 
@@ -91,6 +93,40 @@ extension Router: RouterProtocol {
 			)
 		)
 		controller.modalPresentationStyle = .formSheet
+		root.present(controller, animated: true)
+	}
+
+	func showIconPicker(completionHandler: @escaping @MainActor (IconName?) -> Void) {
+
+		let picker = IconPickerScreen { [weak self] icon in
+			completionHandler(icon)
+			self?.root.presentedViewController?.dismiss(animated: true)
+		}
+
+		let controller = UIHostingController(rootView: picker)
+		controller.modalPresentationStyle = .formSheet
+
+		if let sheet = controller.sheetPresentationController {
+			sheet.detents = [.medium(), .large()]
+		}
+
+		root.present(controller, animated: true)
+	}
+
+	func showColorPicker(completionHandler: @escaping @MainActor (ItemColor?) -> Void) {
+
+		let picker = ColorPickerScreen { [weak self] token in
+			completionHandler(token)
+			self?.root.presentedViewController?.dismiss(animated: true)
+		}
+
+		let controller = UIHostingController(rootView: picker)
+		controller.modalPresentationStyle = .formSheet
+
+		if let sheet = controller.sheetPresentationController {
+			sheet.detents = [.medium()]
+		}
+
 		root.present(controller, animated: true)
 	}
 

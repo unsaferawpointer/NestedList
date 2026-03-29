@@ -18,6 +18,9 @@ enum ElementIdentifier: String {
 	case delete
 	case strikethrough
 
+	case icon
+	case color
+
 	case select
 	case reorder
 	case settings

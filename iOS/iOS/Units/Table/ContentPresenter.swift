@@ -217,6 +217,16 @@ extension ContentPresenter: InteractionDelegate {
 			router.showReorderScreen(for: first) { [weak self] in
 				self?.router.dismiss()
 			}
+		case .icon:
+			router.showIconPicker { [weak self] icon in
+				self?.editingMode = nil
+				self?.interactor?.setIcon(icon, for: currentSelection ?? [])
+			}
+		case .color:
+			router.showColorPicker { [weak self] color in
+				self?.editingMode = nil
+				self?.interactor?.setColor(color, for: currentSelection ?? [])
+			}
 		}
 	}
 }
