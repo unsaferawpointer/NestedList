@@ -161,6 +161,23 @@
         }
       }
     },
+    "no-color-item-title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Color"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Без цвета"
+          }
+        }
+      }
+    },
     "no-icon-item-title" : {
       "localizations" : {
         "en" : {

@@ -66,7 +66,7 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 		invocations.append(.toggleStatus(id: id, moveToEnd: moveToEnd))
 	}
 
-	func setColor(_ color: ItemColor, for ids: [UUID]) {
+	func setColor(_ color: ItemColor?, for ids: [UUID]) {
 		invocations.append(.setColor(color, ids: ids))
 	}
 
@@ -126,7 +126,7 @@ extension UnitInteractorMock {
 		case newItem(_ text: String, isStrikethrough: Bool, note: String?, iconName: IconName?, tintColor: ItemColor?, target: UUID?)
 		case setStatus(_ status: Bool, ids: [UUID], moveToEnd: Bool)
 		case toggleStatus(id: UUID, moveToEnd: Bool)
-		case setColor(_ color: ItemColor, ids: [UUID])
+		case setColor(_ color: ItemColor?, ids: [UUID])
 		case setIcon(_ name: IconName?, ids: [UUID])
 		case setText(text: String, note: String?, id: UUID)
 		case setNote(note: String?, ids: [UUID])

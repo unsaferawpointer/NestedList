@@ -160,6 +160,7 @@ extension ContentPresenter: UnitViewOutput {
 		case .copy:			copy(ids: selection)
 		case .paste:		paste(ids: selection)
 		case .noIcon:		interactor?.setIcon(nil, for: selection)
+		case .noColor:		interactor?.setColor(nil, for: selection)
 		default:
 			let components = item.rawValue.split(separator: "-")
 			guard components.count == 2, let last = components.last,

@@ -25,8 +25,7 @@ public extension ColorsPalette {
 
 	static func grouped() -> [[ItemColor]] {
 		[
-			[.accent],
-			[.primary, .secondary, .tertiary, .quaternary],
+			[.accent, .primary, .secondary, .tertiary, .quaternary],
 			[
 				.red, .orange, .yellow, .green,
 				.mint, .teal, .cyan, .blue,

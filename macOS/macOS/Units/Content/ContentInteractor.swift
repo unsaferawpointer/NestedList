@@ -29,7 +29,7 @@ protocol ContentInteractorProtocol {
 	) -> UUID
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool)
 	func toggleStrikethrough(for id: UUID, moveToEnd: Bool)
-	func setColor(_ color: ItemColor, for ids: [UUID])
+	func setColor(_ color: ItemColor?, for ids: [UUID])
 	func setIcon(_ name: IconName?, for ids: [UUID])
 	func set(text: String, note: String?, for id: UUID)
 	func set(note: String?, for ids: [UUID])
@@ -166,7 +166,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 		}
 	}
 
-	func setColor(_ color: ItemColor, for ids: [UUID]) {
+	func setColor(_ color: ItemColor?, for ids: [UUID]) {
 		storage.modificate { content in
 			for node in content.root.nodes(with: ids) {
 				node.value.tintColor = color

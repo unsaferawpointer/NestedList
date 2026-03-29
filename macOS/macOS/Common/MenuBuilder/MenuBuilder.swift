@@ -133,6 +133,19 @@ private extension MenuBuilder {
 		item.image = NSImage(systemSymbolName: "paintpalette", accessibilityDescription: nil)
 		item.submenu = {
 			let menu = NSMenu()
+
+			menu.addItem(
+				{
+					let item = NSMenuItem()
+					item.identifier = .init(elementIdentifier: .noColor)
+					item.title = MenuLocalization.noColorItemTitle
+					item.image = NSImage(systemSymbolName: "circle.slash", accessibilityDescription: nil)
+					item.action = action
+					return item
+				}()
+			)
+			menu.addItem(.separator())
+
 			for group in ColorsPalette.grouped() {
 				for color in group {
 					let item = buildColorItem(

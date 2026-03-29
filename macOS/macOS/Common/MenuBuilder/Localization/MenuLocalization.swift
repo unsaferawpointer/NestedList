@@ -60,6 +60,10 @@ extension MenuLocalization {
 		String(localized: "no-icon-item-title", table: "MenuLocalizable")
 	}
 
+	static var noColorItemTitle: String {
+		String(localized: "no-color-item-title", table: "MenuLocalizable")
+	}
+
 	static var editItemTitle: String {
 		String(localized: "edit-item-title", table: "MenuLocalizable")
 	}
