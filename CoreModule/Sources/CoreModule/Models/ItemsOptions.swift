@@ -27,5 +27,6 @@ public extension ItemOptions {
 
 	static let strikethrough = ItemOptions(rawValue: 1 << 0)
 
+	@available(*, deprecated, message: "ItemOptions.marked is deprecated and no longer used.")
 	static let marked = ItemOptions(rawValue: 1 << 1)
 }

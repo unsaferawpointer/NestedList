@@ -15,7 +15,7 @@ final class MenuFactory {
 // MARK: - Public interface
 extension MenuFactory {
 
-	func build(isCompleted: Bool?, isMarked: Bool?, isSection: Bool?) -> [MenuElement] {
+	func build(isCompleted: Bool?) -> [MenuElement] {
 		return
 		[
 			.init(

@@ -44,9 +44,7 @@ final class ContentPresenter {
 			let model = toolbarFactory.build(
 				editingMode: editingMode,
 				selectedCount: selection.count,
-				isCompleted: cache.validate(.isStrikethrough, other: selection),
-				isMarked: cache.validate(.isMarked, other: selection),
-				isSection: cache.validate(.isSection, other: selection)
+				isCompleted: cache.validate(.isStrikethrough, other: selection)
 			)
 			view?.display(model)
 			view?.setEditing(editingMode)
@@ -118,9 +116,7 @@ extension ContentPresenter: ViewDelegate {
 		let toolbar = toolbarFactory.build(
 			editingMode: editingMode,
 			selectedCount: 0,
-			isCompleted: cache.validate(.isStrikethrough, other: view?.selection ?? []),
-			isMarked: cache.validate(.isMarked, other: view?.selection ?? []),
-			isSection: cache.validate(.isSection, other: view?.selection ?? [])
+			isCompleted: cache.validate(.isStrikethrough, other: view?.selection ?? [])
 		)
 		view?.display(toolbar)
 	}
@@ -188,12 +184,8 @@ extension ContentPresenter: InteractionDelegate {
 			let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
 			let newValue = !(cache.validate(.isStrikethrough, other: currentSelection ?? []) ?? false)
 			interactor?.setStatus(newValue, for: currentSelection ?? [], moveToEnd: moveToEnd)
-			case .marked:
-				editingMode = nil
-			case .style:
-				editingMode = nil
-			case .select:
-				editingMode = .selection
+		case .select:
+			editingMode = .selection
 		case .reorder:
 			editingMode = .reordering
 		case .settings:
@@ -243,18 +235,14 @@ extension ContentPresenter: ListDelegate {
 		let toolbar = toolbarFactory.build(
 			editingMode: editingMode,
 			selectedCount: ids.count,
-			isCompleted: cache.validate(.isStrikethrough, other: ids),
-			isMarked: cache.validate(.isMarked, other: ids),
-			isSection: cache.validate(.isSection, other: ids)
+			isCompleted: cache.validate(.isStrikethrough, other: ids)
 		)
 		view?.display(toolbar)
 	}
 
 	func menu(for ids: [UUID]) -> [MenuElement] {
 		menuFactory.build(
-			isCompleted: cache.validate(.isStrikethrough, other: ids),
-			isMarked: cache.validate(.isMarked, other: ids),
-			isSection: cache.validate(.isSection, other: ids)
+			isCompleted: cache.validate(.isStrikethrough, other: ids)
 		)
 	}
 }
@@ -347,9 +335,6 @@ private extension ContentPresenter {
 
 enum Property: Hashable {
 	case isStrikethrough
-	case isMarked
-	case isItem
-	case isSection
 }
 
 private extension Item {

@@ -17,8 +17,6 @@ enum ElementIdentifier: String {
 	case paste
 	case delete
 	case strikethrough
-	case marked
-	case style
 
 	case select
 	case reorder

@@ -9,7 +9,7 @@ import Foundation
 import DesignSystem
 
 protocol ToolbarFactoryProtocol {
-	func build(editingMode: EditingMode?, selectedCount: Int, isCompleted: Bool?, isMarked: Bool?, isSection: Bool?) -> ToolbarModel
+	func build(editingMode: EditingMode?, selectedCount: Int, isCompleted: Bool?) -> ToolbarModel
 }
 
 final class ToolbarFactory {
@@ -20,15 +20,13 @@ final class ToolbarFactory {
 // MARK: - BottomToolbarFactoryProtocol
 extension ToolbarFactory: ToolbarFactoryProtocol {
 
-	func build(editingMode: EditingMode?, selectedCount: Int, isCompleted: Bool?, isMarked: Bool?, isSection: Bool?) -> ToolbarModel {
+	func build(editingMode: EditingMode?, selectedCount: Int, isCompleted: Bool?) -> ToolbarModel {
 
 		let top = buildTop(editingMode: editingMode)
 		let bottom = buildBottom(
 			editingMode: editingMode,
 			selectedCount: selectedCount,
-			isCompleted: isCompleted,
-			isMarked: isMarked,
-			isSection: isSection
+			isCompleted: isCompleted
 		)
 
 		return ToolbarModel(top: top, bottom: bottom)
@@ -111,7 +109,7 @@ extension ToolbarFactory {
 		]
 	}
 
-	func buildBottom(editingMode: EditingMode?, selectedCount: Int, isCompleted: Bool?, isMarked: Bool?, isSection: Bool?) -> [ToolbarItem] {
+	func buildBottom(editingMode: EditingMode?, selectedCount: Int, isCompleted: Bool?) -> [ToolbarItem] {
 
 		let isEmpty = selectedCount == 0
 
