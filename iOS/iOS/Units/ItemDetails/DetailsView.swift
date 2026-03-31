@@ -115,12 +115,6 @@ private extension DetailsView {
 			.accessibilityIdentifier("textfield-description")
 	}
 
-    var iconModels: [IconModel] {
-        return IconName.allCases.map {
-            .customIcon(IconMapper.map(icon: $0))
-		}
-	}
-
 	@MainActor
 	var availableColors: [ColorToken] {
 		ColorsPalette.colors.map {
@@ -145,17 +139,11 @@ private extension DetailsView {
 					let name = model.properties.icon,
 					let icon = IconMapper.map(icon: name, filled: false)
 				else {
-					return .noIcon
+					return nil
 				}
-				return .customIcon(icon)
-			}, set: { (newValue: IconModel) in
-				switch newValue {
-				case .noIcon:
-					model.properties.icon = nil
-				case .customIcon(let iconName):
-					model.properties.icon = IconMapper.map(icon: iconName)
-				}
-
+				return icon
+			}, set: { newValue in
+				model.properties.icon = IconMapper.map(icon: newValue)
 			}))
 		}
 	}
@@ -166,10 +154,10 @@ private extension DetailsView {
 		Section(strings.colorPickerTitle) {
 			DesignSystem.ColorPicker(selection: .init(get: {
 				guard let color = model.properties.tintColor else {
-					return .tertiary
+					return nil
 				}
 				return ColorMapper.map(color: color)
-			}, set: { (newValue: ColorToken) in
+			}, set: { newValue in
 				model.properties.tintColor = ColorMapper.map(token: newValue)
 			}), availableColors: availableColors)
 		}

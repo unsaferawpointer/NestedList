@@ -13,13 +13,6 @@ import CorePresentation
 public struct IconPickerScreen {
 
 	let action: @MainActor (IconName?) -> Void
-
-	// MARK: - Internal State
-
-	private let columns: [GridItem] =
-	[
-		GridItem(.adaptive(minimum: 48), spacing: 8)
-	]
 }
 
 extension IconPickerScreen {
@@ -29,6 +22,13 @@ extension IconPickerScreen {
 			IconMapper.map(icon: $0)
 		}
 	}
+
+	var title: String {
+		String(
+			localized: "icons-picker-title",
+			table: "PickerLocalizable"
+		)
+	}
 }
 
 // MARK: - View
@@ -37,26 +37,25 @@ extension IconPickerScreen: View {
 	public var body: some View {
 		NavigationStack {
 			ScrollView {
-				LazyVGrid(columns: columns, spacing: 15) {
-					PickerButton(icon: .circleSlash, foregroundColor: .primary) {
+				CommonPicker(values: icons) {
+					PickerButton(
+						icon: .circleSlash,
+						foregroundColor: .primary,
+						backgroundColor: .gray.opacity(0.1)
+					) {
 						action(nil)
 					}
-					ForEach(icons, id: \.self) { icon in
-						PickerButton(icon: icon, foregroundColor: .primary) {
-							action(IconMapper.map(icon: icon))
-						}
+				} content: { icon in
+					PickerButton(
+						icon: icon,
+						foregroundColor: .primary,
+						backgroundColor: .gray.opacity(0.1)
+					) {
+						action(IconMapper.map(icon: icon))
 					}
 				}
-				.padding()
-				.frame(minWidth: 240)
 			}
-			.listStyle(.plain)
-			.navigationTitle(
-				String(
-					localized: "icons-picker-title",
-					table: "PickerLocalizable"
-				)
-			)
+			.navigationTitle(title)
 			.navigationBarTitleDisplayMode(.inline)
 		}
 	}

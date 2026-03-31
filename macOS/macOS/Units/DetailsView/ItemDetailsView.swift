@@ -118,12 +118,6 @@ private extension ItemDetailsView {
 		}
 	}
 
-	var iconModels: [IconModel] {
-		return IconName.allCases.map {
-			.customIcon(IconMapper.map(icon: $0, filled: false) ?? .textDoc)
-		}
-	}
-
 	var availableColors: [ColorToken] {
 		return ItemColor.allCases.compactMap {
 			ColorMapper.map(color: $0)
@@ -139,18 +133,11 @@ private extension ItemDetailsView {
 					let name = model.properties.icon,
 					let icon = IconMapper.map(icon: name, filled: false)
 				else {
-					return .noIcon
+					return nil
 				}
-				return .customIcon(icon)
+				return icon
 			}, set: { newValue in
-				switch newValue {
-				case .noIcon:
-					model.properties.icon = nil
-				case .customIcon(let iconName):
-					let color = model.properties.tintColor ?? .tertiary
-					model.properties.icon = IconMapper.map(icon: iconName)
-				}
-
+				model.properties.icon = IconMapper.map(icon: newValue)
 			}))
 		}
 	}
@@ -160,7 +147,7 @@ private extension ItemDetailsView {
 		Section(strings.colorPickerTitle) {
 			DesignSystem.ColorPicker(selection: .init(get: {
 				guard let color = model.properties.tintColor else {
-					return .tertiary
+					return nil
 				}
 				return ColorMapper.map(color: color)
 			}, set: { newValue in

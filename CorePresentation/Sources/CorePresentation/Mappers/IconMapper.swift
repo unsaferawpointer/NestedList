@@ -127,9 +127,9 @@ public final class IconMapper {
 		}
 	}
 
-	public static func map(icon: SemanticImage?) -> IconName {
+	public static func map(icon: SemanticImage?) -> IconName? {
 		guard let icon else {
-			return .document
+			return nil
 		}
 		return switch icon {
 		case .textDoc:			.document

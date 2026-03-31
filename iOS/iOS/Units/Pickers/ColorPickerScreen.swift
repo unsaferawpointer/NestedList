@@ -13,13 +13,6 @@ import CorePresentation
 struct ColorPickerScreen {
 
 	let action: @MainActor (ItemColor?) -> Void
-
-	// MARK: - Internal State
-
-	private let columns: [GridItem] =
-	[
-		GridItem(.adaptive(minimum: 48), spacing: 8)
-	]
 }
 
 extension ColorPickerScreen {
@@ -29,6 +22,13 @@ extension ColorPickerScreen {
 			ColorMapper.map(color: $0)
 		}
 	}
+
+	var title: String {
+		String(
+			localized: "color-picker-title",
+			table: "PickerLocalizable"
+		)
+	}
 }
 
 // MARK: - View
@@ -37,29 +37,25 @@ extension ColorPickerScreen: View {
 	var body: some View {
 		NavigationStack {
 			ScrollView {
-				LazyVGrid(columns: columns, spacing: 15) {
-					PickerButton(icon: .circleSlash, foregroundColor: .primary) {
+				CommonPicker(values: colors) {
+					PickerButton(
+						icon: .circleSlash,
+						foregroundColor: .primary,
+						backgroundColor: .gray.opacity(0.1)
+					) {
 						action(nil)
 					}
-					ForEach(colors, id: \.self) { token in
-						PickerButton(
-							icon: .filledCircle,
-							foregroundColor: token.color
-						) {
-							action(ColorMapper.map(token: token))
-						}
+				} content: { token in
+					PickerButton(
+						icon: .filledCircle,
+						foregroundColor: token.color,
+						backgroundColor: .gray.opacity(0.1)
+					) {
+						action(ColorMapper.map(token: token))
 					}
 				}
-				.padding()
-				.frame(minWidth: 240)
 			}
-			.listStyle(.plain)
-				.navigationTitle(
-					String(
-						localized: "color-picker-title",
-						table: "PickerLocalizable"
-					)
-				)
+			.navigationTitle(title)
 			.navigationBarTitleDisplayMode(.inline)
 		}
 	}

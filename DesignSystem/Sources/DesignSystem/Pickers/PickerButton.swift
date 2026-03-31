@@ -6,17 +6,32 @@
 //
 
 import SwiftUI
-import DesignSystem
 
-struct PickerButton: View {
+public struct PickerButton: View {
 
 	let icon: SemanticImage
 
 	let foregroundColor: Color
 
+	let backgroundColor: Color
+
 	let action: () -> Void
 
-	var body: some View {
+	// MARK: - Initialization
+
+	public init(
+		icon: SemanticImage,
+		foregroundColor: Color,
+		backgroundColor: Color,
+		action: @escaping () -> Void
+	) {
+		self.icon = icon
+		self.foregroundColor = foregroundColor
+		self.backgroundColor = backgroundColor
+		self.action = action
+	}
+
+	public var body: some View {
 		Button(action: action) {
 			GeometryReader { geometry in
 				let side = min(geometry.size.width, geometry.size.height)
@@ -25,7 +40,7 @@ struct PickerButton: View {
 						cornerRadius: side * 0.2,
 						style: .continuous
 					)
-						.fill(Color.gray.opacity(0.1))
+						.fill(backgroundColor)
 						icon.image?
 							.symbolRenderingMode(.monochrome)
 							.font(.system(size: side * 0.4))
@@ -39,9 +54,15 @@ struct PickerButton: View {
 	}
 }
 
-#Preview(traits: .sizeThatFitsLayout) {
+#Preview {
 	VStack {
-		PickerButton(icon: .calendar, foregroundColor: .primary) { }
+		PickerButton(
+			icon: .calendar,
+			foregroundColor: .primary,
+			backgroundColor: .gray.opacity(0.1)
+		) {
+
+		}
 	}
 	.frame(width: 256, height: 256)
 	.padding(24)
