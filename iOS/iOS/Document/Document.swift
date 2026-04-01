@@ -35,6 +35,14 @@ class Document: UIDocument {
 		guard let data = contents as? Data, let typeName else {
 			throw CocoaError(.coderReadCorrupt)
 		}
+
+		guard Thread.current.isMainThread else {
+			Task { @MainActor in
+				try storage.read(from: data, ofType: typeName)
+			}
+			return
+		}
+
 		do {
 			try storage.read(from: data, ofType: typeName)
 		} catch let error as DocumentError {
