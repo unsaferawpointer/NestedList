@@ -515,7 +515,7 @@ public extension SemanticImage {
 		case .trash:
 			"trash"
 		case .receipt:
-			"receipt"
+			"text.page"
 		case .terminal:
 			"apple.terminal.on.rectangle"
 		case .calendar:
@@ -525,7 +525,7 @@ public extension SemanticImage {
 		case .xmarkApp:
 			"xmark.app"
 		case .checkmarkApp:
-			"checkmark.app"
+			"checkmark.square"
 		case .xmarkDiamond:
 			"xmark.diamond"
 		case .checkmarkDiamond:
@@ -549,7 +549,7 @@ public extension SemanticImage {
 		case .insetTriangle:
 			"triangle"
 		case .personGroup:
-			"person.crop.square.on.square.angled"
+			"person.2.crop.square.stack"
 		case .leaf:
 			"leaf"
 		case .house:

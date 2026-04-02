@@ -47,6 +47,18 @@ class DocumentViewController: UIDocumentViewController {
 
 		self.undoRedoItems = undoRedoItemGroup.barButtonItems
 	}
+
+	override func viewDidDisappear(_ animated: Bool) {
+		super.viewDidDisappear(animated)
+
+		document?.close { (success) in
+			guard success else {
+				assertionFailure( "*** Error closing document ***")
+				return
+			}
+			os_log("==> Document saved and closed", log: .default, type: .debug)
+		}
+	}
 }
 
 // MARK: - Helpers
