@@ -165,7 +165,7 @@ extension JsonDataProviderTests {
 										text: "item 0 0",
 										note: nil,
 										options: [],
-										iconName: nil,
+										iconName: .unknown(999),
 										tintColor: nil
 									),
 									children:
