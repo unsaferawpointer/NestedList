@@ -262,7 +262,7 @@ private extension ContentPresenter {
 			properties: item.details
 		)
 		view?.showDetails(with: model) { [weak self] saved, success in
-			self?.view?.hideDetails()
+			self?.view?.closeSheet()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
 				self?.interactor?.set(

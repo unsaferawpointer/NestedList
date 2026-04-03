@@ -25,7 +25,7 @@ protocol UnitView: AnyObject, ListSupportable {
 		with model: ItemDetailsView.Model,
 		completionHandler: @escaping (ItemDetailsView.Properties, Bool) -> Void
 	)
-	func hideDetails()
+	func closeSheet()
 }
 
 class ContentViewController: NSCollectionViewItem {
@@ -112,8 +112,8 @@ extension ContentViewController {
 // MARK: - ContentView
 extension ContentViewController: UnitView {
 
-	func hideDetails() {
-		if let sheet = presentedViewControllers?.first {
+	func closeSheet() {
+		if let sheet = presentedViewControllers?.last {
 			dismiss(sheet)
 		}
 	}

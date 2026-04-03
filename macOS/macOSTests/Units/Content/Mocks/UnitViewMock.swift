@@ -26,8 +26,8 @@ extension UnitViewMock: UnitView {
 		invocations.append(.showDetails(model: model, completionHandler: completionHandler))
 	}
 	
-	func hideDetails() {
-		invocations.append(.hideDetails)
+	func closeSheet() {
+		invocations.append(.closeSheet)
 	}
 
 	func display(_ state: ContentViewState) {
@@ -71,7 +71,7 @@ extension UnitViewMock {
 		case focus(_ id: UUID, key: String)
 		case didSetSelection(selection: [UUID])
 		case showDetails(model: ItemDetailsView.Model, completionHandler: (ItemDetailsView.Properties, Bool) -> Void)
-		case hideDetails
+		case closeSheet
 	}
 
 	struct Stubs {
