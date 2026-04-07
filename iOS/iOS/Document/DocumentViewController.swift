@@ -13,15 +13,9 @@ import DesignSystem
 
 // MARK: - Interfaces
 
-protocol DocumentView: AnyObject {
-	func showDocument(type: Content.ContentView)
-}
-
 protocol DocumentViewDelegate: ViewDelegate { }
 
 class DocumentViewController: UIDocumentViewController {
-
-	weak var content: UIViewController?
 
 	private var undoRedoItems: [UIBarButtonItem] = []
 
@@ -36,41 +30,54 @@ class DocumentViewController: UIDocumentViewController {
 	// MARK: - UIDocumentViewController Life-Cycle
 
 	override func documentDidOpen() {
-		configureViewForCurrentDocument()
+		super.documentDidOpen()
+		configureDocument()
+	}
+
+	override func navigationItemDidUpdate() {
+		super.navigationItemDidUpdate()
+		guard document?.documentState == .normal else {
+			navigationItem.setRightBarButtonItems([], animated: false)
+			toolbarItems = []
+			return
+		}
 	}
 
 	// MARK: - UIViewController Life-Cycle
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		configureViewForCurrentDocument()
+		configureLaunchOptions()
+		configureDocument()
 
 		self.undoRedoItems = undoRedoItemGroup.barButtonItems
-	}
-
-	override func viewDidDisappear(_ animated: Bool) {
-		super.viewDidDisappear(animated)
-
-		document?.close { (success) in
-			guard success else {
-				assertionFailure( "*** Error closing document ***")
-				return
-			}
-			os_log("==> Document saved and closed", log: .default, type: .debug)
-		}
 	}
 }
 
 // MARK: - Helpers
 private extension DocumentViewController {
 
-	func configureViewForCurrentDocument() {
-		guard let document = self.document as? Document,
-			  !document.documentState.contains(.closed) && isViewLoaded else {
+	func configureLaunchOptions() {
+		launchOptions.browserViewController.delegate = self
+	}
+
+	func configureDocument() {
+		guard let document = document as? Document, !document.documentState.contains(.closed) && isViewLoaded else {
 			return
 		}
-		delegate = DocumentAssembly.build(self, storage: document.storage)
-		delegate?.viewDidChange(state: .didLoad)
+		let content = ContentUnitAssembly.build(router: nil, storage: document.storage)
+		addChild(content)
+		view.addSubview(content.view)
+		content.view.translatesAutoresizingMaskIntoConstraints = false
+		content.didMove(toParent: self)
+		NSLayoutConstraint.activate(
+			[
+				content.view.topAnchor.constraint(equalTo: view.topAnchor),
+				content.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+				content.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+				content.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+			]
+		)
 	}
 }
 
@@ -83,58 +90,97 @@ extension DocumentViewController: ToolbarSupportable {
 	}
 }
 
-// MARK: - DocumentView
-extension DocumentViewController: DocumentView {
+// MARK: - UIDocumentBrowserViewControllerDelegate
+extension DocumentViewController: UIDocumentBrowserViewControllerDelegate {
 
-	func showDocument(type: Content.ContentView) {
-
-		if !Thread.isMainThread {
-			os_log("DocumentViewController. ShowDocument: Is not main Thread", log: .default, type: .error)
-		}
-
-		guard let document = self.document as? Document, let router else {
+	func documentBrowser(_ controller: UIDocumentBrowserViewController, didPickDocumentsAt documentURLs: [URL]) {
+		guard let url = documentURLs.first else {
 			return
 		}
 
-		if content is TableViewController {
-			return
-		} else if let content {
-			remove(content)
+		let document = Document(fileURL: url)
+		let viewController = DocumentViewController(document: document)
 
-			let viewController = ContentUnitAssembly.build(router: router, storage: document.storage)
-			addContent(viewController)
-			self.content = viewController
-		} else {
-			let viewController = ContentUnitAssembly.build(router: router, storage: document.storage)
-			addContent(viewController)
-			self.content = viewController
+		let navigationController = UINavigationController(rootViewController: viewController)
+		navigationController.modalPresentationStyle = .fullScreen
+
+		controller.present(navigationController, animated: true)
+	}
+
+	func documentBrowser(
+		_ controller: UIDocumentBrowserViewController,
+		didRequestDocumentCreationWithHandler importHandler: @escaping (URL?, UIDocumentBrowserViewController.ImportMode) -> Void
+	) {
+
+		os_log("DocumentBrowserViewController. Creating A New Document.", log: .default, type: .debug)
+
+		let url = FileManager.default.temporaryDirectory.appendingPathComponent("New List.nlist")
+
+		let doc = Document(fileURL: url)
+
+		// Create a new document in a temporary location.
+		doc.save(to: url, for: .forCreating) { (saveSuccess) in
+
+			// Make sure the document saved successfully.
+			guard saveSuccess else {
+				os_log("DocumentBrowserViewController. Unable to create a new document.", log: .default, type: .error)
+
+				// Cancel document creation.
+				importHandler(nil, .none)
+				return
+			}
+
+			// Close the document.
+			doc.close(completionHandler: { (closeSuccess) in
+
+				// Make sure the document closed successfully.
+				guard closeSuccess else {
+					os_log("DocumentBrowserViewController. Unable to create a new document.", log: .default, type: .error)
+
+					// Cancel document creation.
+					importHandler(nil, .none)
+					return
+				}
+
+				// Pass the document's temporary URL to the import handler.
+				importHandler(url, .move)
+			})
+		}
+	}
+
+
+}
+
+// MARK: - DocumentHandler
+extension DocumentViewController: DocumentHandler {
+
+	func handleError(_ error: any Error) {
+		Task { @MainActor in
+			presentAlert(for: error)
 		}
 	}
 }
 
-// MARK: - Helpers
+// MARK: - Private Methods
 private extension DocumentViewController {
 
-	func addContent(_ content: UIViewController) {
+	func presentAlert(for error: Error) {
 
-		addChild(content)
-		view.addSubview(content.view)
-		content.view.translatesAutoresizingMaskIntoConstraints = false
-		content.didMove(toParent: self)
+		let nsError = error as NSError
 
-		NSLayoutConstraint.activate(
-			[
-				content.view.topAnchor.constraint(equalTo: view.topAnchor),
-				content.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-				content.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-				content.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-			]
+		let title = nsError.localizedDescription
+		let reason = nsError.localizedFailureReason
+		let suggestion = nsError.localizedRecoverySuggestion
+
+		let alert = UIAlertController(
+			title: title,
+			message: [reason, suggestion].compactMap(\.self).joined(separator: ". "),
+			preferredStyle: .alert
 		)
-	}
 
-	func remove(_ content: UIViewController) {
-		content.willMove(toParent: nil)
-		content.view.removeFromSuperview()
-		content.removeFromParent()
+		let action = UIAlertAction(title: "OK", style: .cancel)
+		alert.addAction(action)
+
+		present(alert, animated: true)
 	}
 }

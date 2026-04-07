@@ -33,18 +33,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		guard let windowScene = scene as? UIWindowScene else {
 			return
 		}
-
 		window = UIWindow(windowScene: windowScene)
 
-		let documentBrowser = DocumentBrowserViewController()
-		documentBrowser.allowsDocumentCreation = true
-		documentBrowser.allowsPickingMultipleItems = true
-
-		window?.rootViewController = documentBrowser
+		window?.rootViewController = UINavigationController(
+			rootViewController: DocumentViewController(document: nil)
+		)
 		window?.makeKeyAndVisible()
 
 		if let onboardingViewController = OnboardingAssembly.build(settingsProvider: .shared) {
-			documentBrowser.present(onboardingViewController, animated: true)
+			window?.rootViewController?.present(onboardingViewController, animated: true)
 		}
 
         // Mark this session's userInfo as the main document browser so you can find it among multiple sessions.
@@ -65,38 +62,38 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     private func openURLContext(_ urlContext: UIOpenURLContext) {
         // Reveal and import the document at the URL.
-        guard let documentBrowserViewController = window?.rootViewController as? DocumentBrowserViewController else {
-            fatalError("*** The root view is not a document browser ***")
-        }
-
-        let inputURL = urlContext.url
-        let canOpenInPlace = urlContext.options.openInPlace
-        documentBrowserViewController.revealDocument(at: inputURL, importIfNeeded: !canOpenInPlace) { (revealedDocumentURL, error) in
-
-            // Note that this app supports both open in place and open a copy (if urlContext.options.openInPlace is false, revealedDocumentURL is nil)
-
-            Swift.debugPrint("\(canOpenInPlace)")
-
-            let urlToOpen: URL
-
-            if canOpenInPlace {
-                urlToOpen = inputURL
-            } else {
-                guard let revealedDocumentURL = revealedDocumentURL else {
-                    os_log("*** Failed to reveal the document at %@. Error: %@. ***",
-                           log: .default,
-                           type: .error,
-                           inputURL as CVarArg,
-                           error as CVarArg? ?? "nil")
-                    return
-                }
-
-                urlToOpen = revealedDocumentURL
-            }
-
-            // Present the Document View Controller for the revealed URL.
-            documentBrowserViewController.presentDocument(at: urlToOpen)
-        }
+//        guard let documentBrowserViewController = window?.rootViewController as? DocumentBrowserViewController else {
+//            fatalError("*** The root view is not a document browser ***")
+//        }
+//
+//        let inputURL = urlContext.url
+//        let canOpenInPlace = urlContext.options.openInPlace
+//        documentBrowserViewController.revealDocument(at: inputURL, importIfNeeded: !canOpenInPlace) { (revealedDocumentURL, error) in
+//
+//            // Note that this app supports both open in place and open a copy (if urlContext.options.openInPlace is false, revealedDocumentURL is nil)
+//
+//            Swift.debugPrint("\(canOpenInPlace)")
+//
+//            let urlToOpen: URL
+//
+//            if canOpenInPlace {
+//                urlToOpen = inputURL
+//            } else {
+//                guard let revealedDocumentURL = revealedDocumentURL else {
+//                    os_log("*** Failed to reveal the document at %@. Error: %@. ***",
+//                           log: .default,
+//                           type: .error,
+//                           inputURL as CVarArg,
+//                           error as CVarArg? ?? "nil")
+//                    return
+//                }
+//
+//                urlToOpen = revealedDocumentURL
+//            }
+//
+//            // Present the Document View Controller for the revealed URL.
+//            documentBrowserViewController.presentDocument(at: urlToOpen)
+//        }
     }
     
 }

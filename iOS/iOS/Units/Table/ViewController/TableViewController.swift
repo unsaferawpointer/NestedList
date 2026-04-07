@@ -63,6 +63,11 @@ class TableViewController: UIViewController {
 		delegate?.viewDidChange(state: .didAppear)
 	}
 
+	override func viewWillDisappear(_ animated: Bool) {
+		super.viewWillDisappear(animated)
+		(parent as? DocumentViewController)?.displayToolbar(top: [], bottom: [])
+	}
+
 	override func updateContentUnavailableConfiguration(using state: UIContentUnavailableConfigurationState) {
 		if nestedList.isEmpty {
 			var configuration = UIContentUnavailableConfiguration.empty()
