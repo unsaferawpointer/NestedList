@@ -38,6 +38,14 @@ extension UnitRouterMock: RouterProtocol {
 		stubs.showIconPickerCompletionHandler = completionHandler
 		invocations.append(.showIconPicker(navigationTitle: navigationTitle))
 	}
+
+	func showColorPicker(
+		navigationTitle: String,
+		completionHandler: @escaping @MainActor (ItemColor?) -> Void
+	) {
+		stubs.showColorPickerCompletionHandler = completionHandler
+		invocations.append(.showColorPicker(navigationTitle: navigationTitle))
+	}
 }
 
 // MARK: - Nested data structs
@@ -46,10 +54,12 @@ extension UnitRouterMock {
 	enum Action {
 		case showDetails(model: ItemDetailsView.Model)
 		case showIconPicker(navigationTitle: String)
+		case showColorPicker(navigationTitle: String)
 	}
 
 	struct Stubs {
 		var showDetailsCompletionHandler: ((ItemDetailsView.Properties) -> Void)?
 		var showIconPickerCompletionHandler: (@MainActor (IconName?) -> Void)?
+		var showColorPickerCompletionHandler: (@MainActor (ItemColor?) -> Void)?
 	}
 }

@@ -15,6 +15,7 @@ protocol ContentLocalizationProtocol {
 	var newItemDetailsTitle: String { get }
 	var editItemDetailsTitle: String { get }
 	var iconPickerNavigationTitle: String { get }
+	var colorPickerNavigationTitle: String { get }
 }
 
 // MARK: - ContentLocalizationProtocol
@@ -46,5 +47,9 @@ final class ContentLocalization: ContentLocalizationProtocol {
 
 	var iconPickerNavigationTitle: String {
 		return String(localized: "icon-picker-navigation-title", table: "ContentLocalizable")
+	}
+
+	var colorPickerNavigationTitle: String {
+		return String(localized: "color-picker-navigation-title", table: "ContentLocalizable")
 	}
 }

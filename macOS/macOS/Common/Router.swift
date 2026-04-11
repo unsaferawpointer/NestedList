@@ -20,6 +20,11 @@ protocol RouterProtocol: AnyObject {
 		navigationTitle: String,
 		completionHandler: @escaping @MainActor (IconName?) -> Void
 	)
+
+	func showColorPicker(
+		navigationTitle: String,
+		completionHandler: @escaping @MainActor (ItemColor?) -> Void
+	)
 }
 
 final class Router {
@@ -67,6 +72,24 @@ extension Router: RouterProtocol {
 						return
 					}
 					completionHandler(iconName)
+				}
+		)
+		contentViewController.title = navigationTitle
+		root.presentAsSheet(contentViewController)
+	}
+
+	func showColorPicker(
+		navigationTitle: String,
+		completionHandler: @escaping @MainActor (ItemColor?) -> Void
+	) {
+		let contentViewController = NSHostingController(
+			rootView:
+				ColorPickerScreen { [weak self] color, isSuccess in
+					self?.closeSheet()
+					guard isSuccess else {
+						return
+					}
+					completionHandler(color)
 				}
 		)
 		contentViewController.title = navigationTitle

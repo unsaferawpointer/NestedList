@@ -165,21 +165,10 @@ extension ContentPresenter: UnitViewOutput {
 		case .cut:			cut(ids: selection)
 		case .copy:			copy(ids: selection)
 		case .paste:		paste(ids: selection)
-		case .noColor:		interactor?.setColor(nil, for: selection)
+		case .color:		showColorPicker(for: selection)
 		case .icon:			showIconPicker(for: selection)
 		default:
-			let components = item.rawValue.split(separator: "-")
-			guard components.count == 2, let last = components.last,
-				  let index = Int(last), let key = components.first else {
-				return
-			}
-
-			switch key {
-			case "color":
-				interactor?.setColor(.init(rawValue: index) ?? .tertiary, for: selection)
-			default:
-				fatalError()
-			}
+			assertionFailure("Unexpected menu item identifier")
 		}
 	}
 	
@@ -275,6 +264,12 @@ private extension ContentPresenter {
 	func showIconPicker(for ids: [UUID]) {
 		router.showIconPicker(navigationTitle: localization.iconPickerNavigationTitle) { [weak self] iconName in
 			self?.interactor?.setIcon(iconName, for: ids)
+		}
+	}
+
+	func showColorPicker(for ids: [UUID]) {
+		router.showColorPicker(navigationTitle: localization.colorPickerNavigationTitle) { [weak self] color in
+			self?.interactor?.setColor(color, for: ids)
 		}
 	}
 

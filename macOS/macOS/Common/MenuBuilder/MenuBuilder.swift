@@ -43,7 +43,7 @@ private extension MenuBuilder {
 		case .icon:
 			configureIconItem(item)
 		case .color:
-			configureColorItem(item, action: action)
+			configureColorItem(item)
 		case .note:
 			item.identifier = .init(elementIdentifier: .note)
 			item.title = MenuLocalization.noteItemTitle
@@ -109,67 +109,15 @@ extension MenuBuilder: MenuBuilderProtocol {
 // MARK: - Helpers
 private extension MenuBuilder {
 
-	static func buildColorItem(color: ItemColor, action: Selector) -> NSMenuItem {
-
-		let token = ColorMapper.map(color: color)
-
-		let item = NSMenuItem()
-		item.identifier = .init("color-\(color.rawValue)")
-		item.title = token.displayName
-		item.action = action
-		item.image = NSImage(systemSymbolName: "circle.fill", accessibilityDescription: nil)?
-			.withSymbolConfiguration(.init(hierarchicalColor: token.value))
-
-		return item
-	}
-
-	static func configureColorItem(_ item: NSMenuItem, action: Selector) {
+	static func configureColorItem(_ item: NSMenuItem) {
 		item.title = MenuLocalization.colorItemTitle
 		item.identifier = .init(elementIdentifier: .color)
 		item.image = NSImage(systemSymbolName: "paintpalette", accessibilityDescription: nil)
-		item.submenu = {
-			let menu = NSMenu()
-
-			menu.addItem(
-				{
-					let item = NSMenuItem()
-					item.identifier = .init(elementIdentifier: .noColor)
-					item.title = MenuLocalization.noColorItemTitle
-					item.image = NSImage(systemSymbolName: "circle.slash", accessibilityDescription: nil)
-					item.action = action
-					return item
-				}()
-			)
-			menu.addItem(.separator())
-
-			for group in ColorsPalette.grouped() {
-				for color in group {
-					let item = buildColorItem(
-						color: color,
-						action: action
-					)
-					menu.addItem(item)
-				}
-				menu.addItem(.separator())
-			}
-			return menu
-		}()
 	}
 }
 
 // MARK: - Helpers
 private extension MenuBuilder {
-
-	static func buildIconItem(icon: IconName, action: Selector, target: AnyObject?) -> NSMenuItem {
-		let item = NSMenuItem()
-		item.identifier = .init("icon-\(icon.rawValue)")
-		item.action = action
-		item.target = target
-		item.title = IconMapper.map(icon: icon, filled: false)?.title ?? ""
-		item.image = IconMapper.map(icon: icon, filled: false)?.nsImage?
-			.withSymbolConfiguration(.preferringMonochrome())
-		return item
-	}
 
 	static func configureIconItem(_ item: NSMenuItem) {
 		item.identifier = .init(elementIdentifier: .icon)

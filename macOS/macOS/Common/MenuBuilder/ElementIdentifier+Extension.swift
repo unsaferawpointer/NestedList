@@ -29,8 +29,6 @@ extension ElementIdentifier {
 
 	static let color: ElementIdentifier = .init(rawValue: "color-menu-item")
 
-	static let noColor: ElementIdentifier = .init(rawValue: "no-color-menu-item")
-
 	static let separator: ElementIdentifier = .init(rawValue: "separator-menu-item")
 
 	static let edit: ElementIdentifier = .init(rawValue: "edit-menu-item")

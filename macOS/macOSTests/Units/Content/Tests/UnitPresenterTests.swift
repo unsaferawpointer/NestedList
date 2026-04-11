@@ -252,9 +252,16 @@ extension UnitPresenterTests {
 		view.stubs.selection = [.random, .random]
 
 		// Act
-		sut.menuItemClicked(.init(rawValue: "color-\(ItemColor.yellow.rawValue)"))
+		sut.menuItemClicked(.color)
 
 		// Assert
+		guard case .showColorPicker = router.invocations[0] else {
+			Issue.record("Expect showColorPicker invocation")
+			return
+		}
+
+		router.stubs.showColorPickerCompletionHandler?(.yellow)
+
 		guard case let .setColor(color, ids) = interactor.invocations[0] else {
 			Issue.record("Expect setColor invocation")
 			return
