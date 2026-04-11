@@ -41,11 +41,7 @@ private extension MenuBuilder {
 		case .appearanceHeader:
 			return NSMenuItem.sectionHeader(title: MenuLocalization.appearanceHeaderItemTitle)
 		case .icon:
-			if #available(macOS 14.0, *) {
-				configureIconPallete(item, action: action, target: target)
-			} else {
-				configureIconItem(item, action: action, target: target)
-			}
+			configureIconItem(item)
 		case .color:
 			configureColorItem(item, action: action)
 		case .note:
@@ -175,78 +171,9 @@ private extension MenuBuilder {
 		return item
 	}
 
-	static func configureIconItem(_ item: NSMenuItem, action: Selector, target: AnyObject?) {
+	static func configureIconItem(_ item: NSMenuItem) {
 		item.identifier = .init(elementIdentifier: .icon)
 		item.title = MenuLocalization.iconItemTitle
-		item.image = NSImage(systemSymbolName: "star", accessibilityDescription: nil)
-		item.submenu = {
-			let menu = NSMenu()
-			menu.addItem(
-				{
-					let item = NSMenuItem()
-					item.identifier = .init(elementIdentifier: .noIcon)
-					item.title = MenuLocalization.noIconItemTitle
-					item.image = NSImage(systemSymbolName: "circle.slash", accessibilityDescription: nil)
-					item.action = action
-					item.target = target
-					return item
-				}()
-			)
-			menu.addItem(.separator())
-			for icon in IconName.allCases {
-				let item = NSMenuItem()
-				item.identifier = .init("icon-\(icon.rawValue)")
-				item.action = action
-				item.target = target
-				item.title = IconMapper.map(icon: icon, filled: false)?.title ?? ""
-				item.image = IconMapper.map(icon: icon, filled: false)?.nsImage
-				menu.addItem(item)
-			}
-			return menu
-		}()
-	}
-
-	@available(macOS 14.0, *)
-	static func configureIconPallete(_ item: NSMenuItem, action: Selector, target: AnyObject?) {
-		item.title = MenuLocalization.iconItemTitle
-		item.identifier = .init(elementIdentifier: .icon)
 		item.image = NSImage(systemSymbolName: "photo", accessibilityDescription: nil)
-		item.submenu = {
-			let menu = NSMenu()
-
-			menu.addItem(
-				{
-					let item = NSMenuItem()
-					item.identifier = .init(elementIdentifier: .noIcon)
-					item.title = MenuLocalization.noIconItemTitle
-					item.image = NSImage(systemSymbolName: "circle.slash", accessibilityDescription: nil)
-					item.action = action
-					item.target = target
-					return item
-				}()
-			)
-
-			menu.addItem(.separator())
-
-			for chunk in IconsPalette.chunked() {
-				let row = NSMenuItem()
-				row.submenu = {
-					let menu = NSMenu()
-					menu.presentationStyle = .palette
-					for icon in chunk {
-
-						let item = buildIconItem(
-							icon: icon,
-							action: action,
-							target: target
-						)
-						menu.addItem(item)
-					}
-					return menu
-				}()
-				menu.addItem(row)
-			}
-			return menu
-		}()
 	}
 }

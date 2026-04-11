@@ -17,10 +17,17 @@ public struct CommonPicker<Value: Hashable, Content: View> {
 
 	// MARK: - Internal State
 
+	#if os(macOS)
+	private let columns: [GridItem] =
+	[
+		GridItem(.adaptive(minimum: 32), spacing: 8)
+	]
+	#else
 	private let columns: [GridItem] =
 	[
 		GridItem(.adaptive(minimum: 48), spacing: 8)
 	]
+	#endif
 
 	// MARK: - Initialization
 

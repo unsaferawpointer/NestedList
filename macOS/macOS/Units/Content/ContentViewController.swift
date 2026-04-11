@@ -20,12 +20,6 @@ protocol UnitViewOutput: ViewDelegate, MenuDelegate {
 @MainActor
 protocol UnitView: AnyObject, ListSupportable {
 	func display(_ state: ContentViewState)
-
-	func showDetails(
-		with model: ItemDetailsView.Model,
-		completionHandler: @escaping (ItemDetailsView.Properties, Bool) -> Void
-	)
-	func closeSheet()
 }
 
 class ContentViewController: NSCollectionViewItem {
@@ -33,10 +27,6 @@ class ContentViewController: NSCollectionViewItem {
 	var adapter: ListAdapter<ItemModel>?
 
 	// MARK: - DI
-
-	lazy var router: Router = {
-		return .init(root: self)
-	}()
 
 	var output: UnitViewOutput?
 
@@ -111,19 +101,6 @@ extension ContentViewController {
 
 // MARK: - ContentView
 extension ContentViewController: UnitView {
-
-	func closeSheet() {
-		if let sheet = presentedViewControllers?.last {
-			dismiss(sheet)
-		}
-	}
-
-	func showDetails(
-		with model: ItemDetailsView.Model,
-		completionHandler: @escaping (ItemDetailsView.Properties, Bool) -> Void
-	) {
-		router.showDetails(with: model, completionHandler: completionHandler)
-	}
 
 	func display(_ state: ContentViewState) {
 		placeholderView?.removeFromSuperview()

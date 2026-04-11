@@ -23,6 +23,10 @@ protocol ContentPresenterProtocol: AnyObject {
 @MainActor
 final class ContentPresenter {
 
+	// MARK: DI by initialization
+
+	private var router: any RouterProtocol
+
 	// MARK: - DI
 
 	var interactor: ContentInteractorProtocol?
@@ -46,9 +50,11 @@ final class ContentPresenter {
 	private(set) var cache = Cache<Property, Item>()
 
 	init(
+		router: any RouterProtocol,
 		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared,
 		localization: ContentLocalizationProtocol = ContentLocalization()
 	) {
+		self.router = router
 		self.settingsProvider = settingsProvider
 		self.localization = localization
 
@@ -159,8 +165,8 @@ extension ContentPresenter: UnitViewOutput {
 		case .cut:			cut(ids: selection)
 		case .copy:			copy(ids: selection)
 		case .paste:		paste(ids: selection)
-		case .noIcon:		interactor?.setIcon(nil, for: selection)
 		case .noColor:		interactor?.setColor(nil, for: selection)
+		case .icon:			showIconPicker(for: selection)
 		default:
 			let components = item.rawValue.split(separator: "-")
 			guard components.count == 2, let last = components.last,
@@ -169,8 +175,6 @@ extension ContentPresenter: UnitViewOutput {
 			}
 
 			switch key {
-			case "icon":
-				interactor?.setIcon(.init(rawValue: index) ?? .document, for: selection)
 			case "color":
 				interactor?.setColor(.init(rawValue: index) ?? .tertiary, for: selection)
 			default:
@@ -187,11 +191,6 @@ extension ContentPresenter: UnitViewOutput {
 			let types = Set([stringType, itemType])
 			let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
 			return pasteboard.contains(types)
-		case .noIcon:
-			guard let selection = view?.selection else {
-				return false
-			}
-			return true
 		default:
 
 			let components = item.rawValue.split(separator: "-")
@@ -202,7 +201,7 @@ extension ContentPresenter: UnitViewOutput {
 			}
 
 			switch key {
-			case "icon", "color":
+			case "color":
 				guard let selection = view?.selection else {
 					return false
 				}
@@ -261,18 +260,21 @@ private extension ContentPresenter {
 			navigationTitle: localization.editItemDetailsTitle,
 			properties: item.details
 		)
-		view?.showDetails(with: model) { [weak self] saved, success in
-			self?.view?.closeSheet()
-			if success {
-				let note = saved.description.isEmpty ? nil : saved.description
-				self?.interactor?.set(
-					saved.text,
-					note: note,
-					iconName: saved.icon,
-					tintColor: saved.tintColor,
-					for: id
-				)
-			}
+		router.showDetails(with: model) { [weak self] saved in
+			let note = saved.description.isEmpty ? nil : saved.description
+			self?.interactor?.set(
+				saved.text,
+				note: note,
+				iconName: saved.icon,
+				tintColor: saved.tintColor,
+				for: id
+			)
+		}
+	}
+
+	func showIconPicker(for ids: [UUID]) {
+		router.showIconPicker(navigationTitle: localization.iconPickerNavigationTitle) { [weak self] iconName in
+			self?.interactor?.setIcon(iconName, for: ids)
 		}
 	}
 

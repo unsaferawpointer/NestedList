@@ -12,7 +12,7 @@ final class ColumnUnitAssembly {
 
 	@MainActor
 	static func build(root: UUID, storage: DocumentStorage<Content>) -> NSCollectionViewItem {
-		let presenter = ColumnPresenter()
+
 		let interactor = ColumnInteractor(root: root, storage: storage)
 		let content = ContentUnitAssembly.build(
 			for: root,
@@ -20,6 +20,10 @@ final class ColumnUnitAssembly {
 			configuration: .init(drawsBackground: false, hasInsets: false)
 		)
 		return ColumnViewController(content) { viewController in
+
+			let router = Router(root: viewController)
+			let presenter = ColumnPresenter(router: router)
+
 			viewController.output = presenter
 			presenter.view = viewController
 			presenter.interactor = interactor
@@ -28,7 +32,8 @@ final class ColumnUnitAssembly {
 	}
 
 	static func configure(column: ColumnViewController, root: UUID, storage: DocumentStorage<Content>) {
-		let presenter = ColumnPresenter()
+
+		let presenter = ColumnPresenter(router: Router(root: column))
 		let interactor = ColumnInteractor(root: root, storage: storage)
 
 		column.output = presenter

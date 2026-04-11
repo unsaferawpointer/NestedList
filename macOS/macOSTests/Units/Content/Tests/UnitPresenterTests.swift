@@ -23,13 +23,15 @@ final class UnitPresenterTests {
 
 	var view: UnitViewMock!
 	var interactor: UnitInteractorMock!
+	var router: UnitRouterMock!
 	var settingsProvider: StateProviderMock<Settings>!
 
 	init() {
 		view = UnitViewMock()
 		interactor = UnitInteractorMock()
+		router = UnitRouterMock()
 		settingsProvider = StateProviderMock<Settings>()
-		sut = ContentPresenter(settingsProvider: settingsProvider)
+		sut = ContentPresenter(router: router, settingsProvider: settingsProvider)
 		sut.view = view
 		sut.interactor = interactor
 	}
@@ -38,6 +40,7 @@ final class UnitPresenterTests {
 		sut = nil
 		view = nil
 		interactor = nil
+		router = nil
 		settingsProvider = nil
 	}
 }
@@ -265,9 +268,16 @@ extension UnitPresenterTests {
 		// Arrange
 		view.stubs.selection = [.random, .random]
 		// Act
-		sut.menuItemClicked(.init(rawValue: "icon-\(IconName.package.rawValue)"))
+		sut.menuItemClicked(.icon)
 
 		// Assert
+		guard case .showIconPicker = router.invocations[0] else {
+			Issue.record("Expect showIconPicker invocation")
+			return
+		}
+
+		router.stubs.showIconPickerCompletionHandler?(.package)
+
 		guard case let .setIcon(icon, ids) = interactor.invocations[0] else {
 			Issue.record("Expect setIcon invocation")
 			return

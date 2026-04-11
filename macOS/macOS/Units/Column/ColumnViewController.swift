@@ -17,11 +17,6 @@ protocol ColumnViewOutput: ViewDelegate, MenuDelegate {
 
 protocol ColumnUnitView: AnyObject, ListSupportable {
 	func display(_ model: ColumnModel)
-	func hideDetails()
-	func showDetails(
-		with model: ItemDetailsView.Model,
-		completionHandler: @escaping (ItemDetailsView.Properties, Bool) -> Void
-	)
 }
 
 class ColumnViewController: NSCollectionViewItem {
@@ -31,11 +26,6 @@ class ColumnViewController: NSCollectionViewItem {
 	// MARK: - DI
 
 	var output: ColumnViewOutput?
-
-	lazy var router: Router = {
-		return .init(root: self)
-	}()
-
 
 	// MARK: - UI
 
@@ -147,18 +137,6 @@ extension ColumnViewController: ColumnUnitView {
 
 	func display(_ model: ColumnModel) {
 		headerView.model = model
-	}
-
-	func hideDetails() {
-		if let sheet = presentedViewControllers?.first {
-			DispatchQueue.main.async { [weak self] in
-				self?.dismiss(sheet)
-			}
-		}
-	}
-
-	func showDetails(with model: ItemDetailsView.Model, completionHandler: @escaping (ItemDetailsView.Properties, Bool) -> Void) {
-		router.showDetails(with: model, completionHandler: completionHandler)
 	}
 }
 

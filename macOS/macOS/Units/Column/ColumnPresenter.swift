@@ -23,6 +23,8 @@ final class ColumnPresenter {
 
 	weak var view: ColumnUnitView?
 
+	var router: RouterProtocol
+
 	var localization: ColumnLocalizationProtocol
 
 	private(set) var settingsProvider: any StateProviderProtocol<Settings>
@@ -32,10 +34,12 @@ final class ColumnPresenter {
 	// MARK: - Initialization
 
 	init(
+		router: RouterProtocol,
 		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared,
 		localization: ColumnLocalizationProtocol = ColumnLocalization(),
 		factory: ItemsFactoryProtocol = ItemsFactory()
 	) {
+		self.router = router
 		self.settingsProvider = settingsProvider
 		self.localization = localization
 		self.factory = factory
@@ -157,18 +161,14 @@ private extension ColumnPresenter {
 			navigationTitle: localization.editItemDetailsTitle,
 			properties: details
 		)
-		view?.showDetails(with: model) { [weak self] saved, success in
-			self?.view?.hideDetails()
-			if success {
-				let note = saved.description.isEmpty ? nil : saved.description
-
-				self?.interactor?.set(
-					saved.text,
-					note: note,
-					iconName: saved.icon,
-					tintColor: saved.tintColor
-				)
-			}
+		router.showDetails(with: model) { [weak self] saved in
+			let note = saved.description.isEmpty ? nil : saved.description
+			self?.interactor?.set(
+				saved.text,
+				note: note,
+				iconName: saved.icon,
+				tintColor: saved.tintColor
+			)
 		}
 	}
 }

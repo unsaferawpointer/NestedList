@@ -127,7 +127,7 @@ extension macOSUITests {
 		doc.checkMenuItem(with: "edit-menu-item", title: "Edit…", isEnabled: false)
 		doc.checkMenuItem(with: "strikethrough-menu-item", title: "Strikethrough", isEnabled: false)
 		doc.checkMenuItem(with: "note-menu-item", title: "Note", isEnabled: false)
-		doc.checkMenuItem(with: "icon-menu-item", title: "Icon", isEnabled: false)
+		doc.checkMenuItem(with: "icon-menu-item", title: "Icon…", isEnabled: false)
 		doc.checkMenuItem(with: "delete-menu-item", title: "Delete", isEnabled: false)
 
 	}
@@ -151,7 +151,7 @@ extension macOSUITests {
 		doc.checkMenuItem(with: "edit-menu-item", title: "Edit…", isEnabled: true)
 		doc.checkMenuItem(with: "strikethrough-menu-item", title: "Strikethrough", isEnabled: true)
 		doc.checkMenuItem(with: "note-menu-item", title: "Note", isEnabled: true)
-		doc.checkMenuItem(with: "icon-menu-item", title: "Icon", isEnabled: true)
+		doc.checkMenuItem(with: "icon-menu-item", title: "Icon…", isEnabled: true)
 		doc.checkMenuItem(with: "delete-menu-item", title: "Delete", isEnabled: true)
 	}
 }

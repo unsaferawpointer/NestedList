@@ -102,13 +102,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Icon"
+            "value" : "Icon…"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Иконка"
+            "state" : "translated",
+            "value" : "Иконка…"
           }
         }
       }
