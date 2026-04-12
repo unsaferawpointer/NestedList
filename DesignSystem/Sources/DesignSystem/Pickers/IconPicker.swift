@@ -33,13 +33,13 @@ public struct IconPicker: View {
 			) {
 				selection = nil
 			}
-		} content: { value in
-			PickerButton(
-				icon: value,
-				foregroundColor: .primary,
-				backgroundColor: selection == value
-					? .accentColor.opacity(0.2)
-					: .gray.opacity(0.1)
+				} content: { value in
+					PickerButton(
+						icon: value,
+						foregroundColor: .primary,
+						backgroundColor: selection == value
+							? .accentColor.opacity(0.2)
+							: .gray.opacity(0.1)
 			) {
 				selection = value
 			}

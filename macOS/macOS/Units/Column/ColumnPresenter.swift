@@ -154,8 +154,7 @@ private extension ColumnPresenter {
 		}
 		let details = ItemDetailsView.Properties(
 			text: item.text,
-			description: item.note ?? "",
-			icon: item.iconName
+			description: item.note ?? ""
 		)
 		let model = ItemDetailsView.Model(
 			navigationTitle: localization.editItemDetailsTitle,
@@ -165,9 +164,7 @@ private extension ColumnPresenter {
 			let note = saved.description.isEmpty ? nil : saved.description
 			self?.interactor?.set(
 				saved.text,
-				note: note,
-				iconName: saved.icon,
-				tintColor: saved.tintColor
+				note: note
 			)
 		}
 	}

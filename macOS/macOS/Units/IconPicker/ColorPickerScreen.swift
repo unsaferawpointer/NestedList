@@ -48,6 +48,7 @@ extension ColorPickerScreen: View {
 				} content: { token in
 					PickerButton(
 						icon: .filledCircle,
+						showsThemeVariants: true,
 						foregroundColor: token.color,
 						backgroundColor: .gray.opacity(0.1)
 					) {

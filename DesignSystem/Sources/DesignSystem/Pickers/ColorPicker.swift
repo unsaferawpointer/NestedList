@@ -21,22 +21,23 @@ public struct ColorPicker: View {
 	}
 
 	public var body: some View {
-		CommonPicker(values: colors) {
-			PickerButton(
-				icon: .circleSlash,
-				foregroundColor: .primary,
-				backgroundColor: selection == nil
-					? .accentColor.opacity(0.2)
+			CommonPicker(values: colors) {
+				PickerButton(
+					icon: .circleSlash,
+					foregroundColor: .primary,
+					backgroundColor: selection == nil
+						? .accentColor.opacity(0.2)
 					: .gray.opacity(0.1)
 			) {
 				selection = nil
 			}
-		} content: { value in
-			PickerButton(
-				icon: .filledCircle,
-				foregroundColor: value.color,
-				backgroundColor: selection == value
-					? .accentColor.opacity(0.2)
+			} content: { value in
+						PickerButton(
+							icon: .filledCircle,
+							showsThemeVariants: true,
+							foregroundColor: value.color,
+						backgroundColor: selection == value
+							? .accentColor.opacity(0.2)
 					: .gray.opacity(0.1)
 			) {
 				selection = value

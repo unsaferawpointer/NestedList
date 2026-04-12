@@ -39,8 +39,6 @@ extension DetailsView: View {
 		NavigationStack {
             Form {
                 buildInfoSection()
-                buildIconPicker()
-                buildColorPicker()
             }
 			.formStyle(.automatic)
 			.toolbar {
@@ -96,70 +94,22 @@ private extension DetailsView {
 				.onAppear {
 					focusedField = .title
 				}
+			TextField(
+				strings.notePlaceholder,
+				text: $model.properties.description,
+				axis: .vertical
+			)
+				.focused($focusedField, equals: .note)
+				.font(.callout)
+				.foregroundStyle(.secondary)
+				.submitLabel(.return)
+				.accessibilityIdentifier("textfield-description")
 		} footer: {
 			if !isValid {
 				Text(strings.warningText)
 					.foregroundStyle(.red)
 					.accessibilityIdentifier("label-hint")
 			}
-		}
-		TextField(
-			strings.notePlaceholder,
-			text: $model.properties.description,
-			axis: .vertical
-		)
-			.focused($focusedField, equals: .note)
-			.font(.callout)
-			.foregroundStyle(.secondary)
-			.submitLabel(.return)
-			.accessibilityIdentifier("textfield-description")
-	}
-
-	@MainActor
-	var availableColors: [ColorToken] {
-		ColorsPalette.colors.map {
-			ColorMapper.map(color: $0)
-		}
-	}
-
-	@MainActor
-	var availableIcons: [SemanticImage] {
-		return IconsPalette.icons
-			.map {
-				IconMapper.map(icon: $0)
-			}
-	}
-
-	@MainActor
-	@ViewBuilder
-	func buildIconPicker() -> some View {
-		Section(strings.iconsPickerTitle) {
-			IconPicker(icons: availableIcons, selection: .init(get: {
-				guard
-					let name = model.properties.icon,
-					let icon = IconMapper.map(icon: name, filled: false)
-				else {
-					return nil
-				}
-				return icon
-			}, set: { newValue in
-				model.properties.icon = IconMapper.map(icon: newValue)
-			}))
-		}
-	}
-
-	@MainActor
-	@ViewBuilder
-	func buildColorPicker() -> some View {
-		Section(strings.colorPickerTitle) {
-			DesignSystem.ColorPicker(selection: .init(get: {
-				guard let color = model.properties.tintColor else {
-					return nil
-				}
-				return ColorMapper.map(color: color)
-			}, set: { newValue in
-				model.properties.tintColor = ColorMapper.map(token: newValue)
-			}), availableColors: availableColors)
 		}
 	}
 }

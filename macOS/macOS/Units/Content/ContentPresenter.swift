@@ -251,13 +251,7 @@ private extension ContentPresenter {
 		)
 		router.showDetails(with: model) { [weak self] saved in
 			let note = saved.description.isEmpty ? nil : saved.description
-			self?.interactor?.set(
-				saved.text,
-				note: note,
-				iconName: saved.icon,
-				tintColor: saved.tintColor,
-				for: id
-			)
+			self?.interactor?.set(text: saved.text, note: note, for: id)
 		}
 	}
 
@@ -473,12 +467,7 @@ extension Optional<Bool> {
 private extension Item {
 
 	var details: ItemDetailsView.Properties {
-		return .init(
-			text: text,
-			description: note ?? "",
-			icon: iconName,
-			tintColor: tintColor
-		)
+		return .init(text: text, description: note ?? "")
 	}
 }
 

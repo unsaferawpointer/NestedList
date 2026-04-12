@@ -59,6 +59,9 @@ extension Router: RouterProtocol {
 				}
 			}
 		}
+		if let sheet = controller.sheetPresentationController {
+			sheet.detents = [.medium(), .large()]
+		}
 
 		root.present(controller, animated: true)
 	}
