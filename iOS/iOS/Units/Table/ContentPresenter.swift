@@ -38,6 +38,8 @@ final class ContentPresenter {
 
 	var router: RouterProtocol
 
+	var localization: UnitLocalizationProtocol = UnitLocalization()
+
 	var editingMode: EditingMode? {
 		didSet {
 			let selection = view?.selection ?? []
@@ -138,7 +140,10 @@ extension ContentPresenter: InteractionDelegate {
 			guard let id = currentSelection?.first, let item = interactor?.item(for: id) else {
 				return
 			}
-			let model = DetailsView.Model(navigationTitle: "Edit Item", properties: item.details)
+			let model = DetailsView.Model(
+				navigationTitle: localization.editItemNavigationTitle,
+				properties: item.details
+			)
 			router.showDetails(with: model, animateBottomBarItem: ElementIdentifier.new.rawValue) { [weak self] saved, success in
 					self?.router.dismiss()
 					if success {
@@ -218,12 +223,12 @@ extension ContentPresenter: InteractionDelegate {
 				self?.router.dismiss()
 			}
 		case .icon:
-			router.showIconPicker { [weak self] icon in
+			router.showIconPicker(title: localization.iconPickerNavigationTitle) { [weak self] icon in
 				self?.editingMode = nil
 				self?.interactor?.setIcon(icon, for: currentSelection ?? [])
 			}
 		case .color:
-			router.showColorPicker { [weak self] color in
+			router.showColorPicker(title: localization.colorPickerNavigationTitle) { [weak self] color in
 				self?.editingMode = nil
 				self?.interactor?.setColor(color, for: currentSelection ?? [])
 			}
@@ -319,7 +324,7 @@ extension ContentPresenter: DropDelegate {
 private extension ContentPresenter {
 
 	func createNew(target: UUID?) {
-		let model = DetailsView.Model(navigationTitle: "New Item", properties: .init(text: ""))
+		let model = DetailsView.Model(navigationTitle: localization.newItemNavigationTitle, properties: .init(text: ""))
 		router.showDetails(with: model, animateBottomBarItem: ElementIdentifier.new.rawValue) { [weak self] saved, success in
 			self?.router.dismiss()
 			if success {

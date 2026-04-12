@@ -8,6 +8,7 @@
 import AppKit
 import SwiftUI
 import CoreModule
+import CorePresentation
 
 protocol RouterProtocol: AnyObject {
 
@@ -66,7 +67,7 @@ extension Router: RouterProtocol {
 	) {
 		let contentViewController = NSHostingController(
 			rootView:
-				IconPickerScreen { [weak self] iconName, isSuccess in
+				IconPicker(title: navigationTitle) { [weak self] iconName, isSuccess in
 					self?.closeSheet()
 					guard isSuccess else {
 						return
@@ -84,7 +85,7 @@ extension Router: RouterProtocol {
 	) {
 		let contentViewController = NSHostingController(
 			rootView:
-				ColorPickerScreen { [weak self] color, isSuccess in
+				ItemColorPicker(title: navigationTitle) { [weak self] color, isSuccess in
 					self?.closeSheet()
 					guard isSuccess else {
 						return

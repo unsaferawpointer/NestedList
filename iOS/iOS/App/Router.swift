@@ -9,7 +9,7 @@ import UIKit
 import SwiftUI
 
 import CoreModule
-import DesignSystem
+import CorePresentation
 import CoreSettings
 
 protocol RouterProtocol {
@@ -21,8 +21,8 @@ protocol RouterProtocol {
 	func showSettings()
 	func showTargetsScreen(for ids: Set<UUID>, completionHandler: @escaping (UUID?, Bool) -> Void)
 	func showReorderScreen(for item: UUID, completionHandler: @escaping () -> Void)
-	func showIconPicker(completionHandler: @escaping @MainActor (IconName?) -> Void)
-	func showColorPicker(completionHandler: @escaping @MainActor (ItemColor?) -> Void)
+	func showIconPicker(title: String, completionHandler: @escaping @MainActor (IconName?) -> Void)
+	func showColorPicker(title: String, completionHandler: @escaping @MainActor (ItemColor?) -> Void)
 	func dismiss()
 }
 
@@ -99,15 +99,19 @@ extension Router: RouterProtocol {
 		root.present(controller, animated: true)
 	}
 
-	func showIconPicker(completionHandler: @escaping @MainActor (IconName?) -> Void) {
+	func showIconPicker(title: String, completionHandler: @escaping @MainActor (IconName?) -> Void) {
 
-		let picker = IconPickerScreen { [weak self] icon in
-			completionHandler(icon)
+		let picker = IconPicker(title: title) { [weak self] icon, isSuccess in
 			self?.root.presentedViewController?.dismiss(animated: true)
+			guard isSuccess else {
+				return
+			}
+			completionHandler(icon)
 		}
 
 		let controller = UIHostingController(rootView: picker)
 		controller.modalPresentationStyle = .formSheet
+		controller.title = title
 
 		if let sheet = controller.sheetPresentationController {
 			sheet.detents = [.medium(), .large()]
@@ -116,15 +120,19 @@ extension Router: RouterProtocol {
 		root.present(controller, animated: true)
 	}
 
-	func showColorPicker(completionHandler: @escaping @MainActor (ItemColor?) -> Void) {
+	func showColorPicker(title: String, completionHandler: @escaping @MainActor (ItemColor?) -> Void) {
 
-		let picker = ColorPickerScreen { [weak self] token in
-			completionHandler(token)
+		let picker = ItemColorPicker(title: title) { [weak self] token, isSuccess in
 			self?.root.presentedViewController?.dismiss(animated: true)
+			guard isSuccess else {
+				return
+			}
+			completionHandler(token)
 		}
 
 		let controller = UIHostingController(rootView: picker)
 		controller.modalPresentationStyle = .formSheet
+		controller.title = title
 
 		if let sheet = controller.sheetPresentationController {
 			sheet.detents = [.medium()]
