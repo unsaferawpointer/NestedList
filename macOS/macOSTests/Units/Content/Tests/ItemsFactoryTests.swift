@@ -53,7 +53,7 @@ struct ItemsFactoryTests {
 		// Arrange
 		let sut = ItemsFactory()
 
-		let item = Item(text: .random, options: [.strikethrough, .marked])
+		let item = Item(text: .random, options: [.strikethrough])
 
 		// Act
 		let result = sut.makeItem(item: item, isLeaf: true, iconColor: .neutral)
@@ -106,7 +106,7 @@ struct ItemsFactoryTests {
 		// Arrange
 		let sut = ItemsFactory()
 
-		let item = Item(text: .random, options: [.marked], iconName: .package, tintColor: .yellow)
+		let item = Item(text: .random, options: [], iconName: .package, tintColor: .yellow)
 
 		// Act
 		let result = sut.makeItem(item: item, isLeaf: false, iconColor: .multicolor)

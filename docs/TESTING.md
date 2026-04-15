@@ -3,12 +3,16 @@
 ## 1.1 Create a new document using the main menu
 - Preconditions: the app is running.
 - Steps: `File -> New...`
-- Expected result: A new document window opens with an empty list.
+- Expected result: 
+	* A new document window opens with an empty list. 
+	* Window title - "Untitled" 
 
 ## 1.2 Create a new document using a shortcut
 - Preconditions: the app is running.
 - Steps: `Cmd + N`
-- Expected result: A new document window opens with an empty list.
+- Expected result: 
+	* A new document window opens with an empty list. 
+	* Window title - "Untitled"
 
 ===
 

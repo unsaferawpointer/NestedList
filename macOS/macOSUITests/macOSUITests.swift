@@ -16,6 +16,7 @@ final class macOSUITests: XCTestCase {
 		app = AppPage(app: XCUIApplication())
 		app.launch(with: ["onboarding_version": "999.0.0"])
 		app.closeAll()
+		app.app.activate()
 		_ = app.waitUntilNoWindows()
 	}
 
@@ -42,6 +43,7 @@ extension macOSUITests {
 		XCTAssertEqual(app.windows().count, 3)
 	}
 
+	// Test - case: 1.2
 	func test_createNew() {
 		// Arrange
 		let app = prepareApp()
@@ -54,6 +56,23 @@ extension macOSUITests {
 
 		// Assert
 		XCTAssertTrue(doc.checkTitle("Untitled"))
+		XCTAssertTrue(doc.isPlaceholder())
+	}
+
+	// Test - case: 1.2
+	func test_createNewFromMainMenu() {
+		// Arrange
+		let app = prepareApp()
+
+		// Act
+		app.newDoc()
+
+		let window = app.firstWindow()
+		let doc = DocumentPage(window: window)
+
+		// Assert
+		XCTAssertTrue(doc.checkTitle("Untitled"))
+		XCTAssertTrue(doc.isPlaceholder())
 	}
 
 	func test_open() {
