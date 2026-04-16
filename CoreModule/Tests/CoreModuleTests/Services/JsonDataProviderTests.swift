@@ -50,8 +50,8 @@ extension JsonDataProviderTests {
 										text: "item 0 0",
 										note: nil,
 										options: [],
-										iconName: nil,
-										tintColor: nil
+										iconName: .unknown(999),
+										tintColor: .unknown(999)
 									),
 									children:
 										[
@@ -166,7 +166,7 @@ extension JsonDataProviderTests {
 										note: nil,
 										options: [],
 										iconName: .unknown(999),
-										tintColor: nil
+										tintColor: .unknown(999)
 									),
 									children:
 										[

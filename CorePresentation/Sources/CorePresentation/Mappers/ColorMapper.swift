@@ -14,8 +14,9 @@ public final class ColorMapper {
 		guard let color else {
 			return .tertiary
 		}
-		return switch color {
-		case .accent: .accent
+			return switch color {
+			case .unknown: .tertiary
+			case .accent: .accent
 
 		case .primary: .primary
 		case .secondary: .secondary
