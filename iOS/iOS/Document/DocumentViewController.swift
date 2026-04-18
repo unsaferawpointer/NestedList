@@ -34,7 +34,7 @@ class DocumentViewController: UIDocumentViewController {
 
 	override func navigationItemDidUpdate() {
 		super.navigationItemDidUpdate()
-		guard document?.documentState == .normal else {
+		guard document != nil else {
 			navigationItem.setRightBarButtonItems([], animated: false)
 			toolbarItems = []
 			return
