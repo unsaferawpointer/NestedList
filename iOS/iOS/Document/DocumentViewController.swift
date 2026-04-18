@@ -19,13 +19,11 @@ class DocumentViewController: UIDocumentViewController {
 
 	private var undoRedoItems: [UIBarButtonItem] = []
 
-	// MARK: - DI by Initialization
-
-	var router: RouterProtocol?
-
 	// MARK: - DI by Property
 
 	var delegate: DocumentViewDelegate?
+
+	var coordinator: DocumentCoordinator = DocumentCoordinator()
 
 	// MARK: - UIDocumentViewController Life-Cycle
 
@@ -51,6 +49,21 @@ class DocumentViewController: UIDocumentViewController {
 		configureDocument()
 
 		self.undoRedoItems = undoRedoItemGroup.barButtonItems
+	}
+}
+
+// MARK: - Public Interface
+extension DocumentViewController {
+
+	func handleDocument(url: URL) {
+		launchOptions
+			.browserViewController
+			.revealDocument(at: url, importIfNeeded: true) { [weak self] revealedURL, error in
+				guard let revealedURL else {
+					return
+				}
+				self?.document = Document(fileURL: revealedURL)
+			}
 	}
 }
 
@@ -94,61 +107,15 @@ extension DocumentViewController: ToolbarSupportable {
 extension DocumentViewController: UIDocumentBrowserViewControllerDelegate {
 
 	func documentBrowser(_ controller: UIDocumentBrowserViewController, didPickDocumentsAt documentURLs: [URL]) {
-		guard let url = documentURLs.first else {
-			return
-		}
-
-		let document = Document(fileURL: url)
-		let viewController = DocumentViewController(document: document)
-
-		let navigationController = UINavigationController(rootViewController: viewController)
-		navigationController.modalPresentationStyle = .fullScreen
-
-		controller.present(navigationController, animated: true)
+		coordinator.documentBrowser(controller, didPickDocumentsAt: documentURLs)
 	}
 
 	func documentBrowser(
 		_ controller: UIDocumentBrowserViewController,
 		didRequestDocumentCreationWithHandler importHandler: @escaping (URL?, UIDocumentBrowserViewController.ImportMode) -> Void
 	) {
-
-		os_log("DocumentBrowserViewController. Creating A New Document.", log: .default, type: .debug)
-
-		let url = FileManager.default.temporaryDirectory.appendingPathComponent("New List.nlist")
-
-		let doc = Document(fileURL: url)
-
-		// Create a new document in a temporary location.
-		doc.save(to: url, for: .forCreating) { (saveSuccess) in
-
-			// Make sure the document saved successfully.
-			guard saveSuccess else {
-				os_log("DocumentBrowserViewController. Unable to create a new document.", log: .default, type: .error)
-
-				// Cancel document creation.
-				importHandler(nil, .none)
-				return
-			}
-
-			// Close the document.
-			doc.close(completionHandler: { (closeSuccess) in
-
-				// Make sure the document closed successfully.
-				guard closeSuccess else {
-					os_log("DocumentBrowserViewController. Unable to create a new document.", log: .default, type: .error)
-
-					// Cancel document creation.
-					importHandler(nil, .none)
-					return
-				}
-
-				// Pass the document's temporary URL to the import handler.
-				importHandler(url, .move)
-			})
-		}
+		coordinator.documentBrowser(controller, didRequestDocumentCreationWithHandler: importHandler)
 	}
-
-
 }
 
 // MARK: - DocumentHandler

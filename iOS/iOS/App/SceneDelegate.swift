@@ -1,99 +1,68 @@
 /*
-See the LICENSE.txt file for this sample’s licensing information.
+ See the LICENSE.txt file for this sample’s licensing information.
 
-Abstract:
-The scene delegate for the main browser for this application.
-*/
+ Abstract:
+ The scene delegate for the main browser for this application.
+ */
 
 import UIKit
 import os.log
 import CoreSettings
 
 @available(iOS 13.0, *)
-class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-    
-    // The session userInfo key (for marking this scene delegate session as the document browser).
-    static let documentBrowserIdentifierKey = "browser"
-    
-    var window: UIWindow?
+class SceneDelegate: UIResponder {
 
-    class func browserSceneSession() -> UISceneSession? {
-        var browserSceneSession: UISceneSession!
-        for session in UIApplication.shared.openSessions {
-            if session.userInfo![SceneDelegate.documentBrowserIdentifierKey] != nil {
-                browserSceneSession = session
-                break
-            }
-        }
-        return browserSceneSession
-    }
-    
-    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+	var window: UIWindow?
+	var securityScopedURL: URL?
+}
+
+// MARK: - UIWindowSceneDelegate
+extension SceneDelegate: UIWindowSceneDelegate {
+
+	func scene(
+		_ scene: UIScene,
+		willConnectTo session: UISceneSession,
+		options connectionOptions: UIScene.ConnectionOptions
+	) {
 
 		guard let windowScene = scene as? UIWindowScene else {
 			return
 		}
 		window = UIWindow(windowScene: windowScene)
-
 		window?.rootViewController = UINavigationController(
 			rootViewController: DocumentViewController(document: nil)
 		)
 		window?.makeKeyAndVisible()
 
+		if let urlContext = connectionOptions.urlContexts.first {
+			handleDocument(url: urlContext.url)
+		}
+
 		if let onboardingViewController = OnboardingAssembly.build(settingsProvider: .shared) {
 			window?.rootViewController?.present(onboardingViewController, animated: true)
 		}
+	}
 
-        // Mark this session's userInfo as the main document browser so you can find it among multiple sessions.
-        session.userInfo = [SceneDelegate.documentBrowserIdentifierKey: "main browser"]
+	func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+		if let urlContext = URLContexts.first {
+			handleDocument(url: urlContext.url)
+		}
+	}
+}
 
-        if let urlContext = connectionOptions.urlContexts.first {
-            openURLContext(urlContext)
-        }
-    }
-    
-    // You are being asked to open a document (via Files App -> Share).
-    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-        // Only open the first document you are passed.
-        if let urlContext = URLContexts.first {
-            openURLContext(urlContext)
-        }
-    }
+// MARK: - Helpers
+private extension SceneDelegate {
 
-    private func openURLContext(_ urlContext: UIOpenURLContext) {
-        // Reveal and import the document at the URL.
-//        guard let documentBrowserViewController = window?.rootViewController as? DocumentBrowserViewController else {
-//            fatalError("*** The root view is not a document browser ***")
-//        }
-//
-//        let inputURL = urlContext.url
-//        let canOpenInPlace = urlContext.options.openInPlace
-//        documentBrowserViewController.revealDocument(at: inputURL, importIfNeeded: !canOpenInPlace) { (revealedDocumentURL, error) in
-//
-//            // Note that this app supports both open in place and open a copy (if urlContext.options.openInPlace is false, revealedDocumentURL is nil)
-//
-//            Swift.debugPrint("\(canOpenInPlace)")
-//
-//            let urlToOpen: URL
-//
-//            if canOpenInPlace {
-//                urlToOpen = inputURL
-//            } else {
-//                guard let revealedDocumentURL = revealedDocumentURL else {
-//                    os_log("*** Failed to reveal the document at %@. Error: %@. ***",
-//                           log: .default,
-//                           type: .error,
-//                           inputURL as CVarArg,
-//                           error as CVarArg? ?? "nil")
-//                    return
-//                }
-//
-//                urlToOpen = revealedDocumentURL
-//            }
-//
-//            // Present the Document View Controller for the revealed URL.
-//            documentBrowserViewController.presentDocument(at: urlToOpen)
-//        }
-    }
-    
+	func handleDocument(url: URL) {
+		guard let root = (window?.rootViewController as? UINavigationController)?.viewControllers.first as? DocumentViewController else {
+			return
+		}
+		root.launchOptions.browserViewController.revealDocument(at: url, importIfNeeded: true) { revealedURL, error in
+			guard let revealedURL else {
+				return
+			}
+			root.document = Document(fileURL: revealedURL)
+		}
+	}
+
 }
