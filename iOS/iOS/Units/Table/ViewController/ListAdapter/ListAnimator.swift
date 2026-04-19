@@ -68,10 +68,6 @@ extension ListAnimator {
 			return
 		}
 
-		// MARK: - Start
-		delegate.beginUpdates()
 		delegate.update(deleteRows: removed, insertRows: inserted)
-		delegate.endUpdates()
-		// MARK: - End
 	}
 }
