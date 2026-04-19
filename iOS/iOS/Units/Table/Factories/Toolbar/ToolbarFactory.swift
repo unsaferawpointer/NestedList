@@ -29,7 +29,7 @@ extension ToolbarFactory: ToolbarFactoryProtocol {
 			isCompleted: isCompleted
 		)
 
-		return ToolbarModel(top: top, bottom: bottom)
+		return ToolbarModel(top: top, bottom: bottom, showUndoGroup: editingMode == nil)
 	}
 }
 
