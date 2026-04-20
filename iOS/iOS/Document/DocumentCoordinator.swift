@@ -25,15 +25,6 @@ extension DocumentCoordinator {
 
 	typealias ImportMode = UIDocumentBrowserViewController.ImportMode
 
-	func documentBrowser(_ controller: UIDocumentBrowserViewController, didPickDocumentsAt documentURLs: [URL]) {
-		guard let url = documentURLs.first else {
-			return
-		}
-
-		let document = Document(fileURL: url)
-		controller.presentDocument(document)
-	}
-
 	func documentBrowser(
 		_ controller: UIDocumentBrowserViewController,
 		didRequestDocumentCreationWithHandler importHandler: @escaping (URL?, ImportMode) -> Void
@@ -62,17 +53,5 @@ extension DocumentCoordinator {
 				importHandler(url, .move)
 			}
 		}
-	}
-}
-
-extension UIDocumentBrowserViewController {
-
-	func presentDocument(_ document: Document) {
-		let viewController = DocumentViewController(document: document)
-
-		let navigationController = UINavigationController(rootViewController: viewController)
-		navigationController.modalPresentationStyle = .fullScreen
-
-		present(navigationController, animated: true)
 	}
 }

@@ -107,7 +107,10 @@ extension DocumentViewController: ToolbarSupportable {
 extension DocumentViewController: UIDocumentBrowserViewControllerDelegate {
 
 	func documentBrowser(_ controller: UIDocumentBrowserViewController, didPickDocumentsAt documentURLs: [URL]) {
-		coordinator.documentBrowser(controller, didPickDocumentsAt: documentURLs)
+		guard let url = documentURLs.first else {
+			return
+		}
+		self.document = Document(fileURL: url)
 	}
 
 	func documentBrowser(
