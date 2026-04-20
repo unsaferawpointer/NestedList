@@ -31,6 +31,7 @@ extension JsonDataProviderTests {
 		// Arrange
 
 		let expectedContent = Content(
+			uuid: nil,
 			nodes:
 				[
 					Node<Item>(
@@ -146,6 +147,7 @@ extension JsonDataProviderTests {
 		// Arrange
 
 		let expectedContent = Content(
+			uuid: nil,
 			nodes:
 				[
 					Node<Item>(
