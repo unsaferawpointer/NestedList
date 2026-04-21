@@ -30,7 +30,6 @@ public struct OnboardingView {
 extension OnboardingView: View {
 
 	public var body: some View {
-	
 		VStack {
 			TabView(selection: $state.currentPage) {
 				ForEach(0..<state.pages.count) { pageIndex in
@@ -179,23 +178,26 @@ extension Page {
 	static let newFormat = Page(
 		id: "new_format",
 		image: "document.badge.plus",
-		iconColor: .cyan,
+		iconColor: .primary,
 		title: "New File Format",
 		description: "We've upgraded your workflow",
 		features:
 			[
 				.init(
 					icon: "arrow.down.document",
+					iconColor: .primary,
 					title: "Easy Conversion",
 					description: "Import legacy TXT files with one click"
 				),
 				.init(
 					icon: "arrow.up.document",
+					iconColor: .primary,
 					title: "Full Backward Compatibility",
 					description: "Export back to TXT anytime"
 				),
 				.init(
 					icon: "sparkles",
+					iconColor: .primary,
 					title: "Exclusive Features",
 					description: "Advanced functionality only available in the new format"
 				)

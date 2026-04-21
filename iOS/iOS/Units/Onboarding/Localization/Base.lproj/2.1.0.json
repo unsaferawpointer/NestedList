@@ -1,0 +1,25 @@
+[
+	{
+		"title": "What’s New in 2.1",
+		"description": "Faster customization",
+		"features": [
+			{
+				"icon": "pad.header",
+				"iconColor": 2,
+				"title": "New icon and color pickers",
+				"id": "icon_color_pickers",
+				"description": "Open dedicated pickers from the context menu."
+			},
+			{
+				"icon": "hand.point.up.left.and.text.fill",
+				"iconColor": 2,
+				"title": "More compact context menu",
+				"id": "compact_context_menu",
+				"description": "Actions are now grouped into submenus."
+			}
+		],
+		"id": "welcome_2_1_0",
+		"image": "sparkles",
+		"iconColor": 12
+	}
+]

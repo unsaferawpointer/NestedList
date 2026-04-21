@@ -12,20 +12,35 @@ struct OnboardingBody: View {
 	let features: [Feature]
 
 	var body: some View {
-		VStack(alignment: .listRowSeparatorLeading, spacing: 14) {
+		VStack(alignment: .listRowSeparatorLeading, spacing: 24) {
 			ForEach(features) { feature in
-				HStack(alignment: .firstTextBaseline, spacing: 12) {
-					Image(systemName: feature.icon)
-						.font(.title3)
-						.symbolRenderingMode(.monochrome)
-						.foregroundColor(feature.iconColor?.color ?? .accentColor)
+				HStack(alignment: .top, spacing: 12) {
+					GeometryReader { geometry in
+						let side = min(geometry.size.width, geometry.size.height)
+						let symbolSide = side * 0.45
 
-					VStack(alignment: .leading, spacing: 0) {
+						ZStack {
+							RoundedRectangle(
+								cornerRadius: side * 0.2,
+								style: .continuous
+							)
+							.fill (Color.secondary.opacity(0.1))
+
+							Image(systemName: feature.icon)
+								.symbolRenderingMode(.monochrome)
+								.font(.system(size: symbolSide))
+								.foregroundStyle(feature.iconColor?.color ?? .primary)
+								.frame(width: symbolSide, height: symbolSide)
+						}
+					}
+					.aspectRatio(1.0, contentMode: .fit)
+					.frame(width: 52, height: 52)
+					VStack(alignment: .leading, spacing: 4) {
 						Text(feature.title)
-							.font(.title3)
-							.fontWeight(.medium)
+							.font(.headline)
+							.fontWeight(.semibold)
 						Text(feature.description)
-							.font(.body)
+							.font(.callout)
 							.foregroundColor(.secondary)
 							.lineLimit(3)
 					}

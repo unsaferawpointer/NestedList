@@ -1,0 +1,25 @@
+[
+	{
+		"title": "Что нового в 2.1",
+		"description": "Быстрая настройка",
+		"features": [
+			{
+				"icon": "pad.header",
+				"iconColor": 2,
+				"title": "Новые пикеры иконки и цвета",
+				"id": "icon_color_pickers",
+				"description": "Открываются из контекстного меню."
+			},
+			{
+				"icon": "hand.point.up.left.and.text.fill",
+				"iconColor": 2,
+				"title": "Более компактное контекстное меню",
+				"id": "compact_context_menu",
+				"description": "Действия сгруппированы в сабменю."
+			}
+		],
+		"id": "welcome_2_1_0",
+		"image": "sparkles",
+		"iconColor": 12
+	}
+]
