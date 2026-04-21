@@ -11,6 +11,13 @@
 				"description": "Open dedicated pickers from the context menu."
 			},
 			{
+				"icon": "circle.lefthalf.filled",
+				"iconColor": 2,
+				"title": "Colors for light and dark mode",
+				"id": "light_dark_colors",
+				"description": "Colors are now shown for both appearances."
+			},
+			{
 				"icon": "hand.point.up.left.and.text.fill",
 				"iconColor": 2,
 				"title": "More compact context menu",

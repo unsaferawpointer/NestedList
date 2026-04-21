@@ -11,6 +11,13 @@
 				"description": "Открываются из контекстного меню."
 			},
 			{
+				"icon": "circle.lefthalf.filled",
+				"iconColor": 2,
+				"title": "Цвета для светлой и темной темы",
+				"id": "light_dark_colors",
+				"description": "Цвета теперь показываются для обеих тем."
+			},
+			{
 				"icon": "hand.point.up.left.and.text.fill",
 				"iconColor": 2,
 				"title": "Более компактное контекстное меню",
