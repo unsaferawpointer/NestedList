@@ -31,12 +31,25 @@ extension MenuFactory {
 						]
 				)
 			),
+			.init(
+				id: "",
+				content: .menu(
+					options: .inline,
+					size: .automatic,
+					items:
+						[
+								buildItem(id: .strikethrough, title: localization.strikethroughItemTitle, state: isCompleted.state)
+						]
+				)
+			),
 			buildItem(id: .edit, title: localization.editItemTitle, iconName: "pencil"),
 			buildItem(id: .new, title: localization.newItemTitle, iconName: "plus"),
 			.init(
 				id: "appearance-menu",
+				title: localization.appearanceMenuTitle,
+				icon: "slider.horizontal.below.square.filled.and.square",
 				content: .menu(
-					options: .inline,
+					options: [],
 					size: .automatic,
 					items:
 						[
@@ -54,17 +67,6 @@ extension MenuFactory {
 						[
 							buildItem(id: .move, title: localization.moveItemTitle, iconName: "arrow.left.arrow.right"),
 							buildItem(id: .specialReorder, title: localization.reorderItemTitle, iconName: "arrow.up.arrow.down")
-						]
-				)
-			),
-			.init(
-				id: "",
-				content: .menu(
-					options: .inline,
-					size: .automatic,
-					items:
-						[
-								buildItem(id: .strikethrough, title: localization.strikethroughItemTitle, state: isCompleted.state)
 						]
 				)
 			),

@@ -19,6 +19,7 @@ protocol MenuLocalizationProtocol {
 	var reorderItemTitle: String { get }
 	var iconItemTitle: String { get }
 	var colorItemTitle: String { get }
+	var appearanceMenuTitle: String { get }
 }
 
 final class MenuLocalization { }
@@ -76,5 +77,9 @@ extension MenuLocalization: MenuLocalizationProtocol {
 
 	var colorItemTitle: String {
 		String(localized: "color_menu_item_title", table: "MenuLocalizable")
+	}
+
+	var appearanceMenuTitle: String {
+		String(localized: "appearance_menu_title", table: "MenuLocalizable")
 	}
 }
