@@ -197,7 +197,7 @@ extension UnitPresenterTests {
 		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random))
 		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
 
-		sut.present(.init(nodes: [firstNode, secondNode]))
+		sut.present(.init(uuid: nil, nodes: [firstNode, secondNode]))
 
 		interactor.clear()
 		view?.clear()
@@ -227,7 +227,7 @@ extension UnitPresenterTests {
 		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random))
 		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
 
-		sut.present(.init(nodes: [firstNode, secondNode]))
+		sut.present(.init(uuid: nil, nodes: [firstNode, secondNode]))
 
 		interactor.clear()
 		view?.clear()
@@ -305,7 +305,7 @@ extension UnitPresenterTests {
 		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random))
 		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
 
-		sut.present(.init(nodes: [firstNode, secondNode]))
+		sut.present(.init(uuid: nil, nodes: [firstNode, secondNode]))
 
 		interactor.clear()
 		view?.clear()
@@ -344,7 +344,7 @@ extension UnitPresenterTests {
 		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random, note: .random))
 		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random, note: .random))
 
-		sut.present(.init(nodes: [firstNode, secondNode]))
+		sut.present(.init(uuid: nil, nodes: [firstNode, secondNode]))
 
 		interactor.clear()
 		view?.clear()
@@ -535,7 +535,7 @@ extension UnitPresenterTests {
 private extension UnitPresenterTests {
 
 	func makeContent() -> Content {
-		.init(nodes: [.init(value: .random), .init(value: .random)])
+		.init(uuid: nil, nodes: [.init(value: .random), .init(value: .random)])
 	}
 }
 
