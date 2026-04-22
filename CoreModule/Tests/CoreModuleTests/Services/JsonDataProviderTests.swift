@@ -31,6 +31,7 @@ extension JsonDataProviderTests {
 		// Arrange
 
 		let expectedContent = Content(
+			uuid: nil,
 			nodes:
 				[
 					Node<Item>(
@@ -50,8 +51,8 @@ extension JsonDataProviderTests {
 										text: "item 0 0",
 										note: nil,
 										options: [],
-										iconName: nil,
-										tintColor: nil
+										iconName: .unknown(999),
+										tintColor: .unknown(999)
 									),
 									children:
 										[
@@ -146,6 +147,7 @@ extension JsonDataProviderTests {
 		// Arrange
 
 		let expectedContent = Content(
+			uuid: nil,
 			nodes:
 				[
 					Node<Item>(
@@ -165,8 +167,8 @@ extension JsonDataProviderTests {
 										text: "item 0 0",
 										note: nil,
 										options: [],
-										iconName: nil,
-										tintColor: nil
+										iconName: .unknown(999),
+										tintColor: .unknown(999)
 									),
 									children:
 										[

@@ -143,6 +143,14 @@ extension DocumentPage {
 	}
 }
 
+extension DocumentPage {
+
+	func isPlaceholder() -> Bool {
+		let placeholder = window.groups["document-placeholder"]
+		return placeholder.exists
+	}
+}
+
 // MARK: - Helpers
 private extension DocumentPage {
 

@@ -10,6 +10,8 @@ import Foundation
 protocol UnitLocalizationProtocol {
 	var newItemNavigationTitle: String { get }
 	var editItemNavigationTitle: String { get }
+	var colorPickerNavigationTitle: String { get }
+	var iconPickerNavigationTitle: String { get }
 }
 
 final class UnitLocalization { }
@@ -23,5 +25,13 @@ extension UnitLocalization: UnitLocalizationProtocol {
 	
 	var editItemNavigationTitle: String {
 		String(localized: "edit_item_navigation_title", table: "UnitLocalizable")
+	}
+
+	var colorPickerNavigationTitle: String {
+		String(localized: "color_picker_navigation_title", table: "UnitLocalizable")
+	}
+
+	var iconPickerNavigationTitle: String {
+		String(localized: "icon_picker_navigation_title", table: "UnitLocalizable")
 	}
 }

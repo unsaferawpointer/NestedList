@@ -29,17 +29,10 @@ protocol ContentInteractorProtocol {
 	) -> UUID
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool)
 	func toggleStrikethrough(for id: UUID, moveToEnd: Bool)
-	func setColor(_ color: ItemColor, for ids: [UUID])
+	func setColor(_ color: ItemColor?, for ids: [UUID])
 	func setIcon(_ name: IconName?, for ids: [UUID])
 	func set(text: String, note: String?, for id: UUID)
 	func set(note: String?, for ids: [UUID])
-	func set(
-		_ text: String,
-		note: String?,
-		iconName: IconName?,
-		tintColor: ItemColor?,
-		for id: UUID
-	)
 	func deleteItems(_ ids: [UUID])
 
 	func strings(for ids: [UUID]) -> [String]
@@ -150,7 +143,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 
 	func toggleStrikethrough(for id: UUID, moveToEnd: Bool) {
 		storage.modificate { content in
-			let status = content.root.node(with: id)?.value.isStrikethrough ?? false
+			let status = content.root[id].allSatisfy(\.isStrikethrough, equalsTo: true)
 			content.root.setProperty(\.isStrikethrough, to: !status, for: [id], downstream: true)
 			if moveToEnd && status == false {
 				content.root.moveToEnd([id])
@@ -166,7 +159,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 		}
 	}
 
-	func setColor(_ color: ItemColor, for ids: [UUID]) {
+	func setColor(_ color: ItemColor?, for ids: [UUID]) {
 		storage.modificate { content in
 			for node in content.root.nodes(with: ids) {
 				node.value.tintColor = color
@@ -178,21 +171,6 @@ extension ContentInteractor: ContentInteractorProtocol {
 		storage.modificate { content in
 			content.root.setProperty(\.text, to: text, for: [id])
 			content.root.setProperty(\.note, to: note, for: [id])
-		}
-	}
-
-	func set(
-		_ text: String,
-		note: String?,
-		iconName: IconName?,
-		tintColor: ItemColor?,
-		for id: UUID
-	) {
-		storage.modificate { content in
-			content.root.setProperty(\.text, to: text, for: [id])
-			content.root.setProperty(\.note, to: note, for: [id])
-			content.root.setProperty(\.iconName, to: iconName, for: [id])
-			content.root.setProperty(\.tintColor, to: tintColor, for: [id])
 		}
 	}
 

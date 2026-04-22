@@ -38,15 +38,15 @@ final class ContentPresenter {
 
 	var router: RouterProtocol
 
+	var localization: UnitLocalizationProtocol = UnitLocalization()
+
 	var editingMode: EditingMode? {
 		didSet {
 			let selection = view?.selection ?? []
 			let model = toolbarFactory.build(
 				editingMode: editingMode,
 				selectedCount: selection.count,
-				isCompleted: cache.validate(.isStrikethrough, other: selection),
-				isMarked: cache.validate(.isMarked, other: selection),
-				isSection: cache.validate(.isSection, other: selection)
+				isCompleted: cache.validate(.isStrikethrough, other: selection)
 			)
 			view?.display(model)
 			view?.setEditing(editingMode)
@@ -118,9 +118,7 @@ extension ContentPresenter: ViewDelegate {
 		let toolbar = toolbarFactory.build(
 			editingMode: editingMode,
 			selectedCount: 0,
-			isCompleted: cache.validate(.isStrikethrough, other: view?.selection ?? []),
-			isMarked: cache.validate(.isMarked, other: view?.selection ?? []),
-			isSection: cache.validate(.isSection, other: view?.selection ?? [])
+			isCompleted: cache.validate(.isStrikethrough, other: view?.selection ?? [])
 		)
 		view?.display(toolbar)
 	}
@@ -142,7 +140,10 @@ extension ContentPresenter: InteractionDelegate {
 			guard let id = currentSelection?.first, let item = interactor?.item(for: id) else {
 				return
 			}
-			let model = DetailsView.Model(navigationTitle: "Edit Item", properties: item.details)
+			let model = DetailsView.Model(
+				navigationTitle: localization.editItemNavigationTitle,
+				properties: item.details
+			)
 			router.showDetails(with: model, animateBottomBarItem: ElementIdentifier.new.rawValue) { [weak self] saved, success in
 					self?.router.dismiss()
 					if success {
@@ -188,12 +189,8 @@ extension ContentPresenter: InteractionDelegate {
 			let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
 			let newValue = !(cache.validate(.isStrikethrough, other: currentSelection ?? []) ?? false)
 			interactor?.setStatus(newValue, for: currentSelection ?? [], moveToEnd: moveToEnd)
-			case .marked:
-				editingMode = nil
-			case .style:
-				editingMode = nil
-			case .select:
-				editingMode = .selection
+		case .select:
+			editingMode = .selection
 		case .reorder:
 			editingMode = .reordering
 		case .settings:
@@ -225,6 +222,16 @@ extension ContentPresenter: InteractionDelegate {
 			router.showReorderScreen(for: first) { [weak self] in
 				self?.router.dismiss()
 			}
+		case .icon:
+			router.showIconPicker(title: localization.iconPickerNavigationTitle) { [weak self] icon in
+				self?.editingMode = nil
+				self?.interactor?.setIcon(icon, for: currentSelection ?? [])
+			}
+		case .color:
+			router.showColorPicker(title: localization.colorPickerNavigationTitle) { [weak self] color in
+				self?.editingMode = nil
+				self?.interactor?.setColor(color, for: currentSelection ?? [])
+			}
 		}
 	}
 }
@@ -243,18 +250,14 @@ extension ContentPresenter: ListDelegate {
 		let toolbar = toolbarFactory.build(
 			editingMode: editingMode,
 			selectedCount: ids.count,
-			isCompleted: cache.validate(.isStrikethrough, other: ids),
-			isMarked: cache.validate(.isMarked, other: ids),
-			isSection: cache.validate(.isSection, other: ids)
+			isCompleted: cache.validate(.isStrikethrough, other: ids)
 		)
 		view?.display(toolbar)
 	}
 
 	func menu(for ids: [UUID]) -> [MenuElement] {
 		menuFactory.build(
-			isCompleted: cache.validate(.isStrikethrough, other: ids),
-			isMarked: cache.validate(.isMarked, other: ids),
-			isSection: cache.validate(.isSection, other: ids)
+			isCompleted: cache.validate(.isStrikethrough, other: ids)
 		)
 	}
 }
@@ -321,7 +324,7 @@ extension ContentPresenter: DropDelegate {
 private extension ContentPresenter {
 
 	func createNew(target: UUID?) {
-		let model = DetailsView.Model(navigationTitle: "New Item", properties: .init(text: ""))
+		let model = DetailsView.Model(navigationTitle: localization.newItemNavigationTitle, properties: .init(text: ""))
 		router.showDetails(with: model, animateBottomBarItem: ElementIdentifier.new.rawValue) { [weak self] saved, success in
 			self?.router.dismiss()
 			if success {
@@ -347,9 +350,6 @@ private extension ContentPresenter {
 
 enum Property: Hashable {
 	case isStrikethrough
-	case isMarked
-	case isItem
-	case isSection
 }
 
 private extension Item {

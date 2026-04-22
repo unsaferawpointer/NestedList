@@ -97,7 +97,8 @@ extension ListStorage {
 	}
 
 	func apply(newSnapshot: Snapshot<Model>) {
-		let newState = ListState<Model>(expanded: state.expanded, snapshot: newSnapshot)
+		let newExpanded = newSnapshot.identifiers.intersection(state.expanded)
+		let newState = ListState<Model>(expanded: newExpanded, snapshot: newSnapshot)
 		apply(newState: newState)
 	}
 
@@ -151,8 +152,10 @@ private extension ListStorage {
 			return
 		}
 		let oldState = state
-		self.state = newState
 		ListAnimator.update(oldState: oldState, newState: newState, delegate: delegate)
+		delegate.beginUpdates()
+		self.state = newState
 		ListAnimator.animate(oldState: oldState, newState: newState, delegate: delegate)
+		delegate.endUpdates()
 	}
 }

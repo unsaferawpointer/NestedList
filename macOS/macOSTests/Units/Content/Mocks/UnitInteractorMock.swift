@@ -66,15 +66,7 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 		invocations.append(.toggleStatus(id: id, moveToEnd: moveToEnd))
 	}
 
-	func setMark(_ isMarked: Bool, for ids: [UUID], moveToTop: Bool) {
-		invocations.append(.setMark(isMarked, ids: ids, moveToTop: moveToTop))
-	}
-	
-	func setStyle(_ style: ItemStyle, for ids: [UUID]) {
-		invocations.append(.setStyle(style, ids: ids))
-	}
-
-	func setColor(_ color: ItemColor, for ids: [UUID]) {
+	func setColor(_ color: ItemColor?, for ids: [UUID]) {
 		invocations.append(.setColor(color, ids: ids))
 	}
 
@@ -88,10 +80,6 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 
 	func set(note: String?, for ids: [UUID]) {
 		invocations.append(.setNote(note: note, ids: ids))
-	}
-
-	func set(_ text: String, note: String?, iconName: IconName?, tintColor: ItemColor?, for id: UUID) {
-		invocations.append(.set(text: text, note: note, iconName: iconName, tintColor: tintColor, id: id))
 	}
 
 	func deleteItems(_ ids: [UUID]) {
@@ -134,9 +122,7 @@ extension UnitInteractorMock {
 		case newItem(_ text: String, isStrikethrough: Bool, note: String?, iconName: IconName?, tintColor: ItemColor?, target: UUID?)
 		case setStatus(_ status: Bool, ids: [UUID], moveToEnd: Bool)
 		case toggleStatus(id: UUID, moveToEnd: Bool)
-		case setMark(_ isMarked: Bool, ids: [UUID], moveToTop: Bool)
-		case setStyle(_ style: ItemStyle, ids: [UUID])
-		case setColor(_ color: ItemColor, ids: [UUID])
+		case setColor(_ color: ItemColor?, ids: [UUID])
 		case setIcon(_ name: IconName?, ids: [UUID])
 		case setText(text: String, note: String?, id: UUID)
 		case setNote(note: String?, ids: [UUID])
@@ -146,7 +132,6 @@ extension UnitInteractorMock {
 		case nodes(ids: [UUID])
 		case insertStringsFromData(data: [Data], destination: Destination<UUID>)
 		case insertItems(data: [Data], destination: Destination<UUID>)
-		case set(text: String, note: String?, iconName: IconName?, tintColor: ItemColor?, id: UUID)
 	}
 
 	struct Stubs {

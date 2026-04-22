@@ -12,6 +12,7 @@ on:
 jobs:
   build-ios:
     runs-on: macos-26
+    timeout-minutes: 15
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
@@ -83,6 +84,7 @@ jobs:
 
   build-macos:
     runs-on: macos-26
+    timeout-minutes: 15
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 

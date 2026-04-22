@@ -23,8 +23,6 @@ extension ElementIdentifier {
 
 	static let paste: ElementIdentifier = .init(rawValue: "paste-menu-item")
 
-	static let noIcon: ElementIdentifier = .init(rawValue: "no-icon-menu-item")
-
 	static let appearanceHeader: ElementIdentifier = .init(rawValue: "appearance-header-menu-item")
 
 	static let icon: ElementIdentifier = .init(rawValue: "icon-menu-item")

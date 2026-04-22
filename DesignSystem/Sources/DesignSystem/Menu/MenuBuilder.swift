@@ -31,6 +31,7 @@ private extension MenuBuilder {
 		case let .menu(options, size, items):
 			UIMenu(
 				title: model.title,
+				image: UIImage(systemName: model.icon ?? ""),
 				identifier: .init(model.id),
 				options: options.value,
 				preferredElementSize: size.value,

@@ -17,6 +17,8 @@ protocol ToolbarLocalizationProtocol {
 	var copyItemTitle: String { get }
 	var pasteItemTitle: String { get }
 	var moveItemTitle: String { get }
+	var iconItemTitle: String { get }
+	var colorItemTitle: String { get }
 	var strikethroughItemTitle: String { get }
 	var markedItemTitle: String { get }
 	var sectionItemTitle: String { get }
@@ -58,6 +60,14 @@ extension ToolbarLocalization: ToolbarLocalizationProtocol {
 
 	var moveItemTitle: String {
 		String(localized: "move_menu_item_title", table: "ToolbarLocalizable")
+	}
+
+	var iconItemTitle: String {
+		String(localized: "icon_menu_item_title", table: "ToolbarLocalizable")
+	}
+
+	var colorItemTitle: String {
+		String(localized: "color_menu_item_title", table: "ToolbarLocalizable")
 	}
 
 	var strikethroughItemTitle: String {

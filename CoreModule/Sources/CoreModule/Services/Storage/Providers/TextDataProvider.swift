@@ -40,7 +40,7 @@ extension TextDataProvider: ContentProvider {
 		}
 
 		let nodes = parser.parse(from: string)
-		return .init(nodes: nodes)
+		return .init(uuid: UUID(), nodes: nodes)
 	}
 
 	public func data(of content: Content) throws -> Data {
@@ -58,6 +58,6 @@ extension TextDataProvider: ContentProvider {
 		}
 
 		let nodes = parser.parse(from: string)
-		return .init(nodes: nodes)
+		return .init(uuid: UUID(), nodes: nodes)
 	}
 }

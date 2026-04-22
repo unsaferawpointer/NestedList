@@ -49,11 +49,11 @@ extension ItemsFactory: ItemsFactoryProtocol {
 				return .monochrome(token: .tertiary)
 			case false:
 				if let color = iconColor.color {
-					return .hierarchical(token: color)
+					return .monochrome(token: color)
 				}
 				let token = ColorMapper.map(color: item.tintColor)
 				guard let preffered = iconName?.preferredAppearance(with: token) else {
-					return .hierarchical(token: ColorMapper.map(color: item.tintColor))
+					return .monochrome(token: ColorMapper.map(color: item.tintColor))
 				}
 				return preffered
 			}

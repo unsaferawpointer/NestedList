@@ -9,7 +9,7 @@ import UIKit
 import SwiftUI
 
 import CoreModule
-import DesignSystem
+import CorePresentation
 import CoreSettings
 
 protocol RouterProtocol {
@@ -21,6 +21,8 @@ protocol RouterProtocol {
 	func showSettings()
 	func showTargetsScreen(for ids: Set<UUID>, completionHandler: @escaping (UUID?, Bool) -> Void)
 	func showReorderScreen(for item: UUID, completionHandler: @escaping () -> Void)
+	func showIconPicker(title: String, completionHandler: @escaping @MainActor (IconName?) -> Void)
+	func showColorPicker(title: String, completionHandler: @escaping @MainActor (ItemColor?) -> Void)
 	func dismiss()
 }
 
@@ -57,6 +59,9 @@ extension Router: RouterProtocol {
 				}
 			}
 		}
+		if let sheet = controller.sheetPresentationController {
+			sheet.detents = [.medium(), .large()]
+		}
 
 		root.present(controller, animated: true)
 	}
@@ -91,6 +96,48 @@ extension Router: RouterProtocol {
 			)
 		)
 		controller.modalPresentationStyle = .formSheet
+		root.present(controller, animated: true)
+	}
+
+	func showIconPicker(title: String, completionHandler: @escaping @MainActor (IconName?) -> Void) {
+
+		let picker = IconPicker(title: title) { [weak self] icon, isSuccess in
+			self?.root.presentedViewController?.dismiss(animated: true)
+			guard isSuccess else {
+				return
+			}
+			completionHandler(icon)
+		}
+
+		let controller = UIHostingController(rootView: picker)
+		controller.modalPresentationStyle = .formSheet
+		controller.title = title
+
+		if let sheet = controller.sheetPresentationController {
+			sheet.detents = [.medium(), .large()]
+		}
+
+		root.present(controller, animated: true)
+	}
+
+	func showColorPicker(title: String, completionHandler: @escaping @MainActor (ItemColor?) -> Void) {
+
+		let picker = ItemColorPicker(title: title) { [weak self] token, isSuccess in
+			self?.root.presentedViewController?.dismiss(animated: true)
+			guard isSuccess else {
+				return
+			}
+			completionHandler(token)
+		}
+
+		let controller = UIHostingController(rootView: picker)
+		controller.modalPresentationStyle = .formSheet
+		controller.title = title
+
+		if let sheet = controller.sheetPresentationController {
+			sheet.detents = [.medium()]
+		}
+
 		root.present(controller, animated: true)
 	}
 

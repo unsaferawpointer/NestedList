@@ -9,6 +9,6 @@
 import UIKit
 
 public protocol ToolbarSupportable: UIViewController {
-	func displayToolbar(top: [UIBarButtonItem], bottom: [UIBarButtonItem])
+	func displayToolbar(top: [UIBarButtonItem], bottom: [UIBarButtonItem], showUndoGroup: Bool)
 }
 #endif

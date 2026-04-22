@@ -16,9 +16,13 @@ final class ContentUnitAssembly {
 		storage: DocumentStorage<Content>,
 		configuration: ContentConfiguration
 	) -> ContentViewController {
-		let presenter = ContentPresenter()
+
 		let interactor = ContentInteractor(storage: storage, root: root)
 		return ContentViewController(configuration: configuration) { viewController in
+
+			let router = Router(root: viewController)
+			let presenter = ContentPresenter(router: router)
+
 			viewController.output = presenter
 
 			viewController.dropDelegate = presenter

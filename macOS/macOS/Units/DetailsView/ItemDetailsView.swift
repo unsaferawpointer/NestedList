@@ -44,8 +44,6 @@ extension ItemDetailsView: View {
 		NavigationStack {
 			Form {
 				buildInfoSection()
-				buildIconPicker()
-				buildColorPicker()
 			}
 			.formStyle(.grouped)
 			.scrollIndicators(.hidden)
@@ -66,7 +64,7 @@ extension ItemDetailsView: View {
 					.accessibilityIdentifier("button-save")
 				}
 			}
-			.frame(minWidth: 420, idealWidth: 560, maxWidth: 640, minHeight: 480, idealHeight: 640)
+			.frame(minWidth: 420, idealWidth: 560, maxWidth: 640, minHeight: 180, idealHeight: 240)
 			.navigationTitle(model.navigationTitle)
 		}
 	}
@@ -117,59 +115,6 @@ private extension ItemDetailsView {
 			}
 		}
 	}
-
-	var iconModels: [IconModel] {
-		return IconName.allCases.map {
-			.customIcon(IconMapper.map(icon: $0, filled: false) ?? .textDoc)
-		}
-	}
-
-	var availableColors: [ColorToken] {
-		return ItemColor.allCases.compactMap {
-			ColorMapper.map(color: $0)
-		}
-	}
-
-	@MainActor
-	@ViewBuilder
-	func buildIconPicker() -> some View {
-		Section(strings.iconsPickerTitle) {
-			IconPicker(icons: icons, selection: .init(get: {
-				guard
-					let name = model.properties.icon,
-					let icon = IconMapper.map(icon: name, filled: false)
-				else {
-					return .noIcon
-				}
-				return .customIcon(icon)
-			}, set: { newValue in
-				switch newValue {
-				case .noIcon:
-					model.properties.icon = nil
-				case .customIcon(let iconName):
-					let color = model.properties.tintColor ?? .tertiary
-					model.properties.icon = IconMapper.map(icon: iconName)
-				}
-
-			}))
-		}
-	}
-
-	@ViewBuilder
-	func buildColorPicker() -> some View {
-		Section(strings.colorPickerTitle) {
-			DesignSystem.ColorPicker(selection: .init(get: {
-				guard let color = model.properties.tintColor else {
-					return .tertiary
-				}
-				return ColorMapper.map(color: color)
-			}, set: { newValue in
-				model.properties.tintColor = ColorMapper.map(token: newValue)
-			}),
-				availableColors: availableColors
-			)
-		}
-	}
 }
 
 // MARK: - Nested data structs
@@ -189,8 +134,6 @@ extension ItemDetailsView {
 	struct Properties {
 		var text: String
 		var description: String = ""
-		var icon: IconName?
-		var tintColor: ItemColor?
 	}
 }
 

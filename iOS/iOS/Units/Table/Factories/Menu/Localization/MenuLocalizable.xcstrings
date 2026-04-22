@@ -1,6 +1,39 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "appearance_menu_title" : {
+      "comment" : "Title of the menu that allows the user to change the appearance of the item.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appearance"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Внешний вид"
+          }
+        }
+      }
+    },
+    "color_menu_item_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Color…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цвет…"
+          }
+        }
+      }
+    },
     "copy_menu_item_title" : {
       "localizations" : {
         "en" : {
@@ -61,6 +94,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Редактировать…"
+          }
+        }
+      }
+    },
+    "icon_menu_item_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icon…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Иконка…"
           }
         }
       }
@@ -178,5 +227,5 @@
       }
     }
   },
-  "version" : "1.0"
+  "version" : "1.1"
 }

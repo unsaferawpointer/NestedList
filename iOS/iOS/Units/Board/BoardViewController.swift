@@ -87,7 +87,13 @@ private extension BoardViewController {
 		let pageControlItem = UIBarButtonItem(customView: pageControl)
 
 		(parent as? ToolbarSupportable)?
-			.displayToolbar(top: [], bottom: [.flexibleSpace(), pageControlItem, .flexibleSpace()])
+			.displayToolbar(
+				top: [],
+				bottom: [.flexibleSpace(),
+						 pageControlItem,
+						 .flexibleSpace()],
+				showUndoGroup: false
+			)
 	}
 
 	func updatePageControl() {

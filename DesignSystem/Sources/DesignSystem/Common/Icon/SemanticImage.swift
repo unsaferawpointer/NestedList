@@ -25,6 +25,8 @@ public enum SemanticImage {
 
 	case point
 	case circleSlash
+	case filledCircle
+
 	case folder
 	case textDoc
 	case docOnDoc
@@ -90,7 +92,7 @@ public extension SemanticImage {
 
 	var title: String {
 		switch self {
-		case .circleSlash:
+		case .circleSlash, .filledCircle:
 			""
 		case .point:
 			String(
@@ -470,6 +472,8 @@ public extension SemanticImage {
 		switch self {
 		case .circleSlash:
 			"circle.slash"
+		case .filledCircle:
+			"circle.fill"
 		case .point:
 			nil
 		case .folder:

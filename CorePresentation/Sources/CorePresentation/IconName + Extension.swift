@@ -26,7 +26,7 @@ extension IconName {
 		case .conversation: 12
 		case .envelope: 13
 		case .person: 14
-		case .personCropSquareOnSquareAngled: 15
+		case .personGroup: 15
 		case .package: 16
 		case .archivebox: 17
 		case .stack: 18
@@ -63,6 +63,7 @@ extension IconName {
 		case .pc: 49
 		case .trash: 50
 		case .key: 51
+		case .unknown: -1
 		}
 	}
 }

@@ -9,7 +9,7 @@ import Foundation
 import DesignSystem
 
 protocol ToolbarFactoryProtocol {
-	func build(editingMode: EditingMode?, selectedCount: Int, isCompleted: Bool?, isMarked: Bool?, isSection: Bool?) -> ToolbarModel
+	func build(editingMode: EditingMode?, selectedCount: Int, isCompleted: Bool?) -> ToolbarModel
 }
 
 final class ToolbarFactory {
@@ -20,18 +20,16 @@ final class ToolbarFactory {
 // MARK: - BottomToolbarFactoryProtocol
 extension ToolbarFactory: ToolbarFactoryProtocol {
 
-	func build(editingMode: EditingMode?, selectedCount: Int, isCompleted: Bool?, isMarked: Bool?, isSection: Bool?) -> ToolbarModel {
+	func build(editingMode: EditingMode?, selectedCount: Int, isCompleted: Bool?) -> ToolbarModel {
 
 		let top = buildTop(editingMode: editingMode)
 		let bottom = buildBottom(
 			editingMode: editingMode,
 			selectedCount: selectedCount,
-			isCompleted: isCompleted,
-			isMarked: isMarked,
-			isSection: isSection
+			isCompleted: isCompleted
 		)
 
-		return ToolbarModel(top: top, bottom: bottom)
+		return ToolbarModel(top: top, bottom: bottom, showUndoGroup: editingMode == nil)
 	}
 }
 
@@ -111,7 +109,7 @@ extension ToolbarFactory {
 		]
 	}
 
-	func buildBottom(editingMode: EditingMode?, selectedCount: Int, isCompleted: Bool?, isMarked: Bool?, isSection: Bool?) -> [ToolbarItem] {
+	func buildBottom(editingMode: EditingMode?, selectedCount: Int, isCompleted: Bool?) -> [ToolbarItem] {
 
 		let isEmpty = selectedCount == 0
 
@@ -148,18 +146,40 @@ extension ToolbarFactory {
 				)
 			),
 			.init(
+				id: "appearance-menu",
+				content: .menu(
+					options: .inline,
+					size: .automatic,
+					items:
+						[
+								.init(
+									id: ElementIdentifier.icon.rawValue,
+									title: localization.iconItemTitle,
+									icon: "photo",
+									content: .item(state: .off, attributes: [])
+								),
+								.init(
+									id: ElementIdentifier.color.rawValue,
+									title: localization.colorItemTitle,
+									icon: "paintpalette",
+									content: .item(state: .off, attributes: [])
+								)
+						]
+				)
+			),
+			.init(
 				id: "move-reorder-menu",
 				content: .menu(
 					options: .inline,
 					size: .automatic,
 					items:
 						[
-							.init(
-								id: ElementIdentifier.move.rawValue,
-								title: "Move to...",
-								icon: "arrow.left.arrow.right",
-								content: .item(state: .off, attributes: [])
-							)
+								.init(
+									id: ElementIdentifier.move.rawValue,
+									title: localization.moveItemTitle,
+									icon: "arrow.left.arrow.right",
+									content: .item(state: .off, attributes: [])
+								)
 						]
 				)
 			),

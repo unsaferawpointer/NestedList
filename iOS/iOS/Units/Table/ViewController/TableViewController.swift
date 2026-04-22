@@ -63,6 +63,11 @@ class TableViewController: UIViewController {
 		delegate?.viewDidChange(state: .didAppear)
 	}
 
+	override func viewWillDisappear(_ animated: Bool) {
+		super.viewWillDisappear(animated)
+		(parent as? DocumentViewController)?.displayToolbar(top: [], bottom: [], showUndoGroup: false)
+	}
+
 	override func updateContentUnavailableConfiguration(using state: UIContentUnavailableConfigurationState) {
 		if nestedList.isEmpty {
 			var configuration = UIContentUnavailableConfiguration.empty()
@@ -89,7 +94,12 @@ extension TableViewController: ContentView {
 		let topItems = ToolbarBuilder.build(from: toolbar.top, delegate: delegate) ?? []
 		let bottomItems = ToolbarBuilder.build(from: toolbar.bottom, delegate: delegate) ?? []
 
-		(parent as? DocumentViewController)?.displayToolbar(top: topItems, bottom: bottomItems)
+		(parent as? DocumentViewController)?
+			.displayToolbar(
+				top: topItems,
+				bottom: bottomItems,
+				showUndoGroup: toolbar.showUndoGroup
+			)
 	}
 
 	var selection: [UUID] {

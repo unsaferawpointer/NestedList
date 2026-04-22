@@ -14,8 +14,9 @@ public final class ColorMapper {
 		guard let color else {
 			return .tertiary
 		}
-		return switch color {
-		case .accent: .accent
+			return switch color {
+			case .unknown: .tertiary
+			case .accent: .accent
 
 		case .primary: .primary
 		case .secondary: .secondary
@@ -41,7 +42,7 @@ public final class ColorMapper {
 
 	public static func map(token: ColorToken?) -> ItemColor? {
 		guard let token else {
-			return .tertiary
+			return nil
 		}
 		return switch token {
 		case .accent: .accent

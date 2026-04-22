@@ -22,13 +22,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Color"
+            "value" : "Color…"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Цвет"
+            "state" : "needs_review",
+            "value" : "Цвет…"
           }
         }
       }
@@ -102,13 +102,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Icon"
+            "value" : "Icon…"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Иконка"
+            "state" : "translated",
+            "value" : "Иконка…"
           }
         }
       }
@@ -157,6 +157,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Новый пункт"
+          }
+        }
+      }
+    },
+    "no-color-item-title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Color"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Без цвета"
           }
         }
       }
