@@ -35,7 +35,7 @@ extension IconPicker: View {
 				CommonPicker(values: icons) {
 					PickerButton(
 						icon: .circleSlash,
-						foregroundColor: .primary,
+						foregroundColor: .red,
 						backgroundColor: .gray.opacity(0.1)
 					) {
 						action(nil, true)
