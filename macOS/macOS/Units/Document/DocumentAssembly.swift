@@ -11,7 +11,7 @@ import CoreModule
 final class DocumentAssembly {
 
 	@MainActor
-	static func build(storage: DocumentStorage<Content>, for view: Content.ContentView) -> NSViewController {
+	static func build(storage: DocumentStorage<Content>) -> NSViewController {
 		ContentUnitAssembly.build(
 			storage: storage,
 			configuration: .init(drawsBackground: true, hasInsets: true)

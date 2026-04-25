@@ -18,6 +18,7 @@
       }
     },
     "view-toolbar-item-label" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

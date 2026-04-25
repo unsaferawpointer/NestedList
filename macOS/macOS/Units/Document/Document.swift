@@ -56,8 +56,10 @@ class Document: NSDocument {
 	override func makeWindowControllers() {
 		// Returns the Storyboard that contains your Document window.
 		let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
-		let windowController = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Document Window Controller")) as! NSWindowController
-		windowController.contentViewController = DocumentAssembly.build(storage: storage, for: storage.state.view)
+		let windowController = storyboard.instantiateController(
+			withIdentifier: NSStoryboard.SceneIdentifier("Document Window Controller")
+		) as! NSWindowController
+		windowController.contentViewController = DocumentAssembly.build(storage: storage)
 
 		windowController.window?.toolbar = toolbar
 		windowController.window?.toolbar?.delegate = self
@@ -83,35 +85,6 @@ class Document: NSDocument {
 		}
 	}
 
-}
-
-// MARK: - Actions
-extension Document {
-
-	@IBAction
-	func changeView(_ sender: NSSegmentedControl) {
-
-		guard
-			let windowController = self.windowControllers.first,
-			let size = windowController.window?.frame.size
-		else {
-			return
-		}
-
-		let view = Content.ContentView(rawValue: sender.indexOfSelectedItem) ?? .list
-
-		guard view != storage.state.view else { return }
-		storage.modificate { content in
-			content.view = view
-		}
-
-		let viewController = DocumentAssembly.build(storage: storage, for: view)
-
-		windowController.contentViewController = viewController
-		configureToolbar()
-
-		windowController.window?.setContentSize(size)
-	}
 }
 
 private extension Document {
@@ -153,23 +126,6 @@ extension Document: NSToolbarDelegate {
 
 			item.label = localization.newItemToolbarItemLabel
 			item.view = button
-		case .viewItem:
-			let button = NSSegmentedControl(
-				images:
-					[
-						NSImage(systemSymbolName: "list.bullet", accessibilityDescription: nil)!,
-						NSImage(systemSymbolName: "rectangle.split.3x1", accessibilityDescription: nil)!
-					],
-				trackingMode: .selectOne,
-				target: nil,
-				action: nil
-			)
-			button.action = #selector(changeView(_:))
-			button.target = self
-			button.selectedSegment = storage.state.view.rawValue
-
-			item.label = localization.viewToolbarItemLabel
-			item.view = button
 		default:
 			break
 		}
@@ -181,6 +137,4 @@ extension Document: NSToolbarDelegate {
 extension NSToolbarItem.Identifier {
 
 	static let newItem = NSToolbarItem.Identifier("newItem")
-
-	static let viewItem = NSToolbarItem.Identifier("viewItem")
 }

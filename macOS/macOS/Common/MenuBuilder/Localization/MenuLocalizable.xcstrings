@@ -114,6 +114,7 @@
       }
     },
     "move-backward-item-title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -130,6 +131,7 @@
       }
     },
     "move-forward-item-title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

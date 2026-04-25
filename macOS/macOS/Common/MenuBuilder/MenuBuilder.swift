@@ -10,6 +10,7 @@ import CoreModule
 import DesignSystem
 import CorePresentation
 
+@MainActor
 protocol MenuBuilderProtocol {
 	static func build(for items: [ElementIdentifier], target: AnyObject?) -> NSMenu
 }
@@ -61,30 +62,6 @@ private extension MenuBuilder {
 			return item
 		case .separator:
 			return NSMenuItem.separator()
-		case .columnNewItem:
-			item.identifier = .init(elementIdentifier: .columnEdit)
-			item.title = MenuLocalization.newItemTitle
-			item.image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)
-		case .columnEdit:
-			item.identifier = .init(elementIdentifier: .columnEdit)
-			item.title = MenuLocalization.editItemTitle
-			item.image = NSImage(systemSymbolName: "square.and.pencil", accessibilityDescription: nil)
-			return item
-		case .columnDelete:
-			item.identifier = .init(elementIdentifier: .columnDelete)
-			item.title = MenuLocalization.deleteItemTitle
-			item.image = NSImage(systemSymbolName: "trash", accessibilityDescription: nil)
-			return item
-		case .moveForward:
-			item.identifier = .init(elementIdentifier: .moveForward)
-			item.title = MenuLocalization.moveForward
-			item.image = NSImage(systemSymbolName: "arrow.forward", accessibilityDescription: nil)
-			return item
-		case .moveBackward:
-			item.identifier = .init(elementIdentifier: .moveBackward)
-			item.title = MenuLocalization.moveBackward
-			item.image = NSImage(systemSymbolName: "arrow.backward", accessibilityDescription: nil)
-			return item
 		default:
 			fatalError()
 		}
