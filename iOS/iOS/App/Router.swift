@@ -1,5 +1,5 @@
 //
-//  Router.swift
+//  ContentRouter.swift
 //  iOS
 //
 //  Created by Anton Cherkasov on 13.09.2025.
@@ -40,7 +40,7 @@ final class Router {
 	}
 }
 
-// MARK: - RouterProtocol
+// MARK: - ContentRouterProtocol
 extension Router: RouterProtocol {
 
 	func showDetails(

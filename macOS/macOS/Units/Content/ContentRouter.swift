@@ -1,5 +1,5 @@
 //
-//  Router.swift
+//  ContentRouter.swift
 //  Nested List
 //
 //  Created by Anton Cherkasov on 12.09.2025.
@@ -10,7 +10,7 @@ import SwiftUI
 import CoreModule
 import CorePresentation
 
-protocol RouterProtocol: AnyObject {
+protocol ContentRouterProtocol: AnyObject {
 
 	func showDetails(
 		with model: ItemDetailsView.Model,
@@ -28,7 +28,7 @@ protocol RouterProtocol: AnyObject {
 	)
 }
 
-final class Router {
+final class ContentRouter {
 
 	unowned var root: NSViewController
 
@@ -39,8 +39,8 @@ final class Router {
 	}
 }
 
-// MARK: - RouterProtocol
-extension Router: RouterProtocol {
+// MARK: - ContentRouterProtocol
+extension ContentRouter: ContentRouterProtocol {
 
 	func showDetails(
 		with model: ItemDetailsView.Model,

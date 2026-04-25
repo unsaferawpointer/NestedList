@@ -25,7 +25,7 @@ final class ContentPresenter {
 
 	// MARK: DI by initialization
 
-	private var router: any RouterProtocol
+	private var router: any ContentRouterProtocol
 
 	// MARK: - DI
 
@@ -50,7 +50,7 @@ final class ContentPresenter {
 	private(set) var cache = Cache<Property, Item>()
 
 	init(
-		router: any RouterProtocol,
+		router: any ContentRouterProtocol,
 		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared,
 		localization: ContentLocalizationProtocol = ContentLocalization()
 	) {

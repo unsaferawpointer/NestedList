@@ -20,8 +20,8 @@ final class UnitRouterMock {
 	}
 }
 
-// MARK: - RouterProtocol
-extension UnitRouterMock: RouterProtocol {
+// MARK: - ContentRouterProtocol
+extension UnitRouterMock: ContentRouterProtocol {
 
 	func showDetails(
 		with model: ItemDetailsView.Model,
