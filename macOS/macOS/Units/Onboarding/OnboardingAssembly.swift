@@ -10,14 +10,12 @@ import SwiftUI
 import CoreSettings
 import CoreModule
 import DesignSystem
+import CorePresentation
 
 final class OnboardingAssembly {
 
 	static func build(settingsProvider: SettingsProvider) -> NSWindow? {
-		guard
-			let rawVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
-			let appVersion = Version(rawValue: rawVersion)
-		else {
+		guard let appVersion = AppFacade.version() else {
 			return nil
 		}
 

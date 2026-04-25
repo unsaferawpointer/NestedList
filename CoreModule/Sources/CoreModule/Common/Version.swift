@@ -83,4 +83,11 @@ public extension Version {
 	func isBackwardCompatible(other: Version) -> Bool {
 		return major <= other.major
 	}
+
+	func partiallySupportedFormat(other: Version) -> Bool {
+		guard major == other.major else {
+			return false
+		}
+		return minor <= other.minor
+	}
 }
