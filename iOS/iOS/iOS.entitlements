@@ -4,7 +4,7 @@
 <dict>
 	<key>com.apple.developer.icloud-container-identifiers</key>
 	<array>
-		<string>iCloud.dev.zeroindex.NestedList</string>
+		<string>$(NESTED_LIST_ICLOUD_CONTAINER_IDENTIFIER)</string>
 	</array>
 	<key>com.apple.developer.icloud-services</key>
 	<array>
@@ -12,7 +12,7 @@
 	</array>
 	<key>com.apple.developer.ubiquity-container-identifiers</key>
 	<array>
-		<string>iCloud.dev.zeroindex.NestedList</string>
+		<string>$(NESTED_LIST_UBIQUITY_CONTAINER_IDENTIFIER)</string>
 	</array>
 </dict>
 </plist>

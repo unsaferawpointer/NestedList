@@ -35,6 +35,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4C1851CD2F9D6F620071AFC7 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Base.xcconfig; path = ../Base.xcconfig; sourceTree = SOURCE_ROOT; };
 		4C1F87EB2D458C020093C0BC /* macOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = macOSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C1F87FA2D458C590093C0BC /* macOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = macOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C1F88142D4590620093C0BC /* macOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = macOS.xctestplan; sourceTree = "<group>"; };
@@ -109,6 +110,7 @@
 		4CF92C412CE8A94D00135033 = {
 			isa = PBXGroup;
 			children = (
+				4C1851CD2F9D6F620071AFC7 /* Base.xcconfig */,
 				4C1F88142D4590620093C0BC /* macOS.xctestplan */,
 				4CF92CF52CE8CD9600135033 /* macOS */,
 				4C1F87EC2D458C020093C0BC /* macOSUITests */,
@@ -489,6 +491,7 @@
 		};
 		4CF92C742CE8A94E00135033 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4C1851CD2F9D6F620071AFC7 /* Base.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -554,6 +557,7 @@
 		};
 		4CF92C752CE8A94E00135033 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4C1851CD2F9D6F620071AFC7 /* Base.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;

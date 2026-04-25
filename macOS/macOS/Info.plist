@@ -9,7 +9,7 @@
 			<key>NSUbiquitousContainerIsDocumentScopePublic</key>
 			<true/>
 			<key>NSUbiquitousContainerName</key>
-			<string>Nested List</string>
+			<string>$(NESTED_LIST_UBIQUITOUS_CONTAINER_NAME)</string>
 			<key>NSUbiquitousContainerSupportedFolderLevels</key>
 			<string>Any</string>
 		</dict>
@@ -22,14 +22,14 @@
 			<key>CFBundleTypeIconSystemGenerated</key>
 			<integer>1</integer>
 			<key>CFBundleTypeName</key>
-			<string>Nested List</string>
+			<string>$(NESTED_LIST_DOCUMENT_TYPE_NAME)</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
 			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>dev.zeroindex.nested-list.doc</string>
+				<string>$(NESTED_LIST_DOCUMENT_TYPE)</string>
 			</array>
 			<key>NSDocumentClass</key>
 			<string>$(PRODUCT_MODULE_NAME).Document</string>
@@ -45,7 +45,7 @@
 				<string>public.data</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Nested List</string>
+			<string>$(NESTED_LIST_DOCUMENT_DESCRIPTION)</string>
 			<key>UTTypeIconFile</key>
 			<string></string>
 			<key>UTTypeIcons</key>
@@ -58,12 +58,12 @@
 				<string>List</string>
 			</dict>
 			<key>UTTypeIdentifier</key>
-			<string>dev.zeroindex.nested-list.doc</string>
+			<string>$(NESTED_LIST_DOCUMENT_TYPE)</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
-					<string>nlist</string>
+					<string>$(NESTED_LIST_DOCUMENT_EXTENSION)</string>
 				</array>
 			</dict>
 		</dict>

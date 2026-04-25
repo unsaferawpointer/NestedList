@@ -1,0 +1,18 @@
+//
+//  Base.xcconfig
+//  
+//
+//  Created by Anton Cherkasov on 26.04.2026.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+
+PRODUCT_BUNDLE_IDENTIFIER = dev.zeroindex.NestedList
+NESTED_LIST_DOCUMENT_TYPE = dev.zeroindex.nested-list.doc
+NESTED_LIST_DOCUMENT_EXTENSION = nlist
+NESTED_LIST_DOCUMENT_DESCRIPTION = Nested List
+NESTED_LIST_DOCUMENT_TYPE_NAME = Nested List
+NESTED_LIST_ICLOUD_CONTAINER_IDENTIFIER = iCloud.dev.zeroindex.NestedList
+NESTED_LIST_UBIQUITY_CONTAINER_IDENTIFIER = iCloud.dev.zeroindex.NestedList
+NESTED_LIST_UBIQUITOUS_CONTAINER_NAME = Nested List

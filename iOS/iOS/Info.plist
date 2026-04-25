@@ -8,14 +8,14 @@
 	<array>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>Nested List</string>
+			<string>$(NESTED_LIST_DOCUMENT_TYPE_NAME)</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
 			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>dev.zeroindex.nested-list.doc</string>
+				<string>$(NESTED_LIST_DOCUMENT_TYPE)</string>
 			</array>
 			<key>NSUbiquitousDocumentUserActivityType</key>
 			<string>dev.zeroindex.NestedList.editing</string>
@@ -50,7 +50,7 @@
 				<string>public.data</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Nested List Document File</string>
+			<string>$(NESTED_LIST_DOCUMENT_DESCRIPTION)</string>
 			<key>UTTypeIconFiles</key>
 			<array>
 				<string>foreground-icon</string>
@@ -58,12 +58,12 @@
 				<string>foreground-icon@3x</string>
 			</array>
 			<key>UTTypeIdentifier</key>
-			<string>dev.zeroindex.nested-list.doc</string>
+			<string>$(NESTED_LIST_DOCUMENT_TYPE)</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
-					<string>nlist</string>
+					<string>$(NESTED_LIST_DOCUMENT_EXTENSION)</string>
 				</array>
 			</dict>
 		</dict>
