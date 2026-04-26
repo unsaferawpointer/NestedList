@@ -71,8 +71,8 @@ private extension PickerButton {
 			if showsThemeVariants {
 				ZStack {
 					icon.image?
+						.resizable()
 						.symbolRenderingMode(.monochrome)
-						.font(.system(size: symbolSide))
 						.foregroundStyle(foregroundColor)
 						.frame(width: symbolSide, height: symbolSide)
 						.environment(\.colorScheme, .light)
@@ -82,8 +82,8 @@ private extension PickerButton {
 						}
 
 					icon.image?
+						.resizable()
 						.symbolRenderingMode(.monochrome)
-						.font(.system(size: symbolSide))
 						.foregroundStyle(foregroundColor)
 						.frame(width: symbolSide, height: symbolSide)
 						.environment(\.colorScheme, .dark)
@@ -106,13 +106,14 @@ private extension PickerButton {
 #Preview {
 	VStack {
 		PickerButton(
-			icon: .calendar,
+			icon: .filledCircle,
+			showsThemeVariants: true,
 			foregroundColor: .primary,
 			backgroundColor: .gray.opacity(0.1)
 		) {
 
 		}
 	}
-	.frame(width: 256, height: 256)
+	.frame(width: 32, height: 32)
 	.padding(24)
 }
