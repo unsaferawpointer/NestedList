@@ -26,6 +26,7 @@ protocol CacheDelegate<Model>: AnyObject {
 	func endUpdates()
 }
 
+@MainActor
 final class ListManager<Model: CellModel & IdentifiableValue> {
 
 	unowned var tableView: UITableView
@@ -165,6 +166,7 @@ extension ListManager {
 // MARK: - UITableViewDragDelegate
 extension ListManager {
 
+	@MainActor
 	func itemsForBeginning(session: any UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
 		guard editingMode == .reordering, let delegate else {
 			return []

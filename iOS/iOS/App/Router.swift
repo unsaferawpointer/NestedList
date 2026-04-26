@@ -12,11 +12,12 @@ import CoreModule
 import CorePresentation
 import CoreSettings
 
+@MainActor
 protocol RouterProtocol {
 	func showDetails(
-		with model: DetailsView.Model,
+		with model: ItemDetailsView.Model,
 		animateBottomBarItem barItem: String?,
-		completionHandler: @escaping (DetailsView.Properties, Bool) -> Void
+		completionHandler: @escaping @MainActor (ItemDetailsView.Properties, Bool) -> Void
 	)
 	func showSettings()
 	func showTargetsScreen(for ids: Set<UUID>, completionHandler: @escaping (UUID?, Bool) -> Void)
@@ -44,11 +45,11 @@ final class Router {
 extension Router: RouterProtocol {
 
 	func showDetails(
-		with model: DetailsView.Model,
+		with model: ItemDetailsView.Model,
 		animateBottomBarItem barItem: String?,
-		completionHandler: @escaping (DetailsView.Properties, Bool) -> Void
+		completionHandler: @escaping @MainActor (ItemDetailsView.Properties, Bool) -> Void
 	) {
-		let details = DetailsView(item: model, completionHandler: completionHandler)
+		let details = ItemDetailsView(item: model, completionHandler: completionHandler)
 		let controller = UIHostingController(rootView: details)
 		controller.modalPresentationStyle = .formSheet
 

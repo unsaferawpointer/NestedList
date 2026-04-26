@@ -26,6 +26,7 @@ public protocol DropDelegate<ID>: AnyObject {
 
 #if os(iOS)
 
+@MainActor
 public protocol DropDelegate<ID>: AnyObject {
 
 	associatedtype ID

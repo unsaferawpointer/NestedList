@@ -9,16 +9,17 @@ import Foundation
 import Hierarchy
 import CoreModule
 
+@MainActor
 protocol ContentUnitInteractorProtocol {
 	func fetchData()
 
 	@discardableResult
-	func newItem(_ text: String, note: String?, iconName: IconName?, tintColor: ItemColor?, target: UUID?) -> UUID
+	func newItem(_ text: String, note: String?, target: UUID?) -> UUID
 	func deleteItems(_ ids: [UUID])
 	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool)
 	func setColor(_ color: ItemColor?, for ids: [UUID])
 	func setIcon(_ name: IconName?, for ids: [UUID])
-	func set(_ text: String, note: String?, iconName: IconName?, tintColor: ItemColor?, for id: UUID)
+	func set(_ text: String, note: String?, for id: UUID)
 	func item(for id: UUID) -> Item
 
 	func data(of id: UUID) -> Data?
@@ -53,7 +54,9 @@ final class ContentUnitInteractor {
 				return
 			}
 			let nodes = content.root.children(of: self.root)
-			self.presenter?.present(nodes)
+			Task { @MainActor [weak self] in
+				self?.presenter?.present(nodes)
+			}
 		}
 	}
 
@@ -69,14 +72,14 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 		presenter?.present(storage.state.root.children(of: root))
 	}
 
-	func newItem(_ text: String, note: String?, iconName: IconName?, tintColor: ItemColor?, target: UUID?) -> UUID {
+	func newItem(_ text: String, note: String?, target: UUID?) -> UUID {
 		let destination = Destination(target: target)
 		return base.newItem(
 			text,
 			isStrikethrough: nil,
 			note: note,
-			iconName: iconName,
-			tintColor: tintColor,
+			iconName: nil,
+			tintColor: nil,
 			target: destination.relative(to: root).id
 		)
 	}
@@ -117,12 +120,10 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 		}
 	}
 
-	func set(_ text: String, note: String?, iconName: IconName?, tintColor: ItemColor?, for id: UUID) {
+	func set(_ text: String, note: String?, for id: UUID) {
 		storage.modificate { content in
 			content.root.setProperty(\.text, to: text, for: [id])
 			content.root.setProperty(\.note, to: note, for: [id])
-			content.root.setProperty(\.iconName, to: iconName, for: [id])
-			content.root.setProperty(\.tintColor, to: tintColor, for: [id])
 		}
 	}
 

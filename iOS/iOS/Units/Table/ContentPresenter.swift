@@ -12,12 +12,15 @@ import Hierarchy
 import CoreModule
 import DesignSystem
 import CoreSettings
+import CorePresentation
 
+@MainActor
 protocol ContentPresenterProtocol: AnyObject {
 	func present(_ content: Content)
 	func present(_ nodes: [Node<Item>])
 }
 
+@MainActor
 final class ContentPresenter {
 
 	// MARK: - DI
@@ -140,7 +143,7 @@ extension ContentPresenter: InteractionDelegate {
 			guard let id = currentSelection?.first, let item = interactor?.item(for: id) else {
 				return
 			}
-			let model = DetailsView.Model(
+			let model = CorePresentation.ItemDetailsView.Model(
 				navigationTitle: localization.editItemNavigationTitle,
 				properties: item.details
 			)
@@ -151,8 +154,6 @@ extension ContentPresenter: InteractionDelegate {
 						self?.interactor?.set(
 							saved.text,
 							note: note,
-							iconName: saved.icon,
-							tintColor: saved.tintColor,
 							for: id
 						)
 					}
@@ -323,8 +324,8 @@ extension ContentPresenter: DropDelegate {
 // MARK: - Helpers
 private extension ContentPresenter {
 
-	func createNew(target: UUID?) {
-		let model = DetailsView.Model(navigationTitle: localization.newItemNavigationTitle, properties: .init(text: ""))
+	@MainActor func createNew(target: UUID?) {
+		let model = ItemDetailsView.Model(navigationTitle: localization.newItemNavigationTitle, properties: .init(text: ""))
 		router.showDetails(with: model, animateBottomBarItem: ElementIdentifier.new.rawValue) { [weak self] saved, success in
 			self?.router.dismiss()
 			if success {
@@ -333,8 +334,6 @@ private extension ContentPresenter {
 				guard let id = self?.interactor?.newItem(
 					saved.text,
 					note: note,
-					iconName: saved.icon,
-					tintColor: saved.tintColor,
 					target: target
 				) else {
 					return
@@ -354,12 +353,10 @@ enum Property: Hashable {
 
 private extension Item {
 
-	var details: DetailsView.Properties {
+	var details: ItemDetailsView.Properties {
         return .init(
             text: text,
-            description: note ?? "",
-            icon: iconName,
-            tintColor: tintColor
+            description: note ?? ""
         )
 	}
 }

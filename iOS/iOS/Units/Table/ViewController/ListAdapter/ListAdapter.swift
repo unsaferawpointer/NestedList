@@ -9,6 +9,7 @@ import UIKit
 import DesignSystem
 import Hierarchy
 
+@MainActor
 final class ListAdapter: NSObject {
 
 	weak var tableView: UITableView?
