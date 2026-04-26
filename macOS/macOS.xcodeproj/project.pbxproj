@@ -11,7 +11,6 @@
 		4CF92CE92CE8CD3800135033 /* Hierarchy in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92CE82CE8CD3800135033 /* Hierarchy */; };
 		4CF92CF62CE8CD9600135033 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4CF92CEE2CE8CD9600135033 /* Assets.xcassets */; };
 		4CF92CF82CE8CD9600135033 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4CF92CF32CE8CD9600135033 /* Main.storyboard */; };
-		4CF92CF92CE8CD9600135033 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CF92CED2CE8CD9600135033 /* AppDelegate.swift */; };
 		4CF92D0E2CE8D6CE00135033 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92D0D2CE8D6CE00135033 /* DesignSystem */; };
 		4CF92D142CE8DDD100135033 /* CoreModule in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92D132CE8DDD100135033 /* CoreModule */; };
 		4CFE7F872E8AE3560036F1B0 /* CorePresentation in Frameworks */ = {isa = PBXBuildFile; productRef = 4CFE7F862E8AE3560036F1B0 /* CorePresentation */; };
@@ -42,7 +41,6 @@
 		4C2CF87C2D329D7000CA19FB /* macOSRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOSRelease.entitlements; sourceTree = "<group>"; };
 		4C9F20422DAAF5730015B11C /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Main.strings; sourceTree = "<group>"; };
 		4CF92C4A2CE8A94D00135033 /* Nested List.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Nested List.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		4CF92CED2CE8CD9600135033 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4CF92CEE2CE8CD9600135033 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4CF92CF02CE8CD9600135033 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4CF92CF12CE8CD9600135033 /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
@@ -53,6 +51,11 @@
 		4C0641FF2E7B5641008AC89A /* Resource */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Resource;
+			sourceTree = "<group>";
+		};
+		4C1856C22F9E3C1E0071AFC7 /* App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = App;
 			sourceTree = "<group>";
 		};
 		4C1F87EC2D458C020093C0BC /* macOSUITests */ = {
@@ -135,7 +138,7 @@
 				4CF92CF02CE8CD9600135033 /* Info.plist */,
 				4CF92CF12CE8CD9600135033 /* macOS.entitlements */,
 				4C2CF87C2D329D7000CA19FB /* macOSRelease.entitlements */,
-				4CF92CED2CE8CD9600135033 /* AppDelegate.swift */,
+				4C1856C22F9E3C1E0071AFC7 /* App */,
 				4C0641FF2E7B5641008AC89A /* Resource */,
 				4CF92D222CEA291200135033 /* Common */,
 				4CB8A7562DC3B66700D3F484 /* Units */,
@@ -208,6 +211,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				4C0641FF2E7B5641008AC89A /* Resource */,
+				4C1856C22F9E3C1E0071AFC7 /* App */,
 				4CB8A7562DC3B66700D3F484 /* Units */,
 				4CF92D222CEA291200135033 /* Common */,
 			);
@@ -319,7 +323,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4CF92CF92CE8CD9600135033 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

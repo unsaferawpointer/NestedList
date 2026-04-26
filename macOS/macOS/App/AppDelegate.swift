@@ -12,6 +12,7 @@ import DesignSystem
 class AppDelegate: NSObject, NSApplicationDelegate {
 
 	var onboardingWindow: NSWindow?
+	private let appRouter = AppRouter()
 
 	var importCoordinator: ImportCoordinator?
 
@@ -59,23 +60,7 @@ private extension AppDelegate {
 	}
 
 	func showOnboardingIfNeeded() {
-
-		#if DEBUG
-		if CommandLine.arguments.contains("--UITesting") {
-			guard let rawVersion = ProcessInfo.processInfo.environment["onboarding_version"] else {
-				SettingsProvider.shared.state.lastOnboardingVersion = nil
-				return
-			}
-			SettingsProvider.shared.state.lastOnboardingVersion = .init(rawValue: rawVersion)
-		}
-		#endif
-
-		guard let window = OnboardingAssembly.build(settingsProvider: .shared) else {
-			return
-		}
-		self.onboardingWindow = window
-		window.center()
-		NSApp.runModal(for: window)
+		appRouter.showOnboardingIfNeeded()
 	}
 }
 
@@ -86,32 +71,14 @@ import CoreSettings
 // MARK: - Actions
 extension AppDelegate {
 
-	// MARK: - Импорт файла
-	@IBAction func importFile(_ sender: Any) {
+	@IBAction
+	func importFile(_ sender: Any) {
 		importCoordinator = ImportCoordinator()
 		importCoordinator?.start()
 	}
 
 	@IBAction
 	func showPreferences(_ sender: Any) {
-
-		let id = NSUserInterfaceItemIdentifier("dev.zeroindex.NestedList.settings-window")
-
-		let window = {
-			if let window = NSApp.windows.first(where: { $0.identifier == id }) {
-				return window
-			} else {
-				let viewController = NSHostingController(rootView: SettingsView(provider: .shared))
-				let window = NSWindow(contentViewController: viewController)
-				window.identifier = id
-				window.title = "Settings"
-				_ = NSWindowController(window: window)
-				return window
-			}
-		}()
-
-		window.center()
-		window.makeKeyAndOrderFront(nil)
-		NSApp.activate(ignoringOtherApps: true)
+		appRouter.showPreferences()
 	}
 }
