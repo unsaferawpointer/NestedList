@@ -22,7 +22,7 @@ protocol UnitView: AnyObject, ListSupportable {
 	func display(_ state: ContentViewState)
 }
 
-class ContentViewController: NSCollectionViewItem {
+class ContentViewController: NSViewController {
 
 	var adapter: ListAdapter<ItemModel>?
 
@@ -37,8 +37,6 @@ class ContentViewController: NSCollectionViewItem {
 	weak var dragDelegate: (any DesignSystem.DragDelegate<UUID>)?
 	weak var cellDelegate: (any DesignSystem.CellDelegate<ItemModel>)?
 
-	private let configuration: ContentConfiguration
-
 	// MARK: - UI-Properties
 
 	private var placeholderView: NSView?
@@ -49,8 +47,7 @@ class ContentViewController: NSCollectionViewItem {
 
 	// MARK: - Initialization
 
-	init(configuration: ContentConfiguration, configure: (ContentViewController) -> Void) {
-		self.configuration = configuration
+	init(configure: (ContentViewController) -> Void) {
 		super.init(nibName: nil, bundle: nil)
 		configure(self)
 
@@ -151,7 +148,7 @@ private extension ContentViewController {
 		table.frame = scrollview.bounds
 		table.headerView = nil
 		scrollview.additionalSafeAreaInsets = .horizontal(16)
-		scrollview.drawsBackground = configuration.drawsBackground
+		scrollview.drawsBackground = true
 
 		let column = NSTableColumn(identifier: .init("main"))
 		table.addTableColumn(column)

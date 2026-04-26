@@ -11,14 +11,10 @@ import CoreModule
 final class ContentUnitAssembly {
 
 	@MainActor
-	static func build(
-		for root: UUID? = nil,
-		storage: DocumentStorage<Content>,
-		configuration: ContentConfiguration
-	) -> ContentViewController {
+	static func build(for root: UUID? = nil, storage: DocumentStorage<Content>) -> ContentViewController {
 
 		let interactor = ContentInteractor(storage: storage, root: root)
-		return ContentViewController(configuration: configuration) { viewController in
+		return ContentViewController { viewController in
 
 			let router = ContentRouter(root: viewController)
 			let presenter = ContentPresenter(router: router)
