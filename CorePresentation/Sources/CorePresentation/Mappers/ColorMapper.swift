@@ -14,20 +14,22 @@ public final class ColorMapper {
 		guard let color else {
 			return .tertiary
 		}
-			return switch color {
-			case .unknown: .tertiary
-			case .accent: .accent
+		return switch color {
+		case .unknown: .tertiary
+		case .accent: .accent
 
 		case .primary: .primary
 		case .secondary: .secondary
 		case .tertiary: .tertiary
 		case .quaternary: .quaternary
 
-		// MARK: - Accent
+			// MARK: - Accent
 
 		case .red: .red
+		case .coral: .coral
 		case .orange: .orange
 		case .yellow: .yellow
+		case .yellowGreen: .yellowGreen
 		case .green: .green
 		case .mint: .mint
 		case .teal: .teal
@@ -52,11 +54,13 @@ public final class ColorMapper {
 		case .tertiary: .tertiary
 		case .quaternary: .quaternary
 
-		// MARK: - Accent
+			// MARK: - Accent
 
 		case .red: .red
+		case .coral: .coral
 		case .orange: .orange
 		case .yellow: .yellow
+		case .yellowGreen: .yellowGreen
 		case .green: .green
 		case .mint: .mint
 		case .teal: .teal

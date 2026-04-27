@@ -52,6 +52,23 @@
         }
       }
     },
+    "coral-display-name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coral"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коралловый"
+          }
+        }
+      }
+    },
     "cyan-display-name" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -337,6 +354,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Желтый"
+          }
+        }
+      }
+    },
+    "yellow-green-display-name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yellow Green"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Желто-зеленый"
           }
         }
       }

@@ -27,7 +27,9 @@ public extension ColorsPalette {
 		[
 			[.accent, .primary, .secondary, .tertiary, .quaternary],
 			[
-				.red, .orange, .yellow, .green,
+				.red, .coral, .orange, .yellow,
+				.yellowGreen,
+				.green,
 				.mint, .teal, .cyan, .blue,
 				.indigo, .purple, .pink, .brown
 			]

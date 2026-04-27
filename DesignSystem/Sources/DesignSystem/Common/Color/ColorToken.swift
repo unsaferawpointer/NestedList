@@ -20,8 +20,10 @@ public enum ColorToken: Int {
 	// MARK: - Accent
 
 	case red = 10
+	case coral = 23
 	case orange = 11
 	case yellow = 12
+	case yellowGreen = 24
 	case green = 13
 	case mint = 14
 	case teal = 15
@@ -65,10 +67,14 @@ public extension ColorToken {
 			String(localized: "disabled-text-display-name", table: "ColorLocalizable", bundle: .module)
 		case .red:
 			String(localized: "red-display-name", table: "ColorLocalizable", bundle: .module)
+		case .coral:
+			String(localized: "coral-display-name", table: "ColorLocalizable", bundle: .module)
 		case .orange:
 			String(localized: "orange-display-name", table: "ColorLocalizable", bundle: .module)
 		case .yellow:
 			String(localized: "yellow-display-name", table: "ColorLocalizable", bundle: .module)
+		case .yellowGreen:
+			String(localized: "yellow-green-display-name", table: "ColorLocalizable", bundle: .module)
 		case .green:
 			String(localized: "green-display-name", table: "ColorLocalizable", bundle: .module)
 		case .mint:
@@ -121,10 +127,22 @@ public extension ColorToken {
 			return .systemYellow
 		case .red:
 			return .systemRed
+		case .coral:
+			return NSColor(name: nil) { appearance in
+				appearance.name == .darkAqua
+				? NSColor(red: 1.0, green: 118.0 / 255.0, blue: 72.0 / 255.0, alpha: 1.0)
+				: NSColor(red: 1.0, green: 105.0 / 255.0, blue: 64.0 / 255.0, alpha: 1.0)
+			}
 		case .orange:
 			return .systemOrange
 		case .green:
 			return .systemGreen
+		case .yellowGreen:
+			return NSColor(name: nil) { appearance in
+				appearance.name == .darkAqua
+				? NSColor(red: 180.0 / 255.0, green: 224.0 / 255.0, blue: 64.0 / 255.0, alpha: 1.0)
+				: NSColor(red: 164.0 / 255.0, green: 211.0 / 255.0, blue: 48.0 / 255.0, alpha: 1.0)
+			}
 		case .mint:
 			return .systemMint
 		case .teal:
@@ -186,10 +204,22 @@ public extension ColorToken {
 			return .systemYellow
 		case .red:
 			return .systemRed
+		case .coral:
+			return UIColor { traits in
+				traits.userInterfaceStyle == .dark
+				? UIColor(red: 1.0, green: 118.0 / 255.0, blue: 72.0 / 255.0, alpha: 1.0)
+				: UIColor(red: 1.0, green: 105.0 / 255.0, blue: 64.0 / 255.0, alpha: 1.0)
+			}
 		case .orange:
 			return .systemOrange
 		case .green:
 			return .systemGreen
+		case .yellowGreen:
+			return UIColor { traits in
+				traits.userInterfaceStyle == .dark
+				? UIColor(red: 180.0 / 255.0, green: 224.0 / 255.0, blue: 64.0 / 255.0, alpha: 1.0)
+				: UIColor(red: 164.0 / 255.0, green: 211.0 / 255.0, blue: 48.0 / 255.0, alpha: 1.0)
+			}
 		case .mint:
 			return .systemMint
 		case .teal:

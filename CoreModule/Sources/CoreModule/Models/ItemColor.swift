@@ -18,8 +18,10 @@ public enum ItemColor {
 	// MARK: - Accent
 
 	case red
+	case coral
 	case orange
 	case yellow
+	case yellowGreen
 	case green
 	case mint
 	case teal
@@ -43,8 +45,10 @@ extension ItemColor: RawRepresentable {
 		case 4: self = .tertiary
 		case 5: self = .quaternary
 		case 10: self = .red
+		case 23: self = .coral
 		case 11: self = .orange
 		case 12: self = .yellow
+		case 24: self = .yellowGreen
 		case 13: self = .green
 		case 14: self = .mint
 		case 15: self = .teal
@@ -66,8 +70,10 @@ extension ItemColor: RawRepresentable {
 		case .tertiary: 4
 		case .quaternary: 5
 		case .red: 10
+		case .coral: 23
 		case .orange: 11
 		case .yellow: 12
+		case .yellowGreen: 24
 		case .green: 13
 		case .mint: 14
 		case .teal: 15
@@ -99,8 +105,10 @@ extension ItemColor: CaseIterable {
 			.tertiary,
 			.quaternary,
 			.red,
+			.coral,
 			.orange,
 			.yellow,
+			.yellowGreen,
 			.green,
 			.mint,
 			.teal,
