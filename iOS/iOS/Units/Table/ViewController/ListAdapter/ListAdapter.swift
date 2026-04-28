@@ -78,6 +78,10 @@ extension ListAdapter {
 		manager.collapseAll()
 	}
 
+	func selectAll() {
+		manager.selectAll()
+	}
+
 	var isEmpty: Bool {
 		manager.isEmpty
 	}

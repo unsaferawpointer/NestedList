@@ -192,6 +192,8 @@ extension ContentPresenter: InteractionDelegate {
 			interactor?.setStatus(newValue, for: currentSelection ?? [], moveToEnd: moveToEnd)
 		case .select:
 			editingMode = .selection
+		case .selectAll:
+			view?.selectAll()
 		case .reorder:
 			editingMode = .reordering
 		case .settings:

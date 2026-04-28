@@ -80,6 +80,10 @@ extension NestedList {
 		adapter?.collapseAll()
 	}
 
+	func selectAll() {
+		adapter?.selectAll()
+	}
+
 }
 
 // MARK: - Helpers

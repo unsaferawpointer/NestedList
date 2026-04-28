@@ -19,6 +19,7 @@ protocol ContentView: AnyObject {
 	func expand(_ id: UUID)
 	func expandAll()
 	func collapseAll()
+	func selectAll()
 
 	var selection: [UUID] { get }
 }

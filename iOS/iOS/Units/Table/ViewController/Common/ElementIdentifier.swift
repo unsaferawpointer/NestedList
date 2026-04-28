@@ -22,6 +22,7 @@ enum ElementIdentifier: String {
 	case color
 
 	case select
+	case selectAll
 	case reorder
 	case settings
 	case done

@@ -92,6 +92,20 @@ extension ListManager {
 		storage.collapseAll()
 	}
 
+	func selectAll() {
+		guard editingMode == .selection, storage.count > 0 else {
+			return
+		}
+		for row in 0..<storage.count {
+			tableView.selectRow(
+				at: .init(row: row, section: 0),
+				animated: false,
+				scrollPosition: .none
+			)
+		}
+		delegate?.listDidChangeSelection(ids: selection)
+	}
+
 	var isEmpty: Bool {
 		storage.isEmpty
 	}

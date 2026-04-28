@@ -206,19 +206,24 @@ extension ToolbarFactory {
 			)
 		]
 
-		return switch editingMode {
-		case .selection:
-			[
-				.init(id: "", title: "", content: .flexible),
-				.init(id: "", title: "", content: .status(text: statusTitle)),
-				.init(id: "", title: "", content: .flexible),
-				.init(
-					id: ElementIdentifier.delete.rawValue,
-					title: "",
-					icon: "ellipsis",
-					content: .menu(items: items),
-					isEnabled: !isEmpty
-				)
+			return switch editingMode {
+			case .selection:
+				[
+					.init(
+						id: ElementIdentifier.selectAll.rawValue,
+						title: localization.selectAllItemTitle,
+						isEnabled: true
+					),
+					.init(id: "", title: "", content: .flexible),
+					.init(id: "", title: "", content: .status(text: statusTitle)),
+					.init(id: "", title: "", content: .flexible),
+					.init(
+						id: ElementIdentifier.delete.rawValue,
+						title: "",
+						icon: "ellipsis",
+						content: .menu(items: items),
+						isEnabled: !isEmpty
+					)
 			]
 		case .reordering:
 			[.init(id: "", title: "", content: .flexible)]

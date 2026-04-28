@@ -127,6 +127,10 @@ extension TableViewController: ContentView {
 		nestedList.collapseAll()
 	}
 
+	func selectAll() {
+		nestedList.selectAll()
+	}
+
 }
 
 // MARK: - Helpers
