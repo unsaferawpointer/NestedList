@@ -35,6 +35,23 @@
         }
       }
     },
+    "cancel-action-title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отмена"
+          }
+        }
+      }
+    },
     "marking-behavior-description" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -120,6 +137,142 @@
         }
       }
     },
+    "rating-button-title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rate App"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценить приложение"
+          }
+        }
+      }
+    },
+    "rating-contact-action-title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Write Email"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Написать письмо"
+          }
+        }
+      }
+    },
+    "rating-contact-alert-message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Would you like to contact the developer by email?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Хотите связаться с разработчиком по почте?"
+          }
+        }
+      }
+    },
+    "rating-contact-alert-title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Help Us Improve"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Помогите нам стать лучше"
+          }
+        }
+      }
+    },
+    "rating-dislike-action-title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет"
+          }
+        }
+      }
+    },
+    "rating-like-action-title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yes"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Да"
+          }
+        }
+      }
+    },
+    "rating-like-alert-message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Do you like this app?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вам нравится мое приложение?"
+          }
+        }
+      }
+    },
+    "rating-like-alert-title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rate NestedList"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оцените NestedList"
+          }
+        }
+      }
+    },
     "section-icons-color-title" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -184,6 +337,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Стиль"
+          }
+        }
+      }
+    },
+    "support-section-title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Support"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поддержка"
           }
         }
       }

@@ -99,11 +99,9 @@ extension DocumentViewController: ToolbarSupportable {
 
 	func displayToolbar(top: [UIBarButtonItem], bottom: [UIBarButtonItem], showUndoGroup: Bool) {
 		navigationItem.setRightBarButtonItems(top, animated: true)
-		navigationItem.trailingItemGroups = showUndoGroup
-			? [undoRedoItemGroup, UIBarButtonItemGroup(barButtonItems: top, representativeItem: nil)]
-			: [UIBarButtonItemGroup(barButtonItems: top, representativeItem: nil)]
-
-		toolbarItems = bottom
+		toolbarItems = showUndoGroup
+							? undoRedoItems + bottom
+							: bottom
 	}
 }
 
