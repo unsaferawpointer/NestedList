@@ -7,7 +7,6 @@
 
 import UIKit
 import os.log
-import CoreSettings
 
 @available(iOS 13.0, *)
 class SceneDelegate: UIResponder {

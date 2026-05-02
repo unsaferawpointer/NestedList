@@ -10,7 +10,6 @@ import SwiftUI
 
 import CoreModule
 import CorePresentation
-import CoreSettings
 
 @MainActor
 protocol ContentRouterProtocol {

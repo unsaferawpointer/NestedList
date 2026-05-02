@@ -11,7 +11,6 @@ import UIKit
 import Hierarchy
 import CoreModule
 import DesignSystem
-import CoreSettings
 import CorePresentation
 
 @MainActor

@@ -11,7 +11,6 @@ import OSLog
 
 import CoreModule
 import DesignSystem
-import CoreSettings
 import Hierarchy
 import UniformTypeIdentifiers
 

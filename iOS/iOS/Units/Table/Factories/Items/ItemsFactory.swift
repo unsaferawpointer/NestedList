@@ -9,7 +9,6 @@ import Foundation
 
 import DesignSystem
 import CoreModule
-import CoreSettings
 import CorePresentation
 
 protocol ItemsFactoryProtocol {

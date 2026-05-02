@@ -7,7 +7,6 @@
 
 import AppKit
 import SwiftUI
-import CoreSettings
 import CoreModule
 import DesignSystem
 import CorePresentation

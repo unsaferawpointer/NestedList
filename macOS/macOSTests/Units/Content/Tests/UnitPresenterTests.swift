@@ -10,8 +10,8 @@ import Foundation
 import AppKit
 import Hierarchy
 import CoreModule
-import CoreSettings
 import DesignSystem
+import CorePresentation
 @testable import Nested_List
 
 @MainActor

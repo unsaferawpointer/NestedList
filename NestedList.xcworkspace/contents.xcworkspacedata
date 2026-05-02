@@ -8,9 +8,6 @@
       location = "group:Hierarchy">
    </FileRef>
    <FileRef
-      location = "group:CoreSettings">
-   </FileRef>
-   <FileRef
       location = "group:CoreModule">
    </FileRef>
    <FileRef

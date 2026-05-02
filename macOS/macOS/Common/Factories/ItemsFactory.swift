@@ -10,7 +10,6 @@ import AppKit
 
 import DesignSystem
 import CoreModule
-import CoreSettings
 import CorePresentation
 
 protocol ItemsFactoryProtocol {

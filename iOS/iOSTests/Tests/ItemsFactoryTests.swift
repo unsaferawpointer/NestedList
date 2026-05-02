@@ -8,8 +8,8 @@
 import Testing
 import UIKit
 import CoreModule
-import CoreSettings
 import DesignSystem
+import CorePresentation
 @testable import iOS
 
 struct ItemsFactoryTests {

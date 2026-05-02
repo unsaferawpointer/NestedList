@@ -7,7 +7,7 @@
 
 import AppKit
 import SwiftUI
-import CoreSettings
+import CorePresentation
 
 final class AppRouter: NSObject {
 

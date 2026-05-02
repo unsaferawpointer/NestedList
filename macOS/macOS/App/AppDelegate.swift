@@ -66,7 +66,6 @@ private extension AppDelegate {
 
 import SwiftUI
 import CoreModule
-import CoreSettings
 
 // MARK: - Actions
 extension AppDelegate {
