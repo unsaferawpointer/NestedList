@@ -39,7 +39,7 @@ final class ContentPresenter {
 
 	var toolbarFactory = ToolbarFactory()
 
-	var router: RouterProtocol
+	var router: ContentRouterProtocol
 
 	var localization: UnitLocalizationProtocol = UnitLocalization()
 
@@ -69,7 +69,7 @@ final class ContentPresenter {
 	// MARK: - Initialization
 
 	init(
-		router: RouterProtocol,
+		router: ContentRouterProtocol,
 		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared
 	) {
 		self.router = router

@@ -11,14 +11,14 @@ import DesignSystem
 
 final class ContentUnitAssembly {
 
-	static func build(for root: UUID? = nil, router: RouterProtocol?, storage: DocumentStorage<Content>) -> TableViewController {
+	static func build(for root: UUID? = nil, router: ContentRouterProtocol?, storage: DocumentStorage<Content>) -> TableViewController {
 
 		let interactor = ContentUnitInteractor(root: root, storage: storage)
 
 		return TableViewController(id: root) { viewController in
 
 			let presenter = ContentPresenter(
-				router: router ?? Router(
+				router: router ?? ContentRouter(
 					root: viewController,
 					storage: storage
 				)

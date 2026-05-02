@@ -13,7 +13,7 @@ import CorePresentation
 import CoreSettings
 
 @MainActor
-protocol RouterProtocol {
+protocol ContentRouterProtocol {
 	func showDetails(
 		with model: ItemDetailsView.Model,
 		animateBottomBarItem barItem: String?,
@@ -27,7 +27,7 @@ protocol RouterProtocol {
 	func dismiss()
 }
 
-final class Router {
+final class ContentRouter {
 
 	unowned var root: UIViewController
 
@@ -42,7 +42,7 @@ final class Router {
 }
 
 // MARK: - ContentRouterProtocol
-extension Router: RouterProtocol {
+extension ContentRouter: ContentRouterProtocol {
 
 	func showDetails(
 		with model: ItemDetailsView.Model,
