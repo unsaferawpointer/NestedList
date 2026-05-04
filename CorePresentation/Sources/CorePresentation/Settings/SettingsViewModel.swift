@@ -15,8 +15,11 @@ final class SettingsViewModel: ObservableObject {
 
 	var bag: AnyCancellable?
 
+	let provider: SettingsProvider
+
 	init(provider: SettingsProvider) {
 		self.settings = provider.state
+		self.provider = provider
 
 		bag = $settings.sink { value in
 			provider.state = value
@@ -25,5 +28,9 @@ final class SettingsViewModel: ObservableObject {
 		provider.addObservation(for: self) { [weak self] state in
 			self?.settings = state
 		}
+	}
+
+	deinit {
+		provider.removeObserver(self)
 	}
 }
