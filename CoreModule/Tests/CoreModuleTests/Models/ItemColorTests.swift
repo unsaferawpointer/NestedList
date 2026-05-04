@@ -64,6 +64,7 @@ private extension ItemColorTests {
 			(.cyan, 16),
 			(.blue, 17),
 			(.indigo, 18),
+			(.violet, 25),
 			(.purple, 19),
 			(.pink, 20),
 			(.brown, 21)

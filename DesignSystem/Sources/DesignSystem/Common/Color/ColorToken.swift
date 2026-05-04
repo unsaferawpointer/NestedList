@@ -30,6 +30,7 @@ public enum ColorToken: Int {
 	case cyan = 16
 	case blue = 17
 	case indigo = 18
+	case violet = 25
 	case purple = 19
 	case pink = 20
 	case brown = 21
@@ -87,6 +88,8 @@ public extension ColorToken {
 			String(localized: "blue-display-name", table: "ColorLocalizable", bundle: .module)
 		case .indigo:
 			String(localized: "indigo-display-name", table: "ColorLocalizable", bundle: .module)
+		case .violet:
+			String(localized: "violet-display-name", table: "ColorLocalizable", bundle: .module)
 		case .purple:
 			String(localized: "purple-display-name", table: "ColorLocalizable", bundle: .module)
 		case .pink:
@@ -153,6 +156,12 @@ public extension ColorToken {
 			return .systemBlue
 		case .indigo:
 			return .systemIndigo
+		case .violet:
+			return NSColor(name: nil) { appearance in
+				appearance.name == .darkAqua
+				? NSColor(red: 130.0 / 255.0, green: 94.0 / 255.0, blue: 245.0 / 255.0, alpha: 1.0)
+				: NSColor(red: 112.0 / 255.0, green: 86.0 / 255.0, blue: 236.0 / 255.0, alpha: 1.0)
+			}
 		case .purple:
 			return .systemPurple
 		case .pink:
@@ -230,6 +239,12 @@ public extension ColorToken {
 			return .systemBlue
 		case .indigo:
 			return .systemIndigo
+		case .violet:
+			return UIColor { traits in
+				traits.userInterfaceStyle == .dark
+					? UIColor(red: 130.0 / 255.0, green: 94.0 / 255.0, blue: 245.0 / 255.0, alpha: 1.0)
+					: UIColor(red: 112.0 / 255.0, green: 86.0 / 255.0, blue: 236.0 / 255.0, alpha: 1.0)
+			}
 		case .purple:
 			return .systemPurple
 		case .pink:

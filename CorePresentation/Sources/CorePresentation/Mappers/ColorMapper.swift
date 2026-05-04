@@ -15,30 +15,31 @@ public final class ColorMapper {
 			return .tertiary
 		}
 		return switch color {
-		case .unknown: .tertiary
-		case .accent: .accent
+		case .unknown: 		.tertiary
+		case .accent: 		.accent
 
-		case .primary: .primary
-		case .secondary: .secondary
-		case .tertiary: .tertiary
-		case .quaternary: .quaternary
+		case .primary: 		.primary
+		case .secondary: 	.secondary
+		case .tertiary: 	.tertiary
+		case .quaternary: 	.quaternary
 
 			// MARK: - Accent
 
-		case .red: .red
-		case .coral: .coral
-		case .orange: .orange
-		case .yellow: .yellow
-		case .yellowGreen: .yellowGreen
-		case .green: .green
-		case .mint: .mint
-		case .teal: .teal
-		case .cyan: .cyan
-		case .blue: .blue
-		case .indigo: .indigo
-		case .purple: .purple
-		case .pink: .pink
-		case .brown: .brown
+		case .red: 			.red
+		case .coral: 		.coral
+		case .orange: 		.orange
+		case .yellow: 		.yellow
+		case .yellowGreen: 	.yellowGreen
+		case .green: 		.green
+		case .mint: 		.mint
+		case .teal: 		.teal
+		case .cyan: 		.cyan
+		case .blue: 		.blue
+		case .indigo: 		.indigo
+		case .violet: 		.violet
+		case .purple: 		.purple
+		case .pink: 		.pink
+		case .brown: 		.brown
 		}
 	}
 
@@ -47,31 +48,32 @@ public final class ColorMapper {
 			return nil
 		}
 		return switch token {
-		case .accent: .accent
+		case .accent: 		.accent
 
-		case .primary: .primary
-		case .secondary: .secondary
-		case .tertiary: .tertiary
-		case .quaternary: .quaternary
+		case .primary: 		.primary
+		case .secondary: 	.secondary
+		case .tertiary: 	.tertiary
+		case .quaternary: 	.quaternary
 
 			// MARK: - Accent
 
-		case .red: .red
-		case .coral: .coral
-		case .orange: .orange
-		case .yellow: .yellow
-		case .yellowGreen: .yellowGreen
-		case .green: .green
-		case .mint: .mint
-		case .teal: .teal
-		case .cyan: .cyan
-		case .blue: .blue
-		case .indigo: .indigo
-		case .purple: .purple
-		case .pink: .pink
-		case .brown: .brown
+		case .red: 			.red
+		case .coral: 		.coral
+		case .orange: 		.orange
+		case .yellow: 		.yellow
+		case .yellowGreen: 	.yellowGreen
+		case .green: 		.green
+		case .mint: 		.mint
+		case .teal: 		.teal
+		case .cyan: 		.cyan
+		case .blue: 		.blue
+		case .indigo: 		.indigo
+		case .violet: 		.violet
+		case .purple: 		.purple
+		case .pink: 		.pink
+		case .brown: 		.brown
 
-		default:	nil
+		default:			nil
 		}
 	}
 }

@@ -31,7 +31,7 @@ public extension ColorsPalette {
 				.yellowGreen,
 				.green,
 				.mint, .teal, .cyan, .blue,
-				.indigo, .purple, .pink, .brown
+				.indigo, .violet, .purple, .pink, .brown
 			]
 		]
 	}
