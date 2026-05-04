@@ -26,7 +26,7 @@ extension DocumentPage {
 	}
 
 	func tapAddButton() {
-		let button = window.buttons.matching(identifier: "toolbar-item-add").firstMatch
+		let button = window.buttons.matching(identifier: "create-new-item").firstMatch
 		if button.waitForExistence(timeout: 2) {
 			button.tap()
 		} else {

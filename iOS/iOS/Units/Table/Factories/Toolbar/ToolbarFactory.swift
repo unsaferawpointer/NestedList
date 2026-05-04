@@ -152,18 +152,18 @@ extension ToolbarFactory {
 					size: .automatic,
 					items:
 						[
-								.init(
-									id: ElementIdentifier.icon.rawValue,
-									title: localization.iconItemTitle,
-									icon: "photo",
-									content: .item(state: .off, attributes: [])
-								),
-								.init(
-									id: ElementIdentifier.color.rawValue,
-									title: localization.colorItemTitle,
-									icon: "paintpalette",
-									content: .item(state: .off, attributes: [])
-								)
+							.init(
+								id: ElementIdentifier.icon.rawValue,
+								title: localization.iconItemTitle,
+								icon: "photo",
+								content: .item(state: .off, attributes: [])
+							),
+							.init(
+								id: ElementIdentifier.color.rawValue,
+								title: localization.colorItemTitle,
+								icon: "paintpalette",
+								content: .item(state: .off, attributes: [])
+							)
 						]
 				)
 			),
@@ -174,23 +174,23 @@ extension ToolbarFactory {
 					size: .automatic,
 					items:
 						[
-								.init(
-									id: ElementIdentifier.move.rawValue,
-									title: localization.moveItemTitle,
-									icon: "arrow.left.arrow.right",
-									content: .item(state: .off, attributes: [])
-								)
+							.init(
+								id: ElementIdentifier.move.rawValue,
+								title: localization.moveItemTitle,
+								icon: "arrow.left.arrow.right",
+								content: .item(state: .off, attributes: [])
+							)
 						]
 				)
 			),
-				.init(
-					id: ElementIdentifier.strikethrough.rawValue,
-					title: localization.strikethroughItemTitle,
-					content: .item(state: isCompleted.state, attributes: [])
-				),
-				.init(
-					id: "",
-					content: .menu(
+			.init(
+				id: ElementIdentifier.strikethrough.rawValue,
+				title: localization.strikethroughItemTitle,
+				content: .item(state: isCompleted.state, attributes: [])
+			),
+			.init(
+				id: "",
+				content: .menu(
 					options: .inline,
 					size: .large,
 					items:
@@ -206,24 +206,24 @@ extension ToolbarFactory {
 			)
 		]
 
-			return switch editingMode {
-			case .selection:
-				[
-					.init(
-						id: ElementIdentifier.selectAll.rawValue,
-						title: localization.selectAllItemTitle,
-						isEnabled: true
-					),
-					.init(id: "", title: "", content: .flexible),
-					.init(id: "", title: "", content: .status(text: statusTitle)),
-					.init(id: "", title: "", content: .flexible),
-					.init(
-						id: ElementIdentifier.delete.rawValue,
-						title: "",
-						icon: "ellipsis",
-						content: .menu(items: items),
-						isEnabled: !isEmpty
-					)
+		return switch editingMode {
+		case .selection:
+			[
+				.init(
+					id: ElementIdentifier.selectAll.rawValue,
+					title: localization.selectAllItemTitle,
+					isEnabled: true
+				),
+				.init(id: "", title: "", content: .flexible),
+				.init(id: "", title: "", content: .status(text: statusTitle)),
+				.init(id: "", title: "", content: .flexible),
+				.init(
+					id: ElementIdentifier.delete.rawValue,
+					title: "",
+					icon: "ellipsis",
+					content: .menu(items: items),
+					isEnabled: !isEmpty
+				)
 			]
 		case .reordering:
 			[.init(id: "", title: "", content: .flexible)]
