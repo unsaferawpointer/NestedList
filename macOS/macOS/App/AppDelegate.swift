@@ -9,21 +9,19 @@ import Cocoa
 import DesignSystem
 
 @main
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject {
+	@MainActor private var coordinator = ClobalCoordinator()
+}
 
-	var onboardingWindow: NSWindow?
-	private let appRouter = AppRouter()
-
-	var importCoordinator: ImportCoordinator?
+// MARK: - NSApplicationDelegate
+extension AppDelegate: NSApplicationDelegate {
 
 	func applicationDidFinishLaunching(_ aNotification: Notification) {
 		prepareMenu()
-		showOnboardingIfNeeded()
+		coordinator.start()
 	}
 
-	func applicationWillTerminate(_ aNotification: Notification) {
-		// Insert code here to tear down your application
-	}
+	func applicationWillTerminate(_ aNotification: Notification) { }
 
 	func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
 		#if DEBUG
@@ -58,26 +56,18 @@ private extension AppDelegate {
 			menu.insertItem(item, at: 3)
 		}
 	}
-
-	func showOnboardingIfNeeded() {
-		appRouter.showOnboardingIfNeeded()
-	}
 }
-
-import SwiftUI
-import CoreModule
 
 // MARK: - Actions
 extension AppDelegate {
 
 	@IBAction
 	func importFile(_ sender: Any) {
-		importCoordinator = ImportCoordinator()
-		importCoordinator?.start()
+		coordinator.importFile()
 	}
 
 	@IBAction
 	func showPreferences(_ sender: Any) {
-		appRouter.showPreferences()
+		coordinator.showPreferences()
 	}
 }

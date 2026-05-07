@@ -14,7 +14,7 @@ import CorePresentation
 final class OnboardingAssembly {
 
 	static func build(settingsProvider: SettingsProvider) -> UIViewController? {
-		guard let appVersion = AppFacade.version() else {
+		guard let appVersion = AppInfo().version else {
 			return nil
 		}
 

@@ -16,7 +16,7 @@ public struct Version {
 
 	// MARK: - Initialization block
 
-	init(major: Int, minor: Int = 0, patch: Int = 0) {
+	public init(major: Int, minor: Int = 0, patch: Int = 0) {
 		self.major = major
 		self.minor = minor
 		self.patch = patch

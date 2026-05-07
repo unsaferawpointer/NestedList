@@ -13,20 +13,8 @@ import CorePresentation
 
 final class OnboardingAssembly {
 
-	static func build(settingsProvider: SettingsProvider) -> NSWindow? {
-		guard let appVersion = AppFacade.version() else {
-			return nil
-		}
-
-		guard let lastOnboardingVersion = settingsProvider.state.lastOnboardingVersion?.version else {
-			return buildWindow(settingsProvider: settingsProvider, version: appVersion)
-		}
-
-		guard lastOnboardingVersion < appVersion else {
-			return nil
-		}
-
-		return buildWindow(settingsProvider: settingsProvider, version: appVersion)
+	static func build(settingsProvider: SettingsProvider, for version: Version) -> NSWindow? {
+		return buildWindow(settingsProvider: settingsProvider, version: version)
 	}
 }
 
