@@ -10,9 +10,7 @@ import os.log
 
 @available(iOS 13.0, *)
 class SceneDelegate: UIResponder {
-
-	var window: UIWindow?
-	var securityScopedURL: URL?
+	private let router = SceneRouter()
 }
 
 // MARK: - UIWindowSceneDelegate
@@ -23,45 +21,13 @@ extension SceneDelegate: UIWindowSceneDelegate {
 		willConnectTo session: UISceneSession,
 		options connectionOptions: UIScene.ConnectionOptions
 	) {
-
-		guard let windowScene = scene as? UIWindowScene else {
-			return
-		}
-		window = UIWindow(windowScene: windowScene)
-		window?.rootViewController = UINavigationController(
-			rootViewController: DocumentViewController(document: nil)
-		)
-		window?.makeKeyAndVisible()
-
-		if let urlContext = connectionOptions.urlContexts.first {
-			handleDocument(url: urlContext.url)
-		}
-
-		if let onboardingViewController = OnboardingAssembly.build(settingsProvider: .shared) {
-			window?.rootViewController?.present(onboardingViewController, animated: true)
-		}
+		router.showWindow(for: scene, options: connectionOptions)
 	}
 
 	func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-		if let urlContext = URLContexts.first {
-			handleDocument(url: urlContext.url)
-		}
-	}
-}
-
-// MARK: - Helpers
-private extension SceneDelegate {
-
-	func handleDocument(url: URL) {
-		guard let root = (window?.rootViewController as? UINavigationController)?.viewControllers.first as? DocumentViewController else {
+		guard let urlContext = URLContexts.first else {
 			return
 		}
-		root.launchOptions.browserViewController.revealDocument(at: url, importIfNeeded: true) { revealedURL, error in
-			guard let revealedURL else {
-				return
-			}
-			root.document = Document(fileURL: revealedURL)
-		}
+		router.handleDocument(url: urlContext.url)
 	}
-
 }
