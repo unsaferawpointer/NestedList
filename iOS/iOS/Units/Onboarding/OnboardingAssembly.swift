@@ -13,27 +13,21 @@ import CorePresentation
 
 final class OnboardingAssembly {
 
-	static func build(settingsProvider: SettingsProvider) -> UIViewController? {
-		guard let appVersion = AppInfo().version else {
-			return nil
-		}
-
-		guard let lastOnboardingVersion = settingsProvider.state.lastOnboardingVersion?.version else {
-			return buildViewController(settingsProvider: settingsProvider, version: appVersion)
-		}
-
-		guard lastOnboardingVersion < appVersion else {
-			return nil
-		}
-
-		return buildViewController(settingsProvider: settingsProvider, version: appVersion)
+	static func build(
+		settingsProvider: any StateProviderProtocol<Settings>,
+		for version: Version
+	) -> UIViewController? {
+		return buildViewController(settingsProvider: settingsProvider, version: version)
 	}
 }
 
 // MARK: - Helpers
 private extension OnboardingAssembly {
 
-	static func buildViewController(settingsProvider: SettingsProvider, version: Version) -> UIViewController? {
+	static func buildViewController(
+		settingsProvider: any StateProviderProtocol<Settings>,
+		version: Version
+	) -> UIViewController? {
 		guard let pages = try? OnboardingFactory.build(for: version) else {
 			return nil
 		}

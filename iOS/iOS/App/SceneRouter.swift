@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import CoreModule
+import CorePresentation
 
 final class SceneRouter {
 	private var window: UIWindow?
@@ -27,10 +29,16 @@ extension SceneRouter {
 		if let urlContext = connectionOptions.urlContexts.first {
 			handleDocument(url: urlContext.url)
 		}
+	}
 
-		if let onboardingViewController = OnboardingAssembly.build(settingsProvider: .shared) {
-			window?.rootViewController?.present(onboardingViewController, animated: true)
+	func showOnboarding(for version: Version, settingsProvider: any StateProviderProtocol<Settings>) {
+		guard let viewController = OnboardingAssembly.build(
+			settingsProvider: settingsProvider,
+			for: version
+		) else {
+			return
 		}
+		window?.rootViewController?.present(viewController, animated: true)
 	}
 
 	func handleDocument(url: URL) {
