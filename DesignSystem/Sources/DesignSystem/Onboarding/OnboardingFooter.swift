@@ -83,6 +83,9 @@ struct OnboardingFooter: View {
 					.frame(maxWidth: .infinity)
 			}
 			.buttonStyle(.borderedProminent)
+			.buttonBorderShape(.capsule)
+			.tint(.primary)
+			.foregroundStyle(.background)
 			.controlSize(.large)
 			Button {
 				secondaryAction?()
@@ -91,6 +94,7 @@ struct OnboardingFooter: View {
 					.frame(maxWidth: .infinity)
 			}
 			.buttonStyle(.borderless)
+			.foregroundStyle(.primary)
 			.controlSize(.large)
 		}
 	}
@@ -98,5 +102,5 @@ struct OnboardingFooter: View {
 #endif
 
 #Preview {
-	OnboardingFooter(state: .constant(.init(pages: [.newFormat, .customization])))
+	OnboardingFooter(state: .constant(.init(pages: [.newFormat])))
 }

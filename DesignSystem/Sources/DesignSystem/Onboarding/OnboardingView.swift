@@ -32,16 +32,16 @@ extension OnboardingView: View {
 	public var body: some View {
 		VStack {
 			TabView(selection: $state.currentPage) {
-				ForEach(0..<state.pages.count) { pageIndex in
-					VStack {
-						OnboadringHeader(page: state.page)
-						OnboardingBody(features: state.features)
-							.padding(24)
-					}
+				ForEach(0..<state.features.count) { pageIndex in
+					PageView(
+						systemName: state.feature.icon,
+						title: state.feature.title,
+						description: state.feature.description
+					)
 					.tag(pageIndex)
 				}
 			}
-			.tabViewStyle(.page(indexDisplayMode: .automatic))
+			.tabViewStyle(.page(indexDisplayMode: .never))
 			OnboardingFooter(state: $state) {
 				dismiss()
 				onComplete?()
@@ -51,6 +51,7 @@ extension OnboardingView: View {
 			}
 			.padding()
 		}
+		.ignoresSafeArea(edges: .all)
 	}
 }
 #elseif os(macOS)
@@ -59,20 +60,16 @@ extension OnboardingView: View {
 
 	public var body: some View {
 		VStack(spacing: 0) {
-			VStack {
-				OnboadringHeader(page: state.page)
-					.frame(width: 540)
-				Spacer(minLength: 24)
-				OnboardingBody(features: state.page.features)
-					.padding(.horizontal)
-					.frame(width: 540)
-				Spacer(minLength: 24)
-			}
+			PageView(
+				systemName: state.feature.icon,
+				title: state.feature.title,
+				description: state.feature.description
+			)
 			.id(state.id)
 			.transition(
 				.asymmetric(insertion: .opacity, removal: .opacity)
 			)
-
+			Spacer(minLength: 16)
 			Divider()
 
 			OnboardingFooter(state: $state) {
@@ -109,25 +106,25 @@ extension OnboardingView: View {
 
 struct OnboardingState {
 
-	var pages: [Page]
+	var features: [Feature]
 
 	var currentPage: Int
 
-	init(pages: [Page] = [.newFormat, .customization]) {
+	init(pages: [Page]) {
 		assert(!pages.isEmpty, "Pages list is empty")
-		self.pages = pages
+		self.features = pages.flatMap { $0.features }
 		self.currentPage = 0
 	}
 }
 
 extension OnboardingState {
 
-	var page: Page {
-		return pages[currentPage]
+	var feature: Feature {
+		return features[currentPage]
 	}
 
 	func canNext() -> Bool {
-		currentPage < pages.count - 1
+		currentPage < features.count - 1
 	}
 
 	func canBack() -> Bool {
@@ -135,27 +132,19 @@ extension OnboardingState {
 	}
 
 	var pageTitle: String {
-		return pages[currentPage].title
+		return features[currentPage].title
 	}
 
 	var pageDescription: String {
-		return pages[currentPage].description
-	}
-
-	var features: [Feature] {
-		return pages[currentPage].features
+		return features[currentPage].description
 	}
 
 	var id: String {
-		return pages[currentPage].id
-	}
-
-	var image: String {
-		return pages[currentPage].image
+		return features[currentPage].id
 	}
 
 	mutating func performPrimaryAction() {
-		if currentPage < pages.count - 1 {
+		if currentPage < features.count - 1 {
 			withAnimation {
 				currentPage += 1
 			}
@@ -200,32 +189,6 @@ extension Page {
 					iconColor: .primary,
 					title: "Exclusive Features",
 					description: "Advanced functionality only available in the new format"
-				)
-			]
-	)
-
-	static let customization = Page(
-		id: "customization",
-		image: "slider.horizontal.2.square.on.square",
-		iconColor: .cyan,
-		title: "Redesigned Icons",
-		description: "Customize App Appearance",
-		features:
-			[
-				.init(
-					icon: "arrow.down.document",
-					title: "Unique Icons for Each Section",
-					description: "Assign distinct icons to different categories"
-				),
-				.init(
-					icon: "arrow.up.document",
-					title: "Multiple Display Styles",
-					description: "Choose the visual style that suits you best"
-				),
-				.init(
-					icon: "sparkles",
-					title: "Seamless Theme Adaptation",
-					description: "Icons automatically adjust to light/dark mode"
 				)
 			]
 	)
