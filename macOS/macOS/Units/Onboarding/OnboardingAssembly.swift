@@ -26,7 +26,7 @@ private extension OnboardingAssembly {
 		let window = NSWindow()
 		window.identifier = .init("onboarding-window")
 
-		guard let features = try? OnboardingFactory.build(for: version) else {
+		guard let features = try? OnboardingFactory.build(for: version), !features.isEmpty else {
 			return nil
 		}
 		let view = OnboardingView(features: features) {

@@ -16,12 +16,43 @@ extension OnboardingFactory {
 	static func build(for version: Version) throws -> [Feature]? {
 		let bundle = Bundle.main
 		guard
-			let path = bundle.url(forResource: version.rawValue, withExtension: "json"),
+			let path = resourceURL(for: version, in: bundle),
 			let data = try? Data(contentsOf: path)
 		else {
 			return nil
 		}
 
-		return try JSONDecoder().decode([Feature].self, from: data)
+		let features = try JSONDecoder().decode([Feature].self, from: data)
+		let filtered = filter(features: features, for: version)
+		guard !filtered.isEmpty else {
+			return nil
+		}
+		return filtered
+	}
+}
+
+// MARK: - Helpers
+private extension OnboardingFactory {
+
+	static func resourceURL(for version: Version, in bundle: Bundle) -> URL? {
+		return bundle.url(forResource: "onboarding", withExtension: "json")
+	}
+
+	static func filter(features: [Feature], for version: Version) -> [Feature] {
+		return features.filter { feature in
+			isSupported(feature: feature, for: version)
+		}
+	}
+
+	static func isSupported(feature: Feature, for version: Version) -> Bool {
+		if let minVersion = feature.minVersion, let min = Version(rawValue: minVersion), version < min {
+			return false
+		}
+
+		if let maxVersion = feature.maxVersion, let max = Version(rawValue: maxVersion), version > max {
+			return false
+		}
+
+		return true
 	}
 }

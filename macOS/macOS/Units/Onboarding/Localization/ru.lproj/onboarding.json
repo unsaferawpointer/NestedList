@@ -1,0 +1,47 @@
+[
+	{
+		"icon": "exclamationmark.triangle.fill",
+		"iconColor": 11,
+		"title": "Важное изменение",
+		"id": "warning_note",
+		"description": "Старые .txt файлы теперь можно открывать только через импорт",
+		"minVersion": "1.5.0",
+		"maxVersion": "1.5.0"
+	},
+	{
+		"icon": "sparkles",
+		"iconColor": 12,
+		"title": "Новые возможности",
+		"id": "premium_features",
+		"description": "Настраиваемые иконки разделов и улучшенная организация",
+		"minVersion": "1.5.0",
+		"maxVersion": "1.5.0"
+	},
+	{
+		"icon": "arrow.triangle.2.circlepath",
+		"iconColor": 16,
+		"title": "Переход на новый формат документа",
+		"id": "document_format_update",
+		"description": "Пожалуйста, обновите приложение до последней версии на всех платформах, чтобы документы корректно открывались везде.",
+		"minVersion": "2.0.0",
+		"maxVersion": "2.0.0"
+	},
+	{
+		"icon": "list.bullet.indent",
+		"iconColor": 17,
+		"title": "Отказ от стиля секции",
+		"id": "section_style_removed",
+		"description": "Мы отказались от стиля секции. Теперь он автоматически применяется к пунктам, у которых есть подпункты.",
+		"minVersion": "2.0.0",
+		"maxVersion": "2.0.0"
+	},
+	{
+		"icon": "paintpalette.fill",
+		"iconColor": 18,
+		"title": "Цвет и иконка для каждого пункта",
+		"id": "item_color_icon",
+		"description": "Теперь для каждого пункта можно отдельно настроить и цвет, и иконку.",
+		"minVersion": "2.0.0",
+		"maxVersion": "2.0.0"
+	}
+]

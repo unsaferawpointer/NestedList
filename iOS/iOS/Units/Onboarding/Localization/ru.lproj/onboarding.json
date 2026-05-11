@@ -1,0 +1,74 @@
+[
+	{
+		"icon": "arrow.down.doc",
+		"title": "Простое преобразование",
+		"iconColor": 3,
+		"id": "8320D5B3-7C3F-4FD0-900D-499CD71D52A4",
+		"description": "Импортируйте старые TXT-файлы в один клик",
+		"minVersion": "1.5.0",
+		"maxVersion": "1.5.0"
+	},
+	{
+		"description": "Расширенные функции доступны только в новом формате",
+		"icon": "sparkles",
+		"iconColor": 12,
+		"title": "Эксклюзивные возможности",
+		"id": "4E625C7B-0EB1-4ACD-B225-65867E5571BB",
+		"minVersion": "1.5.0",
+		"maxVersion": "1.5.0"
+	},
+	{
+		"icon": "arrow.triangle.2.circlepath",
+		"iconColor": 16,
+		"title": "Переход на новый формат документа",
+		"id": "document_format_update",
+		"description": "Обновите приложение на всех платформах.",
+		"minVersion": "2.0.0",
+		"maxVersion": "2.0.0"
+	},
+	{
+		"icon": "list.bullet.indent",
+		"iconColor": 17,
+		"title": "Отказ от стиля секции",
+		"id": "section_style_removed",
+		"description": "Стиль секции теперь применяется автоматически к пунктам с подпунктами.",
+		"minVersion": "2.0.0",
+		"maxVersion": "2.0.0"
+	},
+	{
+		"icon": "paintpalette.fill",
+		"iconColor": 18,
+		"title": "Цвет и иконка для каждого пункта",
+		"id": "item_color_icon",
+		"description": "Для каждого пункта можно настроить цвет и иконку.",
+		"minVersion": "2.0.0",
+		"maxVersion": "2.0.0"
+	},
+	{
+		"icon": "pad.header",
+		"iconColor": 2,
+		"title": "Новые пикеры иконки и цвета",
+		"id": "icon_color_pickers",
+		"description": "Открываются из контекстного меню.",
+		"minVersion": "2.1.0",
+		"maxVersion": "2.1.0"
+	},
+	{
+		"icon": "circle.lefthalf.filled",
+		"iconColor": 2,
+		"title": "Цвета для светлой и темной темы",
+		"id": "light_dark_colors",
+		"description": "Цвета теперь показываются для обеих тем.",
+		"minVersion": "2.1.0",
+		"maxVersion": "2.1.0"
+	},
+	{
+		"icon": "hand.point.up.left.and.text.fill",
+		"iconColor": 2,
+		"title": "Более компактное контекстное меню",
+		"id": "compact_context_menu",
+		"description": "Действия сгруппированы в сабменю.",
+		"minVersion": "2.1.0",
+		"maxVersion": "2.1.0"
+	}
+]

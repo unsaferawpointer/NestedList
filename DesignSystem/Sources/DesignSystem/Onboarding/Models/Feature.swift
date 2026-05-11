@@ -15,6 +15,8 @@ public struct Feature {
 	let iconColor: ColorToken?
 	let title: String
 	let description: String
+	public let minVersion: String?
+	public let maxVersion: String?
 
 	// MARK: - Initialization
 
@@ -23,13 +25,17 @@ public struct Feature {
 		icon: String,
 		iconColor: ColorToken? = .accent,
 		title: String,
-		description: String
+		description: String,
+		minVersion: String? = nil,
+		maxVersion: String? = nil
 	) {
 		self.id = id
 		self.icon = icon
 		self.title = title
 		self.description = description
 		self.iconColor = iconColor
+		self.minVersion = minVersion
+		self.maxVersion = maxVersion
 	}
 }
 
