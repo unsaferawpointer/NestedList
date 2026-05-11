@@ -28,13 +28,12 @@ private extension OnboardingAssembly {
 		settingsProvider: any StateProviderProtocol<Settings>,
 		version: Version
 	) -> UIViewController? {
-		guard let pages = try? OnboardingFactory.build(for: version) else {
+		guard let features = try? OnboardingFactory.build(for: version) else {
 			return nil
 		}
-		let view = OnboardingView(pages: pages) {
+		let view = OnboardingView(features: features) {
 			settingsProvider.state.lastOnboardingVersion = .init(rawValue: version.rawValue)
 		}
 		return UIHostingController(rootView: view)
 	}
 }
-

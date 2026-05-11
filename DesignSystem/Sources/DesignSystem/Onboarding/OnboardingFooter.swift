@@ -87,6 +87,7 @@ struct OnboardingFooter: View {
 			.tint(.primary)
 			.foregroundStyle(.background)
 			.controlSize(.large)
+
 			Button {
 				secondaryAction?()
 			} label: {
@@ -102,5 +103,5 @@ struct OnboardingFooter: View {
 #endif
 
 #Preview {
-	OnboardingFooter(state: .constant(.init(pages: [.newFormat])))
+	OnboardingFooter(state: .constant(.init(features: .newFormat)))
 }

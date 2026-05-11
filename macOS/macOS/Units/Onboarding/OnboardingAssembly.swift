@@ -26,10 +26,10 @@ private extension OnboardingAssembly {
 		let window = NSWindow()
 		window.identifier = .init("onboarding-window")
 
-		guard let pages = try? OnboardingFactory.build(for: version) else {
+		guard let features = try? OnboardingFactory.build(for: version) else {
 			return nil
 		}
-		let view = OnboardingView(pages: pages) {
+		let view = OnboardingView(features: features) {
 			settingsProvider.state.lastOnboardingVersion = .init(rawValue: version.rawValue)
 
 			guard NSApp.modalWindow === window && NSApp.modalWindow?.isVisible ?? false else {

@@ -12,38 +12,25 @@ import CoreModule
 struct OnboardingFactoryTests {
 
 	@Test func buildForV1_5_0() throws {
-		// Arrange
-		let sut = OnboardingFactory()
-
-		let item = Item(
-			uuid: .random,
-			text: .random,
-			note: .random
-		)
-
 		guard let version = Version(rawValue: "1.5.0") else {
 			Issue.record("Cant init version")
 			return
 		}
 
-		// Act
 		let result = try OnboardingFactory.build(for: version)
-		#expect(result?.count == 3)
 
+		#expect(result?.count == 2)
 	}
 
 	@Test func buildForV2_0_0() throws {
-		// Arrange
 		guard let version = Version(rawValue: "2.0.0") else {
 			Issue.record("Cant init version")
 			return
 		}
 
-		// Act
 		let result = try OnboardingFactory.build(for: version)
 
-		// Assert
-		#expect(result?.count == 1)
-		#expect(result?.first?.id == "welcome_2_0_0")
+		#expect(result?.count == 3)
+		#expect(result?.first?.id == "document_format_update")
 	}
 }

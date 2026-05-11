@@ -1,85 +1,16 @@
 [
-  {
-	"title": "Новый формат документов",
-	"description": "Улучшенная работа с файлами",
-	"features": [
-	  {
+	{
 		"icon": "exclamationmark.triangle.fill",
 		"iconColor": 11,
 		"title": "Важное изменение",
 		"id": "warning_note",
 		"description": "Старые .txt файлы теперь можно открывать только через импорт"
-	  },
-	  {
+	},
+	{
 		"icon": "sparkles",
 		"iconColor": 12,
 		"title": "Новые возможности",
 		"id": "premium_features",
 		"description": "Настраиваемые иконки разделов и улучшенная организация"
-	  }
-	],
-	"id": "welcome_page",
-	"image": "square.stack.3d.up.fill",
-	"iconColor": 18
-  },
-  {
-	"title": "Перенос документов",
-	"description": "Преобразование в современный формат",
-	"features": [
-	  {
-		"icon": "1.circle.fill",
-		"iconColor": 14,
-		"title": "Импорт документов",
-		"id": "step1",
-		"description": "Выберите в меню: Файл → Импорт... и укажите .txt файлы"
-	  },
-	  {
-		"icon": "2.circle.fill",
-		"iconColor": 15,
-		"title": "Автоматическое преобразование",
-		"id": "step2",
-		"description": "Приложение создаст новый документ в формате .nlist"
-	  },
-	  {
-		"icon": "checkmark.circle.fill",
-		"iconColor": 13,
-		"title": "Сохранение файла",
-		"id": "step3",
-		"description": "Нажмите ⌘S или выберите Файл → Сохранить, затем укажите имя и расположение"
-	  }
-	],
-	"id": "migration_steps",
-	"image": "arrow.down.doc.fill",
-	"iconColor": 17
-  },
-  {
-	"title": "Настройка разделов",
-	"description": "Расширенные возможности кастомизации",
-	"features": [
-	  {
-		"icon": "photo.on.rectangle",
-		"iconColor": 14,
-		"title": "Выбор иконки",
-		"id": "step1",
-		"description": "Выбирайте символы из библиотеки под ваши задачи"
-	  },
-	  {
-		"icon": "drop.halffull",
-		"iconColor": 15,
-		"title": "Цвет иконки",
-		"id": "step2",
-		"description": "Настраивайте оттенки для выделения важных элементов"
-	  },
-	  {
-		"icon": "exclamationmark.triangle",
-		"iconColor": 12,
-		"title": "Важное примечание",
-		"id": "step3",
-		"description": "Пользовательские цвета иконок отображаются только в режиме «Мультицвет»"
-	  }
-	],
-	"id": "customization",
-	"image": "slider.horizontal.2.square.on.square",
-	"iconColor": 17
-  }
+	}
 ]

@@ -1,84 +1,16 @@
 [
-  {
-	"title": "Новый формат файлов",
-	"description": "Мы улучшили ваш рабочий процесс",
-	"features": [
-	  {
+	{
 		"icon": "arrow.down.doc",
 		"title": "Простое преобразование",
 		"iconColor": 3,
 		"id": "8320D5B3-7C3F-4FD0-900D-499CD71D52A4",
 		"description": "Импортируйте старые TXT-файлы в один клик"
-	  },
-	  {
+	},
+	{
 		"description": "Расширенные функции доступны только в новом формате",
 		"icon": "sparkles",
 		"iconColor": 12,
 		"title": "Эксклюзивные возможности",
 		"id": "4E625C7B-0EB1-4ACD-B225-65867E5571BB"
-	  }
-	],
-	"id": "new_format",
-	"image": "doc.badge.plus"
-  },
-  {
-	"title": "Перенос документов",
-	"description": "Преобразование в современный формат",
-	"features": [
-	  {
-		"icon": "1.circle.fill",
-		"iconColor": 14,
-		"title": "Импорт документов",
-		"id": "step1",
-		"description": "Выберите нужные .txt файлы"
-	  },
-	  {
-		"icon": "2.circle.fill",
-		"iconColor": 15,
-		"title": "Автоматическое преобразование",
-		"id": "step2",
-		"description": "Приложение создаст новый документ в формате .nlist"
-	  },
-	  {
-		"icon": "checkmark.circle.fill",
-		"iconColor": 13,
-		"title": "Завершение",
-		"id": "step3",
-		"description": "Обработанные файлы сохраняются автоматически — исходные файлы можно безопасно удалить"
-	  }
-	],
-	"id": "migration_steps",
-	"image": "arrow.down.doc.fill",
-	"iconColor": 17
-  },
-  {
-	"title": "Настройка секций",
-	"description": "Расширенные возможности настройки",
-	"features": [
-	  {
-		"icon": "photo.on.rectangle",
-		"iconColor": 14,
-		"title": "Выбор иконки",
-		"id": "step1",
-		"description": "Выбирайте символы из библиотеки под ваши задачи"
-	  },
-	  {
-		"icon": "drop.halffull",
-		"iconColor": 15,
-		"title": "Цвет иконки",
-		"id": "step2",
-		"description": "Настраивайте оттенки для выделения важных элементов"
-	  },
-	  {
-		"icon": "exclamationmark.triangle",
-		"iconColor": 12,
-		"title": "Важное примечание",
-		"id": "step3",
-		"description": "Пользовательские цвета иконок отображаются только в режиме «Мультицвет»"
-	  }
-	],
-	"id": "customization",
-	"image": "slider.horizontal.2.square.on.square",
-	"iconColor": 17
-  }
+	}
 ]

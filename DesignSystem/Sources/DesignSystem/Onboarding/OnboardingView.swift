@@ -19,8 +19,8 @@ public struct OnboardingView {
 
 	// MARK: - Initialization
 
-	public init(pages: [Page], onComplete: (() -> Void)?) {
-		self._state = State(initialValue: .init(pages: pages))
+	public init(features: [Feature], onComplete: (() -> Void)?) {
+		self._state = State(initialValue: .init(features: features))
 		self.onComplete = onComplete
 	}
 
@@ -110,9 +110,9 @@ struct OnboardingState {
 
 	var currentPage: Int
 
-	init(pages: [Page]) {
-		assert(!pages.isEmpty, "Pages list is empty")
-		self.features = pages.flatMap { $0.features }
+	init(features: [Feature]) {
+		assert(!features.isEmpty, "Features list is empty")
+		self.features = features
 		self.currentPage = 0
 	}
 }
@@ -159,37 +159,29 @@ extension OnboardingState {
 }
 
 #Preview {
-	OnboardingView(pages: [.newFormat], onComplete: nil)
+	OnboardingView(features: .newFormat, onComplete: nil)
 }
 
-extension Page {
+extension [Feature] {
 
-	static let newFormat = Page(
-		id: "new_format",
-		image: "document.badge.plus",
-		iconColor: .primary,
-		title: "New File Format",
-		description: "We've upgraded your workflow",
-		features:
-			[
-				.init(
-					icon: "arrow.down.document",
-					iconColor: .primary,
-					title: "Easy Conversion",
-					description: "Import legacy TXT files with one click"
-				),
-				.init(
-					icon: "arrow.up.document",
-					iconColor: .primary,
-					title: "Full Backward Compatibility",
-					description: "Export back to TXT anytime"
-				),
-				.init(
-					icon: "sparkles",
-					iconColor: .primary,
-					title: "Exclusive Features",
-					description: "Advanced functionality only available in the new format"
-				)
-			]
-	)
+	static let newFormat: [Feature] = [
+		.init(
+			icon: "arrow.down.document",
+			iconColor: .primary,
+			title: "Easy Conversion",
+			description: "Import legacy TXT files with one click"
+		),
+		.init(
+			icon: "arrow.up.document",
+			iconColor: .primary,
+			title: "Full Backward Compatibility",
+			description: "Export back to TXT anytime"
+		),
+		.init(
+			icon: "sparkles",
+			iconColor: .primary,
+			title: "Exclusive Features",
+			description: "Advanced functionality only available in the new format"
+		)
+	]
 }

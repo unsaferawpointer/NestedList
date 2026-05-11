@@ -13,7 +13,7 @@ final class OnboardingFactory { }
 
 extension OnboardingFactory {
 
-	static func build(for version: Version) throws -> [Page]? {
+	static func build(for version: Version) throws -> [Feature]? {
 		let bundle = Bundle.main
 		guard
 			let path = bundle.url(forResource: "onboarding-\(version.rawValue)", withExtension: "json"),
@@ -22,6 +22,6 @@ extension OnboardingFactory {
 			return nil
 		}
 
-		return try JSONDecoder().decode([Page].self, from: data)
+		return try JSONDecoder().decode([Feature].self, from: data)
 	}
 }
