@@ -59,7 +59,9 @@ extension IconPicker: View {
 			.navigationBarTitleDisplayMode(.inline)
 			#endif
 		}
+		#if os(macOS)
 		.frame(minWidth: 320, minHeight: 320, maxHeight: 640)
+		#endif
 	}
 }
 
