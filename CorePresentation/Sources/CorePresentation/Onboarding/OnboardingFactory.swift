@@ -1,20 +1,20 @@
 //
 //  OnboardingFactory.swift
-//  iOS
+//  CorePresentation
 //
-//  Created by Anton Cherkasov on 03.05.2025.
+//  Created by Anton Cherkasov on 12.05.2026.
 //
 
 import Foundation
 import CoreModule
 import DesignSystem
 
-final class OnboardingFactory { }
+public final class OnboardingFactory { }
 
-extension OnboardingFactory {
+// MARK: - Public Interface
+public extension OnboardingFactory {
 
-	static func build(for version: Version) throws -> [Feature]? {
-		let bundle = Bundle.main
+	static func build(for version: Version, in bundle: Bundle) throws -> [Feature]? {
 		guard
 			let path = resourceURL(for: version, in: bundle),
 			let data = try? Data(contentsOf: path)
@@ -23,11 +23,7 @@ extension OnboardingFactory {
 		}
 
 		let features = try JSONDecoder().decode([Feature].self, from: data)
-		let filtered = filter(features: features, for: version)
-		guard !filtered.isEmpty else {
-			return nil
-		}
-		return filtered
+		return filter(features: features, for: version)
 	}
 }
 
@@ -48,11 +44,9 @@ private extension OnboardingFactory {
 		if let minVersion = feature.minVersion, let min = Version(rawValue: minVersion), version < min {
 			return false
 		}
-
 		if let maxVersion = feature.maxVersion, let max = Version(rawValue: maxVersion), version > max {
 			return false
 		}
-
 		return true
 	}
 }

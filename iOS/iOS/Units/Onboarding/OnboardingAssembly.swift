@@ -28,7 +28,7 @@ private extension OnboardingAssembly {
 		settingsProvider: any StateProviderProtocol<Settings>,
 		version: Version
 	) -> UIViewController? {
-		guard let features = try? OnboardingFactory.build(for: version) else {
+		guard let features = try? OnboardingFactory.build(for: version, in: .main), !features.isEmpty else {
 			return nil
 		}
 		let view = OnboardingView(features: features) {

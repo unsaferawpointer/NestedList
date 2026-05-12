@@ -4,33 +4,34 @@
 import PackageDescription
 
 let package = Package(
-    name: "CorePresentation",
+	name: "CorePresentation",
 	platforms: [.macOS(.v14), .iOS(.v16)],
-    products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
-        .library(
-            name: "CorePresentation",
-            targets: ["CorePresentation"]
-        ),
-    ],
+	products: [
+		// Products define the executables and libraries a package produces, making them visible to other packages.
+		.library(
+			name: "CorePresentation",
+			targets: ["CorePresentation"]
+		),
+	],
 	dependencies: [
 		.package(path: "../CoreModule"),
 		.package(path: "../DesignSystem")
 	],
-    targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
-        .target(
-            name: "CorePresentation",
+	targets: [
+		// Targets are the basic building blocks of a package, defining a module or a test suite.
+		// Targets can depend on other targets in this package and products from dependencies.
+		.target(
+			name: "CorePresentation",
 			dependencies: [
 				.product(name: "CoreModule", package: "CoreModule"),
 				.product(name: "DesignSystem", package: "DesignSystem"),
 			],
 			resources: [.process("Resources")]
-        ),
-        .testTarget(
-            name: "CorePresentationTests",
-            dependencies: ["CorePresentation"]
-        ),
-    ]
+		),
+		.testTarget(
+			name: "CorePresentationTests",
+			dependencies: ["CorePresentation"],
+			resources: [.process("Resources")]
+		),
+	]
 )

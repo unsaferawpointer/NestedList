@@ -1,13 +1,13 @@
 //
 //  OnboardingFactoryTests.swift
-//  macOSTests
+//  CorePresentation
 //
-//  Created by Anton Cherkasov on 08.05.2025.
+//  Created by Anton Cherkasov on 12.05.2026.
 //
 
 import Testing
 import CoreModule
-@testable import Nested_List
+@testable import CorePresentation
 
 struct OnboardingFactoryTests {
 
@@ -17,7 +17,7 @@ struct OnboardingFactoryTests {
 			return
 		}
 
-		let result = try OnboardingFactory.build(for: version)
+		let result = try OnboardingFactory.build(for: version, in: .module)
 
 		#expect(result?.count == 2)
 	}
@@ -28,7 +28,7 @@ struct OnboardingFactoryTests {
 			return
 		}
 
-		let result = try OnboardingFactory.build(for: version)
+		let result = try OnboardingFactory.build(for: version, in: .module)
 
 		#expect(result?.count == 3)
 		#expect(result?.first?.id == "document_format_update")
