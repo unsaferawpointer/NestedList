@@ -11,6 +11,7 @@ import CoreModule
 public protocol InfoProvider {
 	var version: Version? { get }
 	var bundleID: String? { get }
+	var supportEmail: String? { get }
 }
 
 public final class AppInfo {
@@ -31,5 +32,9 @@ extension AppInfo: InfoProvider {
 
 	public var bundleID: String? {
 		return Bundle.main.bundleIdentifier
+	}
+
+	public var supportEmail: String? {
+		Bundle.main.infoDictionary?["NestedListSupportEmail"] as? String
 	}
 }

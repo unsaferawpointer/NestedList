@@ -12,6 +12,7 @@ import CorePresentation
 struct InfoProviderMock {
 	let version: Version?
 	let bundleID: String? = nil
+	let supportEmail: String? = nil
 }
 
 // MARK: - InfoProvider

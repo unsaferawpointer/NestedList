@@ -70,5 +70,7 @@
 	</array>
 	<key>UTImportedTypeDeclarations</key>
 	<array/>
+	<key>NestedListSupportEmail</key>
+	<string>$(NESTED_LIST_SUPPORT_EMAIL)</string>
 </dict>
 </plist>
