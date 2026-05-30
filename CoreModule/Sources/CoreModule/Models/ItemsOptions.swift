@@ -29,4 +29,6 @@ public extension ItemOptions {
 
 	@available(*, deprecated, message: "ItemOptions.marked is deprecated and no longer used.")
 	static let marked = ItemOptions(rawValue: 1 << 1)
+
+	static let hideSubitems = ItemOptions(rawValue: 1 << 2)
 }
