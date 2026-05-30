@@ -81,10 +81,22 @@ extension DropManager {
 private extension DropManager {
 
 	func isLocal(from info: NSDraggingInfo) -> Bool {
-		guard let source = info.draggingSource as? NSOutlineView else {
+		guard
+			let source = info.draggingSource as? NSOutlineView,
+			let sourceWindow = source.window, let destinationWindow = list.window
+		else {
 			return false
 		}
-		return source.window === list.window
+
+		return areRelated(window: sourceWindow, to: destinationWindow)
+	}
+
+	func areRelated(window lhs: NSWindow, to rhs: NSWindow) -> Bool {
+		let isSame = lhs === rhs
+		let hasSameParent = lhs.parent === rhs.parent
+		let isChild = lhs.parent == rhs || rhs.parent == lhs
+
+		return isSame || hasSameParent || isChild
 	}
 
 	func register() {
