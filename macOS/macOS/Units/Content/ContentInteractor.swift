@@ -10,6 +10,7 @@ import Hierarchy
 import CoreModule
 
 protocol ContentInteractorProtocol {
+
 	func fetchData()
 	func configure(for root: UUID?)
 
@@ -29,6 +30,7 @@ protocol ContentInteractorProtocol {
 	) -> UUID
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool)
 	func toggleStrikethrough(for id: UUID, moveToEnd: Bool)
+	func setSubitemsHidden(_ hidden: Bool, for ids: [UUID])
 	func setColor(_ color: ItemColor?, for ids: [UUID])
 	func setIcon(_ name: IconName?, for ids: [UUID])
 	func set(text: String, note: String?, for id: UUID)
@@ -44,7 +46,7 @@ protocol ContentInteractorProtocol {
 	func insertItems(_ data: [Data], to destination: Destination<UUID>)
 }
 
-final class ContentInteractor {
+@MainActor final class ContentInteractor {
 
 	private let storage: DocumentStorage<Content>
 
@@ -66,6 +68,14 @@ final class ContentInteractor {
 			guard let self else {
 				return
 			}
+			if let id = root {
+				if let node = content.root.node(with: id) {
+					self.presenter?.presentRoot(node)
+				} else {
+					self.presenter?.close()
+					return
+				}
+			}
 			let nodes = content.root.children(of: self.root)
 			MainActor.assumeIsolated {
 				self.presenter?.present(nodes)
@@ -83,8 +93,9 @@ extension ContentInteractor: ContentInteractorProtocol {
 
 	func fetchData() {
 		let nodes = storage.state.root.children(of: root)
-		MainActor.assumeIsolated { [weak self] in
-			self?.presenter?.present(nodes)
+		presenter?.present(nodes)
+		if let id = root, let node = storage.state.root.node(with: id) {
+			self.presenter?.presentRoot(node)
 		}
 	}
 
@@ -148,6 +159,12 @@ extension ContentInteractor: ContentInteractorProtocol {
 			if moveToEnd && status == false {
 				content.root.moveToEnd([id])
 			}
+		}
+	}
+
+	func setSubitemsHidden(_ hidden: Bool, for ids: [UUID]) {
+		storage.modificate { content in
+			content.root.setProperty(\.isSubitemsHidden, to: hidden, for: ids)
 		}
 	}
 

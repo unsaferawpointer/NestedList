@@ -16,7 +16,7 @@ final class ContentUnitAssembly {
 		let interactor = ContentInteractor(storage: storage, root: root)
 		return ContentViewController { viewController in
 
-			let router = ContentRouter(root: viewController)
+			let router = ContentRouter(root: viewController, storage: storage)
 			let presenter = ContentPresenter(router: router)
 
 			viewController.output = presenter

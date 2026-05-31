@@ -35,6 +35,14 @@ extension UnitViewMock: UnitView {
 		invocations.append(.display(state))
 	}
 
+	func updateTitle(_ title: String) {
+		invocations.append(.updateTitle(title))
+	}
+
+	func close() {
+		invocations.append(.close)
+	}
+
 	func expand(_ ids: [UUID]?) {
 		invocations.append(.expand(ids))
 	}
@@ -73,6 +81,8 @@ extension UnitViewMock {
 		case didSetSelection(selection: [UUID])
 		case showDetails(model: ItemDetailsView.Model, completionHandler: (ItemDetailsView.Properties, Bool) -> Void)
 		case closeSheet
+		case updateTitle(String)
+		case close
 	}
 
 	struct Stubs {

@@ -27,16 +27,21 @@ protocol ContentRouterProtocol: AnyObject {
 		navigationTitle: String,
 		completionHandler: @escaping @MainActor (ItemColor?) -> Void
 	)
+
+	func showDocument(for id: UUID) -> Void
 }
 
 final class ContentRouter {
 
 	unowned var root: NSViewController
 
+	private let storage: DocumentStorage<Content>
+
 	// MARK: - Initialization
 
-	init(root: NSViewController) {
+	init(root: NSViewController, storage: DocumentStorage<Content>) {
 		self.root = root
+		self.storage = storage
 	}
 }
 
@@ -96,6 +101,29 @@ extension ContentRouter: ContentRouterProtocol {
 		)
 		contentViewController.title = navigationTitle
 		root.presentAsSheet(contentViewController)
+	}
+
+	func showDocument(for id: UUID) {
+		guard let parentWindow = root.view.window else {
+			return
+		}
+
+		let contentViewController = ContentUnitAssembly.build(for: id, storage: storage)
+		let childWindow = NSWindow(contentViewController: contentViewController)
+		childWindow.styleMask = [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]
+		childWindow.titleVisibility = .visible
+		childWindow.titlebarAppearsTransparent = false
+		childWindow.isReleasedWhenClosed = false
+		childWindow.setContentSize(parentWindow.frame.size)
+		childWindow.setFrameOrigin(
+			NSPoint(
+				x: parentWindow.frame.origin.x + 24,
+				y: parentWindow.frame.origin.y - 24
+			)
+		)
+
+		parentWindow.addChildWindow(childWindow, ordered: .above)
+		childWindow.makeKeyAndOrderFront(nil)
 	}
 
 	func closeSheet() {

@@ -20,6 +20,8 @@ protocol UnitViewOutput: ViewDelegate, MenuDelegate {
 @MainActor
 protocol UnitView: AnyObject, ListSupportable {
 	func display(_ state: ContentViewState)
+	func updateTitle(_ title: String)
+	func close()
 }
 
 class ContentViewController: NSViewController {
@@ -44,6 +46,17 @@ class ContentViewController: NSViewController {
 	private let scrollview: NSScrollView = .standart
 
 	private let table: NSOutlineView = .standart
+
+	// MARK: - Toolbar
+
+	private let localization: ContentLocalizationProtocol = ContentLocalization()
+
+	lazy var toolbar: NSToolbar = {
+		let view = NSToolbar()
+		view.displayMode = .iconOnly
+		view.delegate = self
+		return view
+	}()
 
 	// MARK: - Initialization
 
@@ -86,7 +99,11 @@ class ContentViewController: NSViewController {
 		table.sizeLastColumnToFit()
 	}
 
-	var sheet: NSViewController?
+	override func viewDidAppear() {
+		super.viewDidAppear()
+		configureToolbarIfNeeded()
+	}
+
 }
 
 extension ContentViewController {
@@ -113,6 +130,14 @@ extension ContentViewController: UnitView {
 		case let .list(snapshot):
 			adapter?.apply(snapshot)
 		}
+	}
+
+	func updateTitle(_ title: String) {
+		self.title = title
+	}
+
+	func close() {
+		view.window?.close()
 	}
 }
 
@@ -156,6 +181,13 @@ private extension ContentViewController {
 		scrollview.documentView = table
 	}
 
+	func configureToolbarIfNeeded() {
+		guard let window = view.window else {
+			return
+		}
+		window.toolbar = toolbar
+	}
+
 	func configureConstraints() {
 		scrollview.pin(edges: .all, to: view)
 	}
@@ -166,6 +198,42 @@ extension ContentViewController: DocumentToolbarSupportable {
 
 	func newItem(_ sender: Any) {
 		output?.menuItemClicked(.newItem)
+	}
+}
+
+// MARK: - NSToolbarDelegate
+extension ContentViewController: NSToolbarDelegate {
+
+	func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
+		return [.space, .newItem]
+	}
+
+	func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
+		return [.space, .newItem]
+	}
+
+	func toolbar(
+		_ toolbar: NSToolbar,
+		itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier,
+		willBeInsertedIntoToolbar flag: Bool
+	) -> NSToolbarItem? {
+
+		let item = NSToolbarItem(itemIdentifier: itemIdentifier)
+		item.visibilityPriority = .high
+
+		switch itemIdentifier {
+		case .newItem:
+			let image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)!
+			let button = NSButton(image: image, target: nil, action: #selector(DocumentToolbarSupportable.newItem(_:)))
+			item.target = self
+
+			item.label = localization.newItemToolbarItemLabel
+			item.view = button
+		default:
+			break
+		}
+
+		return item
 	}
 }
 

@@ -28,6 +28,10 @@ extension MenuLocalization {
 		String(localized: "strikethrough-item-title", table: "MenuLocalizable")
 	}
 
+	static var hideSubitemsItemTitle: String {
+		String(localized: "hide-subitems-item-title", table: "MenuLocalizable")
+	}
+
 	static var displayAsItemTitle: String {
 		String(localized: "display-as-item-title", table: "MenuLocalizable")
 	}

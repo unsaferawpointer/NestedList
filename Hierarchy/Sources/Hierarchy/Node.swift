@@ -63,6 +63,10 @@ public extension Node {
 		)
 	}
 
+	func withoutChildren(condition: (Value) -> Bool) -> Node<Value> {
+		withoutChildren(in: self, condition: condition)
+	}
+
 	func enumerateBackwards(_ block: (Node) -> Void) {
 		block(self)
 		parent?.enumerateBackwards(block)
@@ -140,6 +144,19 @@ public extension Node {
 		items.forEach { item in
 			item.parent = self
 		}
+	}
+}
+
+// MARK: - Helpers
+private extension Node {
+
+	func withoutChildren(in node: Node<Value>, condition: (Value) -> Bool) -> Node<Value> {
+		return Node(
+			value: node.value,
+			children: condition(node.value)
+				? []
+				: node.children.map { withoutChildren(in: $0, condition: condition) }
+		)
 	}
 }
 

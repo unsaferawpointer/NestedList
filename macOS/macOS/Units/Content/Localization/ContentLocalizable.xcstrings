@@ -85,6 +85,22 @@
         }
       }
     },
+    "new-item-toolbar-item-label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Item"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Создать пункт"
+          }
+        }
+      }
+    },
     "new-note-text" : {
       "localizations" : {
         "en" : {

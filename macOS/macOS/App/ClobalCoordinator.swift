@@ -23,12 +23,12 @@ import CorePresentation
 	// MARK: - Initialization
 
 	init(
-		settingsProvider: any StateProviderProtocol<CorePresentation.Settings> = SettingsProvider.shared,
+		settingsProvider: (any StateProviderProtocol<CorePresentation.Settings>)? = nil,
 		infoProvider: InfoProvider = AppInfo(),
 		router: GlobalRouterProtocol = GlobalRouter(),
 		documentController: DocumentControllerProtocol = DocumentController()
 	) {
-		self.settingsProvider = settingsProvider
+		self.settingsProvider = settingsProvider ?? SettingsProvider.shared
 		self.infoProvider = infoProvider
 		self.router = router
 		self.documentController = documentController

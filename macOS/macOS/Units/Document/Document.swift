@@ -11,15 +11,6 @@ import CorePresentation
 
 class Document: NSDocument {
 
-	lazy var toolbar: NSToolbar = {
-		let view = NSToolbar()
-		view.displayMode = .iconOnly
-		view.delegate = self
-		return view
-	}()
-
-	var localization = DocumentLocalization()
-
 	// MARK: - DI
 
 	lazy var storage: DocumentStorage<Content> = {
@@ -61,12 +52,7 @@ class Document: NSDocument {
 		) as! NSWindowController
 		windowController.contentViewController = DocumentAssembly.build(storage: storage)
 
-		windowController.window?.toolbar = toolbar
-		windowController.window?.toolbar?.delegate = self
-
 		self.addWindowController(windowController)
-
-		configureToolbar()
 	}
 
 	override func data(ofType typeName: String) throws -> Data {
@@ -85,53 +71,6 @@ class Document: NSDocument {
 		}
 	}
 
-}
-
-private extension Document {
-
-	func configureToolbar() {
-		let item = toolbar.items.first { $0.itemIdentifier == .newItem }
-		guard let item else {
-			return
-		}
-		item.target = windowControllers.first?.contentViewController as? DocumentToolbarSupportable
-	}
-}
-
-// MARK: - NSToolbarDelegate
-extension Document: NSToolbarDelegate {
-
-	func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-		return [.space, .newItem]
-	}
-
-	func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-		return [.space, .newItem]
-	}
-
-	func toolbar(
-		_ toolbar: NSToolbar,
-		itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier,
-		willBeInsertedIntoToolbar flag: Bool
-	) -> NSToolbarItem? {
-
-		let item = NSToolbarItem(itemIdentifier: itemIdentifier)
-		item.visibilityPriority = .high
-
-		switch itemIdentifier {
-		case .newItem:
-			let image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)!
-			let button = NSButton(image: image, target: nil, action: #selector(DocumentToolbarSupportable.newItem(_:)))
-			item.target = windowControllers.first?.contentViewController as? DocumentToolbarSupportable
-
-			item.label = localization.newItemToolbarItemLabel
-			item.view = button
-		default:
-			break
-		}
-
-		return item
-	}
 }
 
 extension NSToolbarItem.Identifier {

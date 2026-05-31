@@ -22,7 +22,7 @@ struct ItemsFactoryTests {
 		)
 
 		// Act
-		let result = sut.makeItem(item: item, isLeaf: true, iconColor: .neutral)
+		let result = sut.makeItem(item: item, isLeaf: true, hasChildren: false, iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup == false)
@@ -39,7 +39,7 @@ struct ItemsFactoryTests {
 		let item = Item(text: .random, options: [.strikethrough])
 
 		// Act
-		let result = sut.makeItem(item: item, isLeaf: true, iconColor: .neutral)
+		let result = sut.makeItem(item: item, isLeaf: true, hasChildren: false, iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup == false)
@@ -56,7 +56,7 @@ struct ItemsFactoryTests {
 		let item = Item(text: .random, options: [.strikethrough])
 
 		// Act
-		let result = sut.makeItem(item: item, isLeaf: true, iconColor: .neutral)
+		let result = sut.makeItem(item: item, isLeaf: true, hasChildren: false, iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup == false)
@@ -73,7 +73,7 @@ struct ItemsFactoryTests {
 		let item = Item(text: .random, options: [], iconName: .document, tintColor: .tertiary)
 
 		// Act
-		let result = sut.makeItem(item: item, isLeaf: false, iconColor: .accent)
+		let result = sut.makeItem(item: item, isLeaf: false, hasChildren: true, iconColor: .accent)
 
 		// Assert
 		#expect(result.isGroup)
@@ -91,7 +91,7 @@ struct ItemsFactoryTests {
 		let item = Item(text: .random, iconName: .folder, tintColor: .tertiary)
 
 		// Act
-		let result = sut.makeItem(item: item, isLeaf: false, iconColor: .neutral)
+		let result = sut.makeItem(item: item, isLeaf: false, hasChildren: true, iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup)
@@ -109,7 +109,7 @@ struct ItemsFactoryTests {
 		let item = Item(text: .random, options: [], iconName: .package, tintColor: .yellow)
 
 		// Act
-		let result = sut.makeItem(item: item, isLeaf: false, iconColor: .multicolor)
+		let result = sut.makeItem(item: item, isLeaf: false, hasChildren: true, iconColor: .multicolor)
 
 		// Assert
 		#expect(result.isGroup)
@@ -127,7 +127,7 @@ struct ItemsFactoryTests {
 		let item = Item(text: .random, options: [], iconName: .xmarkDiamond, tintColor: .yellow)
 
 		// Act
-		let result = sut.makeItem(item: item, isLeaf: false, iconColor: .multicolor)
+		let result = sut.makeItem(item: item, isLeaf: false, hasChildren: true, iconColor: .multicolor)
 
 		// Assert
 		#expect(result.isGroup)
@@ -145,7 +145,7 @@ struct ItemsFactoryTests {
 		let item = Item(text: .random, options: [.strikethrough], iconName: nil, tintColor: nil)
 
 		// Act
-		let result = sut.makeItem(item: item, isLeaf: false, iconColor: .neutral)
+		let result = sut.makeItem(item: item, isLeaf: false, hasChildren: true, iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup)
@@ -161,7 +161,7 @@ struct ItemsFactoryTests {
 		let item = Item(text: .random, options: [.strikethrough], iconName: nil, tintColor: nil)
 
 		// Act
-		let result = sut.makeItem(item: item, isLeaf: false, iconColor: .neutral)
+		let result = sut.makeItem(item: item, isLeaf: false, hasChildren: true, iconColor: .neutral)
 
 		// Assert
 		#expect(result.isGroup)

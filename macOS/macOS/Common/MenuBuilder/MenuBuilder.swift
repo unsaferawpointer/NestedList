@@ -39,6 +39,9 @@ private extension MenuBuilder {
 			item.identifier = .init(elementIdentifier: .completed)
 			item.title = MenuLocalization.strikethroughItemTitle
 			item.keyEquivalent = "\r"
+		case .hideSubitems:
+			item.identifier = .init(elementIdentifier: .hideSubitems)
+			item.title = MenuLocalization.hideSubitemsItemTitle
 		case .appearanceHeader:
 			return NSMenuItem.sectionHeader(title: MenuLocalization.appearanceHeaderItemTitle)
 		case .icon:

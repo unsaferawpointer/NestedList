@@ -69,6 +69,32 @@ extension UnitPresenterTests {
 
 		#expect(snapshot.identifiers.count == 2)
 	}
+
+	@Test func testPresentRoot_updatesTitle() {
+		// Arrange
+		let root = Node<Item>(value: .init(uuid: .random, text: "Root"))
+
+		// Act
+		sut.presentRoot(root)
+
+		// Assert
+		guard case let .updateTitle(title) = view.invocations.first else {
+			Issue.record("Expect updateTitle invocation")
+			return
+		}
+		#expect(title == "Root")
+	}
+
+	@Test func testClose_closesView() {
+		// Act
+		sut.close()
+
+		// Assert
+		guard case .close = view.invocations.first else {
+			Issue.record("Expect close invocation")
+			return
+		}
+	}
 }
 
 // MARK: - ListDelegate test-cases
@@ -106,6 +132,21 @@ extension UnitPresenterTests {
 
 		#expect(id == expectedId)
 		#expect(moveToEnd == true)
+	}
+
+	@Test func test_cellDidTapDisclosure_showsDocument() {
+		// Arrange
+		let id: UUID = .random
+
+		// Act
+		sut.cellDidTapDisclosure(id: id)
+
+		// Assert
+		guard case let .showDocument(openedId) = router.invocations.first else {
+			Issue.record("Expect showDocument invocation")
+			return
+		}
+		#expect(openedId == id)
 	}
 }
 

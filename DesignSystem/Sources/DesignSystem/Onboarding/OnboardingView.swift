@@ -19,7 +19,7 @@ public struct OnboardingView {
 
 	// MARK: - Initialization
 
-	public init(features: [Feature], onComplete: (() -> Void)?) {
+	public init(features: [Feature], onComplete: (@MainActor () -> Void)?) {
 		self._state = State(initialValue: .init(features: features))
 		self.onComplete = onComplete
 	}
