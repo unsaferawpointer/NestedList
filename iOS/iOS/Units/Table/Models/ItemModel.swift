@@ -24,11 +24,7 @@ struct ItemModel {
 // MARK: - CellModel
 extension ItemModel: CellModel {
 
-	var selectionConfiguration: UIListContentConfiguration {
-		var result = configuration
-		result.image = nil
-		return result
-	}
+	var selectionConfiguration: UIListContentConfiguration { configuration }
 
 	var configuration: UIListContentConfiguration {
 		let configuration = {

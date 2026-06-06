@@ -34,7 +34,5 @@ public protocol ListCell: UITableViewCell {
 	associatedtype Model: CellModel
 
 	static var reuseIdentifier: String { get }
-
-	func validateIndent()
 }
 #endif

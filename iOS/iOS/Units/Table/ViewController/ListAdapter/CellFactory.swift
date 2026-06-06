@@ -21,9 +21,6 @@ extension CellFactory {
 		guard let cell = table.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as? C else {
 			fatalError("Invalid cell type")
 		}
-		cell.indentationWidth = 24
-		cell.layoutMargins.left = 32
-		cell.layoutMargins.right = 32
 		return cell
 	}
 
@@ -34,36 +31,28 @@ extension CellFactory {
 		editingMode: EditingMode?
 	) {
 
-		cell.contentConfiguration = table.isEditing && editingMode == .selection
+		let content = table.isEditing && editingMode == .selection
 			? model.selectionConfiguration
 			: model.configuration
+
+		if var configuration = cell.contentConfiguration as? ItemContentConfiguration {
+			configuration.content = content
+			cell.contentConfiguration = configuration
+		} else {
+			cell.contentConfiguration = ItemContentConfiguration(
+				row: RowConfiguration(level: 0, isExpanded: false, isLeaf: true),
+				content: content
+			)
+		}
 	}
 
 	static func updateCell(_ cell: any ListCell, with configuration: RowConfiguration) {
 
-		if let imageView = cell.accessoryView as? UIImageView {
-			if configuration.isLeaf {
-				cell.accessoryView = nil
-			} else {
-				UIView.animate(withDuration: 0.3) {
-					imageView.transform = configuration.isExpanded ? .init(rotationAngle: .pi / 2) : .identity
-				}
-			}
-		} else {
-			if !configuration.isLeaf {
-				let image = UIImage(systemName: "chevron.right")?
-					.withConfiguration(UIImage.SymbolConfiguration(scale: .small))
-				let imageView = UIImageView(image: image)
-				imageView.contentMode = .center
-				if #available(iOS 26.0, *) {
-					imageView.tintColor = .label
-				}
-				imageView.transform = configuration.isExpanded ? .init(rotationAngle: .pi / 2) : .identity
-				cell.accessoryView = imageView
-			}
+		guard var contentConfiguration = cell.contentConfiguration as? ItemContentConfiguration else {
+			return
 		}
 
-		cell.indentationLevel = configuration.level
-		cell.validateIndent()
+		contentConfiguration.row = configuration
+		cell.contentConfiguration = contentConfiguration
 	}
 }

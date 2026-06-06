@@ -40,7 +40,6 @@ final class ListManager<Model: CellModel & IdentifiableValue> {
 			}
 			tableView.setEditing(editingMode != nil, animated: true)
 			tableView.allowsMultipleSelectionDuringEditing = editingMode?.allowSelection ?? false
-			tableView.reloadData()
 		}
 	}
 
