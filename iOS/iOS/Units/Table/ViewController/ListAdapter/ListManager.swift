@@ -118,13 +118,17 @@ extension ListManager {
 	}
 
 	func cellForRow(at indexPath: IndexPath) -> UITableViewCell {
-		let cell = CellFactory.makeCell(with: Model.Cell.self, in: tableView, at: indexPath)
 
 		let model = storage.model(with: indexPath.row)
-		updateCell(cell, with: model)
-
 		let configuration = storage.rowConfiguration(for: indexPath.row)
-		updateCell(cell, with: configuration)
+
+		let cell = CellFactory.makeCell(
+			with: Model.Cell.self,
+			in: tableView,
+			at: indexPath,
+			for: model,
+			row: configuration
+		)
 
 		return cell
 	}
@@ -346,18 +350,6 @@ extension ListManager {
 	}
 }
 
-// MARK: - Helpers
-private extension ListManager {
-
-	func updateCell(_ cell: Model.Cell, with configuration: RowConfiguration) {
-		CellFactory.updateCell(cell, with: configuration)
-	}
-
-	func updateCell(_ cell: Model.Cell, with model: Model) {
-		CellFactory.updateCell(cell, with: model, in: tableView, editingMode: editingMode)
-	}
-}
-
 extension ListManager: CacheDelegate {
 
 	func updateCell(indexPath: IndexPath, model: Model) {
@@ -365,7 +357,8 @@ extension ListManager: CacheDelegate {
 			return
 		}
 
-		updateCell(cell, with: model)
+		let row = storage.rowConfiguration(for: indexPath.row)
+		CellFactory.updateCell(cell, with: model, row: row, in: tableView, editingMode: editingMode)
 	}
 	
 
@@ -374,7 +367,8 @@ extension ListManager: CacheDelegate {
 			return
 		}
 
-		updateCell(cell, with: rowConfiguration)
+		let model = storage.model(with: indexPath.row)
+		CellFactory.updateCell(cell, with: model, row: rowConfiguration, in: tableView, editingMode: editingMode)
 	}
 
 	func beginUpdates() {

@@ -6,27 +6,31 @@
 //
 
 import UIKit
-import SwiftUI
-
 import DesignSystem
 
-final class CellFactory {
-
-}
+final class CellFactory { }
 
 extension CellFactory {
 
-	static func makeCell<C: ListCell>(with type: C.Type, in table: UITableView, at indexPath: IndexPath) -> C {
+	static func makeCell<C: ListCell>(
+		with type: C.Type,
+		in table: UITableView,
+		at indexPath: IndexPath,
+		for model: C.Model,
+		row: RowConfiguration
+	) -> C {
 		let identifier = C.reuseIdentifier
 		guard let cell = table.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as? C else {
 			fatalError("Invalid cell type")
 		}
+		cell.contentConfiguration = ItemContentConfiguration(id: model.id, row: row, content: model.configuration)
 		return cell
 	}
 
 	static func updateCell<C: ListCell>(
 		_ cell: C,
 		with model: C.Model,
+		row: RowConfiguration,
 		in table: UITableView,
 		editingMode: EditingMode?
 	) {
@@ -35,24 +39,6 @@ extension CellFactory {
 			? model.selectionConfiguration
 			: model.configuration
 
-		if var configuration = cell.contentConfiguration as? ItemContentConfiguration {
-			configuration.content = content
-			cell.contentConfiguration = configuration
-		} else {
-			cell.contentConfiguration = ItemContentConfiguration(
-				row: RowConfiguration(level: 0, isExpanded: false, isLeaf: true),
-				content: content
-			)
-		}
-	}
-
-	static func updateCell(_ cell: any ListCell, with configuration: RowConfiguration) {
-
-		guard var contentConfiguration = cell.contentConfiguration as? ItemContentConfiguration else {
-			return
-		}
-
-		contentConfiguration.row = configuration
-		cell.contentConfiguration = contentConfiguration
+		cell.contentConfiguration = ItemContentConfiguration(id: model.id, row: row, content: content)
 	}
 }

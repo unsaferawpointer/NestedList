@@ -8,7 +8,8 @@
 import UIKit
 import DesignSystem
 
-struct ItemContentConfiguration {
+struct ItemContentConfiguration<ID: Hashable> {
+	var id: ID
 	var row: RowConfiguration
 	var content: UIListContentConfiguration
 }
@@ -20,7 +21,7 @@ extension ItemContentConfiguration: UIContentConfiguration {
 		return ItemContentView(configuration: self)
 	}
 
-	func updated(for state: any UIConfigurationState) -> ItemContentConfiguration {
+	func updated(for state: any UIConfigurationState) -> ItemContentConfiguration<ID> {
 		var result = self
 		result.content = content.updated(for: state)
 		return result

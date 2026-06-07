@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class ItemContentView: UIView {
+final class ItemContentView<ID: Hashable>: UIView {
 
 	// MARK: - UI - Properties
 
@@ -30,13 +30,13 @@ final class ItemContentView: UIView {
 
 	// MARK: - Internal State
 
-	private var _configuration: ItemContentConfiguration
+	private var _configuration: ItemContentConfiguration<ID>
 
 	// MARK: - Constraints
 
 	private var leadingConstraint: NSLayoutConstraint?
 
-	init(configuration: ItemContentConfiguration) {
+	init(configuration: ItemContentConfiguration<ID>) {
 		_configuration = configuration
 		super.init(frame: .zero)
 		configureView()
@@ -61,7 +61,7 @@ extension ItemContentView: UIContentView {
 			return _configuration
 		}
 		set {
-			guard let configuration = newValue as? ItemContentConfiguration else {
+			guard let configuration = newValue as? ItemContentConfiguration<ID> else {
 				return
 			}
 			apply(configuration)
@@ -104,7 +104,7 @@ private extension ItemContentView {
 // MARK: - Helpers
 private extension ItemContentView {
 
-	func apply(_ configuration: ItemContentConfiguration) {
+	func apply(_ configuration: ItemContentConfiguration<ID>) {
 		let oldConfiguration = _configuration
 		_configuration = configuration
 		listContentView.configuration = configuration.content
@@ -112,7 +112,8 @@ private extension ItemContentView {
 		updateArrowVisibility()
 		updateLayoutConstraints()
 
-		guard oldConfiguration.row.isExpanded != configuration.row.isExpanded else {
+		guard oldConfiguration.row.isExpanded != configuration.row.isExpanded
+		   && oldConfiguration.id == configuration.id else {
 			updateArrowTransform(animated: false)
 			return
 		}
@@ -129,8 +130,8 @@ private extension ItemContentView {
 			? CGAffineTransform(rotationAngle: .pi / 2)
 			: .identity
 
-		if animated && disclosureArrow.transform != transform {
-			UIView.animate(withDuration: 0.3) {
+		if animated {
+			UIView.animate(withDuration: 0.25) {
 				self.disclosureArrow.transform = transform
 			}
 		} else {
