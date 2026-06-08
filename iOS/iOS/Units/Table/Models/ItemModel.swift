@@ -19,6 +19,8 @@ struct ItemModel {
 	var title: TextConfiguration
 
 	var subtitle: TextConfiguration?
+
+	var showsTrailingDisclosure: Bool
 }
 
 // MARK: - CellModel
@@ -42,6 +44,7 @@ extension ItemModel: CellModel {
 			}()
 			configuration.image = image
 			configuration.imageToTextPadding = 8
+			configuration.directionalLayoutMargins.leading = 12
 
 			if let iconConfiguration = icon {
 				configuration.imageProperties.tintColor = iconConfiguration.appearence.tint
@@ -76,6 +79,7 @@ extension ItemModel: CellModel {
 
 	func contentIsEquals(to other: ItemModel) -> Bool {
 		return other.configuration == configuration
+		&& other.showsTrailingDisclosure == showsTrailingDisclosure
 	}
 }
 

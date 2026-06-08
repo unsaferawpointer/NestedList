@@ -26,6 +26,8 @@ class TableViewController: UIViewController {
 
 	var toolbarBuilder: ToolbarBuilder<UUID> = ToolbarBuilder<UUID>()
 
+	private var displaysToolbarAnimated = true
+
 	// MARK: - UI-Properties
 
 	lazy var nestedList: NestedList = {
@@ -56,9 +58,16 @@ class TableViewController: UIViewController {
 		delegate?.viewDidChange(state: .didLoad)
 	}
 
+	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
+		navigationController?.setToolbarHidden(false, animated: false)
+		displaysToolbarAnimated = false
+		delegate?.viewDidChange(state: .willAppear)
+		displaysToolbarAnimated = true
+	}
+
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
-		self.navigationController?.setToolbarHidden(false, animated: false)
 		delegate?.viewDidChange(state: .didAppear)
 	}
 
@@ -93,12 +102,18 @@ extension TableViewController: ContentView {
 		let topItems = ToolbarBuilder.build(from: toolbar.top, delegate: delegate) ?? []
 		let bottomItems = ToolbarBuilder.build(from: toolbar.bottom, delegate: delegate) ?? []
 
-		(parent as? DocumentViewController)?
-			.displayToolbar(
-				top: topItems,
-				bottom: bottomItems,
-				showUndoGroup: toolbar.showUndoGroup
-			)
+		guard let root = parent as? DocumentViewController else {
+			navigationItem.setRightBarButtonItems(topItems, animated: true)
+			toolbarItems = bottomItems
+			return
+		}
+
+		root.displayToolbar(
+			top: topItems,
+			bottom: bottomItems,
+			showUndoGroup: toolbar.showUndoGroup,
+			animated: displaysToolbarAnimated
+		)
 	}
 
 	var selection: [UUID] {
@@ -108,6 +123,10 @@ extension TableViewController: ContentView {
 	func display(_ snapshot: Snapshot<ItemModel>) {
 		nestedList.display(snapshot)
 		self.setNeedsUpdateContentUnavailableConfiguration()
+	}
+
+	func display(title: String) {
+		self.title = title
 	}
 
 	func expand(_ id: UUID) {

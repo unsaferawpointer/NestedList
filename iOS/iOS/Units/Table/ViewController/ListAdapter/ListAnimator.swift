@@ -33,12 +33,8 @@ extension ListAnimator {
 			}
 			let oldIndexPath = IndexPath(row: oldIndex, section: 0)
 
-			if oldModel != newModel {
-				delegate.updateCell(indexPath: oldIndexPath, model: newModel)
-			}
-
-			if oldConfiguration != newConfiguration {
-				delegate.updateCell(indexPath: oldIndexPath, rowConfiguration: newConfiguration)
+			if !oldModel.contentIsEquals(to: newModel) || oldConfiguration != newConfiguration {
+				delegate.updateCell(indexPath: oldIndexPath, model: newModel, rowConfiguration: newConfiguration)
 			}
 		}
 	}

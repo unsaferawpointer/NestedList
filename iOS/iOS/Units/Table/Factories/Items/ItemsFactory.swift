@@ -12,7 +12,7 @@ import CoreModule
 import CorePresentation
 
 protocol ItemsFactoryProtocol {
-	func makeItem(item: Item, isLeaf: Bool, iconColor: IconColor) -> ItemModel
+	func makeItem(item: Item, isLeaf: Bool, hasChildren: Bool, iconColor: IconColor) -> ItemModel
 }
 
 final class ItemsFactory { }
@@ -20,7 +20,7 @@ final class ItemsFactory { }
 // MARK: - ItemsFactoryProtocol
 extension ItemsFactory: ItemsFactoryProtocol {
 
-	func makeItem(item: Item, isLeaf: Bool, iconColor: IconColor) -> ItemModel {
+	func makeItem(item: Item, isLeaf: Bool, hasChildren: Bool, iconColor: IconColor) -> ItemModel {
 
 		let titleConfiguration = TextConfiguration(
 			text: item.text,
@@ -68,7 +68,8 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			uuid: item.id,
 			icon: iconConfiguration,
 			title: titleConfiguration,
-			subtitle: subtitleConfiguration
+			subtitle: subtitleConfiguration,
+			showsTrailingDisclosure: item.isSubitemsHidden && hasChildren
 		)
 	}
 }

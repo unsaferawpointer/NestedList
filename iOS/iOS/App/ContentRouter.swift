@@ -23,6 +23,7 @@ protocol ContentRouterProtocol {
 	func showReorderScreen(for item: UUID, completionHandler: @escaping () -> Void)
 	func showIconPicker(title: String, completionHandler: @escaping @MainActor (IconName?) -> Void)
 	func showColorPicker(title: String, completionHandler: @escaping @MainActor (ItemColor?) -> Void)
+	func showDocument(for id: UUID)
 	func dismiss()
 }
 
@@ -139,6 +140,15 @@ extension ContentRouter: ContentRouterProtocol {
 		}
 
 		root.present(controller, animated: true)
+	}
+
+	func showDocument(for id: UUID) {
+		let controller = ContentUnitAssembly.build(
+			for: id,
+			router: nil,
+			storage: storage
+		)
+		root.navigationController?.pushViewController(controller, animated: true)
 	}
 
 	func dismiss() {

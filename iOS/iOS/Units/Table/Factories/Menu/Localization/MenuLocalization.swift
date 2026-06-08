@@ -13,6 +13,7 @@ protocol MenuLocalizationProtocol {
 	var newItemTitle: String { get }
 	var moveItemTitle: String { get }
 	var strikethroughItemTitle: String { get }
+	var hideSubitemsItemTitle: String { get }
 	var markedItemTitle: String { get }
 	var sectionItemTitle: String { get }
 	var deleteItemTitle: String { get }
@@ -53,6 +54,10 @@ extension MenuLocalization: MenuLocalizationProtocol {
 
 	var strikethroughItemTitle: String {
 		String(localized: "strikethrough_menu_item_title", table: "MenuLocalizable")
+	}
+
+	var hideSubitemsItemTitle: String {
+		String(localized: "hide_subitems_menu_item_title", table: "MenuLocalizable")
 	}
 	
 	var markedItemTitle: String {

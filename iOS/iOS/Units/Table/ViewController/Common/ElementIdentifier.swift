@@ -17,6 +17,7 @@ enum ElementIdentifier: String {
 	case paste
 	case delete
 	case strikethrough
+	case hideSubitems
 
 	case icon
 	case color

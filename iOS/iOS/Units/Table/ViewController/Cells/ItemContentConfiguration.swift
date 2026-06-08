@@ -12,6 +12,7 @@ struct ItemContentConfiguration<ID: Hashable> {
 	var id: ID
 	var row: RowConfiguration
 	var content: UIListContentConfiguration
+	var showsTrailingDisclosure: Bool
 }
 
 // MARK: - UIContentConfiguration

@@ -27,7 +27,7 @@ struct ItemsFactoryTests {
 		)
 
 		// Act
-		let result = sut.makeItem(item: item, isLeaf: true, iconColor: .multicolor)
+		let result = sut.makeItem(item: item, isLeaf: true, hasChildren: false, iconColor: .multicolor)
 
 		// Assert
 		#expect(result.id == item.id)
@@ -64,7 +64,7 @@ struct ItemsFactoryTests {
 		let item = Item(text: .random, options: [.strikethrough], tintColor: .cyan)
 
 		// Act
-		let result = sut.makeItem(item: item, isLeaf: true, iconColor: .multicolor)
+		let result = sut.makeItem(item: item, isLeaf: true, hasChildren: false, iconColor: .multicolor)
 
 		// Assert
 		#expect(result.title.text == item.text)
@@ -83,7 +83,7 @@ struct ItemsFactoryTests {
 		let item = Item(text: .random, options: [])
 
 		// Act
-		let result = sut.makeItem(item: item, isLeaf: false, iconColor: .multicolor)
+		let result = sut.makeItem(item: item, isLeaf: false, hasChildren: true, iconColor: .multicolor)
 
 		// Assert
 		#expect(result.title.text == item.text)
@@ -102,7 +102,7 @@ struct ItemsFactoryTests {
 		let item = Item(text: .random, options: [.strikethrough])
 
 		// Act
-		let result = sut.makeItem(item: item, isLeaf: false, iconColor: .multicolor)
+		let result = sut.makeItem(item: item, isLeaf: false, hasChildren: true, iconColor: .multicolor)
 
 		// Assert
 		#expect(result.title.text == item.text)
@@ -112,6 +112,32 @@ struct ItemsFactoryTests {
 		#expect(result.title.strikethrough)
 
 		#expect(result.icon?.appearence == .monochrome(token: .tertiary))
+	}
+
+	@Test func makeItem_whenSubitemsAreHiddenAndItemHasChildren() {
+		// Arrange
+		let sut = ItemsFactory()
+
+		let item = Item(text: .random, options: [.hideSubitems])
+
+		// Act
+		let result = sut.makeItem(item: item, isLeaf: true, hasChildren: true, iconColor: .multicolor)
+
+		// Assert
+		#expect(result.showsTrailingDisclosure)
+	}
+
+	@Test func makeItem_whenSubitemsAreHiddenAndItemHasNoChildren() {
+		// Arrange
+		let sut = ItemsFactory()
+
+		let item = Item(text: .random, options: [.hideSubitems])
+
+		// Act
+		let result = sut.makeItem(item: item, isLeaf: true, hasChildren: false, iconColor: .multicolor)
+
+		// Assert
+		#expect(!result.showsTrailingDisclosure)
 	}
 }
 
@@ -131,7 +157,7 @@ private extension ItemsFactoryTests {
 		)
 
 		// Act
-		let result = sut.makeItem(item: item, isLeaf: true, iconColor: appearance)
+		let result = sut.makeItem(item: item, isLeaf: true, hasChildren: false, iconColor: appearance)
 
 		// Assert
 		#expect(result.icon?.appearence == reference)

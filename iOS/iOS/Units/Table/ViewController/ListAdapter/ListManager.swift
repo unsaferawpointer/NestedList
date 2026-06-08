@@ -19,8 +19,7 @@ protocol CacheDelegate<Model>: AnyObject {
 
 	associatedtype Model
 
-	func updateCell(indexPath: IndexPath, rowConfiguration: RowConfiguration)
-	func updateCell(indexPath: IndexPath, model: Model)
+	func updateCell(indexPath: IndexPath, model: Model, rowConfiguration: RowConfiguration)
 	func beginUpdates()
 	func update(deleteRows: [IndexPath], insertRows: [IndexPath])
 	func endUpdates()
@@ -143,6 +142,11 @@ extension ListManager {
 			return
 		}
 		tableView.deselectRow(at: indexPath, animated: true)
+		let model = storage.model(with: indexPath.row)
+		guard !model.showsTrailingDisclosure else {
+			delegate?.listDidTapDisclosure(id: model.id)
+			return
+		}
 		storage.toggle(indexPath: indexPath)
 	}
 
@@ -352,22 +356,10 @@ extension ListManager {
 
 extension ListManager: CacheDelegate {
 
-	func updateCell(indexPath: IndexPath, model: Model) {
+	func updateCell(indexPath: IndexPath, model: Model, rowConfiguration: RowConfiguration) {
 		guard let cell = tableView.cellForRow(at: indexPath) as? Model.Cell else {
 			return
 		}
-
-		let row = storage.rowConfiguration(for: indexPath.row)
-		CellFactory.updateCell(cell, with: model, row: row, in: tableView, editingMode: editingMode)
-	}
-	
-
-	func updateCell(indexPath: IndexPath, rowConfiguration: RowConfiguration) {
-		guard let cell = tableView.cellForRow(at: indexPath) as? Model.Cell else {
-			return
-		}
-
-		let model = storage.model(with: indexPath.row)
 		CellFactory.updateCell(cell, with: model, row: rowConfiguration, in: tableView, editingMode: editingMode)
 	}
 

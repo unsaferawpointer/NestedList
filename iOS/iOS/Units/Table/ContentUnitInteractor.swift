@@ -17,6 +17,7 @@ protocol ContentUnitInteractorProtocol {
 	func newItem(_ text: String, note: String?, target: UUID?) -> UUID
 	func deleteItems(_ ids: [UUID])
 	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool)
+	func setSubitemsHidden(_ hidden: Bool, for ids: [UUID])
 	func setColor(_ color: ItemColor?, for ids: [UUID])
 	func setIcon(_ name: IconName?, for ids: [UUID])
 	func set(_ text: String, note: String?, for id: UUID)
@@ -56,6 +57,9 @@ final class ContentUnitInteractor {
 			let nodes = content.root.children(of: self.root)
 			Task { @MainActor [weak self] in
 				self?.presenter?.present(nodes)
+				if let root, let node = content.root.node(with: root) {
+					self?.presenter?.presentRoot(node: node)
+				}
 			}
 		}
 	}
@@ -70,6 +74,9 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 
 	func fetchData() {
 		presenter?.present(storage.state.root.children(of: root))
+		if let root, let node = storage.state.root.node(with: root) {
+			presenter?.presentRoot(node: node)
+		}
 	}
 
 	func newItem(_ text: String, note: String?, target: UUID?) -> UUID {
@@ -101,6 +108,12 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 			if moveToEnd && isStrikethrough {
 				content.root.moveToEnd(ids)
 			}
+		}
+	}
+
+	func setSubitemsHidden(_ hidden: Bool, for ids: [UUID]) {
+		storage.modificate { content in
+			content.root.setProperty(\.isSubitemsHidden, to: hidden, for: ids)
 		}
 	}
 

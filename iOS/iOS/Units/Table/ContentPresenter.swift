@@ -17,6 +17,7 @@ import CorePresentation
 protocol ContentPresenterProtocol: AnyObject {
 	func present(_ content: Content)
 	func present(_ nodes: [Node<Item>])
+	func presentRoot(node: Node<Item>)
 }
 
 @MainActor
@@ -89,21 +90,34 @@ extension ContentPresenter: ContentPresenterProtocol {
 	}
 
 	func present(_ nodes: [Node<Item>]) {
-		var snapshot = Snapshot(nodes)
+		let originalSnapshot = Snapshot(nodes)
+
+		let withoutChildren = nodes.map {
+			$0.withoutChildren { item in
+				item.isSubitemsHidden
+			}
+		}
+
+		var snapshot = Snapshot(withoutChildren)
 		snapshot.validate(keyPath: \.isStrikethrough)
 
 		cache.store(.isStrikethrough, keyPath: \.isStrikethrough, equalsTo: true, from: snapshot)
+		cache.store(.isSubitemsHidden, keyPath: \.isSubitemsHidden, equalsTo: true, from: snapshot)
 
 		let converted = snapshot
 			.map { info in
-
 					return factory.makeItem(
 						item: info.model,
 						isLeaf: info.isLeaf,
+						hasChildren: !originalSnapshot.isLeaf(id: info.model.id),
 						iconColor: settingsProvider.state.iconColor
 					)
 				}
 		view?.display(converted)
+	}
+
+	func presentRoot(node: Node<Item>) {
+		view?.display(title: node.value.text)
 	}
 }
 
@@ -111,18 +125,16 @@ extension ContentPresenter: ContentPresenterProtocol {
 extension ContentPresenter: ViewDelegate {
 
 	func viewDidChange(state: ViewState) {
-		guard case .didLoad = state else {
+		switch state {
+		case .didLoad:
+			interactor?.fetchData()
+			view?.expandAll()
+			displayToolbar()
+		case .willAppear:
+			displayToolbar()
+		default:
 			return
 		}
-		interactor?.fetchData()
-		view?.expandAll()
-
-		let toolbar = toolbarFactory.build(
-			editingMode: editingMode,
-			selectedCount: 0,
-			isCompleted: cache.validate(.isStrikethrough, other: view?.selection ?? [])
-		)
-		view?.display(toolbar)
 	}
 }
 
@@ -189,6 +201,10 @@ extension ContentPresenter: InteractionDelegate {
 			let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
 			let newValue = !(cache.validate(.isStrikethrough, other: currentSelection ?? []) ?? false)
 			interactor?.setStatus(newValue, for: currentSelection ?? [], moveToEnd: moveToEnd)
+		case .hideSubitems:
+			editingMode = nil
+			let newValue = !(cache.validate(.isSubitemsHidden, other: currentSelection ?? []) ?? false)
+			interactor?.setSubitemsHidden(newValue, for: currentSelection ?? [])
 		case .select:
 			editingMode = .selection
 		case .selectAll:
@@ -259,8 +275,13 @@ extension ContentPresenter: ListDelegate {
 
 	func menu(for ids: [UUID]) -> [MenuElement] {
 		menuFactory.build(
-			isCompleted: cache.validate(.isStrikethrough, other: ids)
+			isCompleted: cache.validate(.isStrikethrough, other: ids),
+			isSubitemsHidden: cache.validate(.isSubitemsHidden, other: ids)
 		)
+	}
+
+	func listDidTapDisclosure(id: UUID) {
+		router.showDocument(for: id)
 	}
 }
 
@@ -346,10 +367,21 @@ private extension ContentPresenter {
 			}
 		}
 	}
+
+	func displayToolbar() {
+		let selection = view?.selection ?? []
+		let toolbar = toolbarFactory.build(
+			editingMode: editingMode,
+			selectedCount: selection.count,
+			isCompleted: cache.validate(.isStrikethrough, other: selection)
+		)
+		view?.display(toolbar)
+	}
 }
 
 enum Property: Hashable {
 	case isStrikethrough
+	case isSubitemsHidden
 }
 
 private extension Item {

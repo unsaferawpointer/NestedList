@@ -18,6 +18,7 @@ public protocol ListDelegate<ID>: AnyObject {
 #endif
 
 #if os(iOS)
+@MainActor
 public protocol ListDelegate<ID>: AnyObject {
 
 	associatedtype ID
@@ -25,6 +26,8 @@ public protocol ListDelegate<ID>: AnyObject {
 	func listItemHasBeenDelete (id: ID)
 
 	func listDidChangeSelection(ids: [ID])
+
+	func listDidTapDisclosure(id: ID)
 
 	func menu(for ids: [ID]) -> [MenuElement]
 }
