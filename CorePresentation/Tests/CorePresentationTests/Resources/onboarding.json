@@ -13,9 +13,7 @@
 		"iconColor": 12,
 		"title": "New Features",
 		"id": "premium_features",
-		"description": "Customizable section icons and improved organization",
-		"minVersion": "1.5.0",
-		"maxVersion": "1.5.0"
+		"description": "Customizable section icons and improved organization"
 	},
 	{
 		"icon": "arrow.triangle.2.circlepath",

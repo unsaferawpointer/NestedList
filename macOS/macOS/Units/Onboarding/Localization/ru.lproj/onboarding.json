@@ -1,5 +1,26 @@
 [
 	{
+		"icon": "square.stack.3d.up",
+		"iconColor": 12,
+		"title": "Организуйте всё по структуре",
+		"id": "structured_lists_intro",
+		"description": "Создавайте вложенные списки, чтобы хранить идеи, планы и большие проекты в удобной и понятной форме."
+	},
+	{
+		"icon": "doc.text",
+		"iconColor": 3,
+		"title": "Списки как документы",
+		"id": "document_based_intro",
+		"description": "Создавайте отдельные документы для проектов, заметок и идей."
+	},
+	{
+		"icon": "slider.horizontal.2.square.on.square",
+		"iconColor": 18,
+		"title": "Настройте важные пункты",
+		"id": "customize_items_intro",
+		"description": "Добавляйте цвет и иконку, чтобы быстрее находить нужное."
+	},
+	{
 		"icon": "exclamationmark.triangle.fill",
 		"iconColor": 11,
 		"title": "Важное изменение",
@@ -23,8 +44,7 @@
 		"title": "Переход на новый формат документа",
 		"id": "document_format_update",
 		"description": "Пожалуйста, обновите приложение до последней версии на всех платформах, чтобы документы корректно открывались везде.",
-		"minVersion": "2.0.0",
-		"maxVersion": "2.0.0"
+		"minVersion": "2.0.0"
 	},
 	{
 		"icon": "list.bullet.indent",
@@ -32,8 +52,7 @@
 		"title": "Отказ от стиля секции",
 		"id": "section_style_removed",
 		"description": "Мы отказались от стиля секции. Теперь он автоматически применяется к пунктам, у которых есть подпункты.",
-		"minVersion": "2.0.0",
-		"maxVersion": "2.0.0"
+		"minVersion": "2.0.0"
 	},
 	{
 		"icon": "paintpalette.fill",
@@ -41,7 +60,22 @@
 		"title": "Цвет и иконка для каждого пункта",
 		"id": "item_color_icon",
 		"description": "Теперь для каждого пункта можно отдельно настроить и цвет, и иконку.",
-		"minVersion": "2.0.0",
-		"maxVersion": "2.0.0"
+		"minVersion": "2.0.0"
+	},
+	{
+		"icon": "macwindow.on.rectangle",
+		"iconColor": 6,
+		"title": "Большие проекты стали удобнее",
+		"id": "open_subitems_window",
+		"description": "Скрывайте подпункты через контекстное меню и открывайте содержимое пункта по стрелке вперед.",
+		"minVersion": "2.2.0"
+	},
+	{
+		"icon": "bubble.left.and.text.bubble.right",
+		"iconColor": 10,
+		"title": "Обратная связь в настройках",
+		"id": "settings_feedback",
+		"description": "Теперь можно написать разработчику или оценить приложение прямо из настроек.",
+		"minVersion": "2.2.0"
 	}
 ]

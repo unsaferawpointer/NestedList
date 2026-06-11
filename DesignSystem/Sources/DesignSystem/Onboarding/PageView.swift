@@ -17,37 +17,83 @@ struct PageView {
 extension PageView: View {
 
 	var body: some View {
-		VStack(spacing: 8) {
+		VStack(spacing: 24) {
 			GeometryReader { proxy in
-				VStack {
-					Spacer()
-					Image(systemName: systemName)
-						.resizable()
-						.aspectRatio(contentMode: .fit)
-						.frame(height: proxy.size.height * 0.5)
-					Spacer()
+				ZStack {
+					Color.tertiarySystemFill
+					VStack {
+						Spacer()
+						buildImage(height: proxy.size.height)
+						Spacer()
+					}
+					.frame(
+						maxWidth: .infinity,
+						maxHeight: .infinity,
+						alignment: .center
+					)
 				}
-				.frame(
-					maxWidth: .infinity,
-					maxHeight: .infinity,
-					alignment: .center
-				)
+				.ignoresSafeArea()
 			}
 			.frame(maxWidth: .infinity, maxHeight: .infinity)
-			Text(title)
-				.font(titleFont)
-				.fontWeight(.bold)
-				.foregroundStyle(.primary)
-				.multilineTextAlignment(.center)
-				.padding(.horizontal, 32)
-			Text(description)
-				.font(descriptionFont)
-				.foregroundStyle(.secondary)
-				.multilineTextAlignment(.center)
-				.padding(.horizontal, 36)
+			VStack {
+				Text(title)
+					.font(titleFont)
+					.fontWeight(.bold)
+					.foregroundStyle(.primary)
+					.multilineTextAlignment(.center)
+					.padding(.horizontal, 32)
+				Text(description)
+					.font(descriptionFont)
+					.foregroundStyle(.secondary)
+					.multilineTextAlignment(.center)
+					.padding(.horizontal, 36)
+			}
 		}
 	}
 }
+
+// MARK: - Helpers
+#if os(iOS)
+private extension PageView {
+
+	func buildImage(height: CGFloat) -> some View {
+		if #available(iOS 26.0, *) {
+			Image(systemName: systemName)
+				.resizable()
+				.symbolRenderingMode(.hierarchical)
+				.symbolColorRenderingMode(.gradient)
+				.aspectRatio(contentMode: .fit)
+				.frame(height: height * 0.35)
+		} else {
+			Image(systemName: systemName)
+				.resizable()
+				.symbolRenderingMode(.hierarchical)
+				.aspectRatio(contentMode: .fit)
+				.frame(height: height * 0.35)
+		}
+	}
+}
+#elseif os(macOS)
+extension PageView {
+
+	func buildImage(height: CGFloat) -> some View {
+		if #available(macOS 26.0, *) {
+			Image(systemName: systemName)
+				.resizable()
+				.symbolRenderingMode(.hierarchical)
+				.symbolColorRenderingMode(.gradient)
+				.aspectRatio(contentMode: .fit)
+				.frame(height: height * 0.5)
+		} else {
+			Image(systemName: systemName)
+				.resizable()
+				.symbolRenderingMode(.hierarchical)
+				.aspectRatio(contentMode: .fit)
+				.frame(height: height * 0.5)
+		}
+	}
+}
+#endif
 
 #if os(iOS)
 private extension PageView {

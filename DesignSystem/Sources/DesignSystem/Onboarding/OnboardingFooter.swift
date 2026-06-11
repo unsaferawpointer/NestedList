@@ -79,7 +79,11 @@ struct OnboardingFooter: View {
 					}
 				}
 			} label: {
-				Text(state.canNext() ? "Next" : "Get Started")
+				Text(
+					state.canNext()
+						? OnboardingLocalization.nextButtonTitle
+						: OnboardingLocalization.getStaredButtonTitle
+				)
 					.frame(maxWidth: .infinity)
 			}
 			.buttonStyle(.borderedProminent)
@@ -91,7 +95,7 @@ struct OnboardingFooter: View {
 			Button {
 				secondaryAction?()
 			} label: {
-				Text("Skip")
+				Text(OnboardingLocalization.skipButtonTitle)
 					.frame(maxWidth: .infinity)
 			}
 			.buttonStyle(.borderless)

@@ -14,7 +14,7 @@ public final class OnboardingFactory { }
 // MARK: - Public Interface
 public extension OnboardingFactory {
 
-	static func build(for version: Version, in bundle: Bundle) throws -> [Feature]? {
+	static func build(for version: Version, lastVersion: Version? = nil, in bundle: Bundle) throws -> [Feature]? {
 		guard
 			let path = resourceURL(for: version, in: bundle),
 			let data = try? Data(contentsOf: path)
@@ -23,7 +23,7 @@ public extension OnboardingFactory {
 		}
 
 		let features = try JSONDecoder().decode([Feature].self, from: data)
-		return filter(features: features, for: version)
+		return filter(features: features, for: version, lastVersion: lastVersion)
 	}
 }
 
@@ -34,17 +34,23 @@ private extension OnboardingFactory {
 		return bundle.url(forResource: "onboarding", withExtension: "json")
 	}
 
-	static func filter(features: [Feature], for version: Version) -> [Feature] {
+	static func filter(features: [Feature], for version: Version, lastVersion: Version?) -> [Feature] {
 		return features.filter { feature in
-			isSupported(feature: feature, for: version)
+			isSupported(feature: feature, for: version, lastVersion: lastVersion)
 		}
 	}
 
-	static func isSupported(feature: Feature, for version: Version) -> Bool {
-		if let minVersion = feature.minVersion, let min = Version(rawValue: minVersion), version < min {
+	static func isSupported(feature: Feature, for version: Version, lastVersion: Version?) -> Bool {
+		guard let lastVersion else {
+			return feature.minVersion == nil
+		}
+		guard let minVersion = feature.minVersion else {
 			return false
 		}
-		if let maxVersion = feature.maxVersion, let max = Version(rawValue: maxVersion), version > max {
+		if version < minVersion || lastVersion >= minVersion {
+			return false
+		}
+		if let maxVersion = feature.maxVersion, version > maxVersion {
 			return false
 		}
 		return true

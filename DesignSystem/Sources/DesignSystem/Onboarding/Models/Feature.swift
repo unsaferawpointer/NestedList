@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreModule
 
 public struct Feature {
 
@@ -15,8 +16,8 @@ public struct Feature {
 	let iconColor: ColorToken?
 	let title: String
 	let description: String
-	public let minVersion: String?
-	public let maxVersion: String?
+	public let minVersion: Version?
+	public let maxVersion: Version?
 
 	// MARK: - Initialization
 
@@ -26,8 +27,8 @@ public struct Feature {
 		iconColor: ColorToken? = .accent,
 		title: String,
 		description: String,
-		minVersion: String? = nil,
-		maxVersion: String? = nil
+		minVersion: Version? = nil,
+		maxVersion: Version? = nil
 	) {
 		self.id = id
 		self.icon = icon
@@ -36,6 +37,14 @@ public struct Feature {
 		self.iconColor = iconColor
 		self.minVersion = minVersion
 		self.maxVersion = maxVersion
+	}
+}
+
+// MARK: - Public Interface
+public extension Feature {
+
+	var showsOnFirstLaunch: Bool {
+		return minVersion == nil
 	}
 }
 
