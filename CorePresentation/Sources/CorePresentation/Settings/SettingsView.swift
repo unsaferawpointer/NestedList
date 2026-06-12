@@ -9,6 +9,10 @@ import CoreModule
 import StoreKit
 import SwiftUI
 
+#if os(macOS)
+import AppKit
+#endif
+
 @MainActor
 public struct SettingsView {
 
@@ -112,11 +116,24 @@ private extension SettingsView {
 			isEmailErrorPresented = true
 			return
 		}
+		openEmail(url)
+	}
+
+	func openEmail(_ url: URL) {
+		#if os(macOS)
+		if NSWorkspace.shared.open(url) == false {
+			isEmailErrorPresented = true
+		}
+		#else
 		openURL(url) { accepted in
-			if accepted == false {
+			guard accepted == false else {
+				return
+			}
+			Task { @MainActor in
 				isEmailErrorPresented = true
 			}
 		}
+		#endif
 	}
 }
 
