@@ -52,6 +52,40 @@
         }
       }
     },
+    "email-error-message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check that a mail app is installed and configured on this device."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверьте, что почтовое приложение установлено и настроено на этом устройстве."
+          }
+        }
+      }
+    },
+    "email-error-title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to Open Email"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось открыть почту"
+          }
+        }
+      }
+    },
     "marking-behavior-description" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -160,13 +194,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Write Email"
+            "value" : "Contact Developer"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Написать письмо"
+            "value" : "Написать разработчику"
           }
         }
       }
@@ -347,13 +381,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Support"
+            "value" : "Feedback"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Поддержка"
+            "value" : "Обратная связь"
           }
         }
       }

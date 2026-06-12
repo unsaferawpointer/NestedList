@@ -9,6 +9,7 @@ import AppKit
 import SwiftUI
 import CorePresentation
 
+@MainActor
 final class PreferencesAssembly {
 
 	static func build(settingsProvider: SettingsProvider) -> NSWindowController? {
