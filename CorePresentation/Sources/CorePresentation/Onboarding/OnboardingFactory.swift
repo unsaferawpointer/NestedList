@@ -44,13 +44,14 @@ private extension OnboardingFactory {
 		guard let lastVersion else {
 			return feature.minVersion == nil
 		}
-		guard let minVersion = feature.minVersion else {
+		guard let rawMinVersion = feature.minVersion, let minVersion = Version(rawValue: rawMinVersion) else {
 			return false
 		}
 		if version < minVersion || lastVersion >= minVersion {
 			return false
 		}
-		if let maxVersion = feature.maxVersion, version > maxVersion {
+		if let rawMaxVersion = feature.maxVersion,
+		   let maxVersion = Version(rawValue: rawMaxVersion), version > maxVersion {
 			return false
 		}
 		return true
