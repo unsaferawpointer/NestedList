@@ -45,14 +45,8 @@ class Document: NSDocument {
 	}
 
 	override func makeWindowControllers() {
-		// Returns the Storyboard that contains your Document window.
-		let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
-		let windowController = storyboard.instantiateController(
-			withIdentifier: NSStoryboard.SceneIdentifier("Document Window Controller")
-		) as! NSWindowController
-		windowController.contentViewController = DocumentAssembly.build(storage: storage)
-
-		self.addWindowController(windowController)
+		let windowController = makeDocumentWindowController()
+		addWindowController(windowController)
 	}
 
 	override func data(ofType typeName: String) throws -> Data {
@@ -71,6 +65,25 @@ class Document: NSDocument {
 		}
 	}
 
+}
+
+// MARK: - Private methods
+private extension Document {
+
+	func makeDocumentWindowController() -> NSWindowController {
+		let contentViewController = DocumentAssembly.build(storage: storage)
+		let window = NSWindow(
+			contentRect: NSRect(x: 196, y: 240, width: 480, height: 270),
+			styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+			backing: .buffered,
+			defer: false
+		)
+		window.contentViewController = contentViewController
+		window.isReleasedWhenClosed = false
+		window.animationBehavior = .default
+
+		return NSWindowController(window: window)
+	}
 }
 
 extension NSToolbarItem.Identifier {
