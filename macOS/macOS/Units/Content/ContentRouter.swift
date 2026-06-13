@@ -122,6 +122,12 @@ extension ContentRouter: ContentRouterProtocol {
 			)
 		)
 
+		let windowController = DocumentChildWindowController(window: childWindow)
+		if let document = NSDocumentController.shared.document(for: parentWindow) {
+			windowController.documentOwner = document
+			document.addWindowController(windowController)
+		}
+
 		parentWindow.addChildWindow(childWindow, ordered: .above)
 		childWindow.makeKeyAndOrderFront(nil)
 	}
