@@ -83,8 +83,6 @@ extension ContentPresenter: ContentPresenterProtocol {
 
 	func present(_ nodes: [Node<Item>]) {
 
-		let originalSnapshot = Snapshot(nodes)
-
 		let withoutChildren = nodes.map {
 			$0.withoutChildren { item in
 				item.isSubitemsHidden
@@ -102,7 +100,6 @@ extension ContentPresenter: ContentPresenterProtocol {
 			factory.makeItem(
 				item: info.model,
 				isLeaf: info.isLeaf,
-				hasChildren: !originalSnapshot.isLeaf(id: info.model.id),
 				iconColor: settingsProvider.state.iconColor
 			)
 		}

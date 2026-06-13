@@ -13,7 +13,7 @@ import CoreModule
 import CorePresentation
 
 protocol ItemsFactoryProtocol {
-	func makeItem(item: Item, isLeaf: Bool, hasChildren: Bool, iconColor: IconColor) -> ItemModel
+	func makeItem(item: Item, isLeaf: Bool, iconColor: IconColor) -> ItemModel
 }
 
 final class ItemsFactory { }
@@ -21,7 +21,7 @@ final class ItemsFactory { }
 // MARK: - ItemsFactoryProtocol
 extension ItemsFactory: ItemsFactoryProtocol {
 
-	func makeItem(item: Item, isLeaf: Bool, hasChildren: Bool, iconColor: IconColor) -> ItemModel {
+	func makeItem(item: Item, isLeaf: Bool, iconColor: IconColor) -> ItemModel {
 
 		let textConfiguration = TextConfiguration(
 			style: isLeaf ? .body : .headline,
@@ -59,7 +59,7 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			configuration: .init(
 				icon: iconConfiguration,
 				text: textConfiguration,
-				showsTrailingDisclosure: item.isSubitemsHidden && hasChildren
+				showsTrailingDisclosure: item.isSubitemsHidden
 			),
 			isGroup: !isLeaf,
 			height: item.note != nil ? 36 : nil

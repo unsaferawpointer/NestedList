@@ -90,7 +90,6 @@ extension ContentPresenter: ContentPresenterProtocol {
 	}
 
 	func present(_ nodes: [Node<Item>]) {
-		let originalSnapshot = Snapshot(nodes)
 
 		let withoutChildren = nodes.map {
 			$0.withoutChildren { item in
@@ -109,7 +108,6 @@ extension ContentPresenter: ContentPresenterProtocol {
 					return factory.makeItem(
 						item: info.model,
 						isLeaf: info.isLeaf,
-						hasChildren: !originalSnapshot.isLeaf(id: info.model.id),
 						iconColor: settingsProvider.state.iconColor
 					)
 				}
