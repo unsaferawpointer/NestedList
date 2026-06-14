@@ -224,8 +224,10 @@ extension ContentViewController: NSToolbarDelegate {
 		switch itemIdentifier {
 		case .newItem:
 			let image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)!
-			let button = NSButton(image: image, target: nil, action: #selector(DocumentToolbarSupportable.newItem(_:)))
-			item.target = self
+			let button = NSButton(image: image, target: self, action: #selector(DocumentToolbarSupportable.newItem(_:)))
+			button.bezelStyle = .toolbar
+			button.imagePosition = .imageOnly
+			button.sendAction(on: .leftMouseDown)
 
 			item.label = localization.newItemToolbarItemLabel
 			item.view = button
