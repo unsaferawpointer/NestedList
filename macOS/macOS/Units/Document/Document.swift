@@ -82,7 +82,9 @@ private extension Document {
 		window.isReleasedWhenClosed = false
 		window.animationBehavior = .default
 
-		return NSWindowController(window: window)
+		let windowController = NSWindowController(window: window)
+		windowController.windowFrameAutosaveName = "document-window"
+		return windowController
 	}
 }
 
