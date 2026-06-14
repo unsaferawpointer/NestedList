@@ -104,7 +104,10 @@ extension TableViewController: ContentView {
 
 		guard let root = parent as? DocumentViewController else {
 			navigationItem.setRightBarButtonItems(topItems, animated: true)
-			toolbarItems = bottomItems
+			toolbarItems = documentViewController?.makeBottomToolbarItems(
+				bottom: bottomItems,
+				showUndoGroup: toolbar.showUndoGroup
+			) ?? bottomItems
 			return
 		}
 
@@ -153,6 +156,12 @@ extension TableViewController: ContentView {
 
 // MARK: - Helpers
 private extension TableViewController {
+
+	var documentViewController: DocumentViewController? {
+		navigationController?.viewControllers
+			.compactMap { $0 as? DocumentViewController }
+			.first
+	}
 
 	func configureLayout() {
 		nestedList.pin(edges: .all, to: view)
