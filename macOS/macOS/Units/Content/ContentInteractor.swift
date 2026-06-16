@@ -154,7 +154,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 
 	func toggleStrikethrough(for id: UUID, moveToEnd: Bool) {
 		storage.modificate { content in
-			let status = content.root[id].allSatisfy(\.isStrikethrough, equalsTo: true)
+			let status = content.root.allMatch(id: id, keyPath: \.isStrikethrough, equalsTo: true)
 			content.root.setProperty(\.isStrikethrough, to: !status, for: [id], downstream: true)
 			if moveToEnd && status == false {
 				content.root.moveToEnd([id])

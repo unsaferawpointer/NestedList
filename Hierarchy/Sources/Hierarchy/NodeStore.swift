@@ -26,20 +26,30 @@ public final class NodeStore<Value: IdentifiableValue> {
 }
 
 // MARK: - Subscripts
-extension NodeStore {
+public extension NodeStore {
 
-	public subscript(_ id: ID) -> Node<Value> {
+	subscript(_ id: ID) -> Value? {
 		get {
-			cache[unsafe: id]
+			cache[id]?.value
 		}
 	}
 }
 
 public extension NodeStore {
 
-	func enumerate(_ block: (Node<Value>) -> Void) {
-		nodes.forEach {
-			$0.enumerate(block)
+	/// Returns `true` when every leaf node in the subtree of the node with the given identifier has a value equal to the given value at the specified key path.
+	/// Returns `false` when the node is not found.
+	func allMatch<T: Equatable>(id: Value.ID, keyPath: KeyPath<Value, T>, equalsTo value: T) -> Bool {
+		guard let node = cache[id] else {
+			return false
+		}
+		return node.allMatch(keyPath, equalsTo: value)
+	}
+
+	/// Returns `true` when every leaf node in the store has a value equal to the given value at the specified key path.
+	func allMatch<T: Equatable>(_ keyPath: KeyPath<Value, T>, equalsTo value: T) -> Bool {
+		return nodes.allSatisfy {
+			$0.allMatch(keyPath, equalsTo: value)
 		}
 	}
 
@@ -95,10 +105,6 @@ public extension NodeStore {
 			}
 			item.setProperty(keyPath, to: value, downstream: downstream)
 		}
-	}
-
-	func allSatisfy<T: Equatable>(_ keyPath: KeyPath<Value, T>, equalsTo value: T) -> Bool {
-		return nodes.allSatisfy { $0.allSatisfy(keyPath, equalsTo: value) }
 	}
 
 	var count: Int {
@@ -310,90 +316,6 @@ public extension NodeStore {
 		}
 	}
 
-	func validateMovingForward(_ id: ID) -> Bool {
-		let target = cache[id]?.parent?.id
-		let index = if let parent = cache[id]?.parent {
-			parent.children.firstIndex(where: \.id, equalsTo: id)
-		} else {
-			nodes.firstIndex(where: \.id, equalsTo: id)
-		}
-
-		guard let index else {
-			return false
-		}
-
-		let nextIndex = index + 2
-		let upperBound = if let parent = cache[id]?.parent {
-			parent.children.count
-		} else {
-			nodes.count
-		}
-
-		guard nextIndex <= upperBound else {
-			return false
-		}
-
-		return true
-	}
-
-	func moveForward(_ id: ID) {
-
-		let target = cache[id]?.parent?.id
-		let index = if let parent = cache[id]?.parent {
-			parent.children.firstIndex(where: \.id, equalsTo: id)
-		} else {
-			nodes.firstIndex(where: \.id, equalsTo: id)
-		}
-
-		guard let index else {
-			return
-		}
-
-		let nextIndex = index + 2
-		let upperBound = if let parent = cache[id]?.parent {
-			parent.children.count
-		} else {
-			nodes.count
-		}
-
-		guard nextIndex <= upperBound else {
-			return
-		}
-
-		let destination = Destination(target: target, index: nextIndex)
-		moveItems(with: [id], to: destination)
-	}
-
-	func validateMovingBackward(_ id: ID) -> Bool {
-		let index: Int = if let parent = cache[id]?.parent {
-			parent.children.firstIndex(where: \.id, equalsTo: id) ?? 0
-		} else {
-			nodes.firstIndex(where: \.id, equalsTo: id) ?? 0
-		}
-
-		let nextIndex = index - 1
-		guard nextIndex >= 0 else {
-			return false
-		}
-		return true
-	}
-
-	func moveBackward(_ id: ID) {
-		let target = cache[id]?.parent?.id
-		let index: Int = if let parent = cache[id]?.parent {
-			parent.children.firstIndex(where: \.id, equalsTo: id) ?? 0
-		} else {
-			nodes.firstIndex(where: \.id, equalsTo: id) ?? 0
-		}
-
-		let nextIndex = index - 1
-		guard nextIndex >= 0 else {
-			return
-		}
-
-		let destination = Destination<ID>(target: target, index: nextIndex)
-		moveItems(with: [id], to: destination)
-	}
 }
 
 // MARK: - Equatable
