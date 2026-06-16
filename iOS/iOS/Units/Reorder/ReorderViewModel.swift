@@ -54,7 +54,7 @@ extension ReorderViewModel {
 // MARK: - Helpers
 private extension ReorderViewModel {
 
-	func present(root: Root<Item>) {
+	func present(root: NodeStore<Item>) {
 		self.items = storage.state.root.children(of: parent)
 			.map {
 				$0.value

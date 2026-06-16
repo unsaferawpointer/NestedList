@@ -62,7 +62,7 @@ final class TargetDestinationViewModel {
 // MARK: - Helpers
 private extension TargetDestinationViewModel {
 
-	func present(root: Root<Item>) {
+	func present(root: NodeStore<Item>) {
 		self.items = storage.state.root
 			.flattened { _ in true }.map {
 				ItemViewModel(

@@ -14,13 +14,13 @@ public struct Content {
 
 	public var view: ContentView
 
-	public var root: Root<Item>
+	public var root: NodeStore<Item>
 
 	// MARK: - Initialization
 
 	public init(uuid: UUID?, nodes: [Node<Item>] = [], view: ContentView = .list) {
 		self.uuid = uuid
-		self.root = Root<Item>(hierarchy: nodes)
+		self.root = NodeStore<Item>(hierarchy: nodes)
 		self.view = view
 	}
 }

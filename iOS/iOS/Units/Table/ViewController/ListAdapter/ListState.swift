@@ -119,7 +119,7 @@ extension ListState {
 
 	func deleted(id: Model.ID) -> ListState {
 		let nodes = snapshot.getNodes()
-		let root = Root<Model>(hierarchy: nodes)
+		let root = NodeStore<Model>(hierarchy: nodes)
 		root.deleteItem(id)
 		let newExpanded = expanded.subtracting([id])
 		return ListState(
@@ -129,7 +129,7 @@ extension ListState {
 	}
 
 	func inserted(model: Model, to destination: Destination<Model.ID>) -> ListState {
-		let root = Root<Model>(hierarchy: snapshot.getNodes())
+		let root = NodeStore<Model>(hierarchy: snapshot.getNodes())
 		root.insertItems(with: [model], to: destination)
 
 		return ListState(

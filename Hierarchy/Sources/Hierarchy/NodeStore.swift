@@ -1,5 +1,5 @@
 //
-//  Root.swift
+//  NodeStore.swift
 //  Hierarchy
 //
 //  Created by Anton Cherkasov on 17.11.2024.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public final class Root<Value: IdentifiableValue> {
+public final class NodeStore<Value: IdentifiableValue> {
 
 	public typealias ID = Value.ID
 
@@ -26,7 +26,7 @@ public final class Root<Value: IdentifiableValue> {
 }
 
 // MARK: - Subscripts
-extension Root {
+extension NodeStore {
 
 	public subscript(_ id: ID) -> Node<Value> {
 		get {
@@ -35,7 +35,7 @@ extension Root {
 	}
 }
 
-public extension Root {
+public extension NodeStore {
 
 	func enumerate(_ block: (Node<Value>) -> Void) {
 		nodes.forEach {
@@ -115,7 +115,7 @@ public extension Root {
 }
 
 // MARK: - Helpers
-private extension Root {
+private extension NodeStore {
 
 	func storeInCache(_ items: [Node<Value>]) {
 		for item in items {
@@ -138,7 +138,7 @@ private extension Root {
 }
 
 // MARK: - Insertion
-extension Root {
+extension NodeStore {
 
 	public func insertItems(with contents: [Value], to destination: Destination<ID>) {
 		let items = contents.map { Node(value: $0) }
@@ -193,7 +193,7 @@ extension Root {
 }
 
 // MARK: - Deletion
-public extension Root {
+public extension NodeStore {
 
 	func deleteItems(_ ids: [ID]) {
 		for id in ids {
@@ -219,7 +219,7 @@ public extension Root {
 }
 
 // MARK: - Support moving
-public extension Root {
+public extension NodeStore {
 
 	func invalidTargets(movingItems ids: Set<ID>) -> Set<ID> {
 		var result = Set<ID>()
@@ -397,15 +397,15 @@ public extension Root {
 }
 
 // MARK: - Equatable
-extension Root: Equatable {
+extension NodeStore: Equatable {
 
-	public static func == (lhs: Root<Value>, rhs: Root<Value>) -> Bool {
+	public static func == (lhs: NodeStore<Value>, rhs: NodeStore<Value>) -> Bool {
 		return lhs.nodes == rhs.nodes
 	}
 }
 
 // MARK: - Support moving
-private extension Root {
+private extension NodeStore {
 
 	func moveToRoot(_ moved: [Node<Value>], at index: Int) {
 
