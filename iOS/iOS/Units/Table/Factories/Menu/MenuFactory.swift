@@ -15,9 +15,8 @@ final class MenuFactory {
 // MARK: - Public interface
 extension MenuFactory {
 
-	func build(isCompleted: Bool?) -> [MenuElement] {
-		return
-		[
+	func build(isCompleted: Bool?, isSubitemsHidden: Bool?) -> [MenuElement] {
+		return [
 			.init(
 				id: "",
 				content: .menu(
@@ -38,7 +37,8 @@ extension MenuFactory {
 					size: .automatic,
 					items:
 						[
-								buildItem(id: .strikethrough, title: localization.strikethroughItemTitle, state: isCompleted.state)
+							buildItem(id: .strikethrough, title: localization.strikethroughItemTitle, state: isCompleted.state),
+							buildItem(id: .hideSubitems, title: localization.hideSubitemsItemTitle, state: isSubitemsHidden.state)
 						]
 				)
 			),

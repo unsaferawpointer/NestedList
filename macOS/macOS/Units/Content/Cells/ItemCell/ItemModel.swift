@@ -36,6 +36,7 @@ extension ItemModel {
 	struct Configuration: Equatable {
 		var icon: IconConfiguration?
 		var text: TextConfiguration
+		var showsTrailingDisclosure: Bool
 	}
 
 	struct Value: Equatable {

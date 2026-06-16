@@ -6,6 +6,7 @@
 //
 
 #if os(iOS)
+@MainActor
 public protocol InteractionDelegate<ID>: AnyObject {
 
 	associatedtype ID: Hashable

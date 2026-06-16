@@ -81,6 +81,19 @@ public extension ItemV2 {
 			}
 		}
 	}
+
+	var isSubitemsHidden: Bool {
+		get {
+			options.contains(.hideSubitems)
+		}
+		set {
+			if newValue {
+				options.insert(.hideSubitems)
+			} else {
+				options.remove(.hideSubitems)
+			}
+		}
+	}
 }
 
 // MARK: - Codable

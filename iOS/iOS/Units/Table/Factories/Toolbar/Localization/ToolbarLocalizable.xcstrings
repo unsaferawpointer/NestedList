@@ -225,6 +225,22 @@
         }
       }
     },
+    "select_all_toolbar_item_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select All"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбрать все"
+          }
+        }
+      }
+    },
     "settings_toolbar_item_title" : {
       "localizations" : {
         "en" : {

@@ -95,11 +95,24 @@ final class ItemCell: NSView, ListCell {
 	}()
 
 	lazy var container: NSStackView = {
-		let view = NSStackView(views: [iconView, textfieldsContainer])
+		let view = NSStackView(views: [iconView, textfieldsContainer, disclosureView])
 		view.orientation = .horizontal
 		view.distribution = .fill
 		view.spacing = 6
 		view.alignment = .centerY
+		return view
+	}()
+
+	lazy var disclosureView: NSButton = {
+		let view = NSButton()
+		view.isBordered = true
+		view.bezelStyle = .automatic
+		view.imagePosition = .imageOnly
+		view.image = NSImage(systemSymbolName: "arrow.forward", accessibilityDescription: nil)
+		view.controlSize = .small
+		view.showsBorderOnlyWhileMouseInside = true
+		view.target = self
+		view.action = #selector(disclosureDidTap(_:))
 		return view
 	}()
 
@@ -147,6 +160,7 @@ private extension ItemCell {
 
 		subtitleTextfield.isHidden = value.subtitle == nil
 		subtitleTextfield.stringValue = value.subtitle ?? ""
+		disclosureView.isHidden = !configuration.showsTrailingDisclosure
 	}
 
 	func configureConstraints() {
@@ -211,6 +225,14 @@ extension ItemCell {
 		let subtitle = subtitleTextfield.stringValue
 
 		delegate?.cellDidChange(newValue: .init(title: title, subtitle: subtitle), id: model.id)
+	}
+
+	@objc
+	func disclosureDidTap(_ sender: NSButton) {
+		guard sender === disclosureView else {
+			return
+		}
+		delegate?.cellDidTapDisclosure(id: model.id)
 	}
 
 }

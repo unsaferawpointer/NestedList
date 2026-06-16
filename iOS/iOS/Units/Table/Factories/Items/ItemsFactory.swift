@@ -9,7 +9,6 @@ import Foundation
 
 import DesignSystem
 import CoreModule
-import CoreSettings
 import CorePresentation
 
 protocol ItemsFactoryProtocol {
@@ -69,7 +68,8 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			uuid: item.id,
 			icon: iconConfiguration,
 			title: titleConfiguration,
-			subtitle: subtitleConfiguration
+			subtitle: subtitleConfiguration,
+			showsTrailingDisclosure: item.isSubitemsHidden
 		)
 	}
 }

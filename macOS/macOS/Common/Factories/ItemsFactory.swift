@@ -10,7 +10,6 @@ import AppKit
 
 import DesignSystem
 import CoreModule
-import CoreSettings
 import CorePresentation
 
 protocol ItemsFactoryProtocol {
@@ -57,7 +56,11 @@ extension ItemsFactory: ItemsFactoryProtocol {
 		return ItemModel(
 			id: item.id,
 			value: .init(title: item.text, subtitle: item.note),
-			configuration: .init(icon: iconConfiguration, text: textConfiguration),
+			configuration: .init(
+				icon: iconConfiguration,
+				text: textConfiguration,
+				showsTrailingDisclosure: item.isSubitemsHidden
+			),
 			isGroup: !isLeaf,
 			height: item.note != nil ? 36 : nil
 		)

@@ -34,6 +34,7 @@ public extension ToolbarBuilder {
 				result.style = item.isPrimaryAction ? .prominent : .plain
 			}
 			result.isEnabled = item.isEnabled
+			result.accessibilityIdentifier = item.id
 			return result
 		case .flexible:
 			let result = UIBarButtonItem.flexibleSpace()

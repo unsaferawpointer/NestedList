@@ -8,6 +8,7 @@
 import CoreModule
 import Foundation
 import Hierarchy
+import CorePresentation
 @testable import Nested_List
 
 final class UnitViewMock {
@@ -32,6 +33,14 @@ extension UnitViewMock: UnitView {
 
 	func display(_ state: ContentViewState) {
 		invocations.append(.display(state))
+	}
+
+	func updateTitle(_ title: String) {
+		invocations.append(.updateTitle(title))
+	}
+
+	func close() {
+		invocations.append(.close)
 	}
 
 	func expand(_ ids: [UUID]?) {
@@ -72,6 +81,8 @@ extension UnitViewMock {
 		case didSetSelection(selection: [UUID])
 		case showDetails(model: ItemDetailsView.Model, completionHandler: (ItemDetailsView.Properties, Bool) -> Void)
 		case closeSheet
+		case updateTitle(String)
+		case close
 	}
 
 	struct Stubs {

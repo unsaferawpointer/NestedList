@@ -48,6 +48,8 @@ public protocol CellModel: Identifiable, Hashable {
 
 	var selectionConfiguration: UIListContentConfiguration { get }
 
+	var showsTrailingDisclosure: Bool { get }
+
 	func contentIsEquals(to other: Self) -> Bool
 }
 #endif

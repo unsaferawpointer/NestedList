@@ -79,18 +79,27 @@ struct OnboardingFooter: View {
 					}
 				}
 			} label: {
-				Text(state.canNext() ? "Next" : "Get Started")
+				Text(
+					state.canNext()
+						? OnboardingLocalization.nextButtonTitle
+						: OnboardingLocalization.getStaredButtonTitle
+				)
 					.frame(maxWidth: .infinity)
 			}
 			.buttonStyle(.borderedProminent)
+			.buttonBorderShape(.capsule)
+			.tint(.primary)
+			.foregroundStyle(.background)
 			.controlSize(.large)
+
 			Button {
 				secondaryAction?()
 			} label: {
-				Text("Skip")
+				Text(OnboardingLocalization.skipButtonTitle)
 					.frame(maxWidth: .infinity)
 			}
 			.buttonStyle(.borderless)
+			.foregroundStyle(.primary)
 			.controlSize(.large)
 		}
 	}
@@ -98,5 +107,5 @@ struct OnboardingFooter: View {
 #endif
 
 #Preview {
-	OnboardingFooter(state: .constant(.init(pages: [.newFormat, .customization])))
+	OnboardingFooter(state: .constant(.init(features: .newFormat)))
 }

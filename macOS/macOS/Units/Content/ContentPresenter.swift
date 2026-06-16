@@ -11,13 +11,14 @@ import AppKit
 import CoreModule
 import DesignSystem
 import Hierarchy
-import CoreSettings
 import CorePresentation
 
 @MainActor
 protocol ContentPresenterProtocol: AnyObject {
 	func present(_ content: Content)
+	func presentRoot(_ root: Node<Item>)
 	func present(_ nodes: [Node<Item>])
+	func close()
 }
 
 @MainActor
@@ -25,7 +26,7 @@ final class ContentPresenter {
 
 	// MARK: DI by initialization
 
-	private var router: any RouterProtocol
+	private var router: any ContentRouterProtocol
 
 	// MARK: - DI
 
@@ -50,7 +51,7 @@ final class ContentPresenter {
 	private(set) var cache = Cache<Property, Item>()
 
 	init(
-		router: any RouterProtocol,
+		router: any ContentRouterProtocol,
 		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared,
 		localization: ContentLocalizationProtocol = ContentLocalization()
 	) {
@@ -64,7 +65,7 @@ final class ContentPresenter {
 	}
 
 	deinit {
-		settingsProvider.removeObserver(self)
+			settingsProvider.removeObserver(self)
 	}
 }
 
@@ -76,13 +77,23 @@ extension ContentPresenter: ContentPresenterProtocol {
 		present(nodes)
 	}
 
+	func presentRoot(_ root: Node<Item>) {
+		view?.updateTitle(root.value.text)
+	}
+
 	func present(_ nodes: [Node<Item>]) {
 
-		var snapshot = Snapshot(nodes)
+		let withoutChildren = nodes.map {
+			$0.withoutChildren { item in
+				item.isSubitemsHidden
+			}
+		}
+		var snapshot = Snapshot(withoutChildren)
 		snapshot.validate(keyPath: \.isStrikethrough)
 
 		// MARK: - Cache
 		cache.store(.isStrikethrough, keyPath: \.isStrikethrough, equalsTo: true, from: snapshot)
+		cache.store(.isSubitemsHidden, keyPath: \.isSubitemsHidden, equalsTo: true, from: snapshot)
 		cache.store(.hasNote, keyPath: \.note, notEqualsTo: nil, from: snapshot)
 
 		let converted = snapshot.map { info in
@@ -104,6 +115,10 @@ extension ContentPresenter: ContentPresenterProtocol {
 		}
 
 		view?.display(.list(snapshot: converted))
+	}
+
+	func close() {
+		view?.close()
 	}
 }
 
@@ -142,6 +157,7 @@ extension ContentPresenter: UnitViewOutput {
 				.edit,
 				.separator,
 				.completed,
+				.hideSubitems,
 				.separator,
 				.note,
 				.separator,
@@ -159,6 +175,7 @@ extension ContentPresenter: UnitViewOutput {
 		switch item {
 		case .newItem:		newItem(in: selection)
 		case .completed:	toggleStrikethrough(for: selection)
+		case .hideSubitems:	toggleSubitemsHidden(for: selection)
 		case .note:			toggleNote(for: selection)
 		case .edit:			editItem(with: selection)
 		case .delete:		delete(ids: selection)
@@ -208,6 +225,8 @@ extension ContentPresenter: UnitViewOutput {
 		return switch item {
 		case .completed:
 			cache.validate(.isStrikethrough, other: selection).state
+		case .hideSubitems:
+			cache.validate(.isSubitemsHidden, other: selection).state
 		case .note:
 			cache.validate(.hasNote, other: selection).state
 		default:
@@ -280,6 +299,11 @@ private extension ContentPresenter {
 		if !hasNote, let first = ids.first {
 			view?.focus(on: first, key: "subtitle")
 		}
+	}
+
+	func toggleSubitemsHidden(for ids: [UUID]) {
+		let isSubitemsHidden = cache.validate(.isSubitemsHidden, other: ids) ?? false
+		interactor?.setSubitemsHidden(!isSubitemsHidden, for: ids)
 	}
 
 	func delete(ids: [UUID]) {
@@ -415,6 +439,10 @@ extension ContentPresenter: CellDelegate {
 		}
 		interactor?.set(text: newValue.title, note: note, for: id)
 	}
+
+	func cellDidTapDisclosure(id: UUID) {
+		router.showDocument(for: id)
+	}
 }
 
 // MARK: - Helpers
@@ -451,6 +479,7 @@ private extension ContentPresenter {
 
 enum Property: Hashable {
 	case isStrikethrough
+	case isSubitemsHidden
 	case hasNote
 }
 

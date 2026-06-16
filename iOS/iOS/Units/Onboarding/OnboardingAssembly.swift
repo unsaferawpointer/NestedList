@@ -7,43 +7,37 @@
 
 import UIKit
 import SwiftUI
-import CoreSettings
 import CoreModule
 import DesignSystem
+import CorePresentation
 
 final class OnboardingAssembly {
 
-	static func build(settingsProvider: SettingsProvider) -> UIViewController? {
-		guard
-			let rawVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
-			let appVersion = Version(rawValue: rawVersion)
-		else {
-			return nil
-		}
-
-		guard let lastOnboardingVersion = settingsProvider.state.lastOnboardingVersion?.version else {
-			return buildViewController(settingsProvider: settingsProvider, version: appVersion)
-		}
-
-		guard lastOnboardingVersion < appVersion else {
-			return nil
-		}
-
-		return buildViewController(settingsProvider: settingsProvider, version: appVersion)
+	static func build(
+		settingsProvider: any StateProviderProtocol<Settings>,
+		for version: Version
+	) -> UIViewController? {
+		return buildViewController(settingsProvider: settingsProvider, version: version)
 	}
 }
 
 // MARK: - Helpers
 private extension OnboardingAssembly {
 
-	static func buildViewController(settingsProvider: SettingsProvider, version: Version) -> UIViewController? {
-		guard let pages = try? OnboardingFactory.build(for: version) else {
+	static func buildViewController(
+		settingsProvider: any StateProviderProtocol<Settings>,
+		version: Version
+	) -> UIViewController? {
+		let lastVersion = settingsProvider.state.lastOnboardingVersion?.version
+		guard
+			let features = try? OnboardingFactory.build(for: version, lastVersion: lastVersion, in: .main),
+			!features.isEmpty
+		else {
 			return nil
 		}
-		let view = OnboardingView(pages: pages) {
+		let view = OnboardingView(features: features) {
 			settingsProvider.state.lastOnboardingVersion = .init(rawValue: version.rawValue)
 		}
 		return UIHostingController(rootView: view)
 	}
 }
-

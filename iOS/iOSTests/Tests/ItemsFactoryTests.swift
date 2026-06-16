@@ -8,8 +8,8 @@
 import Testing
 import UIKit
 import CoreModule
-import CoreSettings
 import DesignSystem
+import CorePresentation
 @testable import iOS
 
 struct ItemsFactoryTests {
@@ -112,6 +112,32 @@ struct ItemsFactoryTests {
 		#expect(result.title.strikethrough)
 
 		#expect(result.icon?.appearence == .monochrome(token: .tertiary))
+	}
+
+	@Test func makeItem_whenSubitemsAreHidden() {
+		// Arrange
+		let sut = ItemsFactory()
+
+		let item = Item(text: .random, options: [.hideSubitems])
+
+		// Act
+		let result = sut.makeItem(item: item, isLeaf: true, iconColor: .multicolor)
+
+		// Assert
+		#expect(result.showsTrailingDisclosure)
+	}
+
+		@Test func makeItem_whenSubitemsAreVisible() {
+			// Arrange
+			let sut = ItemsFactory()
+
+			let item = Item(text: .random, options: [])
+
+		// Act
+		let result = sut.makeItem(item: item, isLeaf: true, iconColor: .multicolor)
+
+		// Assert
+		#expect(!result.showsTrailingDisclosure)
 	}
 }
 

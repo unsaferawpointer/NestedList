@@ -12,6 +12,7 @@ import DesignSystem
 protocol ContentView: AnyObject {
 
 	func display(_ snapshot: Snapshot<ItemModel>)
+	func display(title: String)
 	func display(_ toolbar: ToolbarModel)
 	func setEditing(_ editingMode: EditingMode?)
 
@@ -19,6 +20,7 @@ protocol ContentView: AnyObject {
 	func expand(_ id: UUID)
 	func expandAll()
 	func collapseAll()
+	func selectAll()
 
 	var selection: [UUID] { get }
 }

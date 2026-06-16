@@ -98,8 +98,16 @@ private extension DocumentViewController {
 extension DocumentViewController: ToolbarSupportable {
 
 	func displayToolbar(top: [UIBarButtonItem], bottom: [UIBarButtonItem], showUndoGroup: Bool) {
-		navigationItem.setRightBarButtonItems(top, animated: true)
-		toolbarItems = (showUndoGroup ? undoRedoItems : []) + bottom
+		displayToolbar(top: top, bottom: bottom, showUndoGroup: showUndoGroup, animated: true)
+	}
+
+	func displayToolbar(top: [UIBarButtonItem], bottom: [UIBarButtonItem], showUndoGroup: Bool, animated: Bool) {
+		navigationItem.setRightBarButtonItems(top, animated: animated)
+		toolbarItems = makeBottomToolbarItems(bottom: bottom, showUndoGroup: showUndoGroup)
+	}
+
+	func makeBottomToolbarItems(bottom: [UIBarButtonItem], showUndoGroup: Bool) -> [UIBarButtonItem] {
+		showUndoGroup ? undoRedoItems + bottom : bottom
 	}
 }
 

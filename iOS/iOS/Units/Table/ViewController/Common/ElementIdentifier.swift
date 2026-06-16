@@ -9,7 +9,7 @@ import Foundation
 
 enum ElementIdentifier: String {
 	case edit
-	case new
+	case new = "create-new-item"
 	case move
 	case specialReorder
 	case cut
@@ -17,11 +17,13 @@ enum ElementIdentifier: String {
 	case paste
 	case delete
 	case strikethrough
+	case hideSubitems
 
 	case icon
 	case color
 
 	case select
+	case selectAll
 	case reorder
 	case settings
 	case done

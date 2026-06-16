@@ -11,13 +11,16 @@ import UIKit
 import Hierarchy
 import CoreModule
 import DesignSystem
-import CoreSettings
+import CorePresentation
 
+@MainActor
 protocol ContentPresenterProtocol: AnyObject {
 	func present(_ content: Content)
 	func present(_ nodes: [Node<Item>])
+	func presentRoot(node: Node<Item>)
 }
 
+@MainActor
 final class ContentPresenter {
 
 	// MARK: - DI
@@ -36,7 +39,7 @@ final class ContentPresenter {
 
 	var toolbarFactory = ToolbarFactory()
 
-	var router: RouterProtocol
+	var router: ContentRouterProtocol
 
 	var localization: UnitLocalizationProtocol = UnitLocalization()
 
@@ -66,7 +69,7 @@ final class ContentPresenter {
 	// MARK: - Initialization
 
 	init(
-		router: RouterProtocol,
+		router: ContentRouterProtocol,
 		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared
 	) {
 		self.router = router
@@ -87,14 +90,21 @@ extension ContentPresenter: ContentPresenterProtocol {
 	}
 
 	func present(_ nodes: [Node<Item>]) {
-		var snapshot = Snapshot(nodes)
+
+		let withoutChildren = nodes.map {
+			$0.withoutChildren { item in
+				item.isSubitemsHidden
+			}
+		}
+
+		var snapshot = Snapshot(withoutChildren)
 		snapshot.validate(keyPath: \.isStrikethrough)
 
 		cache.store(.isStrikethrough, keyPath: \.isStrikethrough, equalsTo: true, from: snapshot)
+		cache.store(.isSubitemsHidden, keyPath: \.isSubitemsHidden, equalsTo: true, from: snapshot)
 
 		let converted = snapshot
 			.map { info in
-
 					return factory.makeItem(
 						item: info.model,
 						isLeaf: info.isLeaf,
@@ -103,24 +113,26 @@ extension ContentPresenter: ContentPresenterProtocol {
 				}
 		view?.display(converted)
 	}
+
+	func presentRoot(node: Node<Item>) {
+		view?.display(title: node.value.text)
+	}
 }
 
 // MARK: - ViewDelegate
 extension ContentPresenter: ViewDelegate {
 
 	func viewDidChange(state: ViewState) {
-		guard case .didLoad = state else {
+		switch state {
+		case .didLoad:
+			interactor?.fetchData()
+			view?.expandAll()
+			displayToolbar()
+		case .willAppear:
+			displayToolbar()
+		default:
 			return
 		}
-		interactor?.fetchData()
-		view?.expandAll()
-
-		let toolbar = toolbarFactory.build(
-			editingMode: editingMode,
-			selectedCount: 0,
-			isCompleted: cache.validate(.isStrikethrough, other: view?.selection ?? [])
-		)
-		view?.display(toolbar)
 	}
 }
 
@@ -140,7 +152,7 @@ extension ContentPresenter: InteractionDelegate {
 			guard let id = currentSelection?.first, let item = interactor?.item(for: id) else {
 				return
 			}
-			let model = DetailsView.Model(
+			let model = CorePresentation.ItemDetailsView.Model(
 				navigationTitle: localization.editItemNavigationTitle,
 				properties: item.details
 			)
@@ -151,8 +163,6 @@ extension ContentPresenter: InteractionDelegate {
 						self?.interactor?.set(
 							saved.text,
 							note: note,
-							iconName: saved.icon,
-							tintColor: saved.tintColor,
 							for: id
 						)
 					}
@@ -189,8 +199,14 @@ extension ContentPresenter: InteractionDelegate {
 			let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
 			let newValue = !(cache.validate(.isStrikethrough, other: currentSelection ?? []) ?? false)
 			interactor?.setStatus(newValue, for: currentSelection ?? [], moveToEnd: moveToEnd)
+		case .hideSubitems:
+			editingMode = nil
+			let newValue = !(cache.validate(.isSubitemsHidden, other: currentSelection ?? []) ?? false)
+			interactor?.setSubitemsHidden(newValue, for: currentSelection ?? [])
 		case .select:
 			editingMode = .selection
+		case .selectAll:
+			view?.selectAll()
 		case .reorder:
 			editingMode = .reordering
 		case .settings:
@@ -257,8 +273,13 @@ extension ContentPresenter: ListDelegate {
 
 	func menu(for ids: [UUID]) -> [MenuElement] {
 		menuFactory.build(
-			isCompleted: cache.validate(.isStrikethrough, other: ids)
+			isCompleted: cache.validate(.isStrikethrough, other: ids),
+			isSubitemsHidden: cache.validate(.isSubitemsHidden, other: ids)
 		)
+	}
+
+	func listDidTapDisclosure(id: UUID) {
+		router.showDocument(for: id)
 	}
 }
 
@@ -323,8 +344,8 @@ extension ContentPresenter: DropDelegate {
 // MARK: - Helpers
 private extension ContentPresenter {
 
-	func createNew(target: UUID?) {
-		let model = DetailsView.Model(navigationTitle: localization.newItemNavigationTitle, properties: .init(text: ""))
+	@MainActor func createNew(target: UUID?) {
+		let model = ItemDetailsView.Model(navigationTitle: localization.newItemNavigationTitle, properties: .init(text: ""))
 		router.showDetails(with: model, animateBottomBarItem: ElementIdentifier.new.rawValue) { [weak self] saved, success in
 			self?.router.dismiss()
 			if success {
@@ -333,8 +354,6 @@ private extension ContentPresenter {
 				guard let id = self?.interactor?.newItem(
 					saved.text,
 					note: note,
-					iconName: saved.icon,
-					tintColor: saved.tintColor,
 					target: target
 				) else {
 					return
@@ -346,20 +365,29 @@ private extension ContentPresenter {
 			}
 		}
 	}
+
+	func displayToolbar() {
+		let selection = view?.selection ?? []
+		let toolbar = toolbarFactory.build(
+			editingMode: editingMode,
+			selectedCount: selection.count,
+			isCompleted: cache.validate(.isStrikethrough, other: selection)
+		)
+		view?.display(toolbar)
+	}
 }
 
 enum Property: Hashable {
 	case isStrikethrough
+	case isSubitemsHidden
 }
 
 private extension Item {
 
-	var details: DetailsView.Properties {
+	var details: ItemDetailsView.Properties {
         return .init(
             text: text,
-            description: note ?? "",
-            icon: iconName,
-            tintColor: tintColor
+            description: note ?? ""
         )
 	}
 }

@@ -88,11 +88,11 @@ public final class IconMapper {
 		case .person:			.person
 		case .cloud:			.cloud
 		case .sun:				.sun
-		case .moonStars:			.moonStars
+		case .moonStars:		.moonStars
 		case .sparkles:			.sparkles
 		case .flame:			.flame
 		case .creditcard:		.creditcard
-		case .gift:			.gift
+		case .gift:				.gift
 		case .trash:			.trash
 		case .receipt:			.receipt
 		case .terminal:			.terminal
@@ -121,11 +121,11 @@ public final class IconMapper {
 		case .photoOnRectangle:	.photoOnRectangle
 		case .insetCircle:		.insetCircle
 		case .insetSquare:		.insetSquare
-		case .insetTriangle:		.insetTriangle
-		case .personGroup: .personGroup
+		case .insetTriangle:	.insetTriangle
+		case .personGroup: 		.personGroup
 		case .leaf:				.leaf
 		case .house:			.house
-		case .unknown:			.textDoc
+		case .unknown:			.point
 		}
 	}
 
@@ -182,11 +182,11 @@ public final class IconMapper {
 		case .photoOnRectangle:	.photoOnRectangle
 		case .insetCircle:		.insetCircle
 		case .insetSquare:		.insetSquare
-		case .insetTriangle:		.insetTriangle
-		case .personGroup: .personGroup
+		case .insetTriangle:	.insetTriangle
+		case .personGroup:		.personGroup
 		case .leaf:				.leaf
 		case .house:			.house
-		default:				.document
+		default:				nil
 		}
 	}
 }

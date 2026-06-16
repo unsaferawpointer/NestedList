@@ -12,5 +12,12 @@ public protocol CellDelegate<Model>: AnyObject {
 	associatedtype Model: CellModel
 
 	func cellDidChange(newValue: Model.Value, id: Model.ID)
+
+	func cellDidTapDisclosure(id: Model.ID)
+}
+
+public extension CellDelegate {
+
+	func cellDidTapDisclosure(id: Model.ID) { }
 }
 #endif

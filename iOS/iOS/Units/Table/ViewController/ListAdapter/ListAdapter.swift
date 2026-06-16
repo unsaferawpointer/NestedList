@@ -9,6 +9,7 @@ import UIKit
 import DesignSystem
 import Hierarchy
 
+@MainActor
 final class ListAdapter: NSObject {
 
 	weak var tableView: UITableView?
@@ -75,6 +76,10 @@ extension ListAdapter {
 
 	func collapseAll() {
 		manager.collapseAll()
+	}
+
+	func selectAll() {
+		manager.selectAll()
 	}
 
 	var isEmpty: Bool {

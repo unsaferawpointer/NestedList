@@ -19,13 +19,13 @@ protocol CacheDelegate<Model>: AnyObject {
 
 	associatedtype Model
 
-	func updateCell(indexPath: IndexPath, rowConfiguration: RowConfiguration)
-	func updateCell(indexPath: IndexPath, model: Model)
+	func updateCell(indexPath: IndexPath, model: Model, rowConfiguration: RowConfiguration)
 	func beginUpdates()
 	func update(deleteRows: [IndexPath], insertRows: [IndexPath])
 	func endUpdates()
 }
 
+@MainActor
 final class ListManager<Model: CellModel & IdentifiableValue> {
 
 	unowned var tableView: UITableView
@@ -39,7 +39,6 @@ final class ListManager<Model: CellModel & IdentifiableValue> {
 			}
 			tableView.setEditing(editingMode != nil, animated: true)
 			tableView.allowsMultipleSelectionDuringEditing = editingMode?.allowSelection ?? false
-			tableView.reloadData()
 		}
 	}
 
@@ -91,6 +90,20 @@ extension ListManager {
 		storage.collapseAll()
 	}
 
+	func selectAll() {
+		guard editingMode == .selection, storage.count > 0 else {
+			return
+		}
+		for row in 0..<storage.count {
+			tableView.selectRow(
+				at: .init(row: row, section: 0),
+				animated: false,
+				scrollPosition: .none
+			)
+		}
+		delegate?.listDidChangeSelection(ids: selection)
+	}
+
 	var isEmpty: Bool {
 		storage.isEmpty
 	}
@@ -104,13 +117,17 @@ extension ListManager {
 	}
 
 	func cellForRow(at indexPath: IndexPath) -> UITableViewCell {
-		let cell = CellFactory.makeCell(with: Model.Cell.self, in: tableView, at: indexPath)
 
 		let model = storage.model(with: indexPath.row)
-		updateCell(cell, with: model)
-
 		let configuration = storage.rowConfiguration(for: indexPath.row)
-		updateCell(cell, with: configuration)
+
+		let cell = CellFactory.makeCell(
+			with: Model.Cell.self,
+			in: tableView,
+			at: indexPath,
+			for: model,
+			row: configuration
+		)
 
 		return cell
 	}
@@ -125,6 +142,11 @@ extension ListManager {
 			return
 		}
 		tableView.deselectRow(at: indexPath, animated: true)
+		let model = storage.model(with: indexPath.row)
+		guard !model.showsTrailingDisclosure else {
+			delegate?.listDidTapDisclosure(id: model.id)
+			return
+		}
 		storage.toggle(indexPath: indexPath)
 	}
 
@@ -165,6 +187,7 @@ extension ListManager {
 // MARK: - UITableViewDragDelegate
 extension ListManager {
 
+	@MainActor
 	func itemsForBeginning(session: any UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
 		guard editingMode == .reordering, let delegate else {
 			return []
@@ -331,35 +354,13 @@ extension ListManager {
 	}
 }
 
-// MARK: - Helpers
-private extension ListManager {
-
-	func updateCell(_ cell: Model.Cell, with configuration: RowConfiguration) {
-		CellFactory.updateCell(cell, with: configuration)
-	}
-
-	func updateCell(_ cell: Model.Cell, with model: Model) {
-		CellFactory.updateCell(cell, with: model, in: tableView, editingMode: editingMode)
-	}
-}
-
 extension ListManager: CacheDelegate {
 
-	func updateCell(indexPath: IndexPath, model: Model) {
+	func updateCell(indexPath: IndexPath, model: Model, rowConfiguration: RowConfiguration) {
 		guard let cell = tableView.cellForRow(at: indexPath) as? Model.Cell else {
 			return
 		}
-
-		updateCell(cell, with: model)
-	}
-	
-
-	func updateCell(indexPath: IndexPath, rowConfiguration: RowConfiguration) {
-		guard let cell = tableView.cellForRow(at: indexPath) as? Model.Cell else {
-			return
-		}
-
-		updateCell(cell, with: rowConfiguration)
+		CellFactory.updateCell(cell, with: model, row: rowConfiguration, in: tableView, editingMode: editingMode)
 	}
 
 	func beginUpdates() {

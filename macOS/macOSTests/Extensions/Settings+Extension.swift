@@ -5,7 +5,7 @@
 //  Created by Anton Cherkasov on 13.03.2025.
 //
 
-import CoreSettings
+import CorePresentation
 
 extension Settings {
 

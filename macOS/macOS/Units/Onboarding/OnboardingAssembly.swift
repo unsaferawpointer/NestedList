@@ -7,29 +7,14 @@
 
 import AppKit
 import SwiftUI
-import CoreSettings
 import CoreModule
 import DesignSystem
+import CorePresentation
 
 final class OnboardingAssembly {
 
-	static func build(settingsProvider: SettingsProvider) -> NSWindow? {
-		guard
-			let rawVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
-			let appVersion = Version(rawValue: rawVersion)
-		else {
-			return nil
-		}
-
-		guard let lastOnboardingVersion = settingsProvider.state.lastOnboardingVersion?.version else {
-			return buildWindow(settingsProvider: settingsProvider, version: appVersion)
-		}
-
-		guard lastOnboardingVersion < appVersion else {
-			return nil
-		}
-
-		return buildWindow(settingsProvider: settingsProvider, version: appVersion)
+	static func build(settingsProvider: SettingsProvider, for version: Version) -> NSWindow? {
+		return buildWindow(settingsProvider: settingsProvider, version: version)
 	}
 }
 
@@ -41,10 +26,14 @@ private extension OnboardingAssembly {
 		let window = NSWindow()
 		window.identifier = .init("onboarding-window")
 
-		guard let pages = try? OnboardingFactory.build(for: version) else {
+		let lastVersion = settingsProvider.state.lastOnboardingVersion?.version
+		guard
+			let features = try? OnboardingFactory.build(for: version, lastVersion: lastVersion, in: .main),
+			!features.isEmpty
+		else {
 			return nil
 		}
-		let view = OnboardingView(pages: pages) {
+		let view = OnboardingView(features: features) {
 			settingsProvider.state.lastOnboardingVersion = .init(rawValue: version.rawValue)
 
 			guard NSApp.modalWindow === window && NSApp.modalWindow?.isVisible ?? false else {

@@ -35,10 +35,11 @@ struct TargetDestionationView: View {
 				Section {
 					ForEach(model.filteredItems) { item in
 						ItemView(model: item)
-						.contentShape(Rectangle())
-						.onTapGesture {
-							completionHandler?(item.id, true)
-						}
+							.frame(maxWidth: .infinity, alignment: .leading)
+							.contentShape(Rectangle())
+							.onTapGesture {
+								completionHandler?(item.id, true)
+							}
 					}
 				}
 

@@ -11,15 +11,6 @@ import CorePresentation
 
 class Document: NSDocument {
 
-	lazy var toolbar: NSToolbar = {
-		let view = NSToolbar()
-		view.displayMode = .iconOnly
-		view.delegate = self
-		return view
-	}()
-
-	var localization = DocumentLocalization()
-
 	// MARK: - DI
 
 	lazy var storage: DocumentStorage<Content> = {
@@ -54,17 +45,8 @@ class Document: NSDocument {
 	}
 
 	override func makeWindowControllers() {
-		// Returns the Storyboard that contains your Document window.
-		let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
-		let windowController = storyboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Document Window Controller")) as! NSWindowController
-		windowController.contentViewController = DocumentAssembly.build(storage: storage, for: storage.state.view)
-
-		windowController.window?.toolbar = toolbar
-		windowController.window?.toolbar?.delegate = self
-
-		self.addWindowController(windowController)
-
-		configureToolbar()
+		let windowController = makeDocumentWindowController()
+		addWindowController(windowController)
 	}
 
 	override func data(ofType typeName: String) throws -> Data {
@@ -85,102 +67,28 @@ class Document: NSDocument {
 
 }
 
-// MARK: - Actions
-extension Document {
-
-	@IBAction
-	func changeView(_ sender: NSSegmentedControl) {
-
-		guard
-			let windowController = self.windowControllers.first,
-			let size = windowController.window?.frame.size
-		else {
-			return
-		}
-
-		let view = Content.ContentView(rawValue: sender.indexOfSelectedItem) ?? .list
-
-		guard view != storage.state.view else { return }
-		storage.modificate { content in
-			content.view = view
-		}
-
-		let viewController = DocumentAssembly.build(storage: storage, for: view)
-
-		windowController.contentViewController = viewController
-		configureToolbar()
-
-		windowController.window?.setContentSize(size)
-	}
-}
-
+// MARK: - Private methods
 private extension Document {
 
-	func configureToolbar() {
-		let item = toolbar.items.first { $0.itemIdentifier == .newItem }
-		guard let item else {
-			return
-		}
-		item.target = windowControllers.first?.contentViewController as? DocumentToolbarSupportable
-	}
-}
+	func makeDocumentWindowController() -> NSWindowController {
+		let contentViewController = DocumentAssembly.build(storage: storage)
+		let window = NSWindow(
+			contentRect: NSRect(x: 196, y: 240, width: 480, height: 270),
+			styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+			backing: .buffered,
+			defer: false
+		)
+		window.contentViewController = contentViewController
+		window.isReleasedWhenClosed = false
+		window.animationBehavior = .default
 
-// MARK: - NSToolbarDelegate
-extension Document: NSToolbarDelegate {
-
-	func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-		return [.space, .newItem]
-	}
-
-	func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-		return [.space, .newItem]
-	}
-
-	func toolbar(
-		_ toolbar: NSToolbar,
-		itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier,
-		willBeInsertedIntoToolbar flag: Bool
-	) -> NSToolbarItem? {
-
-		let item = NSToolbarItem(itemIdentifier: itemIdentifier)
-		item.visibilityPriority = .high
-
-		switch itemIdentifier {
-		case .newItem:
-			let image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)!
-			let button = NSButton(image: image, target: nil, action: #selector(DocumentToolbarSupportable.newItem(_:)))
-			item.target = windowControllers.first?.contentViewController as? DocumentToolbarSupportable
-
-			item.label = localization.newItemToolbarItemLabel
-			item.view = button
-		case .viewItem:
-			let button = NSSegmentedControl(
-				images:
-					[
-						NSImage(systemSymbolName: "list.bullet", accessibilityDescription: nil)!,
-						NSImage(systemSymbolName: "rectangle.split.3x1", accessibilityDescription: nil)!
-					],
-				trackingMode: .selectOne,
-				target: nil,
-				action: nil
-			)
-			button.action = #selector(changeView(_:))
-			button.target = self
-			button.selectedSegment = storage.state.view.rawValue
-
-			item.label = localization.viewToolbarItemLabel
-			item.view = button
-		default:
-			break
-		}
-
-		return item
+		let windowController = NSWindowController(window: window)
+		windowController.windowFrameAutosaveName = "document-window"
+		return windowController
 	}
 }
 
 extension NSToolbarItem.Identifier {
 
 	static let newItem = NSToolbarItem.Identifier("newItem")
-
-	static let viewItem = NSToolbarItem.Identifier("viewItem")
 }

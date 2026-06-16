@@ -26,8 +26,9 @@ extension DetailsPage {
 	}
 
 	func enterTitle(_ title: String) {
-		let textfield = window.textFields.matching(identifier: "textfield-title").firstMatch
+		let textfield = window.textFields["textfield-title"].firstMatch
 		if textfield.waitForExistence(timeout: 1) {
+			textfield.tap()
 			textfield.typeText(title)
 		} else {
 			XCTFail(#function)
@@ -35,7 +36,7 @@ extension DetailsPage {
 	}
 
 	func enterDescription(_ description: String) {
-		let textfield = window.textViews.matching(identifier: "textfield-description").firstMatch
+		let textfield = window.textFields["textfield-description"].firstMatch
 		if textfield.waitForExistence(timeout: 1) {
 			textfield.tap()
 			textfield.typeText(description)

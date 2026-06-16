@@ -10,8 +10,8 @@ import Foundation
 import AppKit
 import Hierarchy
 import CoreModule
-import CoreSettings
 import DesignSystem
+import CorePresentation
 @testable import Nested_List
 
 @MainActor
@@ -69,6 +69,32 @@ extension UnitPresenterTests {
 
 		#expect(snapshot.identifiers.count == 2)
 	}
+
+	@Test func testPresentRoot_updatesTitle() {
+		// Arrange
+		let root = Node<Item>(value: .init(uuid: .random, text: "Root"))
+
+		// Act
+		sut.presentRoot(root)
+
+		// Assert
+		guard case let .updateTitle(title) = view.invocations.first else {
+			Issue.record("Expect updateTitle invocation")
+			return
+		}
+		#expect(title == "Root")
+	}
+
+	@Test func testClose_closesView() {
+		// Act
+		sut.close()
+
+		// Assert
+		guard case .close = view.invocations.first else {
+			Issue.record("Expect close invocation")
+			return
+		}
+	}
 }
 
 // MARK: - ListDelegate test-cases
@@ -106,6 +132,21 @@ extension UnitPresenterTests {
 
 		#expect(id == expectedId)
 		#expect(moveToEnd == true)
+	}
+
+	@Test func test_cellDidTapDisclosure_showsDocument() {
+		// Arrange
+		let id: UUID = .random
+
+		// Act
+		sut.cellDidTapDisclosure(id: id)
+
+		// Assert
+		guard case let .showDocument(openedId) = router.invocations.first else {
+			Issue.record("Expect showDocument invocation")
+			return
+		}
+		#expect(openedId == id)
 	}
 }
 
@@ -197,7 +238,7 @@ extension UnitPresenterTests {
 		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random))
 		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
 
-		sut.present(.init(nodes: [firstNode, secondNode]))
+		sut.present(.init(uuid: nil, nodes: [firstNode, secondNode]))
 
 		interactor.clear()
 		view?.clear()
@@ -227,7 +268,7 @@ extension UnitPresenterTests {
 		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random))
 		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
 
-		sut.present(.init(nodes: [firstNode, secondNode]))
+		sut.present(.init(uuid: nil, nodes: [firstNode, secondNode]))
 
 		interactor.clear()
 		view?.clear()
@@ -305,7 +346,7 @@ extension UnitPresenterTests {
 		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random))
 		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
 
-		sut.present(.init(nodes: [firstNode, secondNode]))
+		sut.present(.init(uuid: nil, nodes: [firstNode, secondNode]))
 
 		interactor.clear()
 		view?.clear()
@@ -344,7 +385,7 @@ extension UnitPresenterTests {
 		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random, note: .random))
 		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random, note: .random))
 
-		sut.present(.init(nodes: [firstNode, secondNode]))
+		sut.present(.init(uuid: nil, nodes: [firstNode, secondNode]))
 
 		interactor.clear()
 		view?.clear()
@@ -535,7 +576,7 @@ extension UnitPresenterTests {
 private extension UnitPresenterTests {
 
 	func makeContent() -> Content {
-		.init(nodes: [.init(value: .random), .init(value: .random)])
+		.init(uuid: nil, nodes: [.init(value: .random), .init(value: .random)])
 	}
 }
 

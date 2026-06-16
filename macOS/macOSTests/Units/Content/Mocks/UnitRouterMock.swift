@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreModule
+import CorePresentation
 @testable import Nested_List
 
 final class UnitRouterMock {
@@ -20,8 +21,8 @@ final class UnitRouterMock {
 	}
 }
 
-// MARK: - RouterProtocol
-extension UnitRouterMock: RouterProtocol {
+// MARK: - ContentRouterProtocol
+extension UnitRouterMock: ContentRouterProtocol {
 
 	func showDetails(
 		with model: ItemDetailsView.Model,
@@ -46,6 +47,10 @@ extension UnitRouterMock: RouterProtocol {
 		stubs.showColorPickerCompletionHandler = completionHandler
 		invocations.append(.showColorPicker(navigationTitle: navigationTitle))
 	}
+
+	func showDocument(for id: UUID) {
+		invocations.append(.showDocument(id: id))
+	}
 }
 
 // MARK: - Nested data structs
@@ -55,6 +60,7 @@ extension UnitRouterMock {
 		case showDetails(model: ItemDetailsView.Model)
 		case showIconPicker(navigationTitle: String)
 		case showColorPicker(navigationTitle: String)
+		case showDocument(id: UUID)
 	}
 
 	struct Stubs {

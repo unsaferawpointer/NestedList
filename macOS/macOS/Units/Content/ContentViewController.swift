@@ -20,9 +20,11 @@ protocol UnitViewOutput: ViewDelegate, MenuDelegate {
 @MainActor
 protocol UnitView: AnyObject, ListSupportable {
 	func display(_ state: ContentViewState)
+	func updateTitle(_ title: String)
+	func close()
 }
 
-class ContentViewController: NSCollectionViewItem {
+class ContentViewController: NSViewController {
 
 	var adapter: ListAdapter<ItemModel>?
 
@@ -37,8 +39,6 @@ class ContentViewController: NSCollectionViewItem {
 	weak var dragDelegate: (any DesignSystem.DragDelegate<UUID>)?
 	weak var cellDelegate: (any DesignSystem.CellDelegate<ItemModel>)?
 
-	private let configuration: ContentConfiguration
-
 	// MARK: - UI-Properties
 
 	private var placeholderView: NSView?
@@ -47,10 +47,20 @@ class ContentViewController: NSCollectionViewItem {
 
 	private let table: NSOutlineView = .standart
 
+	// MARK: - Toolbar
+
+	private let localization: ContentLocalizationProtocol = ContentLocalization()
+
+	lazy var toolbar: NSToolbar = {
+		let view = NSToolbar()
+		view.displayMode = .iconOnly
+		view.delegate = self
+		return view
+	}()
+
 	// MARK: - Initialization
 
-	init(configuration: ContentConfiguration, configure: (ContentViewController) -> Void) {
-		self.configuration = configuration
+	init(configure: (ContentViewController) -> Void) {
 		super.init(nibName: nil, bundle: nil)
 		configure(self)
 
@@ -89,7 +99,11 @@ class ContentViewController: NSCollectionViewItem {
 		table.sizeLastColumnToFit()
 	}
 
-	var sheet: NSViewController?
+	override func viewDidAppear() {
+		super.viewDidAppear()
+		configureToolbarIfNeeded()
+	}
+
 }
 
 extension ContentViewController {
@@ -116,6 +130,14 @@ extension ContentViewController: UnitView {
 		case let .list(snapshot):
 			adapter?.apply(snapshot)
 		}
+	}
+
+	func updateTitle(_ title: String) {
+		self.title = title
+	}
+
+	func close() {
+		view.window?.close()
 	}
 }
 
@@ -151,12 +173,19 @@ private extension ContentViewController {
 		table.frame = scrollview.bounds
 		table.headerView = nil
 		scrollview.additionalSafeAreaInsets = .horizontal(16)
-		scrollview.drawsBackground = configuration.drawsBackground
+		scrollview.drawsBackground = true
 
 		let column = NSTableColumn(identifier: .init("main"))
 		table.addTableColumn(column)
 
 		scrollview.documentView = table
+	}
+
+	func configureToolbarIfNeeded() {
+		guard let window = view.window else {
+			return
+		}
+		window.toolbar = toolbar
 	}
 
 	func configureConstraints() {
@@ -169,6 +198,44 @@ extension ContentViewController: DocumentToolbarSupportable {
 
 	func newItem(_ sender: Any) {
 		output?.menuItemClicked(.newItem)
+	}
+}
+
+// MARK: - NSToolbarDelegate
+extension ContentViewController: NSToolbarDelegate {
+
+	func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
+		return [.space, .newItem]
+	}
+
+	func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
+		return [.space, .newItem]
+	}
+
+	func toolbar(
+		_ toolbar: NSToolbar,
+		itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier,
+		willBeInsertedIntoToolbar flag: Bool
+	) -> NSToolbarItem? {
+
+		let item = NSToolbarItem(itemIdentifier: itemIdentifier)
+		item.visibilityPriority = .high
+
+		switch itemIdentifier {
+		case .newItem:
+			let image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)!
+			let button = NSButton(image: image, target: self, action: #selector(DocumentToolbarSupportable.newItem(_:)))
+			button.bezelStyle = .toolbar
+			button.imagePosition = .imageOnly
+			button.sendAction(on: .leftMouseDown)
+
+			item.label = localization.newItemToolbarItemLabel
+			item.view = button
+		default:
+			break
+		}
+
+		return item
 	}
 }
 

@@ -35,7 +35,7 @@ extension IconPicker: View {
 				CommonPicker(values: icons) {
 					PickerButton(
 						icon: .circleSlash,
-						foregroundColor: .primary,
+						foregroundColor: .red,
 						backgroundColor: .gray.opacity(0.1)
 					) {
 						action(nil, true)
@@ -59,7 +59,9 @@ extension IconPicker: View {
 			.navigationBarTitleDisplayMode(.inline)
 			#endif
 		}
+		#if os(macOS)
 		.frame(minWidth: 320, minHeight: 320, maxHeight: 640)
+		#endif
 	}
 }
 

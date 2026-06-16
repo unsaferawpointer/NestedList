@@ -7,11 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4C6B33802D83778F006FE722 /* CoreSettings in Frameworks */ = {isa = PBXBuildFile; productRef = 4C6B337F2D83778F006FE722 /* CoreSettings */; };
 		4CF92CE92CE8CD3800135033 /* Hierarchy in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92CE82CE8CD3800135033 /* Hierarchy */; };
 		4CF92CF62CE8CD9600135033 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4CF92CEE2CE8CD9600135033 /* Assets.xcassets */; };
 		4CF92CF82CE8CD9600135033 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4CF92CF32CE8CD9600135033 /* Main.storyboard */; };
-		4CF92CF92CE8CD9600135033 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CF92CED2CE8CD9600135033 /* AppDelegate.swift */; };
 		4CF92D0E2CE8D6CE00135033 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92D0D2CE8D6CE00135033 /* DesignSystem */; };
 		4CF92D142CE8DDD100135033 /* CoreModule in Frameworks */ = {isa = PBXBuildFile; productRef = 4CF92D132CE8DDD100135033 /* CoreModule */; };
 		4CFE7F872E8AE3560036F1B0 /* CorePresentation in Frameworks */ = {isa = PBXBuildFile; productRef = 4CFE7F862E8AE3560036F1B0 /* CorePresentation */; };
@@ -35,13 +33,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4C1851CD2F9D6F620071AFC7 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Base.xcconfig; path = ../Base.xcconfig; sourceTree = SOURCE_ROOT; };
 		4C1F87EB2D458C020093C0BC /* macOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = macOSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C1F87FA2D458C590093C0BC /* macOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = macOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C1F88142D4590620093C0BC /* macOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = macOS.xctestplan; sourceTree = "<group>"; };
 		4C2CF87C2D329D7000CA19FB /* macOSRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOSRelease.entitlements; sourceTree = "<group>"; };
 		4C9F20422DAAF5730015B11C /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Main.strings; sourceTree = "<group>"; };
 		4CF92C4A2CE8A94D00135033 /* Nested List.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Nested List.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		4CF92CED2CE8CD9600135033 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4CF92CEE2CE8CD9600135033 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4CF92CF02CE8CD9600135033 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4CF92CF12CE8CD9600135033 /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
@@ -52,6 +50,11 @@
 		4C0641FF2E7B5641008AC89A /* Resource */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Resource;
+			sourceTree = "<group>";
+		};
+		4C1856C22F9E3C1E0071AFC7 /* App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = App;
 			sourceTree = "<group>";
 		};
 		4C1F87EC2D458C020093C0BC /* macOSUITests */ = {
@@ -98,7 +101,6 @@
 				4CFE7F872E8AE3560036F1B0 /* CorePresentation in Frameworks */,
 				4CF92D0E2CE8D6CE00135033 /* DesignSystem in Frameworks */,
 				4CF92D142CE8DDD100135033 /* CoreModule in Frameworks */,
-				4C6B33802D83778F006FE722 /* CoreSettings in Frameworks */,
 				4CF92CE92CE8CD3800135033 /* Hierarchy in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -109,6 +111,7 @@
 		4CF92C412CE8A94D00135033 = {
 			isa = PBXGroup;
 			children = (
+				4C1851CD2F9D6F620071AFC7 /* Base.xcconfig */,
 				4C1F88142D4590620093C0BC /* macOS.xctestplan */,
 				4CF92CF52CE8CD9600135033 /* macOS */,
 				4C1F87EC2D458C020093C0BC /* macOSUITests */,
@@ -133,7 +136,7 @@
 				4CF92CF02CE8CD9600135033 /* Info.plist */,
 				4CF92CF12CE8CD9600135033 /* macOS.entitlements */,
 				4C2CF87C2D329D7000CA19FB /* macOSRelease.entitlements */,
-				4CF92CED2CE8CD9600135033 /* AppDelegate.swift */,
+				4C1856C22F9E3C1E0071AFC7 /* App */,
 				4C0641FF2E7B5641008AC89A /* Resource */,
 				4CF92D222CEA291200135033 /* Common */,
 				4CB8A7562DC3B66700D3F484 /* Units */,
@@ -206,6 +209,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				4C0641FF2E7B5641008AC89A /* Resource */,
+				4C1856C22F9E3C1E0071AFC7 /* App */,
 				4CB8A7562DC3B66700D3F484 /* Units */,
 				4CF92D222CEA291200135033 /* Common */,
 			);
@@ -214,7 +218,6 @@
 				4CF92CE82CE8CD3800135033 /* Hierarchy */,
 				4CF92D0D2CE8D6CE00135033 /* DesignSystem */,
 				4CF92D132CE8DDD100135033 /* CoreModule */,
-				4C6B337F2D83778F006FE722 /* CoreSettings */,
 				4CFE7F862E8AE3560036F1B0 /* CorePresentation */,
 			);
 			productName = macOS;
@@ -317,7 +320,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4CF92CF92CE8CD9600135033 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -430,7 +432,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 279;
+				CURRENT_PROJECT_VERSION = 301;
 				DEVELOPMENT_TEAM = 48KV35Y6PN;
 				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_USER_SELECTED_FILES = readwrite;
@@ -446,7 +448,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
-				MARKETING_VERSION = 2.1.0;
+				MARKETING_VERSION = 2.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.zeroindex.NestedList;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -463,7 +465,7 @@
 				CODE_SIGN_ENTITLEMENTS = macOS/macOSRelease.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 279;
+				CURRENT_PROJECT_VERSION = 301;
 				DEVELOPMENT_TEAM = 48KV35Y6PN;
 				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_USER_SELECTED_FILES = readwrite;
@@ -479,7 +481,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
-				MARKETING_VERSION = 2.1.0;
+				MARKETING_VERSION = 2.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.zeroindex.NestedList;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -489,6 +491,7 @@
 		};
 		4CF92C742CE8A94E00135033 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4C1851CD2F9D6F620071AFC7 /* Base.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -554,6 +557,7 @@
 		};
 		4CF92C752CE8A94E00135033 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4C1851CD2F9D6F620071AFC7 /* Base.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -670,10 +674,6 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		4C6B337F2D83778F006FE722 /* CoreSettings */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = CoreSettings;
-		};
 		4CF92CE82CE8CD3800135033 /* Hierarchy */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Hierarchy;

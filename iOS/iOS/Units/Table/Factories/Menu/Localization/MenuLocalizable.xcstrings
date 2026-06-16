@@ -114,6 +114,22 @@
         }
       }
     },
+    "hide_subitems_menu_item_title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide subitems"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрыть подпункты"
+          }
+        }
+      }
+    },
     "marked_menu_item_title" : {
       "localizations" : {
         "en" : {
