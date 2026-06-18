@@ -15,9 +15,8 @@ import CorePresentation
 
 @MainActor
 protocol ContentPresenterProtocol: AnyObject {
-	func present(_ content: Content)
-	func presentRoot(_ root: Node<Item>)
-	func present(_ nodes: [Node<Item>])
+	func present(_ snapshot: Snapshot<Item>)
+	func presentRoot(item: Item)
 	func close()
 }
 
@@ -72,23 +71,10 @@ final class ContentPresenter {
 // MARK: - ContentPresenterProtocol
 extension ContentPresenter: ContentPresenterProtocol {
 
-	func present(_ content: Content) {
-		let nodes = content.root.nodes
-		present(nodes)
-	}
-
-	func presentRoot(_ root: Node<Item>) {
-		view?.updateTitle(root.value.text)
-	}
-
-	func present(_ nodes: [Node<Item>]) {
-
-		let withoutChildren = nodes.map {
-			$0.withoutChildren { item in
-				item.isSubitemsHidden
-			}
+	func present(_ originalSnapshot: Snapshot<Item>) {
+		var snapshot = originalSnapshot.pruned {
+			$0.isSubitemsHidden
 		}
-		var snapshot = Snapshot(withoutChildren)
 		snapshot.validate(keyPath: \.isStrikethrough)
 
 		// MARK: - Cache
@@ -115,6 +101,10 @@ extension ContentPresenter: ContentPresenterProtocol {
 		}
 
 		view?.display(.list(snapshot: converted))
+	}
+
+	func presentRoot(item: Item) {
+		view?.updateTitle(item.text)
 	}
 
 	func close() {

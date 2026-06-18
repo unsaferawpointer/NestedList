@@ -57,6 +57,47 @@ public extension Snapshot {
 	}
 }
 
+// MARK: - Transforming
+public extension Snapshot {
+
+	/// Returns a snapshot scoped to the children of the specified parent.
+	///
+	/// When `parent` is `nil`, the original snapshot is returned unchanged. When a parent identifier is
+	/// provided, that parent's children become the root nodes of the returned snapshot, and all hierarchy
+	/// metadata is rebuilt relative to the new root. If the parent is not found or has no children, an empty
+	/// snapshot is returned.
+	///
+	/// - Parameter parent: The identifier of the node whose children should become the new root, or `nil` to keep the current root.
+	/// - Returns: A snapshot rooted at the selected parent's children.
+	func withRoot(parent: Model.ID?) -> Snapshot<Model> {
+		guard let parent else {
+			return self
+		}
+		guard let children = hierarchy[parent] else {
+			return Snapshot([])
+		}
+
+		let base = children.compactMap {
+			node(for: $0)
+		}
+		return Snapshot(base)
+	}
+
+	/// Returns a copy of this snapshot, removing descendants from nodes whose models satisfy the given predicate.
+	///
+	/// Root nodes and matching nodes are preserved. When `shouldRemoveChildren` returns `true` for a model,
+	/// that model remains in the result but its children are omitted from the returned snapshot.
+	///
+	/// - Parameter shouldRemoveChildren: A predicate that determines where pruning should stop.
+	/// - Returns: A pruned snapshot with hierarchy, storage, and cache rebuilt from the remaining nodes.
+	func pruned(removingChildrenOf shouldRemoveChildren: (Model) -> Bool) -> Snapshot {
+		let pruned = getNodes().map {
+			$0.pruned(removingChildrenOf: shouldRemoveChildren)
+		}
+		return Snapshot(pruned)
+	}
+}
+
 // MARK: - Public interface
 public extension Snapshot {
 
@@ -238,8 +279,15 @@ public extension Snapshot {
 		return children.count
 	}
 
-	func children(of parent: ID) -> [ID] {
-		return hierarchy[unsafe: parent]
+	func children(of parent: ID?) -> [Model] {
+		guard let parent else {
+			return root.compactMap {
+				storage[$0]?.model
+			}
+		}
+		return hierarchy[parent]?.compactMap {
+			storage[$0]?.model
+		} ?? []
 	}
 
 	func childOfItem(_ id: ID, at index: Int) -> Model {

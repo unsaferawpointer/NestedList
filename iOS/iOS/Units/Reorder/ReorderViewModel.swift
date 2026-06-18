@@ -27,9 +27,9 @@ final class ReorderViewModel {
 		self.parent = storage.state.root.node(with: item)?.parent?.id
 		self.storage = storage
 
-		self.present(root: storage.state.root)
+		self.present(root: parent)
 		storage.addObservation(for: self) { [weak self] content in
-			self?.present(root: content.root)
+			self?.present(root: self?.parent)
 		}
 	}
 
@@ -54,11 +54,11 @@ extension ReorderViewModel {
 // MARK: - Helpers
 private extension ReorderViewModel {
 
-	func present(root: NodeStore<Item>) {
-		self.items = storage.state.root.children(of: parent)
+	func present(root: UUID?) {
+		self.items = storage.state.root
+			.snapshot()
+			.children(of: root)
 			.map {
-				$0.value
-			}.map {
 				ItemViewModel(
 					id: $0.id,
 					title: $0.text,

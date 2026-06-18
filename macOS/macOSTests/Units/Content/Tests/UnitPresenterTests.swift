@@ -50,11 +50,11 @@ extension UnitPresenterTests {
 
 	@Test func testPresent() {
 		// Arrange
-		let content = makeContent()
+		let snapshot = makeSnapshot()
 		settingsProvider.stubs.state = .standart
 
 		// Act
-		sut.present(content)
+		sut.present(snapshot)
 
 		// Assert
 		guard case let .display(state) = view.invocations.first else {
@@ -72,10 +72,10 @@ extension UnitPresenterTests {
 
 	@Test func testPresentRoot_updatesTitle() {
 		// Arrange
-		let root = Node<Item>(value: .init(uuid: .random, text: "Root"))
+		let item: Item = .init(uuid: .random, text: "Root")
 
 		// Act
-		sut.presentRoot(root)
+		sut.presentRoot(item: item)
 
 		// Assert
 		guard case let .updateTitle(title) = view.invocations.first else {
@@ -238,7 +238,7 @@ extension UnitPresenterTests {
 		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random))
 		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
 
-		sut.present(.init(uuid: nil, nodes: [firstNode, secondNode]))
+		sut.present(Snapshot([firstNode, secondNode]))
 
 		interactor.clear()
 		view?.clear()
@@ -268,7 +268,7 @@ extension UnitPresenterTests {
 		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random))
 		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
 
-		sut.present(.init(uuid: nil, nodes: [firstNode, secondNode]))
+		sut.present(Snapshot([firstNode, secondNode]))
 
 		interactor.clear()
 		view?.clear()
@@ -346,7 +346,7 @@ extension UnitPresenterTests {
 		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random))
 		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
 
-		sut.present(.init(uuid: nil, nodes: [firstNode, secondNode]))
+		sut.present(Snapshot([firstNode, secondNode]))
 
 		interactor.clear()
 		view?.clear()
@@ -385,7 +385,7 @@ extension UnitPresenterTests {
 		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random, note: .random))
 		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random, note: .random))
 
-		sut.present(.init(uuid: nil, nodes: [firstNode, secondNode]))
+		sut.present(Snapshot([firstNode, secondNode]))
 
 		interactor.clear()
 		view?.clear()
@@ -575,8 +575,8 @@ extension UnitPresenterTests {
 // MARK: - Helpers
 private extension UnitPresenterTests {
 
-	func makeContent() -> Content {
-		.init(uuid: nil, nodes: [.init(value: .random), .init(value: .random)])
+	func makeSnapshot() -> Snapshot<Item> {
+		Snapshot([.init(value: .random), .init(value: .random)])
 	}
 }
 

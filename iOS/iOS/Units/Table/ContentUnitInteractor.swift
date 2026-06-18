@@ -54,11 +54,12 @@ final class ContentUnitInteractor {
 			guard let self else {
 				return
 			}
-			let nodes = content.root.children(of: self.root)
 			Task { @MainActor [weak self] in
-				self?.presenter?.present(nodes)
-				if let root, let node = content.root.node(with: root) {
-					self?.presenter?.presentRoot(node: node)
+				let snapshot = content.root.snapshot()
+					.withRoot(parent: root)
+				self?.presenter?.present(snapshot: snapshot)
+				if let root, let item = content.root[root] {
+					self?.presenter?.presentRoot(item: item)
 				}
 			}
 		}
@@ -73,9 +74,12 @@ final class ContentUnitInteractor {
 extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 
 	func fetchData() {
-		presenter?.present(storage.state.root.children(of: root))
-		if let root, let node = storage.state.root.node(with: root) {
-			presenter?.presentRoot(node: node)
+		let snapshot = storage.state.root
+			.snapshot()
+			.withRoot(parent: root)
+		presenter?.present(snapshot: snapshot)
+		if let root, let item = storage.state.root[root] {
+			presenter?.presentRoot(item: item)
 		}
 	}
 
@@ -92,10 +96,10 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 	}
 
 	func item(for id: UUID) -> Item {
-		guard let node = storage.state.root.node(with: id) else {
+		guard let item = storage.state.root[id] else {
 			fatalError()
 		}
-		return node.value
+		return item
 	}
 
 	func deleteItems(_ ids: [UUID]) {

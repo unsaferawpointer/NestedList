@@ -15,9 +15,8 @@ import CorePresentation
 
 @MainActor
 protocol ContentPresenterProtocol: AnyObject {
-	func present(_ content: Content)
-	func present(_ nodes: [Node<Item>])
-	func presentRoot(node: Node<Item>)
+	func present(snapshot: Snapshot<Item>)
+	func presentRoot(item: Item)
 }
 
 @MainActor
@@ -84,38 +83,28 @@ final class ContentPresenter {
 // MARK: - ContentPresenterProtocol
 extension ContentPresenter: ContentPresenterProtocol {
 
-	func present(_ content: Content) {
-		let nodes = content.root.nodes
-		present(nodes)
-	}
-
-	func present(_ nodes: [Node<Item>]) {
-
-		let withoutChildren = nodes.map {
-			$0.withoutChildren { item in
-				item.isSubitemsHidden
-			}
+	func present(snapshot: Snapshot<Item>) {
+		var pruned = snapshot.pruned { item in
+			item.isSubitemsHidden
 		}
+		pruned.validate(keyPath: \.isStrikethrough)
 
-		var snapshot = Snapshot(withoutChildren)
-		snapshot.validate(keyPath: \.isStrikethrough)
+		cache.store(.isStrikethrough, keyPath: \.isStrikethrough, equalsTo: true, from: pruned)
+		cache.store(.isSubitemsHidden, keyPath: \.isSubitemsHidden, equalsTo: true, from: pruned)
 
-		cache.store(.isStrikethrough, keyPath: \.isStrikethrough, equalsTo: true, from: snapshot)
-		cache.store(.isSubitemsHidden, keyPath: \.isSubitemsHidden, equalsTo: true, from: snapshot)
-
-		let converted = snapshot
+		let converted = pruned
 			.map { info in
-					return factory.makeItem(
-						item: info.model,
-						isLeaf: info.isLeaf,
-						iconColor: settingsProvider.state.iconColor
-					)
-				}
+				return factory.makeItem(
+					item: info.model,
+					isLeaf: info.isLeaf,
+					iconColor: settingsProvider.state.iconColor
+				)
+			}
 		view?.display(converted)
 	}
 
-	func presentRoot(node: Node<Item>) {
-		view?.display(title: node.value.text)
+	func presentRoot(item: Item) {
+		view?.display(title: item.text)
 	}
 }
 

@@ -53,6 +53,17 @@ extension Node: Identifiable {
 // MARK: - Public interface
 public extension Node {
 
+	/// Returns a copy of this subtree, removing descendants from nodes that satisfy the given predicate.
+	///
+	/// The current node is always preserved. When `shouldRemoveChildren` returns `true` for a node's value,
+	/// that node remains in the result but its children are omitted.
+	///
+	/// - Parameter shouldRemoveChildren: A predicate that determines where pruning should stop.
+	/// - Returns: A pruned copy of this node and its descendants.
+	func pruned(removingChildrenOf shouldRemoveChildren: (Value) -> Bool) -> Node {
+		pruned(in: self, removingChildrenOf: shouldRemoveChildren)
+	}
+
 	func map<T>(_ transform: (Value) -> T) -> Node<T> {
 		let transformed = transform(value)
 		return .init(
@@ -61,10 +72,6 @@ public extension Node {
 				node.map(transform)
 			}
 		)
-	}
-
-	func withoutChildren(condition: (Value) -> Bool) -> Node<Value> {
-		withoutChildren(in: self, condition: condition)
 	}
 
 	func enumerateBackwards(_ block: (Node) -> Void) {
@@ -150,12 +157,12 @@ public extension Node {
 // MARK: - Helpers
 private extension Node {
 
-	func withoutChildren(in node: Node<Value>, condition: (Value) -> Bool) -> Node<Value> {
+	func pruned(in node: Node<Value>, removingChildrenOf shouldRemoveChildren: (Value) -> Bool) -> Node<Value> {
 		return Node(
 			value: node.value,
-			children: condition(node.value)
+			children: shouldRemoveChildren(node.value)
 				? []
-				: node.children.map { withoutChildren(in: $0, condition: condition) }
+				: node.children.map { pruned(in: $0, removingChildrenOf: shouldRemoveChildren) }
 		)
 	}
 }

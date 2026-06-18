@@ -21,7 +21,7 @@ public final class NodeStore<Value: IdentifiableValue> {
 
 	public init(hierarchy: [Node<Value>]) {
 		self.nodes = hierarchy
-		storeInCache(hierarchy)
+		updateCache(inserted: hierarchy)
 	}
 }
 
@@ -32,6 +32,14 @@ public extension NodeStore {
 		get {
 			cache[id]?.value
 		}
+	}
+}
+
+// MARK: - Snapshot Support
+public extension NodeStore {
+
+	func snapshot() -> Snapshot<Value> {
+		Snapshot(nodes)
 	}
 }
 
@@ -53,11 +61,17 @@ public extension NodeStore {
 		}
 	}
 
-	func children(of id: ID?) -> [Node<Value>] {
+	/// Returns the parent value for the node with the specified identifier.
+	///
+	/// Returns `nil` when the identifier is `nil`, the node is not found, or the node is a root node.
+	///
+	/// - Parameter id: The identifier of the node whose parent should be returned.
+	/// - Returns: The parent node's value, or `nil` when no parent is available.
+	func parent(for id: ID?) -> Value? {
 		guard let id else {
-			return nodes
+			return nil
 		}
-		return cache[id]?.children ?? []
+		return cache[id]?.parent?.value
 	}
 
 	func node(with id: ID) -> Node<Value>? {
@@ -123,9 +137,9 @@ public extension NodeStore {
 // MARK: - Helpers
 private extension NodeStore {
 
-	func storeInCache(_ items: [Node<Value>]) {
-		for item in items {
-			item.enumerate {
+	func updateCache(inserted nodes: [Node<Value>]) {
+		for node in nodes {
+			node.enumerate {
 				if cache[$0.id] != nil {
 					$0.value.generateId()
 				}
@@ -134,9 +148,9 @@ private extension NodeStore {
 		}
 	}
 
-	func removeFromCache(_ items: [Node<Value>]) {
-		for item in items {
-			item.enumerate {
+	func updateCache(removed nodes: [Node<Value>]) {
+		for node in nodes {
+			node.enumerate {
 				cache[$0.id] = nil
 			}
 		}
@@ -148,7 +162,7 @@ extension NodeStore {
 
 	public func insertItems(with contents: [Value], to destination: Destination<ID>) {
 		let items = contents.map { Node(value: $0) }
-		storeInCache(items)
+		updateCache(inserted: items)
 		switch destination {
 		case .toRoot:
 			nodes.append(contentsOf: items)
@@ -171,7 +185,7 @@ extension NodeStore {
 		let items = data.map { node in
 			makeNode(from: node)
 		}
-		storeInCache(items)
+		updateCache(inserted: items)
 		switch destination {
 		case .toRoot:
 			nodes.append(contentsOf: items)
@@ -212,7 +226,7 @@ public extension NodeStore {
 			return
 		}
 
-		removeFromCache([item])
+		updateCache(removed: [item])
 
 		guard let parent = item.parent else {
 			if let index = nodes.firstIndex(where: \.id, equalsTo: id) {

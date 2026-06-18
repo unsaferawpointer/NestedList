@@ -69,17 +69,17 @@ protocol ContentInteractorProtocol {
 				return
 			}
 			if let id = root {
-				if let node = content.root.node(with: id) {
-					self.presenter?.presentRoot(node)
+				if let item = content.root[id] {
+					self.presenter?.presentRoot(item: item)
 				} else {
 					self.presenter?.close()
 					return
 				}
 			}
-			let nodes = content.root.children(of: self.root)
-			MainActor.assumeIsolated {
-				self.presenter?.present(nodes)
-			}
+			let snapshot = content.root
+				.snapshot()
+				.withRoot(parent: self.root)
+			self.presenter?.present(snapshot)
 		}
 	}
 
@@ -92,10 +92,12 @@ protocol ContentInteractorProtocol {
 extension ContentInteractor: ContentInteractorProtocol {
 
 	func fetchData() {
-		let nodes = storage.state.root.children(of: root)
-		presenter?.present(nodes)
-		if let id = root, let node = storage.state.root.node(with: id) {
-			self.presenter?.presentRoot(node)
+		let snapshot = storage.state.root
+			.snapshot()
+			.withRoot(parent: root)
+		presenter?.present(snapshot)
+		if let id = root, let item = storage.state.root[id] {
+			self.presenter?.presentRoot(item: item)
 		}
 	}
 
