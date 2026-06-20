@@ -29,6 +29,7 @@ protocol ContentUnitInteractorProtocol {
 	func insertNodes(_ nodes: [any TreeNode<Item>], to destination: Destination<UUID>)
 
 	func move(ids: [UUID], to destination: Destination<UUID>)
+	func move(ids: [UUID], to target: UUID?)
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool
 }
 
@@ -183,6 +184,11 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 
 	func move(ids: [UUID], to destination: Destination<UUID>) {
 		base.move(ids, to: destination.relative(to: root))
+	}
+
+	func move(ids: [UUID], to target: UUID?) {
+		let destination = Destination(target: target)
+		base.move(ids, to: destination)
 	}
 
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {

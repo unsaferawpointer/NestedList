@@ -64,6 +64,7 @@ private extension TargetDestinationViewModel {
 
 	func present(root: NodeStore<Item>) {
 		self.items = storage.state.root
+			.snapshot()
 			.flattened { _ in true }.map {
 				ItemViewModel(
 					id: $0.id,

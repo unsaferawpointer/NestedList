@@ -213,12 +213,7 @@ extension ContentPresenter: InteractionDelegate {
 					return
 				}
 				self?.editingMode = nil
-				let destination: Destination<UUID> = if let target {
-					.onItem(with: target)
-				} else {
-					.toRoot
-				}
-				self?.interactor?.move(ids: currentSelection ?? [], to: destination)
+				self?.interactor?.move(ids: currentSelection ?? [], to: target)
 			}
 		case .specialReorder:
 			guard let first = selection?.first else {

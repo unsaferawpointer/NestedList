@@ -84,34 +84,6 @@ public extension NodeStore {
 		}
 	}
 
-	func flattened(condition: (Value) -> Bool) -> [Value] {
-
-		var result: [Value] = []
-
-		for id in nodes.map(\.id) {
-
-			var queue = [id]
-
-			while !queue.isEmpty {
-
-				let current = queue.removeLast()
-
-				guard let node = cache[current], condition(node.value) else {
-					continue
-				}
-
-				result.append(node.value)
-
-				for child in node.children.reversed() {
-					queue.append(child.id)
-				}
-
-			}
-		}
-
-		return result
-	}
-
 	func setProperty<T>(_ keyPath: WritableKeyPath<Value, T>, to value: T, for ids: [ID], downstream: Bool = false) {
 		for id in ids {
 			guard let item = cache[id] else {
