@@ -13,9 +13,7 @@ import DesignSystem
 import SwiftUI
 
 @MainActor
-protocol UnitViewOutput: ViewDelegate, MenuDelegate {
-	func configure(for root: UUID?)
-}
+protocol UnitViewOutput: ViewDelegate, MenuDelegate { }
 
 @MainActor
 protocol UnitView: AnyObject, ListSupportable {
@@ -104,13 +102,6 @@ class ContentViewController: NSViewController {
 		configureToolbarIfNeeded()
 	}
 
-}
-
-extension ContentViewController {
-
-	func configure(for root: UUID?) {
-		output?.configure(for: root)
-	}
 }
 
 // MARK: - ContentView
