@@ -109,14 +109,8 @@ extension ContentInteractor: ContentInteractorProtocol {
 	}
 
 	func copy(_ ids: [UUID], to destination: Destination<UUID>) {
-		let nodes = storage.state.root.nodes(with: ids)
-		let copied = nodes.map { node in
-			node.map { item in
-				item.copy()
-			}
-		}
 		storage.modificate { content in
-			content.root.insertItems(from: copied, to: destination.relative(to: root))
+			content.root.copy(ids: ids, to: destination.relative(to: root))
 		}
 	}
 

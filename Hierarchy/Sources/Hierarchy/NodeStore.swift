@@ -74,6 +74,19 @@ public extension NodeStore {
 		return cache[id]?.parent?.value
 	}
 
+	/// Copies the selected nodes with their descendants and inserts them at the destination.
+	///
+	/// Inserted copies keep their original identifiers unless the store already contains matching identifiers.
+	/// Existing identifier conflicts are resolved while updating the cache.
+	///
+	/// - Parameters:
+	///   - ids: The identifiers of the nodes to copy.
+	///   - destination: The destination for the copied nodes.
+	func copy(ids: [ID], to destination: Destination<ID>) {
+		let copied = nodes(with: ids).map { $0.copy() }
+		insertItems(from: copied, to: destination)
+	}
+
 	func node(with id: ID) -> Node<Value>? {
 		return cache[id]
 	}

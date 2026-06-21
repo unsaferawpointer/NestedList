@@ -64,6 +64,19 @@ public extension Node {
 		pruned(in: self, removingChildrenOf: shouldRemoveChildren)
 	}
 
+	/// Returns a copy of this node and all of its descendants.
+	///
+	/// The copied tree contains newly created `Node` instances with the same values and child order.
+	/// Parent references are rebuilt so each copied child points to its copied parent.
+	///
+	/// - Returns: A copy of this node and its descendants.
+	func copy() -> Node {
+		return Node(
+			value: value,
+			children: children.map { $0.copy() }
+		)
+	}
+
 	func map<T>(_ transform: (Value) -> T) -> Node<T> {
 		let transformed = transform(value)
 		return .init(

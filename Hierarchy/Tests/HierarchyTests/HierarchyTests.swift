@@ -8,9 +8,9 @@ import Testing
 	#expect(snapshot.identifiers == Set(["root-a", "child-a", "grandchild-a", "grandchild-b", "child-b", "root-b", "child-c"]))
 	#expect(snapshot.nodeIdentifiers == Set(["root-a", "child-a", "root-b"]))
 
-	#expect(snapshot.children(of: "root-a") == ["child-a", "child-b"])
-	#expect(snapshot.children(of: "child-a") == ["grandchild-a", "grandchild-b"])
-	#expect(snapshot.children(of: "root-b") == ["child-c"])
+	#expect(snapshot.children(of: "root-a").map(\.id) == ["child-a", "child-b"])
+	#expect(snapshot.children(of: "child-a").map(\.id) == ["grandchild-a", "grandchild-b"])
+	#expect(snapshot.children(of: "root-b").map(\.id) == ["child-c"])
 
 	#expect(snapshot[0].id == "root-a")
 	#expect(snapshot[1].id == "child-a")
@@ -53,7 +53,7 @@ import Testing
 	#expect(result.root == ["root-a", "root-b"])
 	#expect(result.identifiers == snapshot.identifiers)
 	#expect(result.nodeIdentifiers == snapshot.nodeIdentifiers)
-	#expect(result.children(of: "root-a") == ["child-a", "child-b"])
+	#expect(result.children(of: "root-a").map(\.id) == ["child-a", "child-b"])
 	#expect(result.globalIndex(for: "child-c") == 6)
 }
 
@@ -64,7 +64,7 @@ import Testing
 	#expect(result.root == ["child-a", "child-b"])
 	#expect(result.identifiers == Set(["child-a", "grandchild-a", "grandchild-b", "child-b"]))
 	#expect(result.nodeIdentifiers == Set(["child-a"]))
-	#expect(result.children(of: "child-a") == ["grandchild-a", "grandchild-b"])
+	#expect(result.children(of: "child-a").map(\.id) == ["grandchild-a", "grandchild-b"])
 
 	#expect(result[0].id == "child-a")
 	#expect(result[1].id == "grandchild-a")
@@ -98,6 +98,7 @@ import Testing
 	#expect(result.nodeIdentifiers.isEmpty)
 	#expect(result.numberOfRootItems() == 0)
 }
+
 
 private struct TestItem {
 	let id: String
