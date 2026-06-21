@@ -55,6 +55,13 @@ public extension Snapshot {
 		let id = cache.flattened[row]
 		return storage[unsafe: id].model
 	}
+
+	subscript(safe row: Int) -> Model? {
+		guard let id = cache.flattened[optional: row] else {
+			return nil
+		}
+		return storage[id]?.model
+	}
 }
 
 // MARK: - Transforming
@@ -107,12 +114,6 @@ public extension Snapshot {
 
 	var nodeIdentifiers: Set<ID> {
 		return cache.nodeIdentifiers
-	}
-
-	func getNodes() -> [Node<Model>] {
-		return root.map {
-			node(for: $0)
-		}
 	}
 
 	func contains(in parent: ID?, maxIndex: Int, condition: (Model) -> Bool) -> Int {
@@ -301,6 +302,16 @@ public extension Snapshot {
 		return storage[unsafe: id].model
 	}
 
+	func map<T: Identifiable>(_ transform: (Model) -> T) -> Snapshot<T> {
+		let nodes = getNodes()
+		let transformed = nodes.map {
+			$0.map { model in
+				transform(model)
+			}
+		}
+		return .init(transformed)
+	}
+
 	func map<T: Identifiable>(_ transform: (NodeInfo<Model>) -> T) -> Snapshot<T> where T.ID == ID {
 
 		var modificated: [ID: NodeInfo<T>] = [:]
@@ -367,6 +378,12 @@ private extension Snapshot {
 
 // MARK: - Helpers
 private extension Snapshot {
+
+	func getNodes() -> [Node<Model>] {
+		return root.map {
+			node(for: $0)
+		}
+	}
 
 	mutating func normalize(base: Node<Model>, parent: ID?, index: Int, level: Int = 0) {
 

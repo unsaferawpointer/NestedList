@@ -99,10 +99,10 @@ public extension NodeStore {
 
 	func setProperty<T>(_ keyPath: WritableKeyPath<Value, T>, to value: T, for ids: [ID], downstream: Bool = false) {
 		for id in ids {
-			guard let item = cache[id] else {
+			guard let node = cache[id] else {
 				continue
 			}
-			item.setProperty(keyPath, to: value, downstream: downstream)
+			node.setProperty(keyPath, to: value, downstream: downstream)
 		}
 	}
 

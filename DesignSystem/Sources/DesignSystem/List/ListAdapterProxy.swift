@@ -267,17 +267,13 @@ public extension ListAdapterProxy {
 
 	func apply(_ new: Snapshot<Model>) {
 
-		let nodes = new.getNodes()
-
-		let transformed = nodes.map {
-			$0.map { model in
-				ListModel<Model>.model(model)
-			}
+		let transformed = new.map { model in
+			ListModel<Model>.model(model)
 		}
 
-		let first = transformed.first?.id
+		let first = transformed[safe: 0]?.id
 
-		let converted = Snapshot(transformed).insert { model, level -> ListModel<Model>? in
+		let converted = transformed.insert { model, level -> ListModel<Model>? in
 			guard model.isGroup, case let .model(value) = model, model.id != first else {
 				return nil
 			}
