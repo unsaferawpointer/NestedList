@@ -118,23 +118,12 @@ extension ListState {
 	}
 
 	func deleted(id: Model.ID) -> ListState {
-		let nodes = snapshot.getNodes()
-		let root = NodeStore<Model>(hierarchy: nodes)
-		root.deleteItem(id)
 		let newExpanded = expanded.subtracting([id])
-		return ListState(
-			expanded: newExpanded,
-			snapshot: Snapshot(root.nodes)
-		)
+		return ListState(expanded: newExpanded, snapshot: snapshot.removed(ids: [id]))
 	}
 
 	func inserted(model: Model, to destination: Destination<Model.ID>) -> ListState {
-		let root = NodeStore<Model>(hierarchy: snapshot.getNodes())
-		root.insertItems(with: [model], to: destination)
-
-		return ListState(
-			expanded: expanded,
-			snapshot: Snapshot(root.nodes)
-		)
+		let newSnapshot = snapshot.inserted(models: [model], to: destination)
+		return ListState(expanded: expanded, snapshot: newSnapshot)
 	}
 }

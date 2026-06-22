@@ -103,6 +103,44 @@ public extension Snapshot {
 		}
 		return Snapshot(pruned)
 	}
+
+	/// Returns a copy of this snapshot without nodes that match the specified identifiers.
+	///
+	/// Removing a node also removes its descendants. Unknown identifiers are ignored, and the returned
+	/// snapshot has its hierarchy, storage, and cache rebuilt from the remaining nodes.
+	///
+	/// - Parameter ids: The identifiers of nodes to remove from the snapshot.
+	/// - Returns: A snapshot containing all nodes except the removed nodes and their descendants.
+	func removed(ids: [ID]) -> Snapshot {
+		let ids = Set(ids)
+		let nodes = getNodes().filter {
+			!ids.contains($0.id)
+		}
+		nodes.forEach {
+			$0.deleteDescendants(with: ids)
+		}
+		return Snapshot(nodes)
+	}
+
+}
+
+// MARK: - IdentifiableValue Transforming
+public extension Snapshot where Model: IdentifiableValue {
+
+	/// Returns a copy of this snapshot with models inserted at the specified destination.
+	///
+	/// The returned snapshot has its hierarchy, storage, and cache rebuilt after insertion. When the
+	/// destination is invalid, the current snapshot is returned unchanged.
+	///
+	/// - Parameters:
+	///   - models: The models to insert into the snapshot.
+	///   - destination: The destination where the models should be inserted.
+	/// - Returns: A snapshot containing the inserted models.
+	func inserted(models: [Model], to destination: Destination<ID>) -> Snapshot {
+		let store = NodeStore<Model>(hierarchy: getNodes())
+		store.insertItems(with: models, to: destination)
+		return store.snapshot()
+	}
 }
 
 // MARK: - Public interface
