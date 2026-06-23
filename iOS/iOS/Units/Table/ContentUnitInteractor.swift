@@ -166,10 +166,7 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 	}
 
 	func data(of id: UUID) -> Data? {
-		guard let node = storage.state.root.node(with: id) else {
-			return nil
-		}
-		return try? JSONEncoder().encode(node)
+		storage.state.root.encode(id: id)
 	}
 
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>) {

@@ -40,6 +40,7 @@ protocol ContentInteractorProtocol {
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>)
 
 	func nodes(for ids: [UUID]) -> [Node<Item>]
+	func data(for id: UUID) -> Data?
 
 	func insertStrings(_ data: [Data], to destination: Destination<UUID>)
 	func insertItems(_ data: [Data], to destination: Destination<UUID>)
@@ -160,17 +161,13 @@ extension ContentInteractor: ContentInteractorProtocol {
 
 	func setIcon(_ name: IconName?, for ids: [UUID]) {
 		storage.modificate { content in
-			for node in content.root.nodes(with: ids) {
-				node.value.iconName = name
-			}
+			content.root.setProperty(\.iconName, to: name, for: ids)
 		}
 	}
 
 	func setColor(_ color: ItemColor?, for ids: [UUID]) {
 		storage.modificate { content in
-			for node in content.root.nodes(with: ids) {
-				node.value.tintColor = color
-			}
+			content.root.setProperty(\.tintColor, to: color, for: ids)
 		}
 	}
 
@@ -223,12 +220,8 @@ extension ContentInteractor: ContentInteractorProtocol {
 	}
 
 	func insertItems(_ data: [Data], to destination: Destination<UUID>) {
-		let decoder = JSONDecoder()
-		let nodes = data.compactMap {
-			try? decoder.decode(Node<Item>.self, from: $0)
-		}
 		storage.modificate { content in
-			content.root.insertItems(from: nodes, to: destination.relative(to: root))
+			content.root.insertItems(from: data, to: destination.relative(to: root))
 		}
 	}
 
@@ -245,5 +238,9 @@ extension ContentInteractor: ContentInteractorProtocol {
 		}
 
 		return copied
+	}
+
+	func data(for id: UUID) -> Data? {
+		storage.state.root.encode(id: id)
 	}
 }

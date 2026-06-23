@@ -439,14 +439,13 @@ private extension ContentPresenter {
 			return nil
 		}
 
-		let encoder = JSONEncoder()
 		let parser = Parser()
 
 		let items = nodes.map {
 			PasteboardInfo.Item(
 				data:
 					[
-						itemType : (try? encoder.encode($0)) ?? Data(),
+						itemType : interactor?.data(for: $0.id) ?? Data(),
 						stringType: parser.format($0).data(using: .utf8) ?? Data()
 					]
 			)

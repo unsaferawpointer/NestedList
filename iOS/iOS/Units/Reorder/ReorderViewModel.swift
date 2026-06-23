@@ -24,7 +24,7 @@ final class ReorderViewModel {
 	// MARK: - Initialization
 
 	init(item: UUID, storage: DocumentStorage<Content>) {
-		self.parent = storage.state.root.node(with: item)?.parent?.id
+		self.parent = storage.state.root.parent(for: item)?.id
 		self.storage = storage
 
 		self.present(root: parent)

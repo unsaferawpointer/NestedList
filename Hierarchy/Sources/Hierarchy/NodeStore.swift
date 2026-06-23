@@ -87,10 +87,6 @@ public extension NodeStore {
 		insertItems(from: copied, to: destination)
 	}
 
-	func node(with id: ID) -> Node<Value>? {
-		return cache[id]
-	}
-
 	func nodes(with ids: [ID]) -> [Node<Value>] {
 		return ids.compactMap {
 			cache[$0]
@@ -116,6 +112,27 @@ public extension NodeStore {
 		return nodes.reduce(0) { partialResult, node in
 			return partialResult + node.count(where: keyPath, equalsTo: value)
 		}
+	}
+}
+
+// MARK: - Codable Support
+public extension NodeStore where Value: Codable {
+
+	func encode(id: ID) -> Data? {
+		guard let node = cache[id] else {
+			return nil
+		}
+
+		let encoder = JSONEncoder()
+		return try? encoder.encode(node)
+	}
+
+	func insertItems(from data: [Data], to destination: Destination<Value.ID>) {
+		let decoder = JSONDecoder()
+		let newNodes = data.compactMap {
+			try? decoder.decode(Node<Value>.self, from: $0)
+		}
+		insertNodes(newNodes, to: destination)
 	}
 }
 
@@ -146,47 +163,35 @@ private extension NodeStore {
 extension NodeStore {
 
 	public func insertItems(with contents: [Value], to destination: Destination<ID>) {
-		let items = contents.map { Node(value: $0) }
-		updateCache(inserted: items)
-		switch destination {
-		case .toRoot:
-			nodes.append(contentsOf: items)
-		case let .inRoot(index):
-			nodes.insert(contentsOf: items, at: index)
-		case let .onItem(id):
-			guard let item = cache[id] else {
-				return
-			}
-			item.appendItems(with: items)
-		case let .inItem(id, index):
-			guard let item = cache[id] else {
-				return
-			}
-			item.insertItems(with: items, to: index)
-		}
+		let newNodes = contents.map { Node(value: $0) }
+		insertNodes(newNodes, to: destination)
 	}
 
 	public func insertItems(from data: [any TreeNode<Value>], to destination: Destination<Value.ID>) {
-		let items = data.map { node in
+		let newNodes = data.map { node in
 			makeNode(from: node)
 		}
-		updateCache(inserted: items)
+		insertNodes(newNodes, to: destination)
+	}
+
+	func insertNodes(_ newNodes: [Node<Value>], to destination: Destination<Value.ID>) {
 		switch destination {
 		case .toRoot:
-			nodes.append(contentsOf: items)
+			nodes.append(contentsOf: newNodes)
 		case let .inRoot(index):
-			nodes.insert(contentsOf: items, at: index)
+			nodes.insert(contentsOf: newNodes, at: index)
 		case let .onItem(id):
 			guard let item = cache[id] else {
 				return
 			}
-			item.appendItems(with: items)
+			item.appendItems(with: newNodes)
 		case let .inItem(id, index):
 			guard let item = cache[id] else {
 				return
 			}
-			item.insertItems(with: items, to: index)
+			item.insertItems(with: newNodes, to: index)
 		}
+		updateCache(inserted: newNodes)
 	}
 
 	func makeNode(from other: any TreeNode<Value>) -> Node<Value> {
