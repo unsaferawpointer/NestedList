@@ -103,7 +103,7 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 		invocations.append(.insertStrings(strings, destination: destination))
 	}
 
-	func nodes(for ids: [UUID]) -> [Node<Item>] {
+	func nodes(for ids: [UUID]) -> [any TreeNode<Item>] {
 		invocations.append(.nodes(ids: ids))
 		return stubs.nodes
 	}
@@ -154,7 +154,7 @@ extension UnitInteractorMock {
 		var validateMovement: Bool = false
 		var newItem: UUID = .random
 		var strings: [String] = []
-		var nodes: [Node<Item>] = []
+		var nodes: [any TreeNode<Item>] = []
 		var data: [UUID: Data] = [:]
 	}
 }

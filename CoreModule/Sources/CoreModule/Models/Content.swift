@@ -18,7 +18,11 @@ public struct Content {
 
 	// MARK: - Initialization
 
-	public init(uuid: UUID?, nodes: [Node<Item>] = [], view: ContentView = .list) {
+	public init(
+		uuid: UUID?,
+		nodes: [any TreeNode<Item>] = [],
+		view: ContentView = .list
+	) {
 		self.uuid = uuid
 		self.root = NodeStore<Item>(hierarchy: nodes)
 		self.view = view

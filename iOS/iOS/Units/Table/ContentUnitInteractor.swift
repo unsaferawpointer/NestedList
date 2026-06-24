@@ -124,17 +124,13 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 
 	func setIcon(_ name: IconName?, for ids: [UUID]) {
 		storage.modificate { content in
-			for node in content.root.nodes(with: ids) {
-				node.value.iconName = name
-			}
+			content.root.setProperty(\.iconName, to: name, for: ids)
 		}
 	}
 
 	func setColor(_ color: ItemColor?, for ids: [UUID]) {
 		storage.modificate { content in
-			for node in content.root.nodes(with: ids) {
-				node.value.tintColor = color
-			}
+			content.root.setProperty(\.tintColor, to: color, for: ids)
 		}
 	}
 
@@ -147,17 +143,7 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 
 	func string(for ids: [UUID]) -> String {
 
-		let cache = Set(ids)
-
-		let nodes = storage.state.root.nodes(with: ids)
-		let copied = nodes.map { node in
-			node.map { $0 }
-		}
-
-		copied.forEach { node in
-			node.deleteDescendants(with: cache)
-		}
-
+		let copied = storage.state.root.copiedDisjointSubtrees(with: ids)
 		let parser = Parser()
 
 		return copied.map { node in

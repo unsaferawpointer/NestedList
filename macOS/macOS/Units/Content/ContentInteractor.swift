@@ -39,7 +39,7 @@ protocol ContentInteractorProtocol {
 	func strings(for ids: [UUID]) -> [String]
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>)
 
-	func nodes(for ids: [UUID]) -> [Node<Item>]
+	func nodes(for ids: [UUID]) -> [any TreeNode<Item>]
 	func data(for id: UUID) -> Data?
 
 	func insertStrings(_ data: [Data], to destination: Destination<UUID>)
@@ -184,17 +184,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 
 	func strings(for ids: [UUID]) -> [String] {
 
-		let cache = Set(ids)
-
-		let nodes = storage.state.root.nodes(with: ids)
-		let copied = nodes.map { node in
-			node.map { $0 }
-		}
-
-		copied.forEach { node in
-			node.deleteDescendants(with: cache)
-		}
-
+		let copied = storage.state.root.copiedDisjointSubtrees(with: ids)
 		let parser = Parser()
 
 		return copied.map { node in
@@ -225,19 +215,8 @@ extension ContentInteractor: ContentInteractorProtocol {
 		}
 	}
 
-	func nodes(for ids: [UUID]) -> [Node<Item>] {
-		let cache = Set(ids)
-
-		let nodes = storage.state.root.nodes(with: ids)
-		let copied = nodes.map { node in
-			node.map { $0 }
-		}
-
-		copied.forEach { node in
-			node.deleteDescendants(with: cache)
-		}
-
-		return copied
+	func nodes(for ids: [UUID]) -> [any TreeNode<Item>] {
+		return storage.state.root.copiedDisjointSubtrees(with: ids)
 	}
 
 	func data(for id: UUID) -> Data? {

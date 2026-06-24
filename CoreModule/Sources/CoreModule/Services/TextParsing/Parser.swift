@@ -9,8 +9,8 @@ import Foundation
 import Hierarchy
 
 public protocol ParserProtocol {
-	func parse(from text: String) -> [Node<Item>]
-	func format(_ node: Node<Item>) -> String
+	func parse(from text: String) -> [any TreeNode<Item>]
+	func format(_ node: any TreeNode<Item>) -> String
 }
 
 public final class Parser {
@@ -29,7 +29,7 @@ public final class Parser {
 // MARK: - ParserProtocol
 extension Parser: ParserProtocol {
 
-	public func parse(from text: String) -> [Node<Model>] {
+	public func parse(from text: String) -> [any TreeNode<Model>] {
 
 		var lines = parseLines(text: text)
 
@@ -104,7 +104,7 @@ extension Parser: ParserProtocol {
 		return result
 	}
 
-	public func format(_ node: Node<Item>) -> String {
+	public func format(_ node: any TreeNode<Item>) -> String {
 		return text(for: node, indent: 0).joined(separator: "\n")
 	}
 }
@@ -123,7 +123,7 @@ extension Parser {
 // MARK: - Helpers
 private extension Parser {
 
-	func text(for node: Node<Item>, indent: Int) -> [String] {
+	func text(for node: any TreeNode<Item>, indent: Int) -> [String] {
 		let item = node.value
 
 		let indentPrefix = Array(repeating: format.indent.value, count: indent).joined()

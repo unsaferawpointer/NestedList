@@ -11,7 +11,7 @@ public final class NodeStore<Value: IdentifiableValue> {
 
 	public typealias ID = Value.ID
 
-	public private(set) var nodes: [Node<Value>]
+	public private(set) var nodes: [Node<Value>] = []
 
 	// MARK: - Cache
 
@@ -19,9 +19,11 @@ public final class NodeStore<Value: IdentifiableValue> {
 
 	// MARK: - Initialization
 
-	public init(hierarchy: [Node<Value>]) {
-		self.nodes = hierarchy
-		updateCache(inserted: hierarchy)
+	public init(hierarchy: [any TreeNode<Value>]) {
+		self.nodes = hierarchy.map {
+			makeNode(from: $0)
+		}
+		updateCache(inserted: nodes)
 	}
 }
 
@@ -87,7 +89,23 @@ public extension NodeStore {
 		insertItems(from: copied, to: destination)
 	}
 
-	func nodes(with ids: [ID]) -> [Node<Value>] {
+	/// Returns copied subtrees for the requested identifiers without nested duplicates.
+	///
+	/// If both a parent and one of its descendants are requested, the descendant is returned as
+	/// a separate copied subtree and removed from the parent's copied subtree.
+	func copiedDisjointSubtrees(with ids: [ID]) -> [any TreeNode<Value>] {
+		let cache = Set(ids)
+		let copied = nodes(with: ids).map { node in
+			node.map { $0 }
+		}
+
+		copied.forEach { node in
+			node.deleteDescendants(with: cache)
+		}
+		return copied
+	}
+
+	private func nodes(with ids: [ID]) -> [Node<Value>] {
 		return ids.compactMap {
 			cache[$0]
 		}
@@ -138,6 +156,13 @@ public extension NodeStore where Value: Codable {
 
 // MARK: - Helpers
 private extension NodeStore {
+
+	func makeNode(from other: any TreeNode<Value>) -> Node<Value> {
+		let node = Node<Value>(value: other.value, children: other.children.map({ node in
+			makeNode(from: node)
+		}))
+		return node
+	}
 
 	func updateCache(inserted nodes: [Node<Value>]) {
 		for node in nodes {
@@ -194,12 +219,6 @@ extension NodeStore {
 		updateCache(inserted: newNodes)
 	}
 
-	func makeNode(from other: any TreeNode<Value>) -> Node<Value> {
-		let node = Node<Value>(value: other.value, children: other.children.map({ node in
-			makeNode(from: node)
-		}))
-		return node
-	}
 }
 
 // MARK: - Deletion
