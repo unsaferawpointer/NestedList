@@ -36,7 +36,6 @@ protocol ContentInteractorProtocol {
 	func set(note: String?, for ids: [UUID])
 	func deleteItems(_ ids: [UUID])
 
-	func strings(for ids: [UUID]) -> [String]
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>)
 
 	func nodes(for ids: [UUID]) -> [any TreeNode<Item>]
@@ -110,9 +109,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 	}
 
 	func copy(_ ids: [UUID], to destination: Destination<UUID>) {
-		storage.modificate { content in
-			content.root.copy(ids: ids, to: destination.relative(to: root))
-		}
+		base.copy(ids, to: destination.relative(to: root))
 	}
 
 	func newItem(
@@ -135,61 +132,31 @@ extension ContentInteractor: ContentInteractorProtocol {
 	}
 
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool) {
-		storage.modificate { content in
-			content.root.setProperty(\.isStrikethrough, to: status, for: ids, downstream: true)
-			if moveToEnd && status {
-				content.root.moveToEnd(ids)
-			}
-		}
+		base.setStatus(status, for: ids, moveToEnd: moveToEnd)
 	}
 
 	func toggleStrikethrough(for id: UUID, moveToEnd: Bool) {
-		storage.modificate { content in
-			let status = content.root.allMatch(id: id, keyPath: \.isStrikethrough, equalsTo: true)
-			content.root.setProperty(\.isStrikethrough, to: !status, for: [id], downstream: true)
-			if moveToEnd && status == false {
-				content.root.moveToEnd([id])
-			}
-		}
+		base.toggleStrikethrough(for: id, moveToEnd: moveToEnd)
 	}
 
 	func setSubitemsHidden(_ hidden: Bool, for ids: [UUID]) {
-		storage.modificate { content in
-			content.root.setProperty(\.isSubitemsHidden, to: hidden, for: ids)
-		}
+		base.setSubitemsHidden(hidden, for: ids)
 	}
 
 	func setIcon(_ name: IconName?, for ids: [UUID]) {
-		storage.modificate { content in
-			content.root.setProperty(\.iconName, to: name, for: ids)
-		}
+		base.setIcon(name, for: ids)
 	}
 
 	func setColor(_ color: ItemColor?, for ids: [UUID]) {
-		storage.modificate { content in
-			content.root.setProperty(\.tintColor, to: color, for: ids)
-		}
+		base.setColor(color, for: ids)
 	}
 
 	func set(text: String, note: String?, for id: UUID) {
-		storage.modificate { content in
-			content.root.setProperty(\.text, to: text, for: [id])
-			content.root.setProperty(\.note, to: note, for: [id])
-		}
+		base.set(text: text, note: note, for: id)
 	}
 
 	func deleteItems(_ ids: [UUID]) {
 		base.deleteItems(ids)
-	}
-
-	func strings(for ids: [UUID]) -> [String] {
-
-		let copied = storage.state.root.copiedDisjointSubtrees(with: ids)
-		let parser = Parser()
-
-		return copied.map { node in
-			parser.format(node)
-		}
 	}
 
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>) {
@@ -197,29 +164,25 @@ extension ContentInteractor: ContentInteractorProtocol {
 	}
 
 	func set(note: String?, for ids: [UUID]) {
-		storage.modificate { content in
-			content.root.setProperty(\.note, to: note, for: ids)
-		}
+		base.set(note: note, for: ids)
 	}
 
-	func insertStrings(_ data: [Data], to destination: Hierarchy.Destination<UUID>) {
+	func insertStrings(_ data: [Data], to destination: Destination<UUID>) {
 		let strings = data.compactMap {
 			String(data: $0, encoding: .utf8)
 		}
-		self.insertStrings(strings, to: destination.relative(to: root))
+		base.insertStrings(strings, to: destination.relative(to: root))
 	}
 
 	func insertItems(_ data: [Data], to destination: Destination<UUID>) {
-		storage.modificate { content in
-			content.root.insertItems(from: data, to: destination.relative(to: root))
-		}
+		base.insertItems(data, to: destination.relative(to: root))
 	}
 
 	func nodes(for ids: [UUID]) -> [any TreeNode<Item>] {
-		return storage.state.root.copiedDisjointSubtrees(with: ids)
+		base.nodes(for: ids)
 	}
 
 	func data(for id: UUID) -> Data? {
-		storage.state.root.encode(id: id)
+		base.data(of: id)
 	}
 }

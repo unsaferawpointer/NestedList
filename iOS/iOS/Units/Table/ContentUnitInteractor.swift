@@ -108,51 +108,31 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 	}
 
 	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool) {
-		storage.modificate { content in
-			content.root.setProperty(\.isStrikethrough, to: isStrikethrough, for: ids, downstream: true)
-			if moveToEnd && isStrikethrough {
-				content.root.moveToEnd(ids)
-			}
-		}
+		base.setStatus(isStrikethrough, for: ids, moveToEnd: moveToEnd)
 	}
 
 	func setSubitemsHidden(_ hidden: Bool, for ids: [UUID]) {
-		storage.modificate { content in
-			content.root.setProperty(\.isSubitemsHidden, to: hidden, for: ids)
-		}
+		base.setSubitemsHidden(hidden, for: ids)
 	}
 
 	func setIcon(_ name: IconName?, for ids: [UUID]) {
-		storage.modificate { content in
-			content.root.setProperty(\.iconName, to: name, for: ids)
-		}
+		base.setIcon(name, for: ids)
 	}
 
 	func setColor(_ color: ItemColor?, for ids: [UUID]) {
-		storage.modificate { content in
-			content.root.setProperty(\.tintColor, to: color, for: ids)
-		}
+		base.setColor(color, for: ids)
 	}
 
 	func set(_ text: String, note: String?, for id: UUID) {
-		storage.modificate { content in
-			content.root.setProperty(\.text, to: text, for: [id])
-			content.root.setProperty(\.note, to: note, for: [id])
-		}
+		base.set(text: text, note: note, for: id)
 	}
 
 	func string(for ids: [UUID]) -> String {
-
-		let copied = storage.state.root.copiedDisjointSubtrees(with: ids)
-		let parser = Parser()
-
-		return copied.map { node in
-			parser.format(node)
-		}.joined(separator: "\n")
+		base.string(for: ids)
 	}
 
 	func data(of id: UUID) -> Data? {
-		storage.state.root.encode(id: id)
+		base.data(of: id)
 	}
 
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>) {
@@ -160,9 +140,7 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 	}
 
 	func insertNodes(_ nodes: [any TreeNode<Item>], to destination: Destination<UUID>) {
-		storage.modificate { content in
-			content.root.insertItems(from: nodes, to: destination.relative(to: root))
-		}
+		base.insertNodes(nodes, to: destination.relative(to: root))
 	}
 
 	func move(ids: [UUID], to destination: Destination<UUID>) {

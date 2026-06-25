@@ -94,11 +94,6 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 		invocations.append(.deleteItems(ids))
 	}
 	
-	func strings(for ids: [UUID]) -> [String] {
-		invocations.append(.strings(ids))
-		return stubs.strings
-	}
-	
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>) {
 		invocations.append(.insertStrings(strings, destination: destination))
 	}
@@ -142,7 +137,6 @@ extension UnitInteractorMock {
 		case setText(text: String, note: String?, id: UUID)
 		case setNote(note: String?, ids: [UUID])
 		case deleteItems(_ ids: [UUID])
-		case strings(_ ids: [UUID])
 		case insertStrings(_ strings: [String], destination: Destination<UUID>)
 		case nodes(ids: [UUID])
 		case insertStringsFromData(data: [Data], destination: Destination<UUID>)
@@ -153,7 +147,6 @@ extension UnitInteractorMock {
 	struct Stubs {
 		var validateMovement: Bool = false
 		var newItem: UUID = .random
-		var strings: [String] = []
 		var nodes: [any TreeNode<Item>] = []
 		var data: [UUID: Data] = [:]
 	}

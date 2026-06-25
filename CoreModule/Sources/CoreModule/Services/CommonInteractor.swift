@@ -22,6 +22,19 @@ public protocol CommonInteractorProtocol {
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool
 	func move(_ ids: [UUID], to destination: Destination<UUID>)
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>)
+	func setSubitemsHidden(_ hidden: Bool, for ids: [UUID])
+	func setIcon(_ name: IconName?, for ids: [UUID])
+	func setColor(_ color: ItemColor?, for ids: [UUID])
+	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool)
+	func set(note: String?, for ids: [UUID])
+	func set(text: String, note: String?, for id: UUID)
+	func copy(_ ids: [UUID], to destination: Destination<UUID>)
+	func toggleStrikethrough(for id: UUID, moveToEnd: Bool)
+	func insertItems(_ data: [Data], to destination: Destination<UUID>)
+	func insertNodes(_ nodes: [any TreeNode<Item>], to destination: Destination<UUID>)
+	func nodes(for ids: [UUID]) -> [any TreeNode<Item>]
+	func data(of id: UUID) -> Data?
+	func string(for ids: [UUID]) -> String
 }
 
 public final class CommonInteractor {
@@ -88,5 +101,90 @@ extension CommonInteractor: CommonInteractorProtocol {
 		storage.modificate { content in
 			content.root.insertItems(from: nodes, to: destination)
 		}
+	}
+
+	public func setSubitemsHidden(_ hidden: Bool, for ids: [UUID]) {
+		storage.modificate { content in
+			content.root.setProperty(\.isSubitemsHidden, to: hidden, for: ids)
+		}
+	}
+
+	public func setIcon(_ name: IconName?, for ids: [UUID]) {
+		storage.modificate { content in
+			content.root.setProperty(\.iconName, to: name, for: ids)
+		}
+	}
+
+	public func setColor(_ color: ItemColor?, for ids: [UUID]) {
+		storage.modificate { content in
+			content.root.setProperty(\.tintColor, to: color, for: ids)
+		}
+	}
+
+	public func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool) {
+		storage.modificate { content in
+			content.root.setProperty(\.isStrikethrough, to: isStrikethrough, for: ids, downstream: true)
+			if moveToEnd && isStrikethrough {
+				content.root.moveToEnd(ids)
+			}
+		}
+	}
+
+	public func set(note: String?, for ids: [UUID]) {
+		storage.modificate { content in
+			content.root.setProperty(\.note, to: note, for: ids)
+		}
+	}
+
+	public func set(text: String, note: String?, for id: UUID) {
+		storage.modificate { content in
+			content.root.setProperty(\.text, to: text, for: [id])
+			content.root.setProperty(\.note, to: note, for: [id])
+		}
+	}
+
+	public func copy(_ ids: [UUID], to destination: Destination<UUID>) {
+		storage.modificate { content in
+			content.root.copy(ids: ids, to: destination)
+		}
+	}
+
+	public func toggleStrikethrough(for id: UUID, moveToEnd: Bool) {
+		storage.modificate { content in
+			let status = content.root.allMatch(id: id, keyPath: \.isStrikethrough, equalsTo: true)
+			content.root.setProperty(\.isStrikethrough, to: !status, for: [id], downstream: true)
+			if moveToEnd && status == false {
+				content.root.moveToEnd([id])
+			}
+		}
+	}
+
+	public func insertItems(_ data: [Data], to destination: Destination<UUID>) {
+		storage.modificate { content in
+			content.root.insertItems(from: data, to: destination)
+		}
+	}
+
+	public func insertNodes(_ nodes: [any TreeNode<Item>], to destination: Destination<UUID>) {
+		storage.modificate { content in
+			content.root.insertItems(from: nodes, to: destination)
+		}
+	}
+
+	public func data(of id: UUID) -> Data? {
+		storage.state.root.encode(id: id)
+	}
+
+	public func nodes(for ids: [UUID]) -> [any TreeNode<Item>] {
+		return storage.state.root.copiedDisjointSubtrees(with: ids)
+	}
+
+	public func string(for ids: [UUID]) -> String {
+		let copied = storage.state.root.copiedDisjointSubtrees(with: ids)
+		let parser = Parser()
+
+		return copied.map { node in
+			parser.format(node)
+		}.joined(separator: "\n")
 	}
 }
