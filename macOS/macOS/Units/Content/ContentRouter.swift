@@ -10,8 +10,7 @@ import SwiftUI
 import CoreModule
 import CorePresentation
 
-@MainActor
-protocol ContentRouterProtocol: AnyObject {
+@MainActor protocol ContentRouterProtocol: AnyObject {
 
 	func showDetails(
 		with model: ItemDetailsView.Model,

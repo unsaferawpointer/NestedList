@@ -18,8 +18,6 @@ struct ItemModel: CellModel {
 
 	var configuration: Configuration
 
-	var action: ((Value) -> Void)?
-
 	var isGroup: Bool
 
 	var height: CGFloat?

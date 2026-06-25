@@ -20,8 +20,6 @@ public protocol CellModel: Identifiable {
 
 	var value: Value { get }
 
-	var action: ((Value) -> Void)? { get }
-
 	var isGroup: Bool { get }
 
 	var height: CGFloat? { get }
