@@ -55,12 +55,6 @@ final class ContentPresenter {
 		}
 	}
 
-	// MARK: - Constants
-
-	private let itemType = "dev.zeroindex.ListAdapter.item"
-
-	private let stringType = UTType.plainText.identifier
-
 	// MARK: - Cache
 
 	var cache = Cache<Property, Item>()
@@ -267,8 +261,6 @@ extension ContentPresenter: ListDelegate {
 	}
 }
 
-import UniformTypeIdentifiers
-
 // MARK: - DropDelegate
 extension ContentPresenter: DropDelegate {
 
@@ -286,7 +278,7 @@ extension ContentPresenter: DropDelegate {
 	}
 
 	func availableTypes() -> [String] {
-		return [itemType, stringType]
+		return contentLoader.availableTypes()
 	}
 
 	func dropItems(providers: [NSItemProvider], to destination: Destination<UUID>) {
@@ -305,23 +297,9 @@ extension ContentPresenter: DropDelegate {
 	}
 
 	func provider(for id: UUID) -> NSItemProvider? {
-
-		let provider = NSItemProvider()
-
-		if let text = interactor?.string(for: [id]) {
-			provider.registerObject(text as NSString, visibility: .all)
-		}
-
-		provider.registerDataRepresentation(forTypeIdentifier: itemType, visibility: .ownProcess) { [weak self] handler in
-			guard let data = self?.interactor?.data(of: id) else {
-				handler(nil, nil)
-				return nil
-			}
-			handler(data, nil)
-			return nil
-		}
-
-		return provider
+		let text = interactor?.string(for: [id])
+		let data = interactor?.data(of: id)
+		return contentLoader.itemProvider(text: text, data: data)
 	}
 }
 

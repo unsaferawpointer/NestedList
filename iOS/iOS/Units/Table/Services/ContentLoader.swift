@@ -13,6 +13,8 @@ import CoreModule
 protocol ContentLoaderProtocol {
 	func loadItems(providers: [NSItemProvider], completionHandler: @escaping ([Node<Item>]) -> Void) -> Bool
 	func loadStrings(providers: [NSItemProvider], completionHandler: @escaping ([String]) -> Void) -> Bool
+	func itemProvider(text: String?, data: Data?) -> NSItemProvider
+	func availableTypes() -> [String]
 }
 
 final class ContentLoader {
@@ -93,5 +95,27 @@ extension ContentLoader: ContentLoaderProtocol {
 			completionHandler(strings)
 		}
 		return true
+	}
+
+	func itemProvider(text: String?, data: Data?) -> NSItemProvider {
+		let provider = NSItemProvider()
+
+		if let text {
+			provider.registerObject(text as NSString, visibility: .all)
+		}
+
+		provider.registerDataRepresentation(forTypeIdentifier: itemType, visibility: .ownProcess) { handler in
+			guard let data else {
+				handler(nil, nil)
+				return nil
+			}
+			handler(data, nil)
+			return nil
+		}
+		return provider
+	}
+
+	func availableTypes() -> [String] {
+		["dev.zeroindex.ListAdapter.item", UTType.plainText.identifier]
 	}
 }
