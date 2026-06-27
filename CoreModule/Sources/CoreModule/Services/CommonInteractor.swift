@@ -22,11 +22,7 @@ public protocol CommonInteractorProtocol {
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool
 	func move(_ ids: [UUID], to destination: Destination<UUID>)
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>)
-	func setSubitemsHidden(_ hidden: Bool, for ids: [UUID])
-	func setIcon(_ name: IconName?, for ids: [UUID])
-	func setColor(_ color: ItemColor?, for ids: [UUID])
 	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool)
-	func set(note: String?, for ids: [UUID])
 	func set(text: String, note: String?, for id: UUID)
 	func copy(_ ids: [UUID], to destination: Destination<UUID>)
 	func toggleStrikethrough(for id: UUID, moveToEnd: Bool)
@@ -35,6 +31,13 @@ public protocol CommonInteractorProtocol {
 	func nodes(for ids: [UUID]) -> [any TreeNode<Item>]
 	func data(of id: UUID) -> Data?
 	func string(for ids: [UUID]) -> String
+
+	func setProperty<T>(
+		_ property: WritableKeyPath<Item, T>,
+		to value: T,
+		for ids: [UUID],
+		downstream: Bool
+	)
 }
 
 public final class CommonInteractor {
@@ -103,36 +106,12 @@ extension CommonInteractor: CommonInteractorProtocol {
 		}
 	}
 
-	public func setSubitemsHidden(_ hidden: Bool, for ids: [UUID]) {
-		storage.modificate { content in
-			content.root.setProperty(\.isSubitemsHidden, to: hidden, for: ids)
-		}
-	}
-
-	public func setIcon(_ name: IconName?, for ids: [UUID]) {
-		storage.modificate { content in
-			content.root.setProperty(\.iconName, to: name, for: ids)
-		}
-	}
-
-	public func setColor(_ color: ItemColor?, for ids: [UUID]) {
-		storage.modificate { content in
-			content.root.setProperty(\.tintColor, to: color, for: ids)
-		}
-	}
-
 	public func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool) {
 		storage.modificate { content in
 			content.root.setProperty(\.isStrikethrough, to: isStrikethrough, for: ids, downstream: true)
 			if moveToEnd && isStrikethrough {
 				content.root.moveToEnd(ids)
 			}
-		}
-	}
-
-	public func set(note: String?, for ids: [UUID]) {
-		storage.modificate { content in
-			content.root.setProperty(\.note, to: note, for: ids)
 		}
 	}
 
@@ -186,5 +165,16 @@ extension CommonInteractor: CommonInteractorProtocol {
 		return copied.map { node in
 			parser.format(node)
 		}.joined(separator: "\n")
+	}
+
+	public func setProperty<T>(
+		_ property: WritableKeyPath<Item, T>,
+		to value: T,
+		for ids: [UUID],
+		downstream: Bool
+	) {
+		storage.modificate {
+			$0.root.setProperty(property, to: value, for: ids, downstream: downstream)
+		}
 	}
 }

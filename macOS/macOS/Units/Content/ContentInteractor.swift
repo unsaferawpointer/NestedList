@@ -140,15 +140,15 @@ extension ContentInteractor: ContentInteractorProtocol {
 	}
 
 	func setSubitemsHidden(_ hidden: Bool, for ids: [UUID]) {
-		base.setSubitemsHidden(hidden, for: ids)
+		base.setProperty(\.isSubitemsHidden, to: hidden, for: ids, downstream: false)
 	}
 
 	func setIcon(_ name: IconName?, for ids: [UUID]) {
-		base.setIcon(name, for: ids)
+		base.setProperty(\.iconName, to: name, for: ids, downstream: false)
 	}
 
 	func setColor(_ color: ItemColor?, for ids: [UUID]) {
-		base.setColor(color, for: ids)
+		base.setProperty(\.tintColor, to: color, for: ids, downstream: false)
 	}
 
 	func set(text: String, note: String?, for id: UUID) {
@@ -164,7 +164,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 	}
 
 	func set(note: String?, for ids: [UUID]) {
-		base.set(note: note, for: ids)
+		base.setProperty(\.note, to: note, for: ids, downstream: false)
 	}
 
 	func insertStrings(_ data: [Data], to destination: Destination<UUID>) {

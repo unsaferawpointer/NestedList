@@ -108,6 +108,53 @@ struct ContentInteractorTests {
 		#expect(actualData == [data])
 		#expect(actualDestination == expectedDestination)
 	}
+
+	@Test func propertyMethods_proxyToCommonInteractorWithoutDownstreamPropagation() {
+		// Arrange
+		let ids = [UUID(), UUID()]
+		let base = CommonInteractorMock()
+		let sut = makeSUT(base: base)
+
+		// Act
+		sut.setSubitemsHidden(true, for: ids)
+		sut.setIcon(.bolt, for: ids)
+		sut.setColor(.cyan, for: ids)
+		sut.set(note: "Note", for: ids)
+
+		// Assert
+		#expect(base.invocations.count == 4)
+		guard case let .setProperty(property, actualIds, downstream) = base.invocations[0] else {
+			Issue.record("Expect setProperty invocation")
+			return
+		}
+		#expect(property == .isSubitemsHidden(true))
+		#expect(actualIds == ids)
+		#expect(downstream == false)
+
+		guard case let .setProperty(property, actualIds, downstream) = base.invocations[1] else {
+			Issue.record("Expect setProperty invocation")
+			return
+		}
+		#expect(property == .iconName(.bolt))
+		#expect(actualIds == ids)
+		#expect(downstream == false)
+
+		guard case let .setProperty(property, actualIds, downstream) = base.invocations[2] else {
+			Issue.record("Expect setProperty invocation")
+			return
+		}
+		#expect(property == .tintColor(.cyan))
+		#expect(actualIds == ids)
+		#expect(downstream == false)
+
+		guard case let .setProperty(property, actualIds, downstream) = base.invocations[3] else {
+			Issue.record("Expect setProperty invocation")
+			return
+		}
+		#expect(property == .note("Note"))
+		#expect(actualIds == ids)
+		#expect(downstream == false)
+	}
 }
 
 // MARK: - Helpers
@@ -172,24 +219,8 @@ extension CommonInteractorMock: CommonInteractorProtocol {
 		invocations.append(.insertStrings(strings, destination))
 	}
 
-	func setSubitemsHidden(_ hidden: Bool, for ids: [UUID]) {
-		invocations.append(.setSubitemsHidden(hidden, ids))
-	}
-
-	func setIcon(_ name: IconName?, for ids: [UUID]) {
-		invocations.append(.setIcon(name, ids))
-	}
-
-	func setColor(_ color: ItemColor?, for ids: [UUID]) {
-		invocations.append(.setColor(color, ids))
-	}
-
 	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool) {
 		invocations.append(.setStatus(isStrikethrough, ids, moveToEnd))
-	}
-
-	func set(note: String?, for ids: [UUID]) {
-		invocations.append(.setNote(note, ids))
 	}
 
 	func set(text: String, note: String?, for id: UUID) {
@@ -226,6 +257,19 @@ extension CommonInteractorMock: CommonInteractorProtocol {
 		invocations.append(.string(ids))
 		return stubs.string
 	}
+
+	func setProperty<T>(
+		_ property: WritableKeyPath<Item, T>,
+		to value: T,
+		for ids: [UUID],
+		downstream: Bool
+	) {
+		guard let property = Property(property: property, value: value) else {
+			Issue.record("Unsupported setProperty key path")
+			return
+		}
+		invocations.append(.setProperty(property, ids, downstream: downstream))
+	}
 }
 
 // MARK: - Nested data structs
@@ -237,11 +281,7 @@ extension CommonInteractorMock {
 		case validateMovement(_ ids: [UUID], _ destination: Destination<UUID>)
 		case move(_ ids: [UUID], _ destination: Destination<UUID>)
 		case insertStrings(_ strings: [String], _ destination: Destination<UUID>)
-		case setSubitemsHidden(_ hidden: Bool, _ ids: [UUID])
-		case setIcon(_ name: IconName?, _ ids: [UUID])
-		case setColor(_ color: ItemColor?, _ ids: [UUID])
 		case setStatus(_ isStrikethrough: Bool, _ ids: [UUID], _ moveToEnd: Bool)
-		case setNote(_ note: String?, _ ids: [UUID])
 		case setText(_ text: String, _ note: String?, _ id: UUID)
 		case copy(_ ids: [UUID], _ destination: Destination<UUID>)
 		case toggleStrikethrough(_ id: UUID, _ moveToEnd: Bool)
@@ -250,6 +290,41 @@ extension CommonInteractorMock {
 		case nodes(_ ids: [UUID])
 		case data(_ id: UUID)
 		case string(_ ids: [UUID])
+		case setProperty(_ property: Property, _ ids: [UUID], downstream: Bool)
+	}
+
+	enum Property: Equatable {
+		case isSubitemsHidden(Bool)
+		case iconName(IconName?)
+		case tintColor(ItemColor?)
+		case note(String?)
+
+		init?<T>(property: WritableKeyPath<Item, T>, value: T) {
+			switch property {
+			case \Item.isSubitemsHidden:
+				guard let value = value as? Bool else {
+					return nil
+				}
+				self = .isSubitemsHidden(value)
+			case \Item.iconName:
+				guard let value = value as? IconName? else {
+					return nil
+				}
+				self = .iconName(value)
+			case \Item.tintColor:
+				guard let value = value as? ItemColor? else {
+					return nil
+				}
+				self = .tintColor(value)
+			case \Item.note:
+				guard let value = value as? String? else {
+					return nil
+				}
+				self = .note(value)
+			default:
+				return nil
+			}
+		}
 	}
 
 	struct Stubs {
