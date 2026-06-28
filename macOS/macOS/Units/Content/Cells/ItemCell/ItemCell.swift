@@ -151,7 +151,7 @@ private extension ItemCell {
 			textColor: configuration.text.colorToken.value,
 			strikethrough: configuration.text.strikethrough
 		)
-		titleTextfield.font = NSFont.preferredFont(forTextStyle: configuration.text.style)
+		titleTextfield.font = NSFont.preferredFont(forTextStyle: configuration.text.style.value)
 
 		setIcon(configuration: model.configuration.icon, animateIcon: animateIcon)
 
@@ -193,7 +193,7 @@ private extension ItemCell {
 			.withSymbolConfiguration(
 				configuration.appearence.configuration
 					.applying(
-						.init(textStyle: model.configuration.text.style)
+						.init(textStyle: model.configuration.text.style.value)
 					)
 			)
 

@@ -36,7 +36,7 @@ extension ItemModel: CellModel {
 					let symbolConfiguration = iconConfiguration.appearence.configuration
 					return iconConfiguration.name?.uiImage
 						.applyingSymbolConfiguration(symbolConfiguration)?
-						.applyingSymbolConfiguration(.init(textStyle: title.style))?
+						.applyingSymbolConfiguration(.init(textStyle: title.style.value))?
 						.applyingSymbolConfiguration(.init(scale: .medium))
 				} else {
 					return nil
@@ -56,10 +56,10 @@ extension ItemModel: CellModel {
 				strikethrough: title.strikethrough
 			)
 
-			configuration.textProperties.font = .preferredFont(forTextStyle: title.style)
+			configuration.textProperties.font = .preferredFont(forTextStyle: title.style.value)
 
 			if let subtitleConfiguration = subtitle {
-				configuration.secondaryTextProperties.font = .preferredFont(forTextStyle: subtitleConfiguration.style)
+				configuration.secondaryTextProperties.font = .preferredFont(forTextStyle: subtitleConfiguration.style.value)
 				configuration.secondaryTextProperties.color = subtitleConfiguration.colorToken.value
 				configuration.secondaryText = subtitleConfiguration.text
 			} else {
@@ -104,7 +104,7 @@ extension ItemModel: Hashable { }
 
 struct TextConfiguration: Hashable {
 	var text: String
-	var style: UIFont.TextStyle
+	var style: TextStyle
 	var colorToken: ColorToken
 	var strikethrough: Bool
 }
