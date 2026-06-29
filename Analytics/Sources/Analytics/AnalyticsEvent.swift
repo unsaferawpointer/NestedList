@@ -12,6 +12,9 @@ import Foundation
 /// all events through one common interface.
 public protocol AnalyticsEvent: Sendable {
 
+	/// Stable event space used to group events by product area or screen.
+	var space: String { get }
+
 	/// Stable event name used by the analytics backend.
 	var name: String { get }
 
@@ -19,6 +22,7 @@ public protocol AnalyticsEvent: Sendable {
 	var parameters: [String: AnalyticsValue] { get }
 }
 
+// MARK: - Default Implementation
 public extension AnalyticsEvent {
 
 	/// Default empty parameter set for events that only need a name.

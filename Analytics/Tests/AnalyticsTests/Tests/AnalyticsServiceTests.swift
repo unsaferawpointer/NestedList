@@ -27,6 +27,7 @@ extension AnalyticsServiceTests {
 
 		let sentEvents = await engine.invocations.sentEvents
 
+		#expect(sentEvents.map(\.space) == ["test"])
 		#expect(sentEvents.map(\.name) == ["app_started"])
 		#expect(sentEvents.first?.parameters["source"] == .string("dock"))
 	}

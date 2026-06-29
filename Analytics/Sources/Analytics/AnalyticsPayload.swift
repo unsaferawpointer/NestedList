@@ -44,6 +44,11 @@ public struct AnalyticsPayload: Sendable, Identifiable {
 
 extension AnalyticsPayload {
 
+	/// Stable event space forwarded from the wrapped event.
+	public var space: String {
+		return event.space
+	}
+
 	/// Stable event name forwarded from the wrapped event.
 	public var name: String {
 		return event.name
