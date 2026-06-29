@@ -79,29 +79,13 @@ public extension ItemV2 {
 public extension ItemV2 {
 
 	var isStrikethrough: Bool {
-		get {
-			options.contains(.strikethrough)
-		}
-		set {
-			if newValue {
-				options.insert(.strikethrough)
-			} else {
-				options.remove(.strikethrough)
-			}
-		}
+		get { options.contains(.strikethrough) }
+		set { options.set(.strikethrough, enabled: newValue) }
 	}
 
 	var isSubitemsHidden: Bool {
-		get {
-			options.contains(.hideSubitems)
-		}
-		set {
-			if newValue {
-				options.insert(.hideSubitems)
-			} else {
-				options.remove(.hideSubitems)
-			}
-		}
+		get { options.contains(.hideSubitems) }
+		set { options.set(.hideSubitems, enabled: newValue) }
 	}
 
 	var properties: ItemProperties {
