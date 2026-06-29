@@ -181,15 +181,15 @@ extension UnitPresenterTests {
 		sut.menuItemClicked(.newItem)
 
 		// Assert
-		guard case let .newItem(text, isStrikethrough, note, iconName, tintColor, target) = interactor.invocations[0] else {
+		guard case let .newItem(properties, target) = interactor.invocations[0] else {
 			Issue.record("Expect newItem invocation")
 			return
 		}
-		#expect(!text.isEmpty)
-		#expect(isStrikethrough == false)
-		#expect(note == nil)
-		#expect(iconName == nil)
-		#expect(tintColor == nil)
+		#expect(!properties.text.isEmpty)
+		#expect(properties.options == [])
+		#expect(properties.note == nil)
+		#expect(properties.iconName == nil)
+		#expect(properties.tintColor == nil)
 		#expect(target == view.selection.first)
 
 		guard case let .expand(id) = view.invocations[0] else {

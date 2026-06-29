@@ -312,12 +312,7 @@ private extension ContentPresenter {
 			self?.router.dismiss()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
-
-				guard let id = self?.interactor?.newItem(
-					saved.text,
-					note: note,
-					target: target
-				) else {
+				guard let id = self?.interactor?.newItem(with: .init(text: saved.text, note: note), target: target) else {
 					return
 				}
 				if let target {

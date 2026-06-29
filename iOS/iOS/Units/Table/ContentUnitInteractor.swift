@@ -14,7 +14,7 @@ protocol ContentUnitInteractorProtocol {
 	func fetchData()
 
 	@discardableResult
-	func newItem(_ text: String, note: String?, target: UUID?) -> UUID
+	func newItem(with properties: ItemProperties, target: UUID?) -> UUID
 	func deleteItems(_ ids: [UUID])
 	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool)
 	func setSubitemsHidden(_ hidden: Bool, for ids: [UUID])
@@ -84,16 +84,9 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 		}
 	}
 
-	func newItem(_ text: String, note: String?, target: UUID?) -> UUID {
+	func newItem(with properties: ItemProperties, target: UUID?) -> UUID {
 		let destination = Destination(target: target)
-		return base.newItem(
-			text,
-			isStrikethrough: nil,
-			note: note,
-			iconName: nil,
-			tintColor: nil,
-			target: destination.relative(to: root).id
-		)
+		return base.newItem(with: properties, target: destination.relative(to: root).id)
 	}
 
 	func item(for id: UUID) -> Item {

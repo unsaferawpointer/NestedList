@@ -227,15 +227,9 @@ private extension ContentPresenter {
 	func newItem(in selection: [UUID]) {
 
 		let target = selection.first
+		let properties = ItemProperties(text: localization.newItemText)
 
-		guard let id = interactor?.newItem(
-			localization.newItemText,
-			isStrikethrough: false,
-			note: nil,
-			iconName: nil,
-			tintColor: nil,
-			target: target
-		) else {
+		guard let id = interactor?.newItem(with: properties, target: target) else {
 			return
 		}
 

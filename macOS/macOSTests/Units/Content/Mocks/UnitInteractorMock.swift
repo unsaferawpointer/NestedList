@@ -44,17 +44,8 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 		invocations.append(.copy(ids, destination: destination))
 	}
 
-	func newItem(_ text: String, isStrikethrough: Bool, note: String?, iconName: IconName?, tintColor: ItemColor?, target: UUID?) -> UUID {
-		invocations.append(
-			.newItem(
-				text,
-				isStrikethrough: isStrikethrough,
-				note: note,
-				iconName: iconName,
-				tintColor: tintColor,
-				target: target
-			)
-		)
+	func newItem(with properties: ItemProperties, target: UUID?) -> UUID {
+		invocations.append(.newItem(properties, target: target))
 		return stubs.newItem
 	}
 
@@ -127,7 +118,7 @@ extension UnitInteractorMock {
 		case move(_ ids: [UUID], destination: Destination<UUID>)
 		case validateMovement(_ ids: [UUID], destination: Destination<UUID>)
 		case copy(_ ids: [UUID], destination: Destination<UUID>)
-		case newItem(_ text: String, isStrikethrough: Bool, note: String?, iconName: IconName?, tintColor: ItemColor?, target: UUID?)
+		case newItem(_ properties: ItemProperties, target: UUID?)
 		case setStatus(_ status: Bool, ids: [UUID], moveToEnd: Bool)
 		case setSubitemsHidden(_ hidden: Bool, ids: [UUID])
 		case toggleSubitemsHidden(id: UUID)

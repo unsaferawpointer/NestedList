@@ -41,6 +41,15 @@ public struct ItemV2 {
 		self.iconName = iconName
 		self.tintColor = tintColor
 	}
+
+	public init(uuid: UUID = UUID(), properties: ItemProperties) {
+		self.uuid = uuid
+		self.text = properties.text
+		self.note = properties.note
+		self.options = properties.options
+		self.iconName = properties.iconName
+		self.tintColor = properties.tintColor
+	}
 }
 
 // MARK: - Identifiable
@@ -92,6 +101,25 @@ public extension ItemV2 {
 			} else {
 				options.remove(.hideSubitems)
 			}
+		}
+	}
+
+	var properties: ItemProperties {
+		get {
+			ItemProperties(
+				text: text,
+				note: note,
+				options: options,
+				iconName: iconName,
+				tintColor: tintColor
+			)
+		}
+		set {
+			self.text = newValue.text
+			self.note = newValue.note
+			self.options = newValue.options
+			self.iconName = newValue.iconName
+			self.tintColor = newValue.tintColor
 		}
 	}
 }

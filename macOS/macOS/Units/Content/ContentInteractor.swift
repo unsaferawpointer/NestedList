@@ -19,14 +19,7 @@ protocol ContentInteractorProtocol {
 	func copy(_ ids: [UUID], to destination: Destination<UUID>)
 
 	@discardableResult
-	func newItem(
-		_ text: String,
-		isStrikethrough: Bool,
-		note: String?,
-		iconName: IconName?,
-		tintColor: ItemColor?,
-		target: UUID?
-	) -> UUID
+	func newItem(with properties: ItemProperties, target: UUID?) -> UUID
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool)
 	func toggleStrikethrough(for id: UUID, moveToEnd: Bool)
 	func setSubitemsHidden(_ hidden: Bool, for ids: [UUID])
@@ -112,23 +105,9 @@ extension ContentInteractor: ContentInteractorProtocol {
 		base.copy(ids, to: destination.relative(to: root))
 	}
 
-	func newItem(
-		_ text: String,
-		isStrikethrough: Bool,
-		note: String?,
-		iconName: IconName?,
-		tintColor: ItemColor?,
-		target: UUID?
-	) -> UUID {
+	func newItem(with properties: ItemProperties, target: UUID?) -> UUID {
 		let destination = Destination(target: target)
-		return base.newItem(
-			text,
-			isStrikethrough: isStrikethrough,
-			note: note,
-			iconName: iconName,
-			tintColor: tintColor,
-			target: destination.relative(to: root).id
-		)
+		return base.newItem(with: properties, target: destination.relative(to: root).id)
 	}
 
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool) {

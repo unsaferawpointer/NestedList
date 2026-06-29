@@ -21,26 +21,26 @@ struct ContentInteractorTests {
 		let sut = makeSUT(root: root, base: base)
 
 		// Act
-		let result = sut.newItem(
-			"Title",
-			isStrikethrough: true,
+		let properties = ItemProperties(
+			text: "Title",
 			note: "Note",
+			options: [.strikethrough],
 			iconName: .bolt,
-			tintColor: .cyan,
-			target: nil
+			tintColor: .cyan
 		)
+		let result = sut.newItem(with: properties, target: nil)
 
 		// Assert
 		#expect(result == base.stubs.newItem)
-		guard case let .newItem(text, isStrikethrough, note, iconName, tintColor, target) = base.invocations.first else {
+		guard case let .newItem(actualProperties, target) = base.invocations.first else {
 			Issue.record("Expect newItem invocation")
 			return
 		}
-		#expect(text == "Title")
-		#expect(isStrikethrough == true)
-		#expect(note == "Note")
-		#expect(iconName == .bolt)
-		#expect(tintColor == .cyan)
+		#expect(actualProperties.text == "Title")
+		#expect(actualProperties.options == [.strikethrough])
+		#expect(actualProperties.note == "Note")
+		#expect(actualProperties.iconName == .bolt)
+		#expect(actualProperties.tintColor == .cyan)
 		#expect(target == root)
 	}
 
@@ -181,24 +181,8 @@ private final class CommonInteractorMock {
 // MARK: - CommonInteractorProtocol
 extension CommonInteractorMock: CommonInteractorProtocol {
 
-	func newItem(
-		_ text: String,
-		isStrikethrough: Bool?,
-		note: String?,
-		iconName: IconName?,
-		tintColor: ItemColor?,
-		target: UUID?
-	) -> UUID {
-		invocations.append(
-			.newItem(
-				text,
-				isStrikethrough: isStrikethrough,
-				note: note,
-				iconName: iconName,
-				tintColor: tintColor,
-				target: target
-			)
-		)
+	func newItem(with properties: ItemProperties, target: UUID?) -> UUID {
+		invocations.append(.newItem(properties, target: target))
 		return stubs.newItem
 	}
 
@@ -276,7 +260,7 @@ extension CommonInteractorMock: CommonInteractorProtocol {
 extension CommonInteractorMock {
 
 	enum Action {
-		case newItem(_ text: String, isStrikethrough: Bool?, note: String?, iconName: IconName?, tintColor: ItemColor?, target: UUID?)
+		case newItem(_ properties: ItemProperties, target: UUID?)
 		case deleteItems(_ ids: [UUID])
 		case validateMovement(_ ids: [UUID], _ destination: Destination<UUID>)
 		case move(_ ids: [UUID], _ destination: Destination<UUID>)

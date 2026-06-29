@@ -9,14 +9,7 @@ import Foundation
 import Hierarchy
 
 public protocol CommonInteractorProtocol {
-	func newItem(
-		_ text: String,
-		isStrikethrough: Bool?,
-		note: String?,
-		iconName: IconName?,
-		tintColor: ItemColor?,
-		target: UUID?
-	) -> UUID
+	func newItem(with properties: ItemProperties, target: UUID?) -> UUID
 	func deleteItems(_ ids: [UUID])
 
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool
@@ -52,32 +45,13 @@ public final class CommonInteractor {
 // MARK: - CommonInteractorProtocol
 extension CommonInteractor: CommonInteractorProtocol {
 
-	public func newItem(
-		_ text: String,
-		isStrikethrough: Bool?,
-		note: String?,
-		iconName: IconName?,
-		tintColor: ItemColor?,
-		target: UUID?
-	) -> UUID {
-		var options = ItemOptions()
-		if isStrikethrough == true {
-			options.insert(.strikethrough)
-		}
-
-		let new = Item(
-			uuid: UUID(),
-			text: text,
-			note: note,
-			options: options,
-			iconName: iconName,
-			tintColor: tintColor
-		)
+	public func newItem(with properties: ItemProperties, target: UUID?) -> UUID {
+		let newItem = Item(uuid: UUID(), properties: properties)
 		let destination = Destination(target: target)
 		storage.modificate { content in
-			content.root.insertItems(with: [new], to: destination)
+			content.root.insertItems(with: [newItem], to: destination)
 		}
-		return new.id
+		return newItem.id
 	}
 
 	public func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
