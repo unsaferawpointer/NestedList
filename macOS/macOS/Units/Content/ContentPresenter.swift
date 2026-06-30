@@ -39,6 +39,8 @@ final class ContentPresenter {
 
 	private(set) var settingsProvider: any StateProviderProtocol<Settings>
 
+	private(set) var analytics: any ContentAnalyticsServiceProtocol
+
 	// MARK: - Constants
 
 	private let stringType = NSPasteboard.PasteboardType.string.rawValue
@@ -52,11 +54,13 @@ final class ContentPresenter {
 	init(
 		router: any ContentRouterProtocol,
 		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared,
-		localization: ContentLocalizationProtocol = ContentLocalization()
+		localization: ContentLocalizationProtocol = ContentLocalization(),
+		analytics: any ContentAnalyticsServiceProtocol = ContentAnalyticsService()
 	) {
 		self.router = router
 		self.settingsProvider = settingsProvider
 		self.localization = localization
+		self.analytics = analytics
 
 		settingsProvider.addObservation(for: self) { [weak self] settings in
 			self?.interactor?.fetchData()
@@ -153,10 +157,44 @@ extension ContentPresenter: UnitViewOutput {
 				.delete]
 	}
 
+	func toolbarButtonClicked(id: ElementIdentifier) {
+		guard id.rawValue == "new-item-toolbar-item" else {
+			return
+		}
+		guard let selection = view?.selection else {
+			return
+		}
+
+		// MARK: - Analytics
+		let event: ContentAnalyticsEvent = .buttonClick(id: "new-item", source: "toolbar")
+		Task { await analytics.track(event) }
+
+		newItem(in: selection)
+	}
+
 	func menuItemClicked(_ item: ElementIdentifier) {
 		guard let selection = view?.selection else {
 			return
 		}
+
+		// MARK: - Analytics
+		let id: String = switch item {
+		case .newItem:		"new-item"
+		case .completed:	"completed-toggle"
+		case .hideSubitems:	"hide-subitems-toggle"
+		case .note:			"note-toggle"
+		case .edit:			"edit"
+		case .delete:		"delete"
+		case .cut:			"cut"
+		case .copy:			"copy"
+		case .paste:		"paste"
+		case .color:		"color"
+		case .icon:			"icon"
+		default:
+			"unknown"
+		}
+		let event: ContentAnalyticsEvent = .menuClick(id: id, source: "context-menu")
+		Task { await analytics.track(event) }
 
 		switch item {
 		case .newItem:		newItem(in: selection)

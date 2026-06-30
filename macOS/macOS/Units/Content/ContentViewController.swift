@@ -12,11 +12,11 @@ import DesignSystem
 
 import SwiftUI
 
-@MainActor
-protocol UnitViewOutput: ViewDelegate, MenuDelegate { }
+@MainActor protocol UnitViewOutput: ViewDelegate, MenuDelegate {
+	func toolbarButtonClicked(id: ElementIdentifier)
+}
 
-@MainActor
-protocol UnitView: AnyObject, ListSupportable {
+@MainActor protocol UnitView: AnyObject, ListSupportable {
 	func display(_ state: ContentViewState)
 	func updateTitle(_ title: String)
 	func close()
@@ -188,7 +188,7 @@ private extension ContentViewController {
 extension ContentViewController: DocumentToolbarSupportable {
 
 	func newItem(_ sender: Any) {
-		output?.menuItemClicked(.newItem)
+		output?.toolbarButtonClicked(id: .init(rawValue: "new-item-toolbar-item"))
 	}
 }
 

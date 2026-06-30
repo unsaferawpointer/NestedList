@@ -12,6 +12,7 @@ import Hierarchy
 import CoreModule
 import DesignSystem
 import CorePresentation
+import Analytics
 @testable import Nested_List
 
 @MainActor
@@ -25,13 +26,15 @@ final class UnitPresenterTests {
 	var interactor: UnitInteractorMock!
 	var router: UnitRouterMock!
 	var settingsProvider: StateProviderMock<Settings>!
+	var analytics: ContentAnalyticsServiceMock!
 
 	init() {
 		view = UnitViewMock()
 		interactor = UnitInteractorMock()
 		router = UnitRouterMock()
 		settingsProvider = StateProviderMock<Settings>()
-		sut = ContentPresenter(router: router, settingsProvider: settingsProvider)
+		analytics = ContentAnalyticsServiceMock()
+		sut = ContentPresenter(router: router, settingsProvider: settingsProvider, analytics: analytics)
 		sut.view = view
 		sut.interactor = interactor
 	}
@@ -42,6 +45,7 @@ final class UnitPresenterTests {
 		interactor = nil
 		router = nil
 		settingsProvider = nil
+		analytics = nil
 	}
 }
 
@@ -170,6 +174,45 @@ extension UnitPresenterTests {
 		}
 
 		#expect(ids == nil)
+	}
+
+	@Test func test_toolbarButtonClicked_tracksAnalytics() async {
+		// Arrange
+		view.stubs.selection = [.random]
+		interactor.stubs.newItem = .random
+
+		// Act
+		sut.toolbarButtonClicked(id: .init(rawValue: "new-item-toolbar-item"))
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == "button_click")
+		#expect(event.parameters["id"] == .string("new-item"))
+		#expect(event.parameters["source"] == .string("toolbar"))
+	}
+
+	@Test func test_menuItemClicked_tracksAnalytics() async {
+		// Arrange
+		view.stubs.selection = [.random]
+
+		// Act
+		sut.menuItemClicked(.delete)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == "menu_click")
+		#expect(event.parameters["id"] == .string("delete"))
+		#expect(event.parameters["source"] == .string("context-menu"))
 	}
 
 	@Test func test_userCreateNewItem() {
@@ -577,6 +620,16 @@ private extension UnitPresenterTests {
 
 	func makeSnapshot() -> Snapshot<Item> {
 		Snapshot([.init(value: .random), .init(value: .random)])
+	}
+
+	func waitForAnalyticsInvocation() async -> ContentAnalyticsServiceMock.Action? {
+		for _ in 0..<10 {
+			if let invocation = await analytics.invocations.first {
+				return invocation
+			}
+			await Task.yield()
+		}
+		return nil
 	}
 }
 

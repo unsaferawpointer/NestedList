@@ -2,12 +2,12 @@
 
 struct TestEvent {
 
-	let space: String
+	let area: String
 	let name: String
 	let parameters: [String: AnalyticsValue]
 
-	init(space: String = "test", name: String, parameters: [String: AnalyticsValue] = [:]) {
-		self.space = space
+	init(area: String = "test", name: String, parameters: [String: AnalyticsValue] = [:]) {
+		self.area = area
 		self.name = name
 		self.parameters = parameters
 	}
