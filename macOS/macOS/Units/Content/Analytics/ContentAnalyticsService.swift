@@ -19,8 +19,17 @@ final class ContentAnalyticsService {
 
 	private let analytics: any AnalyticsServiceProtocol
 
-	init(analytics: any AnalyticsServiceProtocol = AnalyticsService(engine: AmplitudeService())) {
+	init(analytics: any AnalyticsServiceProtocol) {
 		self.analytics = analytics
+	}
+
+	convenience init(identityProvider: AnalyticsIdentityProvider = AnalyticsIdentityProvider()) {
+		self.init(
+			analytics: AnalyticsService(
+				engine: AmplitudeService(),
+				userIdentifier: identityProvider.userIdentifier
+			)
+		)
 	}
 }
 
