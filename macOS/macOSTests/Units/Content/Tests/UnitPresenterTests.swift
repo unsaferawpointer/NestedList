@@ -497,6 +497,44 @@ extension UnitPresenterTests {
 		#expect(destination == expectedDestination)
 	}
 
+	@Test func test_moveItems_tracksAnalytics() async {
+		// Arrange
+		let expectedIds: [UUID] = [.random, .random]
+		let expectedDestination: Destination<UUID> = .toRoot
+
+		// Act
+		sut.move(expectedIds, to: expectedDestination)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == "drag_drop_move")
+		#expect(event.parameters["items_count"] == .int(expectedIds.count))
+	}
+
+	@Test func test_copyItems_tracksAnalytics() async {
+		// Arrange
+		let expectedIds: [UUID] = [.random]
+		let expectedDestination: Destination<UUID> = .onItem(with: .random)
+
+		// Act
+		sut.copy(expectedIds, to: expectedDestination)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == "drag_drop_copy")
+		#expect(event.parameters["items_count"] == .int(expectedIds.count))
+	}
+
 	@Test func test_validateMovement() {
 		// Arrange
 		let expectedIds: [UUID] = [.random]
@@ -585,6 +623,62 @@ extension UnitPresenterTests {
 		}
 		#expect(data == [first, second])
 		#expect(actualDestination == destination)
+	}
+
+	@Test func test_dropItemsFromPasteboard_tracksAnalytics() async {
+		// Arrange
+		let destination: Destination<UUID> = .toRoot
+		let itemType = "dev.zeroindex.ListAdapter.item"
+		let first = Data([0x01])
+		let second = Data([0x02])
+		let info = PasteboardInfo(
+			items: [
+				.init(data: [itemType: first]),
+				.init(data: [itemType: second])
+			]
+		)
+
+		// Act
+		sut.drop(info, to: destination)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == "drag_drop_drop")
+		#expect(event.parameters["items_count"] == .int(2))
+		#expect(event.parameters["content_type"] == .string("item"))
+	}
+
+	@Test func test_dropStringsFromPasteboard_tracksAnalytics() async {
+		// Arrange
+		let destination: Destination<UUID> = .toRoot
+		let stringType = NSPasteboard.PasteboardType.string.rawValue
+		let first = Data("one".utf8)
+		let second = Data("two".utf8)
+		let info = PasteboardInfo(
+			items: [
+				.init(data: [stringType: first]),
+				.init(data: [stringType: second])
+			]
+		)
+
+		// Act
+		sut.drop(info, to: destination)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == "drag_drop_drop")
+		#expect(event.parameters["items_count"] == .int(2))
+		#expect(event.parameters["content_type"] == .string("string"))
 	}
 
 	@Test func test_availableTypes() {

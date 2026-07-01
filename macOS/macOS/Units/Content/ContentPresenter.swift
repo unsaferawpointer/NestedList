@@ -406,10 +406,18 @@ extension ContentPresenter: DropDelegate {
 	typealias ID = UUID
 	
 	func move(_ ids: [UUID], to destination: Destination<UUID>) {
+		// MARK: - Analytics
+		let event: ContentAnalyticsEvent = .dragDropMove(itemsCount: ids.count)
+		Task { await analytics.track(event) }
+
 		interactor?.move(ids, to: destination)
 	}
 	
 	func copy(_ ids: [UUID], to destination: Destination<UUID>) {
+		// MARK: - Analytics
+		let event: ContentAnalyticsEvent = .dragDropCopy(itemsCount: ids.count)
+		Task { await analytics.track(event) }
+
 		interactor?.copy(ids, to: destination)
 	}
 	
@@ -426,11 +434,21 @@ extension ContentPresenter: DropDelegate {
 			let data = info.items.compactMap { item in
 				item.data[itemType]
 			}
+
+			// MARK: - Analytics
+			let event: ContentAnalyticsEvent = .dragDropDrop(itemsCount: data.count, contentType: "item")
+			Task { await analytics.track(event) }
+
 			interactor?.insertItems(data, to: destination)
 		} else {
 			let data = info.items.compactMap { item in
 				item.data[stringType]
 			}
+
+			// MARK: - Analytics
+			let event: ContentAnalyticsEvent = .dragDropDrop(itemsCount: data.count, contentType: "string")
+			Task { await analytics.track(event) }
+
 			interactor?.insertStrings(data, to: destination)
 		}
 	}
