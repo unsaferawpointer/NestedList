@@ -12,6 +12,7 @@ enum ContentAnalyticsEvent {
 	case documentShow(depth: Int, totalCount: Int)
 	case subitemsShow(indent: Int)
 	case buttonClick(id: String, source: String)
+	case itemDoubleClick
 	case dragDropMove(itemsCount: Int)
 	case dragDropCopy(itemsCount: Int)
 	case dragDropDrop(itemsCount: Int, contentType: String)
@@ -32,6 +33,8 @@ extension ContentAnalyticsEvent: AnalyticsEvent {
 			"subitems_show"
 		case .buttonClick:
 			"button_click"
+		case .itemDoubleClick:
+			"item_double_click"
 		case .dragDropMove:
 			"drag_drop_move"
 		case .dragDropCopy:
@@ -62,6 +65,8 @@ extension ContentAnalyticsEvent: AnalyticsEvent {
 				"id": .string(id),
 				"source": .string(source)
 			]
+		case .itemDoubleClick:
+			[:]
 		case let .dragDropMove(itemsCount):
 			[
 				"items_count": .int(itemsCount)

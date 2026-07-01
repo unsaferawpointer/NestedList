@@ -104,21 +104,28 @@ extension UnitPresenterTests {
 // MARK: - ListDelegate test-cases
 extension UnitPresenterTests {
 
-	@Test func test_handleDoubleClick() {
+	@Test func test_handleDoubleClick() async {
 		// Arrange
 		let expectedId: UUID = .random
 		settingsProvider.stubs.state = .standart
 
 		// Act
 		sut.handleDoubleClick(on: expectedId)
+		let invocation = await waitForAnalyticsInvocation()
 
 		guard case let .toggleStatus(id, moveToEnd) = interactor.invocations.first else {
 			Issue.record("Expect toggleStatus invocation")
 			return
 		}
 
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
 		#expect(id == expectedId)
 		#expect(moveToEnd == false)
+		#expect(event.name == "item_double_click")
 	}
 
 	@Test func test_handleDoubleClick_whenCompletionBehaviourIsMoveToEnd() {
