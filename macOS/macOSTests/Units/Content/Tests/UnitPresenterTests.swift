@@ -158,21 +158,34 @@ extension UnitPresenterTests {
 extension UnitPresenterTests {
 
 	@Test func test_viewDidLoad() {
+		// Arrange
+		interactor.stubs.snapshot = makeSnapshot()
+		settingsProvider.stubs.state = .standart
+
 		// Act
 		sut.viewDidChange(state: .didLoad)
 
 		// Assert
-
 		guard case .fetchData = interactor.invocations.first else {
 			Issue.record("Expect fetchData invocation")
 			return
 		}
 
-		guard case let .expand(ids) = view.invocations.first else {
+		guard case let .display(state) = view.invocations.first else {
 			Issue.record("Expect display invocation")
 			return
 		}
 
+		guard case let .list(snapshot) = state else {
+			Issue.record("Expect list state")
+			return
+		}
+		#expect(snapshot.identifiers.count == 2)
+
+		guard case let .expand(ids) = view.invocations.dropFirst().first else {
+			Issue.record("Expect expand invocation")
+			return
+		}
 		#expect(ids == nil)
 	}
 

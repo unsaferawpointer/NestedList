@@ -23,8 +23,9 @@ final class UnitInteractorMock {
 // MARK: - ContentInteractorProtocol
 extension UnitInteractorMock: ContentInteractorProtocol {
 
-	func fetchData() {
+	func fetchData() -> (Item?, Snapshot<Item>) {
 		invocations.append(.fetchData)
+		return (stubs.fetchedItem, stubs.snapshot)
 	}
 
 	func configure(for root: UUID?) {
@@ -138,6 +139,8 @@ extension UnitInteractorMock {
 	struct Stubs {
 		var validateMovement: Bool = false
 		var newItem: UUID = .random
+		var fetchedItem: Item?
+		var snapshot = Snapshot<Item>([])
 		var nodes: [any TreeNode<Item>] = []
 		var data: [UUID: Data] = [:]
 	}

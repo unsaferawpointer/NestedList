@@ -146,6 +146,16 @@ public extension Snapshot where Model: IdentifiableValue {
 // MARK: - Public interface
 public extension Snapshot {
 
+	/// The total number of nodes contained in the snapshot.
+	var count: Int {
+		cache.identifiers.count
+	}
+
+	/// The number of hierarchy levels contained in the snapshot.
+	var depth: Int {
+		count == 0 ? 0 : cache.maxLevel + 1
+	}
+
 	var identifiers: Set<ID> {
 		cache.identifiers
 	}

@@ -130,11 +130,24 @@ extension ContentPresenter: ListDelegate {
 extension ContentPresenter: ViewDelegate {
 
 	func viewDidChange(state: ViewState) {
-		guard case .didLoad = state else {
+		guard case .didLoad = state, let interactor else {
 			return
 		}
-		interactor?.fetchData()
+		let (item, snapshot) = interactor.fetchData()
+		present(snapshot)
+		if let item {
+			presentRoot(item: item)
+		}
 		view?.expand(nil)
+
+		// MARK: - Analytics
+		Task {
+			let event: ContentAnalyticsEvent = .documentShow(
+				depth: snapshot.depth,
+				totalCount: snapshot.count
+			)
+			await analytics.track(event)
+		}
 	}
 }
 

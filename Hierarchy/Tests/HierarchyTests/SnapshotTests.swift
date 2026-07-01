@@ -5,6 +5,8 @@ import Testing
 	let snapshot = Snapshot<TestItem>(TestFixtures.nodes)
 
 	#expect(snapshot.root == ["root-a", "root-b"])
+	#expect(snapshot.count == 7)
+	#expect(snapshot.depth == 3)
 	#expect(snapshot.identifiers == Set(["root-a", "child-a", "grandchild-a", "grandchild-b", "child-b", "root-b", "child-c"]))
 	#expect(snapshot.nodeIdentifiers == Set(["root-a", "child-a", "root-b"]))
 
@@ -94,6 +96,8 @@ import Testing
 	let result = snapshot.withRoot(parent: "child-b")
 
 	#expect(result.root.isEmpty)
+	#expect(result.count == 0)
+	#expect(result.depth == 0)
 	#expect(result.identifiers.isEmpty)
 	#expect(result.nodeIdentifiers.isEmpty)
 	#expect(result.numberOfRootItems() == 0)

@@ -11,7 +11,7 @@ import CoreModule
 
 protocol ContentInteractorProtocol {
 
-	func fetchData()
+	func fetchData() -> (Item?, Snapshot<Item>)
 
 	func move(_ ids: [UUID], to destination: Destination<UUID>)
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool
@@ -83,14 +83,14 @@ protocol ContentInteractorProtocol {
 // MARK: - ContentInteractorProtocol
 extension ContentInteractor: ContentInteractorProtocol {
 
-	func fetchData() {
+	func fetchData() -> (Item?, Snapshot<Item>) {
 		let snapshot = storage.state.root
 			.snapshot()
 			.withRoot(parent: root)
-		presenter?.present(snapshot)
-		if let id = root, let item = storage.state.root[id] {
-			self.presenter?.presentRoot(item: item)
+		guard let id = root, let item = storage.state.root[id] else {
+			return (nil, snapshot)
 		}
+		return (item, snapshot)
 	}
 
 	func move(_ ids: [UUID], to destination: Destination<UUID>) {
