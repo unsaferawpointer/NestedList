@@ -9,11 +9,9 @@ import SwiftUI
 import DesignSystem
 import CoreModule
 
-public struct ItemColorPicker {
+@MainActor public struct ItemColorPicker {
 
-	let title: String
-
-	let action: @MainActor (ItemColor?, Bool) -> Void
+	private let model: ItemColorPickerViewModel
 
 	// MARK: - Initialization
 
@@ -21,8 +19,7 @@ public struct ItemColorPicker {
 		title: String,
 		action: @escaping @MainActor (ItemColor?, Bool) -> Void
 	) {
-		self.title = title
-		self.action = action
+		self.model = ItemColorPickerViewModel(title: title, action: action)
 	}
 }
 
@@ -32,13 +29,13 @@ extension ItemColorPicker: View {
 	public var body: some View {
 		NavigationStack {
 			ScrollView {
-				CommonPicker(values: colors) {
+				CommonPicker(values: model.colors) {
 					PickerButton(
 						icon: .circleSlash,
 						foregroundColor: .primary,
 						backgroundColor: .gray.opacity(0.1)
 					) {
-						action(nil, true)
+						model.selectNone()
 					}
 				} content: { token in
 					PickerButton(
@@ -47,15 +44,15 @@ extension ItemColorPicker: View {
 						foregroundColor: token.color,
 						backgroundColor: .gray.opacity(0.1)
 					) {
-						action(ColorMapper.map(token: token), true)
+						model.select(token)
 					}
 				}
 			}
 			.scrollIndicators(.hidden)
 			.toolbar {
-				buildToolbar(action: action)
+				buildToolbar()
 			}
-			.navigationTitle(title)
+			.navigationTitle(model.title)
 			#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)
 			#endif
@@ -65,24 +62,16 @@ extension ItemColorPicker: View {
 }
 
 // MARK: - Helpers
-private extension ItemColorPicker {
-
-	var colors: [ColorToken] {
-		ItemColor.allCases.map {
-			ColorMapper.map(color: $0)
-		}
-	}
-}
-
 #if os(iOS)
 private extension ItemColorPicker {
 
+	@MainActor
 	@ToolbarContentBuilder
-	func buildToolbar(action: @escaping @MainActor (ItemColor?, Bool) -> Void) -> some ToolbarContent {
+	func buildToolbar() -> some ToolbarContent {
 		if #available(iOS 26.0, *) {
 			ToolbarItem {
 				Button {
-					action(nil, false)
+					model.cancel()
 				} label: {
 					Image(systemName: "xmark")
 				}
@@ -91,7 +80,7 @@ private extension ItemColorPicker {
 		} else {
 			ToolbarItem {
 				Button {
-					action(nil, false)
+					model.cancel()
 				} label: {
 					Image(systemName: "xmark")
 				}
@@ -104,12 +93,13 @@ private extension ItemColorPicker {
 #if os(macOS)
 private extension ItemColorPicker {
 
+	@MainActor
 	@ToolbarContentBuilder
-	func buildToolbar(action: @escaping @MainActor (ItemColor?, Bool) -> Void) -> some ToolbarContent {
+	func buildToolbar() -> some ToolbarContent {
 		if #available(macOS 26.0, *) {
 			ToolbarItem {
 				Button {
-					action(nil, false)
+					model.cancel()
 				} label: {
 					Image(systemName: "xmark")
 				}
@@ -118,7 +108,7 @@ private extension ItemColorPicker {
 		} else {
 			ToolbarItem {
 				Button {
-					action(nil, false)
+					model.cancel()
 				} label: {
 					Image(systemName: "xmark")
 				}

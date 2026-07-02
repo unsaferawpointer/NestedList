@@ -34,17 +34,14 @@ import Foundation
 // MARK: - Public Interface
 extension IconPickerViewModel {
 
-	@MainActor
 	func selectNone() {
 		action(nil, true)
 	}
 
-	@MainActor
 	func select(_ icon: SemanticImage) {
 		action(IconMapper.map(icon: icon), true)
 	}
 
-	@MainActor
 	func cancel() {
 		action(nil, false)
 	}
