@@ -501,6 +501,11 @@ extension ContentPresenter: CellDelegate {
 	}
 
 	func cellDidTapDisclosure(id: UUID) {
+		// MARK: - Analytics
+		Task {
+			let event: ContentAnalyticsEvent = .subitemsShow
+			await analytics.track(event)
+		}
 		router.showDocument(for: id)
 	}
 }

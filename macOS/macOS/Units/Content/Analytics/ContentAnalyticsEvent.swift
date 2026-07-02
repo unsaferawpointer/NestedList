@@ -10,7 +10,7 @@ import Analytics
 enum ContentAnalyticsEvent {
 	case menuClick(id: String, source: String)
 	case documentShow(depth: Int, totalCount: Int)
-	case subitemsShow(indent: Int)
+	case subitemsShow
 	case buttonClick(id: String, source: String)
 	case itemDoubleClick
 	case dragDropMove(itemsCount: Int)
@@ -56,10 +56,8 @@ extension ContentAnalyticsEvent: AnalyticsEvent {
 				"depth": .int(depth),
 				"total_count": .int(totalCount)
 			]
-		case let .subitemsShow(indent):
-			[
-				"indent": .int(indent)
-			]
+		case .subitemsShow:
+			[:]
 		case let .buttonClick(id, source):
 			[
 				"id": .string(id),

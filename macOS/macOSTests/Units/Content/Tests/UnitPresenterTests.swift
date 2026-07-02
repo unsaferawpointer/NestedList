@@ -145,12 +145,13 @@ extension UnitPresenterTests {
 		#expect(moveToEnd == true)
 	}
 
-	@Test func test_cellDidTapDisclosure_showsDocument() {
+	@Test func test_cellDidTapDisclosure_showsDocumentAndTracksAnalytics() async {
 		// Arrange
 		let id: UUID = .random
 
 		// Act
 		sut.cellDidTapDisclosure(id: id)
+		let invocation = await waitForAnalyticsInvocation()
 
 		// Assert
 		guard case let .showDocument(openedId) = router.invocations.first else {
@@ -158,6 +159,14 @@ extension UnitPresenterTests {
 			return
 		}
 		#expect(openedId == id)
+
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == "subitems_show")
+		#expect(event.parameters.isEmpty)
 	}
 }
 
