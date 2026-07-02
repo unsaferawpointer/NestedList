@@ -9,11 +9,9 @@ import SwiftUI
 import CoreModule
 import DesignSystem
 
-public struct IconPicker {
+@MainActor public struct IconPicker {
 
-	let title: String
-
-	let action: @MainActor (IconName?, Bool) -> Void
+	private let model: IconPickerViewModel
 
 	// MARK: - Initialization
 
@@ -21,8 +19,7 @@ public struct IconPicker {
 		title: String,
 		action: @escaping @MainActor (IconName?, Bool) -> Void
 	) {
-		self.title = title
-		self.action = action
+		self.model = IconPickerViewModel(title: title, action: action)
 	}
 }
 
@@ -32,13 +29,13 @@ extension IconPicker: View {
 	public var body: some View {
 		NavigationStack {
 			ScrollView {
-				CommonPicker(values: icons) {
+				CommonPicker(values: model.icons) {
 					PickerButton(
 						icon: .circleSlash,
 						foregroundColor: .red,
 						backgroundColor: .gray.opacity(0.1)
 					) {
-						action(nil, true)
+						model.selectNone()
 					}
 				} content: { icon in
 					PickerButton(
@@ -46,15 +43,15 @@ extension IconPicker: View {
 						foregroundColor: .primary,
 						backgroundColor: .gray.opacity(0.1)
 					) {
-						action(IconMapper.map(icon: icon), true)
+						model.select(icon)
 					}
 				}
 			}
 			.scrollIndicators(.hidden)
 			.toolbar {
-				buildToolbar(action: action)
+				buildToolbar()
 			}
-			.navigationTitle(title)
+			.navigationTitle(model.title)
 			#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)
 			#endif
@@ -65,26 +62,17 @@ extension IconPicker: View {
 	}
 }
 
-// MARK: - Computed Properties
-private extension IconPicker {
-
-	var icons: [SemanticImage] {
-		IconName.allCases.map {
-			IconMapper.map(icon: $0)
-		}
-	}
-}
-
 // MARK: - Helpers
 #if os(iOS)
 private extension IconPicker {
 
+	@MainActor
 	@ToolbarContentBuilder
-	func buildToolbar(action: @escaping @MainActor (IconName?, Bool) -> Void) -> some ToolbarContent {
+	func buildToolbar() -> some ToolbarContent {
 		if #available(iOS 26.0, *) {
 			ToolbarItem {
 				Button {
-					action(nil, false)
+					model.cancel()
 				} label: {
 					Image(systemName: "xmark")
 				}
@@ -93,7 +81,7 @@ private extension IconPicker {
 		} else {
 			ToolbarItem {
 				Button {
-					action(nil, false)
+					model.cancel()
 				} label: {
 					Image(systemName: "xmark")
 				}
@@ -106,12 +94,13 @@ private extension IconPicker {
 #if os(macOS)
 private extension IconPicker {
 
+	@MainActor
 	@ToolbarContentBuilder
-	func buildToolbar(action: @escaping @MainActor (IconName?, Bool) -> Void) -> some ToolbarContent {
+	func buildToolbar() -> some ToolbarContent {
 		if #available(macOS 26.0, *) {
 			ToolbarItem {
 				Button {
-					action(nil, false)
+					model.cancel()
 				} label: {
 					Image(systemName: "xmark")
 				}
@@ -120,7 +109,7 @@ private extension IconPicker {
 		} else {
 			ToolbarItem {
 				Button {
-					action(nil, false)
+					model.cancel()
 				} label: {
 					Image(systemName: "xmark")
 				}
