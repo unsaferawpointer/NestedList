@@ -11,7 +11,7 @@ import CoreModule
 
 @MainActor
 protocol ContentUnitInteractorProtocol {
-	func fetchData()
+	func fetchData() -> (Item?, Snapshot<Item>)
 
 	@discardableResult
 	func newItem(with properties: ItemProperties, target: UUID?) -> UUID
@@ -74,14 +74,14 @@ final class ContentUnitInteractor {
 // MARK: - ContentInteractorProtocol
 extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 
-	func fetchData() {
+	func fetchData() -> (Item?, Snapshot<Item>) {
 		let snapshot = storage.state.root
 			.snapshot()
 			.withRoot(parent: root)
-		presenter?.present(snapshot: snapshot)
-		if let root, let item = storage.state.root[root] {
-			presenter?.presentRoot(item: item)
+		guard let id = root, let item = storage.state.root[id] else {
+			return (nil, snapshot)
 		}
+		return (item, snapshot)
 	}
 
 	func newItem(with properties: ItemProperties, target: UUID?) -> UUID {

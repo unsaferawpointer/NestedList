@@ -69,7 +69,14 @@ final class ContentPresenter {
 		self.settingsProvider = settingsProvider
 
 		settingsProvider.addObservation(for: self) { [weak self] settings in
-			self?.interactor?.fetchData()
+			guard let interactor = self?.interactor else {
+				return
+			}
+			let (item, snapshot) = interactor.fetchData()
+			self?.present(snapshot: snapshot)
+			if let item {
+				self?.presentRoot(item: item)
+			}
 		}
 	}
 }
@@ -106,9 +113,16 @@ extension ContentPresenter: ContentPresenterProtocol {
 extension ContentPresenter: ViewDelegate {
 
 	func viewDidChange(state: ViewState) {
+		guard let interactor else {
+			return
+		}
 		switch state {
 		case .didLoad:
-			interactor?.fetchData()
+			let (item, snapshot) = interactor.fetchData()
+			present(snapshot: snapshot)
+			if let item {
+				presentRoot(item: item)
+			}
 			view?.expandAll()
 			displayToolbar()
 		case .willAppear:

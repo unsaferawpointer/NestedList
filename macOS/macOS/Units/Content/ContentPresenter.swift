@@ -63,7 +63,14 @@ final class ContentPresenter {
 		self.analytics = analytics
 
 		settingsProvider.addObservation(for: self) { [weak self] settings in
-			self?.interactor?.fetchData()
+			guard let interactor = self?.interactor else {
+				return
+			}
+			let (item, snapshot) = interactor.fetchData()
+			self?.present(snapshot)
+			if let item {
+				self?.presentRoot(item: item)
+			}
 		}
 	}
 
