@@ -12,28 +12,24 @@ import CoreModule
 @MainActor
 public struct ItemDetailsView {
 
-	@State var model: Model
-
-	var completionHandler: (Properties, Bool) -> Void
+	@State var model: ItemDetailsViewModel
 
 	let strings = DetailsLocalization()
-
-	var isValid: Bool {
-		return !model.properties.text.isEmpty
-	}
-
-	@MainActor
-	let icons = IconsPalette.chunked()
-		.flatMap{ $0 }
-		.map { IconMapper.map(icon: $0) }
 
 	@FocusState private var focusedField: Field?
 
 	// MARK: - Initialization
 
-	public init(item: Model, completionHandler: @escaping (Properties, Bool) -> Void) {
-		self._model = State(initialValue: item)
-		self.completionHandler = completionHandler
+	public init(
+		item: Model,
+		completionHandler: @escaping (Properties, Bool) -> Void
+	) {
+		self._model = State(
+			initialValue: ItemDetailsViewModel(
+				item: item,
+				completionHandler: completionHandler
+			)
+		)
 	}
 }
 
@@ -50,17 +46,17 @@ extension ItemDetailsView: View {
 			.toolbar {
 				ToolbarItem(placement: .cancellationAction) {
 					Button(strings.cancelButtonTitle, role: .cancel) {
-						completionHandler(model.properties, false)
+						model.cancel()
 					}
 					.accessibilityIdentifier("button-cancel")
 				}
 
 				ToolbarItem(placement: .confirmationAction) {
 					Button(strings.saveButtonTitle, role: .none) {
-						completionHandler(model.properties, true)
+						model.save()
 					}
 					.keyboardShortcut(.return)
-					.disabled(!isValid)
+					.disabled(!model.isValid)
 					.accessibilityIdentifier("button-save")
 				}
 			}
@@ -69,19 +65,24 @@ extension ItemDetailsView: View {
 			#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)
 			#endif
+			.onAppear {
+				focusedField = model.initialFocus
+			}
 		}
 	}
 }
 
-// MARK: - Helpers
+// MARK: - Private methods
 private extension ItemDetailsView {
 
 	@ViewBuilder
 	func buildInfoSection() -> some View {
+		@Bindable var bindableModel = model
+
 		Section {
 			TextField(
 				"Text",
-				text: $model.properties.text,
+				text: $bindableModel.item.properties.text,
 				prompt: Text(strings.textfieldPlaceholder)
 			)
 				.focused($focusedField, equals: .title)
@@ -89,12 +90,12 @@ private extension ItemDetailsView {
 				.foregroundStyle(.primary)
 				.submitLabel(.continue)
 				.onSubmit {
-					focusedField = .note
+					focusedField = model.nextField(after: focusedField)
 				}
 				.accessibilityIdentifier("textfield-title")
 			TextField(
 				strings.notePlaceholder,
-				text: $model.properties.description,
+				text: $bindableModel.item.properties.description,
 				axis: .vertical
 			)
 				.focused($focusedField, equals: .note)
@@ -103,19 +104,14 @@ private extension ItemDetailsView {
 				.submitLabel(.return)
 				.accessibilityIdentifier("textfield-description")
 		} footer: {
-			if !isValid {
+			if !model.isValid {
 				Text(strings.warningText)
 					.foregroundStyle(.red)
 					.accessibilityIdentifier("label-hint")
 			}
 		}
 		.onSubmit {
-			switch focusedField {
-			case .title:
-				focusedField = .note
-			default:
-				focusedField = nil
-			}
+			focusedField = model.nextField(after: focusedField)
 		}
 	}
 }
