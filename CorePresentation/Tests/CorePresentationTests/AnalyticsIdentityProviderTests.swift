@@ -4,7 +4,7 @@ import Testing
 
 struct AnalyticsIdentityProviderTests { }
 
-// MARK: - userIdentifier
+// MARK: - Identity
 extension AnalyticsIdentityProviderTests {
 
 	@Test func userIdentifier_whenValueIsMissing_createsAndStoresIdentifier() throws {
@@ -33,6 +33,15 @@ extension AnalyticsIdentityProviderTests {
 		let identifier = sut.userIdentifier
 
 		#expect(defaults.string(forKey: "analytics.userIdentifier") == identifier.uuidString)
+	}
+
+	@Test func sessionIdentifier_returnsSameIdentifierAcrossProviders() throws {
+		let firstDefaults = try makeDefaults()
+		let secondDefaults = try makeDefaults()
+		let firstProvider = AnalyticsIdentityProvider(defaults: firstDefaults)
+		let secondProvider = AnalyticsIdentityProvider(defaults: secondDefaults)
+
+		#expect(firstProvider.sessionIdentifier == secondProvider.sessionIdentifier)
 	}
 }
 

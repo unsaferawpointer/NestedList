@@ -24,12 +24,13 @@ final class ContentAnalyticsService {
 	}
 
 	convenience init(identityProvider: AnalyticsIdentityProvider = AnalyticsIdentityProvider()) {
-		self.init(
-			analytics: AnalyticsService(
-				engine: AmplitudeService(),
-				userIdentifier: identityProvider.userIdentifier
+			self.init(
+				analytics: AnalyticsService(
+					engine: AmplitudeService(),
+					identityProvider: identityProvider,
+					metadataProvider: SystemAnalyticsPayloadMetadataProvider()
+				)
 			)
-		)
 	}
 }
 

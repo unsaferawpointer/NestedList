@@ -27,18 +27,23 @@ public struct AnalyticsPayload: Sendable, Identifiable {
 	/// Date when the payload was created and placed into the service queue.
 	public let createdAt: Date
 
+	/// Environment metadata associated with the event.
+	public let metadata: AnalyticsPayloadMetadata
+
 	public init(
 		id: UUID = UUID(),
 		event: any AnalyticsEvent,
 		userIdentifier: UUID,
 		sessionIdentifier: UUID,
-		createdAt: Date = Date()
+		createdAt: Date = Date(),
+		metadata: AnalyticsPayloadMetadata = .empty
 	) {
 		self.id = id
 		self.event = event
 		self.userIdentifier = userIdentifier
 		self.sessionIdentifier = sessionIdentifier
 		self.createdAt = createdAt
+		self.metadata = metadata
 	}
 }
 

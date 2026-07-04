@@ -70,6 +70,8 @@
 	</array>
 	<key>UTImportedTypeDeclarations</key>
 	<array/>
+	<key>NestedListAnalyticsAPIKey</key>
+	<string>$(NESTED_LIST_ANALYTICS_API_KEY)</string>
 	<key>NestedListSupportEmail</key>
 	<string>$(NESTED_LIST_SUPPORT_EMAIL)</string>
 </dict>

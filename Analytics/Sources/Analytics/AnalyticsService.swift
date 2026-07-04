@@ -33,11 +33,11 @@ public actor AnalyticsService {
 	// MARK: - DI
 
 	private let engine: any AnalyticsEngine
+	private let identityProvider: any AnalyticsIdentityProviding
+	private let metadataProvider: any AnalyticsPayloadMetadataProvider
 
 	// MARK: - Constants
 
-	private let userIdentifier: UUID
-	private let sessionIdentifier: UUID
 	private let queuePolicy: AnalyticsQueuePolicy
 
 	// MARK: - Internal state
@@ -45,22 +45,22 @@ public actor AnalyticsService {
 	private var cache: [AnalyticsPayload] = []
 	private var isFlushing = false
 
-	/// Creates an analytics service.
+		/// Creates an analytics service.
 	///
 	/// - Parameters:
 	///   - engine: Transport layer used to deliver event batches.
-	///   - userIdentifier: Identifier of the user associated with tracked events.
-	///   - sessionIdentifier: Identifier of the current application session.
+	///   - identityProvider: Provider used to attach user and session identifiers to tracked events.
+	///   - metadataProvider: Provider used to attach environment metadata to tracked events.
 	///   - queuePolicy: Policy that controls in-memory caching and batch delivery.
 	public init(
 		engine: any AnalyticsEngine,
-		userIdentifier: UUID = UUID(),
-		sessionIdentifier: UUID = UUID(),
+		identityProvider: any AnalyticsIdentityProviding,
+		metadataProvider: any AnalyticsPayloadMetadataProvider,
 		queuePolicy: AnalyticsQueuePolicy = AnalyticsQueuePolicy()
 	) {
 		self.engine = engine
-		self.userIdentifier = userIdentifier
-		self.sessionIdentifier = sessionIdentifier
+		self.identityProvider = identityProvider
+		self.metadataProvider = metadataProvider
 		self.queuePolicy = queuePolicy
 	}
 }
@@ -71,10 +71,12 @@ extension AnalyticsService: AnalyticsServiceProtocol {
 	public func track<E: AnalyticsEvent>(_ event: E) async {
 		let payload = AnalyticsPayload(
 			event: event,
-			userIdentifier: userIdentifier,
-			sessionIdentifier: sessionIdentifier
+			userIdentifier: identityProvider.userIdentifier,
+			sessionIdentifier: identityProvider.sessionIdentifier,
+			metadata: metadataProvider.metadata()
 		)
 		cache.append(payload)
+		logTrackedEvent(payload)
 		trimCacheIfNeeded()
 
 		guard cache.count >= queuePolicy.batchSize else {
@@ -112,5 +114,43 @@ private extension AnalyticsService {
 			return
 		}
 		cache.removeFirst(cache.count - queuePolicy.cacheLimit)
+	}
+
+	func logTrackedEvent(_ payload: AnalyticsPayload) {
+		#if DEBUG
+		let parameters = formattedParameters(payload.parameters)
+
+		print(
+			"[Analytics]\n"
+			+ "Event: \(payload.area).\(payload.name)\n"
+			+ "User: \(payload.userIdentifier)\n"
+			+ "Session: \(payload.sessionIdentifier)\n"
+			+ "Parameters:\n\(parameters)"
+		)
+		#endif
+	}
+
+	func formattedParameters(_ parameters: [String: AnalyticsValue]) -> String {
+		guard !parameters.isEmpty else {
+			return "\t- empty"
+		}
+
+		return parameters
+			.sorted { $0.key < $1.key }
+			.map { "\t- \($0.key): \(formattedValue($0.value))" }
+			.joined(separator: "\n")
+	}
+
+	func formattedValue(_ value: AnalyticsValue) -> String {
+		switch value {
+		case let .string(value):
+			return value.debugDescription
+		case let .int(value):
+			return String(value)
+		case let .double(value):
+			return String(value)
+		case let .bool(value):
+			return String(value)
+		}
 	}
 }

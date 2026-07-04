@@ -4,15 +4,17 @@
 //
 
 import Foundation
+import Analytics
 
-/// Provides a stable anonymous user identifier for analytics events.
+/// Provides stable anonymous analytics identity values.
 ///
-/// The provider stores the identifier in `UserDefaults` and reuses it across application launches.
-/// If no identifier exists, or the stored value is not a valid UUID string, a new identifier is
-/// generated and persisted before being returned.
-public final class AnalyticsIdentityProvider {
+/// The user identifier is stored in `UserDefaults` and reused across application launches. The
+/// session identifier is generated once per process and reused until the app is closed.
+public final class AnalyticsIdentityProvider: @unchecked Sendable {
 
 	// MARK: - Constants
+
+	private static let sessionIdentifier = UUID()
 
 	private let userIdentifierKey: String
 
@@ -33,11 +35,17 @@ public final class AnalyticsIdentityProvider {
 	}
 }
 
-extension AnalyticsIdentityProvider {
+// MARK: - AnalyticsIdentityProviding
+extension AnalyticsIdentityProvider: AnalyticsIdentityProviding {
 
 	/// Stable anonymous identifier associated with the current app installation.
 	public var userIdentifier: UUID {
 		return getStoredUserIdentifier()
+	}
+
+	/// Identifier associated with the current app process.
+	public var sessionIdentifier: UUID {
+		return Self.sessionIdentifier
 	}
 }
 

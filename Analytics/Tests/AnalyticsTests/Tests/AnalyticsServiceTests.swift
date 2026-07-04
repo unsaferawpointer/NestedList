@@ -4,12 +4,33 @@ import Foundation
 
 struct AnalyticsServiceTests { }
 
+// MARK: - AnalyticsPayloadMetadata
+extension AnalyticsServiceTests {
+
+	@Test func analyticsPayloadMetadataEmpty_returnsEmptyMetadata() {
+		#expect(AnalyticsPayloadMetadata.empty == AnalyticsPayloadMetadata(
+			region: nil,
+			country: nil,
+			language: nil,
+			platform: "",
+			osName: "",
+			osVersion: "",
+			appVersion: nil
+		))
+	}
+}
+
 // MARK: - AnalyticsServiceProtocol
 extension AnalyticsServiceTests {
 
 	@Test func track_whenBatchIsNotFull_doesNotSendEventBeforeFlush() async {
 		let engine = AnalyticsEngineMock()
-		let sut = AnalyticsService(engine: engine, queuePolicy: AnalyticsQueuePolicy(batchSize: 2))
+		let sut = AnalyticsService(
+			engine: engine,
+			identityProvider: AnalyticsIdentityProviderMock(),
+			metadataProvider: AnalyticsPayloadMetadataProviderMock(),
+			queuePolicy: AnalyticsQueuePolicy(batchSize: 2)
+		)
 
 		await sut.track(TestEvent(name: "app_started", parameters: ["source": "dock"]))
 
@@ -20,7 +41,12 @@ extension AnalyticsServiceTests {
 
 	@Test func flush_whenBatchIsNotFull_sendsCachedEvent() async {
 		let engine = AnalyticsEngineMock()
-		let sut = AnalyticsService(engine: engine, queuePolicy: AnalyticsQueuePolicy(batchSize: 2))
+		let sut = AnalyticsService(
+			engine: engine,
+			identityProvider: AnalyticsIdentityProviderMock(),
+			metadataProvider: AnalyticsPayloadMetadataProviderMock(),
+			queuePolicy: AnalyticsQueuePolicy(batchSize: 2)
+		)
 
 		await sut.track(TestEvent(name: "app_started", parameters: ["source": "dock"]))
 		await sut.flush()
@@ -38,8 +64,11 @@ extension AnalyticsServiceTests {
 		let engine = AnalyticsEngineMock()
 		let sut = AnalyticsService(
 			engine: engine,
-			userIdentifier: userIdentifier,
-			sessionIdentifier: sessionIdentifier,
+			identityProvider: AnalyticsIdentityProviderMock(
+				userIdentifier: userIdentifier,
+				sessionIdentifier: sessionIdentifier
+			),
+			metadataProvider: AnalyticsPayloadMetadataProviderMock(),
 			queuePolicy: AnalyticsQueuePolicy(batchSize: 2)
 		)
 
@@ -52,9 +81,40 @@ extension AnalyticsServiceTests {
 		#expect(sentEvent?.sessionIdentifier == sessionIdentifier)
 	}
 
+	@Test func flush_addsMetadataToPayload() async {
+		let metadata = AnalyticsPayloadMetadata(
+			region: "CA",
+			country: "US",
+			language: "en",
+			platform: "macOS",
+			osName: "macOS",
+			osVersion: "Version 15.0",
+			appVersion: "2.3.0"
+		)
+		let engine = AnalyticsEngineMock()
+		let sut = AnalyticsService(
+			engine: engine,
+			identityProvider: AnalyticsIdentityProviderMock(),
+			metadataProvider: AnalyticsPayloadMetadataProviderMock(value: metadata),
+			queuePolicy: AnalyticsQueuePolicy(batchSize: 2)
+		)
+
+		await sut.track(TestEvent(name: "app_started"))
+		await sut.flush()
+
+		let sentEvent = await engine.invocations.sentEvents.first
+
+		#expect(sentEvent?.metadata == metadata)
+	}
+
 	@Test func track_whenBatchIsFull_sendsBatch() async {
 		let engine = AnalyticsEngineMock()
-		let sut = AnalyticsService(engine: engine, queuePolicy: AnalyticsQueuePolicy(batchSize: 2))
+		let sut = AnalyticsService(
+			engine: engine,
+			identityProvider: AnalyticsIdentityProviderMock(),
+			metadataProvider: AnalyticsPayloadMetadataProviderMock(),
+			queuePolicy: AnalyticsQueuePolicy(batchSize: 2)
+		)
 
 		await sut.track(TestEvent(name: "first"))
 		await sut.track(TestEvent(name: "second"))
@@ -67,7 +127,12 @@ extension AnalyticsServiceTests {
 
 	@Test func flush_whenEngineFails_keepsBatchForNextFlush() async {
 		let engine = AnalyticsEngineMock(failureCount: 1)
-		let sut = AnalyticsService(engine: engine, queuePolicy: AnalyticsQueuePolicy(batchSize: 2))
+		let sut = AnalyticsService(
+			engine: engine,
+			identityProvider: AnalyticsIdentityProviderMock(),
+			metadataProvider: AnalyticsPayloadMetadataProviderMock(),
+			queuePolicy: AnalyticsQueuePolicy(batchSize: 2)
+		)
 
 		await sut.track(TestEvent(name: "first"))
 		await sut.track(TestEvent(name: "second"))
@@ -85,7 +150,12 @@ extension AnalyticsServiceTests {
 
 	@Test func flush_whenCacheContainsMoreThanOneBatch_sendsBatchesInOrder() async {
 		let engine = AnalyticsEngineMock()
-		let sut = AnalyticsService(engine: engine, queuePolicy: AnalyticsQueuePolicy(batchSize: 2))
+		let sut = AnalyticsService(
+			engine: engine,
+			identityProvider: AnalyticsIdentityProviderMock(),
+			metadataProvider: AnalyticsPayloadMetadataProviderMock(),
+			queuePolicy: AnalyticsQueuePolicy(batchSize: 2)
+		)
 
 		await sut.track(TestEvent(name: "first"))
 		await sut.track(TestEvent(name: "second"))
@@ -100,7 +170,12 @@ extension AnalyticsServiceTests {
 
 	@Test func track_whenCacheExceedsLimit_removesOldestEvents() async {
 		let engine = AnalyticsEngineMock()
-		let sut = AnalyticsService(engine: engine, queuePolicy: AnalyticsQueuePolicy(cacheLimit: 2, batchSize: 10))
+		let sut = AnalyticsService(
+			engine: engine,
+			identityProvider: AnalyticsIdentityProviderMock(),
+			metadataProvider: AnalyticsPayloadMetadataProviderMock(),
+			queuePolicy: AnalyticsQueuePolicy(cacheLimit: 2, batchSize: 10)
+		)
 
 		await sut.track(TestEvent(name: "first"))
 		await sut.track(TestEvent(name: "second"))
