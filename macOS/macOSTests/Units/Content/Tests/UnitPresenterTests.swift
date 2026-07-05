@@ -205,6 +205,48 @@ extension UnitPresenterTests {
 		#expect(ids == nil)
 	}
 
+	@Test func test_viewDidLoad_whenRootDocument_tracksAnalytics() async {
+		// Arrange
+		let snapshot = makeSnapshot()
+		interactor.stubs.snapshot = snapshot
+		interactor.stubs.fetchedItem = nil
+		settingsProvider.stubs.state = .standart
+
+		// Act
+		sut.viewDidChange(state: .didLoad)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == "document_show")
+		#expect(event.parameters["isRoot"] == .bool(true))
+	}
+
+	@Test func test_viewDidLoad_whenNestedDocument_tracksAnalytics() async {
+		// Arrange
+		let snapshot = makeSnapshot()
+		interactor.stubs.snapshot = snapshot
+		interactor.stubs.fetchedItem = .random
+		settingsProvider.stubs.state = .standart
+
+		// Act
+		sut.viewDidChange(state: .didLoad)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == "document_show")
+		#expect(event.parameters["isRoot"] == .bool(false))
+	}
+
 	@Test func test_toolbarButtonClicked_tracksAnalytics() async {
 		// Arrange
 		view.stubs.selection = [.random]

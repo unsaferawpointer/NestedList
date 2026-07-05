@@ -155,7 +155,8 @@ extension ContentPresenter: ViewDelegate {
 		Task {
 			let event: ContentAnalyticsEvent = .documentShow(
 				depth: snapshot.depth,
-				totalCount: snapshot.count
+				totalCount: snapshot.count,
+				isRoot: item == nil
 			)
 			await analytics.track(event)
 		}

@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import OSLog
 
 /// Public interface for tracking analytics events.
 ///
@@ -39,6 +40,7 @@ public actor AnalyticsService {
 	// MARK: - Constants
 
 	private let queuePolicy: AnalyticsQueuePolicy
+	private let logger = Logger(subsystem: "NestedList", category: "Analytics")
 
 	// MARK: - Internal state
 
@@ -120,13 +122,14 @@ private extension AnalyticsService {
 		#if DEBUG
 		let parameters = formattedParameters(payload.parameters)
 
-		print(
-			"[Analytics]\n"
+		let message = "\n"
+			+ "📦 [Analytics]\n"
 			+ "Event: \(payload.area).\(payload.name)\n"
 			+ "User: \(payload.userIdentifier)\n"
 			+ "Session: \(payload.sessionIdentifier)\n"
 			+ "Parameters:\n\(parameters)"
-		)
+
+		logger.debug("\(message, privacy: .public)")
 		#endif
 	}
 

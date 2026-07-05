@@ -47,6 +47,7 @@ public struct AnalyticsPayload: Sendable, Identifiable {
 	}
 }
 
+// MARK: - Calculated Properties
 extension AnalyticsPayload {
 
 	/// Stable event area forwarded from the wrapped event.
