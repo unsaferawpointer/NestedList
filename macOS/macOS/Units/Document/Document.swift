@@ -78,6 +78,7 @@ private extension Document {
 			backing: .buffered,
 			defer: false
 		)
+		window.minSize = NSSize(width: 360, height: 240)
 		window.contentViewController = contentViewController
 		window.isReleasedWhenClosed = false
 		window.animationBehavior = .default
