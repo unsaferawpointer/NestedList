@@ -108,7 +108,7 @@ final class ItemCell: NSView, ListCell {
 		view.isBordered = true
 		view.bezelStyle = .automatic
 		view.imagePosition = .imageOnly
-		view.image = NSImage(systemSymbolName: "arrow.forward", accessibilityDescription: nil)
+		view.image = NSImage(systemSymbolName: "chevron.forward", accessibilityDescription: nil)
 		view.controlSize = .small
 		view.showsBorderOnlyWhileMouseInside = true
 		view.target = self
