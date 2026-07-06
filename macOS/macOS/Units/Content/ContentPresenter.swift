@@ -41,6 +41,8 @@ final class ContentPresenter {
 
 	private(set) var analytics: any ContentAnalyticsServiceProtocol
 
+	private(set) var soundPlayer: any SoundPlayerProtocol
+
 	// MARK: - Constants
 
 	private let stringType = NSPasteboard.PasteboardType.string.rawValue
@@ -55,12 +57,14 @@ final class ContentPresenter {
 		router: any ContentRouterProtocol,
 		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared,
 		localization: ContentLocalizationProtocol = ContentLocalization(),
-		analytics: any ContentAnalyticsServiceProtocol = ContentAnalyticsService()
+		analytics: any ContentAnalyticsServiceProtocol = ContentAnalyticsService(),
+		soundPlayer: any SoundPlayerProtocol
 	) {
 		self.router = router
 		self.settingsProvider = settingsProvider
 		self.localization = localization
 		self.analytics = analytics
+		self.soundPlayer = soundPlayer
 
 		settingsProvider.addObservation(for: self) { [weak self] settings in
 			guard let interactor = self?.interactor else {
@@ -131,8 +135,15 @@ extension ContentPresenter: ListDelegate {
 		let event: ContentAnalyticsEvent = .itemDoubleClick
 		Task { await analytics.track(event) }
 
+		let isValid = cache.validate(.isStrikethrough, other: [item])
+		if isValid == true {
+			soundPlayer.play(sound: .unmark)
+		} else {
+			soundPlayer.play(sound: .mark)
+		}
 		let completionBehaviour = settingsProvider.state.completionBehaviour
 		let moveToEnd = completionBehaviour == .moveToEnd
+
 		interactor?.toggleStrikethrough(for: item, moveToEnd: moveToEnd)
 	}
 }
@@ -422,6 +433,7 @@ extension ContentPresenter: DropDelegate {
 		let event: ContentAnalyticsEvent = .dragDropMove(itemsCount: ids.count)
 		Task { await analytics.track(event) }
 
+		soundPlayer.play(sound: .place)
 		interactor?.move(ids, to: destination)
 	}
 	

@@ -42,6 +42,8 @@ final class ContentPresenter {
 
 	var localization: UnitLocalizationProtocol = UnitLocalization()
 
+	private(set) var soundPlayer: any SoundPlayerProtocol
+
 	var editingMode: EditingMode? {
 		didSet {
 			let selection = view?.selection ?? []
@@ -63,10 +65,12 @@ final class ContentPresenter {
 
 	init(
 		router: ContentRouterProtocol,
-		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared
+		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared,
+		soundPlayer: any SoundPlayerProtocol
 	) {
 		self.router = router
 		self.settingsProvider = settingsProvider
+		self.soundPlayer = soundPlayer
 
 		settingsProvider.addObservation(for: self) { [weak self] settings in
 			guard let interactor = self?.interactor else {
@@ -195,6 +199,7 @@ extension ContentPresenter: InteractionDelegate {
 			editingMode = nil
 			let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
 			let newValue = !(cache.validate(.isStrikethrough, other: currentSelection ?? []) ?? false)
+			soundPlayer.play(sound: newValue ? .mark : .unmark)
 			interactor?.setStatus(newValue, for: currentSelection ?? [], moveToEnd: moveToEnd)
 		case .hideSubitems:
 			editingMode = nil
@@ -221,6 +226,7 @@ extension ContentPresenter: InteractionDelegate {
 					return
 				}
 				self?.editingMode = nil
+				self?.soundPlayer.play(sound: .place)
 				self?.interactor?.move(ids: currentSelection ?? [], to: target)
 			}
 		case .specialReorder:
@@ -281,6 +287,7 @@ extension ContentPresenter: DropDelegate {
 	typealias ID = UUID
 
 	func move(_ ids: [UUID], to destination: Destination<UUID>) {
+		soundPlayer.play(sound: .place)
 		interactor?.move(ids: ids, to: destination)
 		if let target = destination.id {
 			view?.expand(target)

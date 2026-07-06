@@ -27,6 +27,7 @@ final class UnitPresenterTests {
 	var router: UnitRouterMock!
 	var settingsProvider: StateProviderMock<Settings>!
 	var analytics: ContentAnalyticsServiceMock!
+	var soundPlayer: SoundPlayerMock!
 
 	init() {
 		view = UnitViewMock()
@@ -34,7 +35,13 @@ final class UnitPresenterTests {
 		router = UnitRouterMock()
 		settingsProvider = StateProviderMock<Settings>()
 		analytics = ContentAnalyticsServiceMock()
-		sut = ContentPresenter(router: router, settingsProvider: settingsProvider, analytics: analytics)
+		soundPlayer = SoundPlayerMock()
+		sut = ContentPresenter(
+			router: router,
+			settingsProvider: settingsProvider,
+			analytics: analytics,
+			soundPlayer: soundPlayer
+		)
 		sut.view = view
 		sut.interactor = interactor
 	}
@@ -46,6 +53,7 @@ final class UnitPresenterTests {
 		router = nil
 		settingsProvider = nil
 		analytics = nil
+		soundPlayer = nil
 	}
 }
 
@@ -123,15 +131,25 @@ extension UnitPresenterTests {
 			return
 		}
 
+		guard case let .play(sound) = soundPlayer.invocations.first else {
+			Issue.record("Expect play sound invocation")
+			return
+		}
+
 		#expect(id == expectedId)
 		#expect(moveToEnd == false)
+		#expect(sound == .mark)
 		#expect(event.name == "item_double_click")
 	}
 
 	@Test func test_handleDoubleClick_whenCompletionBehaviourIsMoveToEnd() {
 		// Arrange
 		let expectedId: UUID = .random
+		let item = Item(uuid: expectedId, text: .random, options: .strikethrough)
+		let snapshot = Snapshot([Node(value: item)])
 		settingsProvider.stubs.state = Settings(completionBehaviour: .moveToEnd)
+		sut.present(snapshot)
+		view.clear()
 
 		// Act
 		sut.handleDoubleClick(on: expectedId)
@@ -141,8 +159,14 @@ extension UnitPresenterTests {
 			return
 		}
 
+		guard case let .play(sound) = soundPlayer.invocations.first else {
+			Issue.record("Expect play sound invocation")
+			return
+		}
+
 		#expect(id == expectedId)
 		#expect(moveToEnd == true)
+		#expect(sound == .unmark)
 	}
 
 	@Test func test_cellDidTapDisclosure_showsDocumentAndTracksAnalytics() async {
@@ -534,8 +558,14 @@ extension UnitPresenterTests {
 			Issue.record("Expect move invocation")
 			return
 		}
+		guard case let .play(sound) = soundPlayer.invocations.first else {
+			Issue.record("Expect play sound invocation")
+			return
+		}
+
 		#expect(ids == expectedIds)
 		#expect(destination == expectedDestination)
+		#expect(sound == .place)
 	}
 
 	@Test func test_copyItems() {

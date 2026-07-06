@@ -21,7 +21,8 @@ final class ContentUnitAssembly {
 				router: router ?? ContentRouter(
 					root: viewController,
 					storage: storage
-				)
+				),
+				soundPlayer: SoundPlayer.shared
 			)
 			presenter.interactor = interactor
 			presenter.view = viewController

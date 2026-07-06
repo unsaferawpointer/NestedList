@@ -7,6 +7,7 @@
 
 import Cocoa
 import CoreModule
+import DesignSystem
 
 final class ContentUnitAssembly {
 
@@ -17,7 +18,7 @@ final class ContentUnitAssembly {
 		return ContentViewController { viewController in
 
 			let router = ContentRouter(root: viewController, storage: storage)
-			let presenter = ContentPresenter(router: router)
+			let presenter = ContentPresenter(router: router, soundPlayer: SoundPlayer.shared)
 
 			viewController.output = presenter
 
