@@ -7,13 +7,12 @@
 
 import Foundation
 import Hierarchy
-import DesignSystem
 
 protocol ContentView: AnyObject {
 
 	func display(_ snapshot: Snapshot<ItemModel>)
 	func display(title: String)
-	func display(_ toolbar: ToolbarModel)
+	func apply(_ configuration: ContentToolbarConfiguration<UUID>)
 	func setEditing(_ editingMode: EditingMode?)
 
 	func scroll(to id: UUID)

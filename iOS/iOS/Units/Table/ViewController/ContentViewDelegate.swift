@@ -9,4 +9,10 @@ import Foundation
 import CoreModule
 import DesignSystem
 
-protocol ContentViewDelegate<ID>: ListDelegate, InteractionDelegate, DropDelegate, ViewDelegate { }
+@MainActor protocol ContentViewDelegate<ID>: ListDelegate,
+												 DropDelegate,
+												 ViewDelegate,
+												 ContentMenuDelegate,
+												 ContentToolbarDelegate {
+	func menuConfiguration(for ids: [ID]) -> ContentMenuConfiguration
+}

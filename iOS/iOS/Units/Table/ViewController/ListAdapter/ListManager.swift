@@ -385,10 +385,13 @@ extension ListManager {
 			fatalError("Delegate is nil")
 		}
 		return UIContextMenuConfiguration(actionProvider:  { _ in
-			return DesignSystem.MenuBuilder.build(
-				from: delegate.menu(for: [model.id]),
-				with: [model.id],
-				delegate: delegate
+			return UIMenu(
+				children: ContentMenuBuilder()
+					.build(
+						with: [model.id],
+						configuration: delegate.menuConfiguration(for: [model.id]),
+						delegate: delegate
+					)
 			)
 		})
 	}

@@ -32,11 +32,7 @@ final class ContentPresenter {
 
 	private(set) var factory: ItemsFactoryProtocol = ItemsFactory()
 
-	private(set) var menuFactory = MenuFactory()
-
 	var settingsProvider: any StateProviderProtocol<Settings>
-
-	var toolbarFactory = ToolbarFactory()
 
 	var router: ContentRouterProtocol
 
@@ -46,13 +42,7 @@ final class ContentPresenter {
 
 	var editingMode: EditingMode? {
 		didSet {
-			let selection = view?.selection ?? []
-			let model = toolbarFactory.build(
-				editingMode: editingMode,
-				selectedCount: selection.count,
-				isCompleted: cache.validate(.isStrikethrough, other: selection)
-			)
-			view?.display(model)
+			displayToolbar()
 			view?.setEditing(editingMode)
 		}
 	}
@@ -137,121 +127,181 @@ extension ContentPresenter: ViewDelegate {
 	}
 }
 
-// MARK: - InteractionDelegate
-extension ContentPresenter: InteractionDelegate {
+// MARK: - Helpers
+private extension ContentPresenter {
 
-	func userDidSelect(item: String, with selection: [UUID]?) {
-		guard let menuIdentifier = ElementIdentifier(rawValue: item) else {
+	func paste(selection: [UUID]) {
+		editingMode = nil
+		guard let string = UIPasteboard.general.string, let target = selection.first else {
 			return
 		}
+		interactor?.insertStrings([string], to: .onItem(with: target))
+	}
 
-		let currentSelection = selection ?? view?.selection
+	func newItem(selection: [UUID]) {
+		editingMode = nil
+		createNew(target: selection.first)
+	}
 
-		switch menuIdentifier {
-		case .edit:
-			editingMode = nil
-			guard let id = currentSelection?.first, let item = interactor?.item(for: id) else {
+	func cut(selection: [UUID]) {
+		editingMode = nil
+		guard let interactor else {
+			return
+		}
+		let string = interactor.string(for: selection)
+		UIPasteboard.general.string = string
+		interactor.deleteItems(selection)
+	}
+
+	func copy(selection: [UUID]) {
+		editingMode = nil
+		guard let interactor else {
+			return
+		}
+		let string = interactor.string(for: selection)
+		UIPasteboard.general.string = string
+	}
+
+	func delete(selection: [UUID]) {
+		editingMode = nil
+		interactor?.deleteItems(selection)
+	}
+
+	func edit(selection: [UUID]) {
+		editingMode = nil
+		guard let id = selection.first, let item = interactor?.item(for: id) else {
+			return
+		}
+		let model = ItemDetailsView.Model(
+			navigationTitle: localization.editItemNavigationTitle,
+			properties: item.details
+		)
+		router.showDetails(with: model, animateBottomBarItem: ElementIdentifier.new.rawValue) { [weak self] saved, success in
+			self?.router.dismiss()
+			if success {
+				let note = saved.description.isEmpty ? nil : saved.description
+				self?.interactor?.set(
+					saved.text,
+					note: note,
+					for: id
+				)
+			}
+		}
+	}
+
+	func move(selection: [UUID]) {
+		router.showTargetsScreen(for: Set(selection)) { [weak self] target, isSuccess in
+			self?.router.dismiss()
+			guard isSuccess else {
 				return
 			}
-			let model = CorePresentation.ItemDetailsView.Model(
-				navigationTitle: localization.editItemNavigationTitle,
-				properties: item.details
-			)
-			router.showDetails(with: model, animateBottomBarItem: ElementIdentifier.new.rawValue) { [weak self] saved, success in
-					self?.router.dismiss()
-					if success {
-						let note = saved.description.isEmpty ? nil : saved.description
-						self?.interactor?.set(
-							saved.text,
-							note: note,
-							for: id
-						)
-					}
-				}
-		case .new:
-			editingMode = nil
-			createNew(target: currentSelection?.first)
-		case .cut:
-			editingMode = nil
-			guard let interactor else {
-				return
-			}
-			let string = interactor.string(for: currentSelection ?? [])
-			UIPasteboard.general.string = string
-			interactor.deleteItems(currentSelection ?? [])
-		case .copy:
-			editingMode = nil
-			guard let interactor else {
-				return
-			}
-			let string = interactor.string(for: currentSelection ?? [])
-			UIPasteboard.general.string = string
-		case .paste:
-			editingMode = nil
-			guard let string = UIPasteboard.general.string, let target = currentSelection?.first else {
-				return
-			}
-			interactor?.insertStrings([string], to: .onItem(with: target))
-		case .delete:
-			editingMode = nil
-			interactor?.deleteItems(currentSelection ?? [])
-		case .strikethrough:
-			editingMode = nil
-			let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
-			let newValue = !(cache.validate(.isStrikethrough, other: currentSelection ?? []) ?? false)
-			soundPlayer.play(sound: newValue ? .mark : .unmark)
-			interactor?.setStatus(newValue, for: currentSelection ?? [], moveToEnd: moveToEnd)
-		case .hideSubitems:
-			editingMode = nil
-			let newValue = !(cache.validate(.isSubitemsHidden, other: currentSelection ?? []) ?? false)
-			interactor?.setSubitemsHidden(newValue, for: currentSelection ?? [])
-		case .select:
-			editingMode = .selection
-		case .selectAll:
-			view?.selectAll()
-		case .reorder:
-			editingMode = .reordering
-		case .settings:
-			router.showSettings()
-		case .done:
-			editingMode = nil
-		case .expandAll:
-			view?.expandAll()
-		case .collapseAll:
-			view?.collapseAll()
-		case .move:
-			router.showTargetsScreen(for: Set(currentSelection ?? [])) { [weak self] target, isSuccess in
-				self?.router.dismiss()
-				guard isSuccess else {
-					return
-				}
-				self?.editingMode = nil
-				self?.soundPlayer.play(sound: .place)
-				self?.interactor?.move(ids: currentSelection ?? [], to: target)
-			}
-		case .specialReorder:
-			guard let first = selection?.first else {
-				return
-			}
-			router.showReorderScreen(for: first) { [weak self] in
-				self?.router.dismiss()
-			}
-		case .icon:
-			router.showIconPicker(title: localization.iconPickerNavigationTitle) { [weak self] icon in
-				self?.editingMode = nil
-				self?.interactor?.setIcon(icon, for: currentSelection ?? [])
-			}
-		case .color:
-			router.showColorPicker(title: localization.colorPickerNavigationTitle) { [weak self] color in
-				self?.editingMode = nil
-				self?.interactor?.setColor(color, for: currentSelection ?? [])
-			}
+			self?.editingMode = nil
+			self?.soundPlayer.play(sound: .place)
+			self?.interactor?.move(ids: selection, to: target)
+		}
+	}
+
+	func showIconPicker(selection: [UUID]) {
+		router.showIconPicker(title: localization.iconPickerNavigationTitle) { [weak self] icon in
+			self?.editingMode = nil
+			self?.interactor?.setIcon(icon, for: selection)
+		}
+	}
+
+	func showColorPicker(selection: [UUID]) {
+		router.showColorPicker(title: localization.colorPickerNavigationTitle) { [weak self] color in
+			self?.editingMode = nil
+			self?.interactor?.setColor(color, for: selection)
+		}
+	}
+
+	func showReorderScreen(selection: [UUID]) {
+		guard let first = selection.first else {
+			return
+		}
+		router.showReorderScreen(for: first) { [weak self] in
+			self?.router.dismiss()
+		}
+	}
+
+	func toggleHideSubitemsFlag(selection: [UUID]) {
+		editingMode = nil
+		let newValue = !(cache.validate(.isSubitemsHidden, other: selection) ?? false)
+		interactor?.setSubitemsHidden(newValue, for: selection)
+	}
+
+	func toggleStrikethroughFlag(selection: [UUID]) {
+		editingMode = nil
+		let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
+		let newValue = !(cache.validate(.isStrikethrough, other: selection) ?? false)
+		soundPlayer.play(sound: newValue ? .mark : .unmark)
+		interactor?.setStatus(newValue, for: selection, moveToEnd: moveToEnd)
+	}
+}
+
+// MARK: - ContentMenuDelegate
+extension ContentPresenter: ContentMenuDelegate {
+
+	func userDidTapMenu(with id: ContentMenuIdentifier, selection: [UUID]?) {
+		let currentSelection = selection ?? view?.selection ?? []
+		switch id {
+		case .cutItems:						cut(selection: currentSelection)
+		case .copyItems:					copy(selection: currentSelection)
+		case .paste:						paste(selection: currentSelection)
+		case .editItem:						edit(selection: currentSelection)
+		case .newItem:						newItem(selection: currentSelection)
+		case .toggleStrikethrough:			toggleStrikethroughFlag(selection: currentSelection)
+		case .toggleSubitemsVisibility:		toggleHideSubitemsFlag(selection: currentSelection)
+		case .changeIcon:					showIconPicker(selection: currentSelection)
+		case .changeColor:					showColorPicker(selection: currentSelection)
+		case .moveItems:					move(selection: currentSelection)
+		case .reorderItems:					showReorderScreen(selection: currentSelection)
+		case .deleteItems:					delete(selection: currentSelection)
+		}
+	}
+}
+
+// MARK: - ContentToolbarDelegate
+extension ContentPresenter: ContentToolbarDelegate {
+
+	func userDidTapToolbar(with id: ContentToolbarIdentifier, selection: [UUID]?) {
+		let currentSelection = selection ?? view?.selection ?? []
+		switch id {
+		case .cutItems:						cut(selection: currentSelection)
+		case .copyItems:					copy(selection: currentSelection)
+		case .newItem:						newItem(selection: currentSelection)
+		case .toggleStrikethrough:			toggleStrikethroughFlag(selection: currentSelection)
+		case .toggleSubitemsVisibility:		toggleHideSubitemsFlag(selection: currentSelection)
+		case .changeIcon:					showIconPicker(selection: currentSelection)
+		case .changeColor:					showColorPicker(selection: currentSelection)
+		case .moveItems:					move(selection: currentSelection)
+		case .deleteItems:					delete(selection: currentSelection)
+		case .done:							editingMode = nil
+		case .settings:						router.showSettings()
+		case .reorderingMode:				editingMode = .reordering
+		case .selectionMode:				editingMode = .selection
+		case .selectAll:					view?.selectAll()
+		case .collapseAll:					view?.collapseAll()
+		case .expandAll:					view?.expandAll()
+		case .more:							break
 		}
 	}
 }
 
 // MARK: - ContentViewDelegate
-extension ContentPresenter: ContentViewDelegate { }
+extension ContentPresenter: ContentViewDelegate {
+
+	func menuConfiguration(for ids: [UUID]) -> ContentMenuConfiguration {
+		var state: [String: Bool] = [:]
+		if let result = cache.validate(.isStrikethrough, other: ids) {
+			state[ElementIdentifier.strikethrough.rawValue] = result
+		}
+		if let result = cache.validate(.isSubitemsHidden, other: ids) {
+			state[ElementIdentifier.hideSubitems.rawValue] = result
+		}
+		return ContentMenuConfiguration(state: state)
+	}
+}
 
 // MARK: - ListDelegate
 extension ContentPresenter: ListDelegate {
@@ -261,19 +311,7 @@ extension ContentPresenter: ListDelegate {
 	}
 
 	func listDidChangeSelection(ids: [UUID]) {
-		let toolbar = toolbarFactory.build(
-			editingMode: editingMode,
-			selectedCount: ids.count,
-			isCompleted: cache.validate(.isStrikethrough, other: ids)
-		)
-		view?.display(toolbar)
-	}
-
-	func menu(for ids: [UUID]) -> [MenuElement] {
-		menuFactory.build(
-			isCompleted: cache.validate(.isStrikethrough, other: ids),
-			isSubitemsHidden: cache.validate(.isSubitemsHidden, other: ids)
-		)
+		displayToolbar(selection: ids)
 	}
 
 	func listDidTapDisclosure(id: UUID) {
@@ -344,14 +382,15 @@ private extension ContentPresenter {
 		}
 	}
 
-	func displayToolbar() {
-		let selection = view?.selection ?? []
-		let toolbar = toolbarFactory.build(
+	func displayToolbar(selection: [UUID]? = nil) {
+		let selection = selection ?? view?.selection ?? []
+		let configuration = ContentToolbarConfiguration(
 			editingMode: editingMode,
-			selectedCount: selection.count,
-			isCompleted: cache.validate(.isStrikethrough, other: selection)
+			selection: selection,
+			isCompleted: cache.validate(.isStrikethrough, other: selection),
+			isSubitemsHidden: cache.validate(.isSubitemsHidden, other: selection)
 		)
-		view?.display(toolbar)
+		view?.apply(configuration)
 	}
 }
 

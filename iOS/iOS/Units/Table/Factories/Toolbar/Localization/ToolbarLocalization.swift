@@ -21,6 +21,7 @@ protocol ToolbarLocalizationProtocol {
 	var iconItemTitle: String { get }
 	var colorItemTitle: String { get }
 	var strikethroughItemTitle: String { get }
+	var hideSubitemsItemTitle: String { get }
 	var markedItemTitle: String { get }
 	var sectionItemTitle: String { get }
 	var deleteItemTitle: String { get }
@@ -77,6 +78,10 @@ extension ToolbarLocalization: ToolbarLocalizationProtocol {
 
 	var strikethroughItemTitle: String {
 		String(localized: "strikethrough_menu_item_title", table: "ToolbarLocalizable")
+	}
+
+	var hideSubitemsItemTitle: String {
+		String(localized: "hide_subitems_menu_item_title", table: "ToolbarLocalizable")
 	}
 
 	var markedItemTitle: String {
