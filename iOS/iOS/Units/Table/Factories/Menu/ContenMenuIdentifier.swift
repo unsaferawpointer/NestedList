@@ -5,7 +5,7 @@
 //  Created by Anton Cherkasov on 09.07.2026.
 //
 
-enum ContentMenuIdentifier {
+enum ContentMenuIdentifier: String {
 
 	case cutItems
 	case copyItems

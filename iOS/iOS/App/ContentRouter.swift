@@ -54,7 +54,7 @@ extension ContentRouter: ContentRouterProtocol {
 		controller.modalPresentationStyle = .formSheet
 
 		if #available(iOS 26.0, *) {
-			if let barItem, let toolbarItem = root.toolbarItems?.first(where: { $0.identifier == barItem} ) {
+			if let barItem, let toolbarItem = root.parent?.toolbarItems?.first(where: { $0.identifier == barItem }) {
 				controller.preferredTransition = .zoom { context in
 					return toolbarItem
 				}

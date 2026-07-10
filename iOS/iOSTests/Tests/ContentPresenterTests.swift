@@ -48,15 +48,15 @@ final class ContentPresenterTests {
 	}
 }
 
-// MARK: - InteractionDelegate test-cases
+// MARK: - ContentMenuDelegate test-cases
 extension ContentPresenterTests {
 
-	@Test func test_userDidSelectStrikethrough_playsMarkSound() {
+	@Test func test_userDidTapMenuStrikethrough_playsMarkSound() {
 		// Arrange
 		let expectedId = UUID()
 
 		// Act
-		sut.userDidSelect(item: ElementIdentifier.strikethrough.rawValue, with: [expectedId])
+		sut.userDidTapMenu(with: .toggleStrikethrough, selection: [expectedId])
 
 		// Assert
 		guard case let .setStatus(isStrikethrough, ids, moveToEnd) = interactor.invocations.first else {
@@ -75,7 +75,7 @@ extension ContentPresenterTests {
 		#expect(sound == .mark)
 	}
 
-	@Test func test_userDidSelectStrikethrough_whenItemIsCompleted_playsUnmarkSound() {
+	@Test func test_userDidTapMenuStrikethrough_whenItemIsCompleted_playsUnmarkSound() {
 		// Arrange
 		let expectedId = UUID()
 		let item = Item(uuid: expectedId, text: .random, options: .strikethrough)
@@ -83,7 +83,7 @@ extension ContentPresenterTests {
 		sut.present(snapshot: snapshot)
 
 		// Act
-		sut.userDidSelect(item: ElementIdentifier.strikethrough.rawValue, with: [expectedId])
+		sut.userDidTapMenu(with: .toggleStrikethrough, selection: [expectedId])
 
 		// Assert
 		guard case let .setStatus(isStrikethrough, ids, moveToEnd) = interactor.invocations.first else {

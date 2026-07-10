@@ -176,7 +176,7 @@ private extension ContentPresenter {
 			navigationTitle: localization.editItemNavigationTitle,
 			properties: item.details
 		)
-		router.showDetails(with: model, animateBottomBarItem: ElementIdentifier.new.rawValue) { [weak self] saved, success in
+		router.showDetails(with: model, animateBottomBarItem: ContentToolbarIdentifier.newItem.rawValue) { [weak self] saved, success in
 			self?.router.dismiss()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
@@ -294,10 +294,10 @@ extension ContentPresenter: ContentViewDelegate {
 	func menuConfiguration(for ids: [UUID]) -> ContentMenuConfiguration {
 		var state: [String: Bool] = [:]
 		if let result = cache.validate(.isStrikethrough, other: ids) {
-			state[ElementIdentifier.strikethrough.rawValue] = result
+			state[ContentMenuIdentifier.toggleStrikethrough.rawValue] = result
 		}
 		if let result = cache.validate(.isSubitemsHidden, other: ids) {
-			state[ElementIdentifier.hideSubitems.rawValue] = result
+			state[ContentMenuIdentifier.toggleSubitemsVisibility.rawValue] = result
 		}
 		return ContentMenuConfiguration(state: state)
 	}
@@ -367,7 +367,7 @@ private extension ContentPresenter {
 
 	@MainActor func createNew(target: UUID?) {
 		let model = ItemDetailsView.Model(navigationTitle: localization.newItemNavigationTitle, properties: .init(text: ""))
-		router.showDetails(with: model, animateBottomBarItem: ElementIdentifier.new.rawValue) { [weak self] saved, success in
+		router.showDetails(with: model, animateBottomBarItem: ContentToolbarIdentifier.newItem.rawValue) { [weak self] saved, success in
 			self?.router.dismiss()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
