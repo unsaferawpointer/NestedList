@@ -1,15 +1,15 @@
 //
 //  ContentMenuIdentifier.swift
-//  iOS
+//  CorePresentation
 //
 //  Created by Anton Cherkasov on 11.07.2026.
 //
 
-enum ContentMenuIdentifier: String {
+public enum ContentMenuIdentifier: String, Equatable {
 
 	case cutItems = "cut"
 	case copyItems = "copy"
-	case paste
+	case paste = "paste"
 
 	case editItem = "edit"
 	case newItem = "new-item"
@@ -20,11 +20,16 @@ enum ContentMenuIdentifier: String {
 	case changeIcon = "icon"
 	case changeColor = "color"
 
+	case deleteItems = "delete"
+
+	#if os(iOS)
 	case moveItems = "move"
 	case reorderItems = "reorder"
+	#endif
 
-	case deleteItems = "delete"
+	#if os(macOS)
+	case toggleNote = "note-toggle"
+	case appearanceHeader = "appearance-header"
+	case separator = "separator"
+	#endif
 }
-
-// MARK: - Equatable
-extension ContentMenuIdentifier: Equatable { }

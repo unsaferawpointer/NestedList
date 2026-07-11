@@ -177,20 +177,20 @@ extension ContentPresenter: ViewDelegate {
 // MARK: - UnitViewOutput
 extension ContentPresenter: UnitViewOutput {
 
-	func menuItems() -> [ElementIdentifier] {
+	func menuItems() -> [ContentMenuIdentifier] {
 		return [.newItem,
 				.separator,
-				.edit,
+				.editItem,
 				.separator,
-				.completed,
-				.hideSubitems,
+				.toggleStrikethrough,
+				.toggleSubitemsVisibility,
 				.separator,
-				.note,
+				.toggleNote,
 				.separator,
 				.appearanceHeader,
-				.icon, .color,
+				.changeIcon, .changeColor,
 				.separator,
-				.delete]
+				.deleteItems]
 	}
 
 	func toolbarButtonClicked(id: ElementIdentifier) {
@@ -208,48 +208,44 @@ extension ContentPresenter: UnitViewOutput {
 		newItem(in: selection)
 	}
 
-	func menuItemClicked(_ item: ElementIdentifier) {
+	func menuItemClicked(_ item: ContentMenuIdentifier, source: MenuSource = .context) {
 		guard let selection = view?.selection else {
 			return
 		}
 
 		// MARK: - Analytics
-		let id: String = switch item {
-		case .newItem:		"new-item"
-		case .completed:	"completed-toggle"
-		case .hideSubitems:	"hide-subitems-toggle"
-		case .note:			"note-toggle"
-		case .edit:			"edit"
-		case .delete:		"delete"
-		case .cut:			"cut"
-		case .copy:			"copy"
-		case .paste:		"paste"
-		case .color:		"color"
-		case .icon:			"icon"
-		default:
-			"unknown"
-		}
-		let event: ContentAnalyticsEvent = .menuClick(id: id, source: "context-menu")
+		let event: ContentAnalyticsEvent = .menuClick(id: item.rawValue, source: source)
 		Task { await analytics.track(event) }
 
 		switch item {
-		case .newItem:		newItem(in: selection)
-		case .completed:	toggleStrikethrough(for: selection)
-		case .hideSubitems:	toggleSubitemsHidden(for: selection)
-		case .note:			toggleNote(for: selection)
-		case .edit:			editItem(with: selection)
-		case .delete:		delete(ids: selection)
-		case .cut:			cut(ids: selection)
-		case .copy:			copy(ids: selection)
-		case .paste:		paste(ids: selection)
-		case .color:		showColorPicker(for: selection)
-		case .icon:			showIconPicker(for: selection)
-		default:
+		case .newItem:
+			newItem(in: selection)
+		case .toggleStrikethrough:
+			toggleStrikethrough(for: selection)
+		case .toggleSubitemsVisibility:
+			toggleSubitemsHidden(for: selection)
+		case .toggleNote:
+			toggleNote(for: selection)
+		case .editItem:
+			editItem(with: selection)
+		case .deleteItems:
+			delete(ids: selection)
+		case .cutItems:
+			cut(ids: selection)
+		case .copyItems:
+			copy(ids: selection)
+		case .paste:
+			paste(ids: selection)
+		case .changeColor:
+			showColorPicker(for: selection)
+		case .changeIcon:
+			showIconPicker(for: selection)
+		case .appearanceHeader, .separator:
 			assertionFailure("Unexpected menu item identifier")
 		}
 	}
 	
-	func validateMenuItem(_ item: ElementIdentifier) -> Bool {
+	func validateMenuItem(_ item: ContentMenuIdentifier) -> Bool {
 		switch item {
 		case .newItem:
 			return true
@@ -257,37 +253,23 @@ extension ContentPresenter: UnitViewOutput {
 			let types = Set([stringType, itemType])
 			let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
 			return pasteboard.contains(types)
+		case .appearanceHeader, .separator:
+			return false
 		default:
-
-			let components = item.rawValue.split(separator: "-")
-			guard
-				components.count == 2, let last = components.last, Int(last) != nil, let key = components.first
-			else {
-				return view?.selection.isEmpty == false
-			}
-
-			switch key {
-			case "color":
-				guard let selection = view?.selection else {
-					return false
-				}
-				return true
-			default:
-				return view?.selection.isEmpty != false
-			}
+			return view?.selection.isEmpty == false
 		}
 	}
 	
-	func stateForMenuItem(_ item: ElementIdentifier) -> ControlState {
+	func stateForMenuItem(_ item: ContentMenuIdentifier) -> ControlState {
 		guard let selection = view?.selection else {
 			return .off
 		}
 		return switch item {
-		case .completed:
+		case .toggleStrikethrough:
 			cache.validate(.isStrikethrough, other: selection).state
-		case .hideSubitems:
+		case .toggleSubitemsVisibility:
 			cache.validate(.isSubitemsHidden, other: selection).state
-		case .note:
+		case .toggleNote:
 			cache.validate(.hasNote, other: selection).state
 		default:
 			.off

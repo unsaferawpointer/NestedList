@@ -9,11 +9,16 @@ import Cocoa
 import Hierarchy
 import CoreModule
 import DesignSystem
+import CorePresentation
 
 import SwiftUI
 
-@MainActor protocol UnitViewOutput: ViewDelegate, MenuDelegate {
+@MainActor protocol UnitViewOutput: ViewDelegate {
 	func toolbarButtonClicked(id: ElementIdentifier)
+	func menuItems() -> [ContentMenuIdentifier]
+	func menuItemClicked(_ item: ContentMenuIdentifier, source: MenuSource)
+	func validateMenuItem(_ item: ContentMenuIdentifier) -> Bool
+	func stateForMenuItem(_ item: ContentMenuIdentifier) -> ControlState
 }
 
 @MainActor protocol UnitView: AnyObject, ListSupportable {
@@ -69,7 +74,7 @@ class ContentViewController: NSViewController {
 		self.adapter?.delegate = listDelegate
 
 		if let items = output?.menuItems() {
-			self.adapter?.menu = MenuBuilder.build(for: items, target: self)
+			self.adapter?.menu = MenuBuilder.build(for: items, target: self, source: .context)
 		}
 	}
 
@@ -235,26 +240,30 @@ extension ContentViewController {
 
 	@objc
 	func menuItemClicked(_ sender: NSMenuItem) {
-		guard let rawValue = sender.identifier?.rawValue else {
+		guard
+			let rawValue = sender.identifier?.rawValue,
+			let id = ContentMenuIdentifier(rawValue: rawValue),
+			let sourceRawValue = sender.representedObject as? String,
+			let source = MenuSource(rawValue: sourceRawValue)
+		else {
 			return
 		}
-		let id = ElementIdentifier(rawValue: rawValue)
-		output?.menuItemClicked(id)
+		output?.menuItemClicked(id, source: source)
 	}
 
 	@IBAction
 	func cut(_ sender: NSMenuItem) {
-		output?.menuItemClicked(.cut)
+		output?.menuItemClicked(.cutItems, source: .main)
 	}
 
 	@IBAction
 	func copy(_ sender: NSMenuItem) {
-		output?.menuItemClicked(.copy)
+		output?.menuItemClicked(.copyItems, source: .main)
 	}
 
 	@IBAction
 	func paste(_ sender: NSMenuItem) {
-		output?.menuItemClicked(.paste)
+		output?.menuItemClicked(.paste, source: .main)
 	}
 }
 
@@ -263,11 +272,13 @@ extension ContentViewController: NSMenuItemValidation {
 
 	func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
 
-		guard let rawValue = menuItem.identifier?.rawValue, let output else {
+		guard
+			let rawValue = menuItem.identifier?.rawValue,
+			let id = ContentMenuIdentifier(rawValue: rawValue),
+			let output
+		else {
 			return false
 		}
-
-		let id = ElementIdentifier(rawValue: rawValue)
 
 		menuItem.state = output.stateForMenuItem(id).value
 		return output.validateMenuItem(id)

@@ -260,7 +260,7 @@ extension ContentPresenter: ContentMenuDelegate {
 		let currentSelection = selection ?? view?.selection ?? []
 
 		// MARK: - Analytics
-		let event: ContentAnalyticsEvent = .menuClick(id: id.rawValue, source: "context-menu")
+		let event: ContentAnalyticsEvent = .menuClick(id: id.rawValue, source: .context)
 		Task { await analytics.track(event) }
 
 		switch id {

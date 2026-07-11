@@ -296,7 +296,7 @@ extension UnitPresenterTests {
 		view.stubs.selection = [.random]
 
 		// Act
-		sut.menuItemClicked(.delete)
+		sut.menuItemClicked(.deleteItems)
 		let invocation = await waitForAnalyticsInvocation()
 
 		// Assert
@@ -308,6 +308,25 @@ extension UnitPresenterTests {
 		#expect(event.name == "menu_click")
 		#expect(event.parameters["id"] == .string("delete"))
 		#expect(event.parameters["source"] == .string("context-menu"))
+	}
+
+	@Test func test_menuItemClickedFromMainMenu_tracksAnalytics() async {
+		// Arrange
+		view.stubs.selection = [.random]
+
+		// Act
+		sut.menuItemClicked(.deleteItems, source: .main)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == "menu_click")
+		#expect(event.parameters["id"] == .string("delete"))
+		#expect(event.parameters["source"] == .string("main-menu"))
 	}
 
 	@Test func test_userCreateNewItem() {
@@ -355,7 +374,7 @@ extension UnitPresenterTests {
 		view.stubs.selection = [.random, .random]
 
 		// Act
-		sut.menuItemClicked(.delete)
+		sut.menuItemClicked(.deleteItems)
 
 		// Assert
 		guard case let .deleteItems(ids) = interactor.invocations[0] else {
@@ -382,7 +401,7 @@ extension UnitPresenterTests {
 		view?.clear()
 
 		// Act
-		sut.menuItemClicked(.completed)
+		sut.menuItemClicked(.toggleStrikethrough)
 
 		// Assert
 		guard case let .setStatus(status, ids, moveToEnd) = interactor.invocations[0] else {
@@ -412,7 +431,7 @@ extension UnitPresenterTests {
 		view?.clear()
 
 		// Act
-		sut.menuItemClicked(.completed)
+		sut.menuItemClicked(.toggleStrikethrough)
 
 		// Assert
 		guard case let .setStatus(status, ids, moveToEnd) = interactor.invocations[0] else {
@@ -431,7 +450,7 @@ extension UnitPresenterTests {
 		view.stubs.selection = [.random, .random]
 
 		// Act
-		sut.menuItemClicked(.color)
+		sut.menuItemClicked(.changeColor)
 
 		// Assert
 		guard case .showColorPicker = router.invocations[0] else {
@@ -454,7 +473,7 @@ extension UnitPresenterTests {
 		// Arrange
 		view.stubs.selection = [.random, .random]
 		// Act
-		sut.menuItemClicked(.icon)
+		sut.menuItemClicked(.changeIcon)
 
 		// Assert
 		guard case .showIconPicker = router.invocations[0] else {
@@ -490,7 +509,7 @@ extension UnitPresenterTests {
 		view?.clear()
 
 		// Act
-		sut.menuItemClicked(.note)
+		sut.menuItemClicked(.toggleNote)
 
 		// Assert
 		guard case let .setNote(note, ids) = interactor.invocations[0] else {
@@ -529,7 +548,7 @@ extension UnitPresenterTests {
 		view?.clear()
 
 		// Act
-		sut.menuItemClicked(.note)
+		sut.menuItemClicked(.toggleNote)
 
 		// Assert
 		guard case let .setNote(note, ids) = interactor.invocations[0] else {
