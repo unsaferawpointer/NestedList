@@ -30,39 +30,36 @@ extension ContentMenuBuilder {
 				preferredElementSize: .medium,
 				children:
 					[
-						UIAction(
+						buildAction(
 							title: localization.cutItemTitle,
-							image: UIImage(systemName: "scissors"),
-							identifier: .init(ContentMenuIdentifier.cutItems.rawValue),
-							handler: { _ in
-								delegate?.userDidTapMenu(
-									with: .cutItems,
-									selection: selection
-								)
-							}
-						),
-						UIAction(
+							icon: "scissors",
+							identifier: .cutItems
+						) {
+							delegate?.userDidTapMenu(
+								with: .cutItems,
+								selection: selection
+							)
+						},
+						buildAction(
 							title: localization.copyItemTitle,
-							image: UIImage(systemName: "doc.on.doc"),
-							identifier: .init(ContentMenuIdentifier.copyItems.rawValue),
-							handler: { _ in
-								delegate?.userDidTapMenu(
-									with: .copyItems,
-									selection: selection
-								)
-							}
-						),
-						UIAction(
+							icon: "doc.on.doc",
+							identifier: .copyItems
+						) {
+							delegate?.userDidTapMenu(
+								with: .copyItems,
+								selection: selection
+							)
+						},
+						buildAction(
 							title: localization.pasteItemTitle,
-							image: UIImage(systemName: "doc.on.clipboard"),
-							identifier: .init(ContentMenuIdentifier.paste.rawValue),
-							handler: { _ in
-								delegate?.userDidTapMenu(
-									with: .paste,
-									selection: selection
-								)
-							}
-						)
+							icon: "doc.on.clipboard",
+							identifier: .paste
+						) {
+							delegate?.userDidTapMenu(
+								with: .paste,
+								selection: selection
+							)
+						}
 					]
 			),
 			UIMenu(
@@ -71,52 +68,48 @@ extension ContentMenuBuilder {
 				preferredElementSize: .automatic,
 				children:
 					[
-						UIAction(
+						buildAction(
 							title: localization.strikethroughItemTitle,
-							identifier: .init(ContentMenuIdentifier.toggleStrikethrough.rawValue),
-							state: configuration[ContentMenuIdentifier.toggleStrikethrough.rawValue].state,
-							handler: { _ in
-								delegate?.userDidTapMenu(
-									with: .toggleStrikethrough,
-									selection: selection
-								)
-							}
-						),
-						UIAction(
+							identifier: .toggleStrikethrough,
+							state: configuration[ContentMenuIdentifier.toggleStrikethrough.rawValue].state
+						) {
+							delegate?.userDidTapMenu(
+								with: .toggleStrikethrough,
+								selection: selection
+							)
+						},
+						buildAction(
 							title: localization.hideSubitemsItemTitle,
-							identifier: .init(ContentMenuIdentifier.toggleSubitemsVisibility.rawValue),
-							state: configuration[ContentMenuIdentifier.toggleSubitemsVisibility.rawValue].state,
-							handler: { _ in
-								delegate?.userDidTapMenu(
-									with: .toggleSubitemsVisibility,
-									selection: selection
-								)
-							}
-						)
+							identifier: .toggleSubitemsVisibility,
+							state: configuration[ContentMenuIdentifier.toggleSubitemsVisibility.rawValue].state
+						) {
+							delegate?.userDidTapMenu(
+								with: .toggleSubitemsVisibility,
+								selection: selection
+							)
+						}
 					]
 			),
-			UIAction(
+			buildAction(
 				title: localization.editItemTitle,
-				image: UIImage(systemName: "pencil"),
-				identifier: .init(ContentMenuIdentifier.editItem.rawValue),
-				handler: { _ in
-					delegate?.userDidTapMenu(
-						with: .editItem,
-						selection: selection
-					)
-				}
-			),
-			UIAction(
+				icon: "pencil",
+				identifier: .editItem
+			) {
+				delegate?.userDidTapMenu(
+					with: .editItem,
+					selection: selection
+				)
+			},
+			buildAction(
 				title: localization.newItemTitle,
-				image: UIImage(systemName: "plus"),
-				identifier: .init(ContentMenuIdentifier.newItem.rawValue),
-				handler: { _ in
-					delegate?.userDidTapMenu(
-						with: .newItem,
-						selection: selection
-					)
-				}
-			),
+				icon: "plus",
+				identifier: .newItem
+			) {
+				delegate?.userDidTapMenu(
+					with: .newItem,
+					selection: selection
+				)
+			},
 			UIMenu(
 				title: localization.appearanceMenuTitle,
 				image: UIImage(systemName: "slider.horizontal.below.square.filled.and.square"),
@@ -124,28 +117,26 @@ extension ContentMenuBuilder {
 				preferredElementSize: .automatic,
 				children:
 					[
-						UIAction(
+						buildAction(
 							title: localization.iconItemTitle,
-							image: UIImage(systemName: "photo"),
-							identifier: .init(ContentMenuIdentifier.changeIcon.rawValue),
-							handler: { _ in
-								delegate?.userDidTapMenu(
-									with: .changeIcon,
-									selection: selection
-								)
-							}
-						),
-						UIAction(
+							icon: "photo",
+							identifier: .changeIcon
+						) {
+							delegate?.userDidTapMenu(
+								with: .changeIcon,
+								selection: selection
+							)
+						},
+						buildAction(
 							title: localization.colorItemTitle,
-							image: UIImage(systemName: "paintpalette"),
-							identifier: .init(ContentMenuIdentifier.changeColor.rawValue),
-							handler: { _ in
-								delegate?.userDidTapMenu(
-									with: .changeColor,
-									selection: selection
-								)
-							}
-						)
+							icon: "paintpalette",
+							identifier: .changeColor
+						) {
+							delegate?.userDidTapMenu(
+								with: .changeColor,
+								selection: selection
+							)
+						}
 					]
 			),
 			UIMenu(
@@ -154,43 +145,66 @@ extension ContentMenuBuilder {
 				preferredElementSize: .automatic,
 				children:
 					[
-						UIAction(
+						buildAction(
 							title: localization.moveItemTitle,
-							image: UIImage(systemName: "arrow.left.arrow.right"),
-							identifier: .init(ContentMenuIdentifier.moveItems.rawValue),
-							handler: { _ in
-								delegate?.userDidTapMenu(
-									with: .moveItems,
-									selection: selection
-								)
-							}
-						),
-						UIAction(
+							icon: "arrow.left.arrow.right",
+							identifier: .moveItems
+						) {
+							delegate?.userDidTapMenu(
+								with: .moveItems,
+								selection: selection
+							)
+						},
+						buildAction(
 							title: localization.reorderItemTitle,
-							image: UIImage(systemName: "arrow.up.arrow.down"),
-							identifier: .init(ContentMenuIdentifier.reorderItems.rawValue),
-							handler: { _ in
-								delegate?.userDidTapMenu(
-									with: .reorderItems,
-									selection: selection
-								)
-							}
-						)
+							icon: "arrow.up.arrow.down",
+							identifier: .reorderItems
+						) {
+							delegate?.userDidTapMenu(
+								with: .reorderItems,
+								selection: selection
+							)
+						}
 					]
 			),
-			UIAction(
+			buildAction(
 				title: localization.deleteItemTitle,
-				image: UIImage(systemName: "trash"),
-				identifier: .init(ContentMenuIdentifier.deleteItems.rawValue),
-				attributes: [.destructive],
-				handler: { _ in
-					delegate?.userDidTapMenu(
-						with: .deleteItems,
-						selection: selection
-					)
-				}
-			)
+				icon: "trash",
+				identifier: .deleteItems,
+				attributes: [.destructive]
+			) {
+				delegate?.userDidTapMenu(
+					with: .deleteItems,
+					selection: selection
+				)
+			}
 		]
+	}
+}
+
+// MARK: - Helpers
+private extension ContentMenuBuilder {
+
+	func buildAction(
+		title: String,
+		icon: String? = nil,
+		identifier: ContentMenuIdentifier,
+		attributes: UIMenuElement.Attributes = [],
+		state: UIMenuElement.State = .off,
+		handler: @MainActor @escaping () -> Void
+	) -> UIAction {
+		UIAction(
+			title: title,
+			image: icon.flatMap { UIImage(systemName: $0) },
+			identifier: .init(identifier.rawValue),
+			attributes: attributes,
+			state: state,
+			handler: { _ in
+				Task { @MainActor in
+					handler()
+				}
+			}
+		)
 	}
 }
 
