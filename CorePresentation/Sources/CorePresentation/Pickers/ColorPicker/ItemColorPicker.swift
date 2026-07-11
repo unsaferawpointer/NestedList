@@ -17,9 +17,10 @@ import CoreModule
 
 	public init(
 		title: String,
+		analytics: any PickerAnalyticsServiceProtocol = PickerAnalyticsService(),
 		action: @escaping @MainActor (ItemColor?, Bool) -> Void
 	) {
-		self.model = ItemColorPickerViewModel(title: title, action: action)
+		self.model = ItemColorPickerViewModel(title: title, analytics: analytics, action: action)
 	}
 }
 
@@ -52,7 +53,10 @@ extension ItemColorPicker: View {
 			.toolbar {
 				buildToolbar()
 			}
-			.navigationTitle(model.title)
+				.navigationTitle(model.title)
+				.onAppear {
+					model.show()
+				}
 			#if os(iOS)
 			.navigationBarTitleDisplayMode(.inline)
 			#endif
