@@ -5,6 +5,7 @@
 //  Created by Anton Cherkasov on 30.06.2026.
 //
 
+import CorePresentation
 @testable import Nested_List
 
 actor ContentAnalyticsServiceMock {

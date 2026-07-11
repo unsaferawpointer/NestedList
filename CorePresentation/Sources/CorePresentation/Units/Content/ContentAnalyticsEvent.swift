@@ -1,29 +1,32 @@
 //
 //  ContentAnalyticsEvent.swift
-//  iOS
+//  CorePresentation
 //
 //  Created by Anton Cherkasov on 11.07.2026.
 //
 
 import Analytics
 
-enum ContentAnalyticsEvent {
+public enum ContentAnalyticsEvent {
 	case menuClick(id: String, source: String)
 	case documentShow(depth: Int, totalCount: Int, isRoot: Bool)
 	case subitemsShow
 	case buttonClick(id: String, source: String)
-	case itemDoubleClick
 	case dragDropMove(itemsCount: Int)
-	case dragDropCopy(itemsCount: Int)
 	case dragDropDrop(itemsCount: Int, contentType: String)
+
+	#if os(macOS)
+	case itemDoubleClick
+	case dragDropCopy(itemsCount: Int)
+	#endif
 }
 
 // MARK: - AnalyticsEvent
 extension ContentAnalyticsEvent: AnalyticsEvent {
 
-	var area: String { "content" }
+	public var area: String { "content" }
 
-	var name: String {
+	public var name: String {
 		switch self {
 		case .menuClick:
 			"menu_click"
@@ -33,18 +36,21 @@ extension ContentAnalyticsEvent: AnalyticsEvent {
 			"subitems_show"
 		case .buttonClick:
 			"button_click"
-		case .itemDoubleClick:
-			"item_double_click"
 		case .dragDropMove:
 			"drag_drop_move"
-		case .dragDropCopy:
-			"drag_drop_copy"
 		case .dragDropDrop:
 			"drag_drop_drop"
+
+		#if os(macOS)
+		case .itemDoubleClick:
+			"item_double_click"
+		case .dragDropCopy:
+			"drag_drop_copy"
+		#endif
 		}
 	}
 
-	var parameters: [String: AnalyticsValue] {
+	public var parameters: [String: AnalyticsValue] {
 		switch self {
 		case let .menuClick(id, source):
 			[
@@ -64,13 +70,7 @@ extension ContentAnalyticsEvent: AnalyticsEvent {
 				"id": .string(id),
 				"source": .string(source)
 			]
-		case .itemDoubleClick:
-			[:]
 		case let .dragDropMove(itemsCount):
-			[
-				"items_count": .int(itemsCount)
-			]
-		case let .dragDropCopy(itemsCount):
 			[
 				"items_count": .int(itemsCount)
 			]
@@ -79,6 +79,15 @@ extension ContentAnalyticsEvent: AnalyticsEvent {
 				"items_count": .int(itemsCount),
 				"content_type": .string(contentType)
 			]
+
+		#if os(macOS)
+		case .itemDoubleClick:
+			[:]
+		case let .dragDropCopy(itemsCount):
+			[
+				"items_count": .int(itemsCount)
+			]
+		#endif
 		}
 	}
 }

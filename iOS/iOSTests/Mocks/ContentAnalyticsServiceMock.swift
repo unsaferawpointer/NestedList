@@ -5,6 +5,7 @@
 //  Created by Anton Cherkasov on 11.07.2026.
 //
 
+import CorePresentation
 @testable import iOS
 
 actor ContentAnalyticsServiceMock {
