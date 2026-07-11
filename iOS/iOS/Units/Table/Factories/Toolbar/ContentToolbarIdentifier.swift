@@ -7,29 +7,29 @@
 
 enum ContentToolbarIdentifier: String {
 
-	case cutItems
-	case copyItems
+	case cutItems = "cut"
+	case copyItems = "copy"
 
-	case newItem
+	case newItem = "new-item"
 
-	case toggleStrikethrough
-	case toggleSubitemsVisibility
+	case toggleStrikethrough = "completed-toggle"
+	case toggleSubitemsVisibility = "hide-subitems-toggle"
 
-	case changeIcon
-	case changeColor
+	case changeIcon = "icon"
+	case changeColor = "color"
 
-	case moveItems
+	case moveItems = "move"
 
-	case deleteItems
+	case deleteItems = "delete"
 
 	case done
 	case settings
-	case reorderingMode
-	case selectionMode
+	case reorderingMode = "reordering-mode"
+	case selectionMode = "selection-mode"
 
-	case selectAll
-	case collapseAll
-	case expandAll
+	case selectAll = "select-all"
+	case collapseAll = "collapse-all"
+	case expandAll = "expand-all"
 
 	case more
 }

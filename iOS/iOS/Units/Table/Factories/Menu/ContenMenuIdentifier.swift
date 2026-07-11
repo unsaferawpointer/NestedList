@@ -7,23 +7,23 @@
 
 enum ContentMenuIdentifier: String {
 
-	case cutItems
-	case copyItems
+	case cutItems = "cut"
+	case copyItems = "copy"
 	case paste
 
-	case editItem
-	case newItem
+	case editItem = "edit"
+	case newItem = "new-item"
 
-	case toggleStrikethrough
-	case toggleSubitemsVisibility
+	case toggleStrikethrough = "completed-toggle"
+	case toggleSubitemsVisibility = "hide-subitems-toggle"
 
-	case changeIcon
-	case changeColor
+	case changeIcon = "icon"
+	case changeColor = "color"
 
-	case moveItems
-	case reorderItems
+	case moveItems = "move"
+	case reorderItems = "reorder"
 
-	case deleteItems
+	case deleteItems = "delete"
 }
 
 // MARK: - Equatable

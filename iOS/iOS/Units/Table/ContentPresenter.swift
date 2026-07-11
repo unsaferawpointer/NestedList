@@ -40,6 +40,8 @@ final class ContentPresenter {
 
 	private(set) var soundPlayer: any SoundPlayerProtocol
 
+	private(set) var analytics: any ContentAnalyticsServiceProtocol
+
 	var editingMode: EditingMode? {
 		didSet {
 			displayToolbar()
@@ -56,10 +58,12 @@ final class ContentPresenter {
 	init(
 		router: ContentRouterProtocol,
 		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared,
+		analytics: any ContentAnalyticsServiceProtocol = ContentAnalyticsService(),
 		soundPlayer: any SoundPlayerProtocol
 	) {
 		self.router = router
 		self.settingsProvider = settingsProvider
+		self.analytics = analytics
 		self.soundPlayer = soundPlayer
 
 		settingsProvider.addObservation(for: self) { [weak self] settings in
@@ -119,6 +123,16 @@ extension ContentPresenter: ViewDelegate {
 			}
 			view?.expandAll()
 			displayToolbar()
+
+			// MARK: - Analytics
+			Task {
+				let event: ContentAnalyticsEvent = .documentShow(
+					depth: snapshot.depth,
+					totalCount: snapshot.count,
+					isRoot: item == nil
+				)
+				await analytics.track(event)
+			}
 		case .willAppear:
 			displayToolbar()
 		default:
@@ -244,6 +258,11 @@ extension ContentPresenter: ContentMenuDelegate {
 
 	func userDidTapMenu(with id: ContentMenuIdentifier, selection: [UUID]?) {
 		let currentSelection = selection ?? view?.selection ?? []
+
+		// MARK: - Analytics
+		let event: ContentAnalyticsEvent = .menuClick(id: id.rawValue, source: "context-menu")
+		Task { await analytics.track(event) }
+
 		switch id {
 		case .cutItems:						cut(selection: currentSelection)
 		case .copyItems:					copy(selection: currentSelection)
@@ -266,6 +285,11 @@ extension ContentPresenter: ContentToolbarDelegate {
 
 	func userDidTapToolbar(with id: ContentToolbarIdentifier, selection: [UUID]?) {
 		let currentSelection = selection ?? view?.selection ?? []
+
+		// MARK: - Analytics
+		let event: ContentAnalyticsEvent = .buttonClick(id: id.rawValue, source: "toolbar")
+		Task { await analytics.track(event) }
+
 		switch id {
 		case .cutItems:						cut(selection: currentSelection)
 		case .copyItems:					copy(selection: currentSelection)
@@ -315,6 +339,12 @@ extension ContentPresenter: ListDelegate {
 	}
 
 	func listDidTapDisclosure(id: UUID) {
+		// MARK: - Analytics
+		Task {
+			let event: ContentAnalyticsEvent = .subitemsShow
+			await analytics.track(event)
+		}
+
 		router.showDocument(for: id)
 	}
 }
@@ -325,6 +355,10 @@ extension ContentPresenter: DropDelegate {
 	typealias ID = UUID
 
 	func move(_ ids: [UUID], to destination: Destination<UUID>) {
+		// MARK: - Analytics
+		let event: ContentAnalyticsEvent = .dragDropMove(itemsCount: ids.count)
+		Task { await analytics.track(event) }
+
 		soundPlayer.play(sound: .place)
 		interactor?.move(ids: ids, to: destination)
 		if let target = destination.id {
@@ -343,6 +377,10 @@ extension ContentPresenter: DropDelegate {
 	func dropItems(providers: [NSItemProvider], to destination: Destination<UUID>) {
 
 		let canLoad = contentLoader.loadItems(providers: providers) { [weak self] nodes in
+			// MARK: - Analytics
+			let event: ContentAnalyticsEvent = .dragDropDrop(itemsCount: nodes.count, contentType: "item")
+			Task { await self?.analytics.track(event) }
+
 			self?.interactor?.insertNodes(nodes, to: destination)
 		}
 
@@ -351,6 +389,10 @@ extension ContentPresenter: DropDelegate {
 		}
 
 		_ = contentLoader.loadStrings(providers: providers) { [weak self] strings in
+			// MARK: - Analytics
+			let event: ContentAnalyticsEvent = .dragDropDrop(itemsCount: strings.count, contentType: "string")
+			Task { await self?.analytics.track(event) }
+
 			self?.interactor?.insertStrings(strings, to: destination)
 		}
 	}
