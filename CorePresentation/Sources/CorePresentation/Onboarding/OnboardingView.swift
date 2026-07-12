@@ -1,6 +1,6 @@
 //
 //  OnboardingView.swift
-//  DesignSystem
+//  CorePresentation
 //
 //  Created by Anton Cherkasov on 30.04.2025.
 //
@@ -15,7 +15,7 @@ public struct OnboardingView {
 
 	@State var state: OnboardingState
 
-	var onComplete: (() -> Void)?
+	var onComplete: (@MainActor () -> Void)?
 
 	// MARK: - Initialization
 
@@ -164,24 +164,26 @@ extension OnboardingState {
 
 extension [Feature] {
 
-	static let newFormat: [Feature] = [
-		.init(
-			icon: "arrow.down.document",
-			iconColor: .primary,
-			title: "Easy Conversion",
-			description: "Import legacy TXT files with one click"
-		),
-		.init(
-			icon: "arrow.up.document",
-			iconColor: .primary,
-			title: "Full Backward Compatibility",
-			description: "Export back to TXT anytime"
-		),
-		.init(
-			icon: "sparkles",
-			iconColor: .primary,
-			title: "Exclusive Features",
-			description: "Advanced functionality only available in the new format"
-		)
-	]
+	static var newFormat: [Feature] {
+		[
+			.init(
+				icon: "arrow.down.document",
+				iconColor: .primary,
+				title: "Easy Conversion",
+				description: "Import legacy TXT files with one click"
+			),
+			.init(
+				icon: "arrow.up.document",
+				iconColor: .primary,
+				title: "Full Backward Compatibility",
+				description: "Export back to TXT anytime"
+			),
+			.init(
+				icon: "sparkles",
+				iconColor: .primary,
+				title: "Exclusive Features",
+				description: "Advanced functionality only available in the new format"
+			)
+		]
+	}
 }

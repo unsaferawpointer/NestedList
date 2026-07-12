@@ -1,6 +1,6 @@
 //
 //  OnboardingFooter.swift
-//  DesignSystem
+//  CorePresentation
 //
 //  Created by Anton Cherkasov on 01.05.2025.
 //

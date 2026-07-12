@@ -1,11 +1,17 @@
 //
 //  PageView.swift
-//  DesignSystem
+//  CorePresentation
 //
 //  Created by Anton Cherkasov on 10.05.2026.
 //
 
 import SwiftUI
+
+#if os(macOS)
+import AppKit
+#elseif os(iOS)
+import UIKit
+#endif
 
 struct PageView {
 	let systemName: String
@@ -18,9 +24,9 @@ extension PageView: View {
 
 	var body: some View {
 		VStack(spacing: 24) {
-			GeometryReader { proxy in
-				ZStack {
-					Color.tertiarySystemFill
+				GeometryReader { proxy in
+					ZStack {
+						Color.onboardingTertiarySystemFill
 					VStack {
 						Spacer()
 						buildImage(height: proxy.size.height)
@@ -74,7 +80,7 @@ private extension PageView {
 	}
 }
 #elseif os(macOS)
-extension PageView {
+private extension PageView {
 
 	func buildImage(height: CGFloat) -> some View {
 		if #available(macOS 26.0, *) {
@@ -94,6 +100,16 @@ extension PageView {
 	}
 }
 #endif
+
+// MARK: - Styling
+private extension Color {
+
+	#if os(macOS)
+	static let onboardingTertiarySystemFill = Color(nsColor: .tertiarySystemFill)
+	#elseif os(iOS)
+	static let onboardingTertiarySystemFill = Color(uiColor: .tertiarySystemFill)
+	#endif
+}
 
 #if os(iOS)
 private extension PageView {
@@ -116,11 +132,6 @@ private extension PageView {
 	}
 }
 #endif
-
-// MARK: - Builders
-private extension PageView {
-
-}
 
 #Preview {
 	PageView(

@@ -1,6 +1,6 @@
 //
 //  OnboardingLocalization.swift
-//  DesignSystem
+//  CorePresentation
 //
 //  Created by Anton Cherkasov on 03.05.2025.
 //
