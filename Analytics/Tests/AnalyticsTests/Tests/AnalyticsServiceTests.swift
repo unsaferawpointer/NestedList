@@ -58,15 +58,17 @@ extension AnalyticsServiceTests {
 		#expect(sentEvents.first?.parameters["source"] == .string("dock"))
 	}
 
-	@Test func flush_addsUserAndSessionIdentifiersToPayload() async {
+	@Test func flush_addsUserAndSessionValuesToPayload() async {
 		let userIdentifier = UUID()
 		let sessionIdentifier = UUID()
+		let sessionStartedAt = Date(timeIntervalSince1970: 123)
 		let engine = AnalyticsEngineMock()
 		let sut = AnalyticsService(
 			engine: engine,
 			identityProvider: AnalyticsIdentityProviderMock(
 				userIdentifier: userIdentifier,
-				sessionIdentifier: sessionIdentifier
+				sessionIdentifier: sessionIdentifier,
+				sessionStartedAt: sessionStartedAt
 			),
 			metadataProvider: AnalyticsPayloadMetadataProviderMock(),
 			queuePolicy: AnalyticsQueuePolicy(batchSize: 2)
@@ -79,6 +81,29 @@ extension AnalyticsServiceTests {
 
 		#expect(sentEvent?.userIdentifier == userIdentifier)
 		#expect(sentEvent?.sessionIdentifier == sessionIdentifier)
+		#expect(sentEvent?.sessionStartedAt == sessionStartedAt)
+	}
+
+	@Test func flush_reusesSessionValuesCapturedAtInitialization() async {
+		let identityProvider = IncrementingAnalyticsIdentityProviderMock()
+		let engine = AnalyticsEngineMock()
+		let sut = AnalyticsService(
+			engine: engine,
+			identityProvider: identityProvider,
+			metadataProvider: AnalyticsPayloadMetadataProviderMock(),
+			queuePolicy: AnalyticsQueuePolicy(batchSize: 3)
+		)
+
+		await sut.track(TestEvent(name: "first"))
+		await sut.track(TestEvent(name: "second"))
+		await sut.flush()
+
+		let sentEvents = await engine.invocations.sentEvents
+
+		#expect(sentEvents.count == 2)
+		#expect(Set(sentEvents.map(\.userIdentifier)).count == 1)
+		#expect(Set(sentEvents.map(\.sessionIdentifier)).count == 1)
+		#expect(Set(sentEvents.map(\.sessionStartedAt)).count == 1)
 	}
 
 	@Test func flush_addsMetadataToPayload() async {
@@ -189,6 +214,30 @@ extension AnalyticsServiceTests {
 }
 
 // MARK: - Helpers
+private final class IncrementingAnalyticsIdentityProviderMock: @unchecked Sendable {
+
+	var counter: TimeInterval = 1
+}
+
+// MARK: - AnalyticsIdentityProviding
+extension IncrementingAnalyticsIdentityProviderMock: AnalyticsIdentityProviding {
+
+	var userIdentifier: UUID {
+		counter += 1
+		return UUID()
+	}
+
+	var sessionIdentifier: UUID {
+		counter += 1
+		return UUID()
+	}
+
+	var sessionStartedAt: Date {
+		counter += 1
+		return Date(timeIntervalSince1970: counter)
+	}
+}
+
 private extension Array where Element == AnalyticsEngineMock.Action {
 
 	var sentBatches: [[AnalyticsPayload]] {

@@ -50,6 +50,7 @@ extension AmplitudeServiceTests {
 		let sut = AmplitudeService(apiKey: "test-api-key", endpoint: endpoint, session: session)
 		let userIdentifier = try #require(UUID(uuidString: "11111111-1111-1111-1111-111111111111"))
 		let sessionIdentifier = try #require(UUID(uuidString: "22222222-2222-2222-2222-222222222222"))
+		let sessionStartedAt = Date(timeIntervalSince1970: 10.5)
 		let payloadIdentifier = try #require(UUID(uuidString: "33333333-3333-3333-3333-333333333333"))
 		let payload = AnalyticsPayload(
 			id: payloadIdentifier,
@@ -62,6 +63,7 @@ extension AmplitudeServiceTests {
 			]),
 			userIdentifier: userIdentifier,
 			sessionIdentifier: sessionIdentifier,
+			sessionStartedAt: sessionStartedAt,
 			createdAt: Date(timeIntervalSince1970: 1.234),
 			metadata: AnalyticsPayloadMetadata(
 				region: "CA",
@@ -91,6 +93,7 @@ extension AmplitudeServiceTests {
 		#expect(event["user_id"] as? String == userIdentifier.uuidString)
 		#expect(event["event_type"] as? String == "button_click")
 		#expect(event["time"] as? Int == 1234)
+		#expect(event["session_id"] as? Int == 10500)
 		#expect(event["insert_id"] as? String == payloadIdentifier.uuidString)
 		#expect(event["region"] as? String == "CA")
 		#expect(event["country"] as? String == "US")
@@ -100,7 +103,7 @@ extension AmplitudeServiceTests {
 		#expect(event["os_version"] as? String == "Version 15.0")
 		#expect(event["app_version"] as? String == "2.3.0")
 		#expect(eventProperties["area"] as? String == "content")
-		#expect(eventProperties["session_identifier"] as? String == sessionIdentifier.uuidString)
+		#expect(eventProperties["session_identifier"] == nil)
 		#expect(eventProperties["id"] as? String == "new-item")
 		#expect(eventProperties["source"] as? String == "toolbar")
 		#expect(eventProperties["enabled"] as? Bool == true)
@@ -144,7 +147,8 @@ private extension AmplitudeServiceTests {
 		return AnalyticsPayload(
 			event: TestEvent(area: "content", name: "button_click"),
 			userIdentifier: UUID(),
-			sessionIdentifier: UUID()
+			sessionIdentifier: UUID(),
+			sessionStartedAt: Date()
 		)
 	}
 }

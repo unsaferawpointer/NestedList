@@ -17,6 +17,9 @@ struct AmplitudeEvent {
 	/// Event creation time in milliseconds since the Unix epoch.
 	let time: Int64
 
+	/// Session start time in milliseconds since the Unix epoch.
+	let sessionID: Int64
+
 	/// Unique payload identifier used by Amplitude for event deduplication.
 	let insertID: String
 
@@ -52,11 +55,11 @@ struct AmplitudeEvent {
 
 		var eventProperties = payload.parameters.mapValues(AmplitudeValue.init)
 		eventProperties["area"] = .string(payload.area)
-		eventProperties["session_identifier"] = .string(payload.sessionIdentifier.uuidString)
 
 		self.userID = payload.userIdentifier.uuidString
 		self.eventType = payload.name
 		self.time = Int64((payload.createdAt.timeIntervalSince1970 * 1000).rounded())
+		self.sessionID = Int64((payload.sessionStartedAt.timeIntervalSince1970 * 1000).rounded())
 		self.insertID = payload.id.uuidString
 		self.region = payload.metadata.region
 		self.country = payload.metadata.country
@@ -76,6 +79,7 @@ extension AmplitudeEvent: Encodable {
 		case userID = "user_id"
 		case eventType = "event_type"
 		case time
+		case sessionID = "session_id"
 		case insertID = "insert_id"
 		case region
 		case country

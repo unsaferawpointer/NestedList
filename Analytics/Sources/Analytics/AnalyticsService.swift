@@ -34,12 +34,14 @@ public actor AnalyticsService {
 	// MARK: - DI
 
 	private let engine: any AnalyticsEngine
-	private let identityProvider: any AnalyticsIdentityProviding
 	private let metadataProvider: any AnalyticsPayloadMetadataProvider
 
 	// MARK: - Constants
 
 	private let queuePolicy: AnalyticsQueuePolicy
+	private let userIdentifier: UUID
+	private let sessionIdentifier: UUID
+	private let sessionStartedAt: Date
 	private let logger = Logger(subsystem: "NestedList", category: "Analytics")
 
 	// MARK: - Internal state
@@ -61,9 +63,11 @@ public actor AnalyticsService {
 		queuePolicy: AnalyticsQueuePolicy = AnalyticsQueuePolicy()
 	) {
 		self.engine = engine
-		self.identityProvider = identityProvider
 		self.metadataProvider = metadataProvider
 		self.queuePolicy = queuePolicy
+		self.userIdentifier = identityProvider.userIdentifier
+		self.sessionIdentifier = identityProvider.sessionIdentifier
+		self.sessionStartedAt = identityProvider.sessionStartedAt
 	}
 }
 
@@ -73,8 +77,9 @@ extension AnalyticsService: AnalyticsServiceProtocol {
 	public func track<E: AnalyticsEvent>(_ event: E) async {
 		let payload = AnalyticsPayload(
 			event: event,
-			userIdentifier: identityProvider.userIdentifier,
-			sessionIdentifier: identityProvider.sessionIdentifier,
+			userIdentifier: userIdentifier,
+			sessionIdentifier: sessionIdentifier,
+			sessionStartedAt: sessionStartedAt,
 			metadata: metadataProvider.metadata()
 		)
 		cache.append(payload)

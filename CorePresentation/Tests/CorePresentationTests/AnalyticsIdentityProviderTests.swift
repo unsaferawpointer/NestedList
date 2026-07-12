@@ -43,6 +43,15 @@ extension AnalyticsIdentityProviderTests {
 
 		#expect(firstProvider.sessionIdentifier == secondProvider.sessionIdentifier)
 	}
+
+	@Test func sessionStartedAt_returnsSameDateAcrossProviders() throws {
+		let firstDefaults = try makeDefaults()
+		let secondDefaults = try makeDefaults()
+		let firstProvider = AnalyticsIdentityProvider(defaults: firstDefaults)
+		let secondProvider = AnalyticsIdentityProvider(defaults: secondDefaults)
+
+		#expect(firstProvider.sessionStartedAt == secondProvider.sessionStartedAt)
+	}
 }
 
 // MARK: - Private methods

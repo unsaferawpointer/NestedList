@@ -13,4 +13,7 @@ public protocol AnalyticsIdentityProviding: Sendable {
 
 	/// Identifier of the current analytics session.
 	var sessionIdentifier: UUID { get }
+
+	/// Date when the current analytics session started.
+	var sessionStartedAt: Date { get }
 }

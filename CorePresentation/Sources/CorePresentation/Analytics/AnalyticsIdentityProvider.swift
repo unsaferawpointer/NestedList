@@ -9,12 +9,13 @@ import Analytics
 /// Provides stable anonymous analytics identity values.
 ///
 /// The user identifier is stored in `UserDefaults` and reused across application launches. The
-/// session identifier is generated once per process and reused until the app is closed.
+/// session values are generated once per process and reused until the app is closed.
 public final class AnalyticsIdentityProvider: @unchecked Sendable {
 
 	// MARK: - Constants
 
 	private static let sessionIdentifier = UUID()
+	private static let sessionStartedAt = Date()
 
 	private let userIdentifierKey: String
 
@@ -46,6 +47,11 @@ extension AnalyticsIdentityProvider: AnalyticsIdentityProviding {
 	/// Identifier associated with the current app process.
 	public var sessionIdentifier: UUID {
 		return Self.sessionIdentifier
+	}
+
+	/// Start date associated with the current app process.
+	public var sessionStartedAt: Date {
+		return Self.sessionStartedAt
 	}
 }
 
