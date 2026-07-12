@@ -25,13 +25,7 @@ public final class ContentAnalyticsService {
 	}
 
 	public convenience init(identityProvider: AnalyticsIdentityProvider = AnalyticsIdentityProvider()) {
-		self.init(
-			analytics: AnalyticsService(
-				engine: AmplitudeService(),
-				identityProvider: identityProvider,
-				metadataProvider: SystemAnalyticsPayloadMetadataProvider()
-			)
-		)
+		self.init(analytics: ApplicationAnalyticsService.shared)
 	}
 }
 
