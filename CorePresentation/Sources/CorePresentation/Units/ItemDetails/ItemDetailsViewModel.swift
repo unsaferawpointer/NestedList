@@ -19,6 +19,11 @@ final class ItemDetailsViewModel {
 	private let completionHandler: (ItemDetailsView.Properties, Bool) -> Void
 	private let analytics: any ItemDetailsAnalyticsServiceProtocol
 
+	// MARK: - Analytics
+
+	private let initialTextLength: Int
+	private let mode: ItemDetailsView.Mode
+
 	private var didTrackShow = false
 
 	init(
@@ -29,6 +34,10 @@ final class ItemDetailsViewModel {
 		self.item = item
 		self.analytics = analytics
 		self.completionHandler = completionHandler
+
+		self.initialTextLength = item.properties.text.count
+		self.mode = item.properties.text.isEmpty ? .create : .edit
+
 		self.icons = IconsPalette.chunked()
 			.flatMap { $0 }
 			.map { IconMapper.map(icon: $0) }
@@ -43,7 +52,7 @@ extension ItemDetailsViewModel {
 			return
 		}
 		didTrackShow = true
-		track(.itemDetailsShow)
+		track(.itemDetailsShow(initialTextLength: initialTextLength, mode: mode))
 	}
 
 	var isValid: Bool {

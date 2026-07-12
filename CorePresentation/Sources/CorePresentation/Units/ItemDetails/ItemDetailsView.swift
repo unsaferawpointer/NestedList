@@ -127,6 +127,11 @@ extension ItemDetailsView {
 		case note
 	}
 
+	public enum Mode: String, Sendable {
+		case create
+		case edit
+	}
+
 	public struct Model {
 		public var navigationTitle: String
 		public var properties: Properties
