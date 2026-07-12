@@ -17,9 +17,17 @@ final class ItemDetailsViewModel {
 	let icons: [SemanticImage]
 
 	private let completionHandler: (ItemDetailsView.Properties, Bool) -> Void
+	private let analytics: any ItemDetailsAnalyticsServiceProtocol
 
-	init(item: ItemDetailsView.Model, completionHandler: @escaping (ItemDetailsView.Properties, Bool) -> Void) {
+	private var didTrackShow = false
+
+	init(
+		item: ItemDetailsView.Model,
+		analytics: any ItemDetailsAnalyticsServiceProtocol,
+		completionHandler: @escaping (ItemDetailsView.Properties, Bool) -> Void
+	) {
 		self.item = item
+		self.analytics = analytics
 		self.completionHandler = completionHandler
 		self.icons = IconsPalette.chunked()
 			.flatMap { $0 }
@@ -29,6 +37,14 @@ final class ItemDetailsViewModel {
 
 // MARK: - Public Interface
 extension ItemDetailsViewModel {
+
+	func show() {
+		guard !didTrackShow else {
+			return
+		}
+		didTrackShow = true
+		track(.itemDetailsShow)
+	}
 
 	var isValid: Bool {
 		return !item.properties.text.isEmpty
@@ -43,10 +59,12 @@ extension ItemDetailsViewModel {
 	}
 
 	func cancel() {
+		track(.itemDetailsCancelButtonClick)
 		completionHandler(item.properties, false)
 	}
 
 	func save() {
+		track(.itemDetailsSaveButtonClick)
 		completionHandler(item.properties, true)
 	}
 
@@ -56,6 +74,17 @@ extension ItemDetailsViewModel {
 			return .note
 		default:
 			return nil
+		}
+	}
+}
+
+// MARK: - Private methods
+private extension ItemDetailsViewModel {
+
+	func track(_ event: ItemDetailsAnalyticsEvent) {
+		let analytics = analytics
+		Task {
+			await analytics.track(event)
 		}
 	}
 }

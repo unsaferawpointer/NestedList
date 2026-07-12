@@ -22,11 +22,13 @@ public struct ItemDetailsView {
 
 	public init(
 		item: Model,
+		analytics: any ItemDetailsAnalyticsServiceProtocol = ItemDetailsAnalyticsService(),
 		completionHandler: @escaping (Properties, Bool) -> Void
 	) {
 		self._model = State(
 			initialValue: ItemDetailsViewModel(
 				item: item,
+				analytics: analytics,
 				completionHandler: completionHandler
 			)
 		)
@@ -66,6 +68,7 @@ extension ItemDetailsView: View {
 			.navigationBarTitleDisplayMode(.inline)
 			#endif
 			.onAppear {
+				model.show()
 				focusedField = model.initialFocus
 			}
 		}
