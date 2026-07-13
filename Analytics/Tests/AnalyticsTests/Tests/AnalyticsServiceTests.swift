@@ -32,7 +32,7 @@ extension AnalyticsServiceTests {
 			queuePolicy: AnalyticsQueuePolicy(batchSize: 2)
 		)
 
-		await sut.track(TestEvent(name: "app_started", parameters: ["source": "dock"]))
+		await sut.track(TestEvent(name: .screenShow, parameters: ["source": "dock"]))
 
 		let invocations = await engine.invocations
 
@@ -48,13 +48,13 @@ extension AnalyticsServiceTests {
 			queuePolicy: AnalyticsQueuePolicy(batchSize: 2)
 		)
 
-		await sut.track(TestEvent(name: "app_started", parameters: ["source": "dock"]))
+		await sut.track(TestEvent(name: .screenShow, parameters: ["source": "dock"]))
 		await sut.flush()
 
 		let sentEvents = await engine.invocations.sentEvents
 
 		#expect(sentEvents.map(\.area) == ["test"])
-		#expect(sentEvents.map(\.name) == ["app_started"])
+		#expect(sentEvents.map(\.name) == [.screenShow])
 		#expect(sentEvents.first?.parameters["source"] == .string("dock"))
 	}
 
@@ -74,7 +74,7 @@ extension AnalyticsServiceTests {
 			queuePolicy: AnalyticsQueuePolicy(batchSize: 2)
 		)
 
-		await sut.track(TestEvent(name: "app_started"))
+		await sut.track(TestEvent(name: .screenShow))
 		await sut.flush()
 
 		let sentEvent = await engine.invocations.sentEvents.first
@@ -94,8 +94,8 @@ extension AnalyticsServiceTests {
 			queuePolicy: AnalyticsQueuePolicy(batchSize: 3)
 		)
 
-		await sut.track(TestEvent(name: "first"))
-		await sut.track(TestEvent(name: "second"))
+		await sut.track(TestEvent(name: .buttonClick))
+		await sut.track(TestEvent(name: .screenShow))
 		await sut.flush()
 
 		let sentEvents = await engine.invocations.sentEvents
@@ -124,7 +124,7 @@ extension AnalyticsServiceTests {
 			queuePolicy: AnalyticsQueuePolicy(batchSize: 2)
 		)
 
-		await sut.track(TestEvent(name: "app_started"))
+		await sut.track(TestEvent(name: .screenShow))
 		await sut.flush()
 
 		let sentEvent = await engine.invocations.sentEvents.first
@@ -141,13 +141,13 @@ extension AnalyticsServiceTests {
 			queuePolicy: AnalyticsQueuePolicy(batchSize: 2)
 		)
 
-		await sut.track(TestEvent(name: "first"))
-		await sut.track(TestEvent(name: "second"))
+		await sut.track(TestEvent(name: .buttonClick))
+		await sut.track(TestEvent(name: .screenShow))
 
 		let sentBatches = await engine.invocations.sentBatches
 
 		#expect(sentBatches.map(\.count) == [2])
-		#expect(sentBatches.flatMap { $0 }.map(\.name) == ["first", "second"])
+		#expect(sentBatches.flatMap { $0 }.map(\.name) == [.buttonClick, .screenShow])
 	}
 
 	@Test func flush_whenEngineFails_keepsBatchForNextFlush() async {
@@ -159,17 +159,17 @@ extension AnalyticsServiceTests {
 			queuePolicy: AnalyticsQueuePolicy(batchSize: 2)
 		)
 
-		await sut.track(TestEvent(name: "first"))
-		await sut.track(TestEvent(name: "second"))
+		await sut.track(TestEvent(name: .buttonClick))
+		await sut.track(TestEvent(name: .screenShow))
 
 		let invocationsBeforeRetry = await engine.invocations
 		await sut.flush()
 		let invocationsAfterRetry = await engine.invocations
 
-		#expect(invocationsBeforeRetry.sentBatches.map { $0.map(\.name) } == [["first", "second"]])
+		#expect(invocationsBeforeRetry.sentBatches.map { $0.map(\.name) } == [[.buttonClick, .screenShow]])
 		#expect(invocationsAfterRetry.sentBatches.map { $0.map(\.name) } == [
-			["first", "second"],
-			["first", "second"]
+			[.buttonClick, .screenShow],
+			[.buttonClick, .screenShow]
 		])
 	}
 
@@ -182,15 +182,15 @@ extension AnalyticsServiceTests {
 			queuePolicy: AnalyticsQueuePolicy(batchSize: 2)
 		)
 
-		await sut.track(TestEvent(name: "first"))
-		await sut.track(TestEvent(name: "second"))
-		await sut.track(TestEvent(name: "third"))
+		await sut.track(TestEvent(name: .buttonClick))
+		await sut.track(TestEvent(name: .screenShow))
+		await sut.track(TestEvent(name: .toggleClick))
 		await sut.flush()
 
 		let sentBatches = await engine.invocations.sentBatches
 
 		#expect(sentBatches.map(\.count) == [2, 1])
-		#expect(sentBatches.flatMap { $0 }.map(\.name) == ["first", "second", "third"])
+		#expect(sentBatches.flatMap { $0 }.map(\.name) == [.buttonClick, .screenShow, .toggleClick])
 	}
 
 	@Test func track_whenCacheExceedsLimit_removesOldestEvents() async {
@@ -202,14 +202,14 @@ extension AnalyticsServiceTests {
 			queuePolicy: AnalyticsQueuePolicy(cacheLimit: 2, batchSize: 10)
 		)
 
-		await sut.track(TestEvent(name: "first"))
-		await sut.track(TestEvent(name: "second"))
-		await sut.track(TestEvent(name: "third"))
+		await sut.track(TestEvent(name: .buttonClick))
+		await sut.track(TestEvent(name: .screenShow))
+		await sut.track(TestEvent(name: .toggleClick))
 		await sut.flush()
 
 		let sentEvents = await engine.invocations.sentEvents
 
-		#expect(sentEvents.map(\.name) == ["second", "third"])
+		#expect(sentEvents.map(\.name) == [.screenShow, .toggleClick])
 	}
 }
 

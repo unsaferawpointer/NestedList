@@ -15,7 +15,7 @@ import Testing
 
 		let event = await analytics.waitForEvent()
 		let events = await analytics.trackedEvents()
-		#expect(event.name == "screen_show")
+		#expect(event.name == .screenShow)
 		#expect(event.parameters["total_count"] == .int(2))
 		#expect(events.count == 1)
 	}
@@ -41,8 +41,8 @@ import Testing
 		sut.primaryAction()
 
 		let event = await analytics.waitForEvent()
-		#expect(event.name == "button_click")
-		#expect(event.parameters["button"] == .string("get_started"))
+		#expect(event.name == .buttonClick)
+		#expect(event.parameters["id"] == .string("get_started"))
 		#expect(event.parameters["index"] == .int(1))
 		#expect(sut.currentPage == 1)
 		#expect(sut.isCompleted == true)
@@ -56,8 +56,8 @@ import Testing
 		sut.back()
 
 		let event = await analytics.waitForEvent()
-		#expect(event.name == "button_click")
-		#expect(event.parameters["button"] == .string("back"))
+		#expect(event.name == .buttonClick)
+		#expect(event.parameters["id"] == .string("back"))
 		#expect(event.parameters["index"] == .int(1))
 		#expect(sut.currentPage == 0)
 		#expect(sut.id == "first")
@@ -70,8 +70,8 @@ import Testing
 		sut.skip()
 
 		let event = await analytics.waitForEvent()
-		#expect(event.name == "button_click")
-		#expect(event.parameters["button"] == .string("skip"))
+		#expect(event.name == .buttonClick)
+		#expect(event.parameters["id"] == .string("skip"))
 		#expect(event.parameters["index"] == .int(0))
 		#expect(sut.isCompleted == true)
 	}

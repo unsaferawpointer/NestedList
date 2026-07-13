@@ -16,7 +16,7 @@ public protocol AnalyticsEvent: Sendable {
 	var area: String { get }
 
 	/// Stable event name used by the analytics backend.
-	var name: String { get }
+	var name: AnalyticsEventName { get }
 
 	/// Additional typed values associated with the event.
 	var parameters: [String: AnalyticsValue] { get }

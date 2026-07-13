@@ -442,7 +442,7 @@ extension ContentPresenter: DropDelegate {
 			}
 
 			// MARK: - Analytics
-			let event: ContentAnalyticsEvent = .dragDropDrop(itemsCount: data.count, contentType: "item")
+			let event: ContentAnalyticsEvent = .dragDropInsert(itemsCount: data.count, contentType: "item")
 			Task { await analytics.track(event) }
 
 			interactor?.insertItems(data, to: destination)
@@ -452,7 +452,7 @@ extension ContentPresenter: DropDelegate {
 			}
 
 			// MARK: - Analytics
-			let event: ContentAnalyticsEvent = .dragDropDrop(itemsCount: data.count, contentType: "string")
+			let event: ContentAnalyticsEvent = .dragDropInsert(itemsCount: data.count, contentType: "string")
 			Task { await analytics.track(event) }
 
 			interactor?.insertStrings(data, to: destination)

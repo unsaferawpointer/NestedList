@@ -3,10 +3,10 @@ import CoreModule
 import Testing
 @testable import CorePresentation
 
-@MainActor struct ItemColorPickerViewModelTests { }
+@MainActor struct IconPickerViewModelTests { }
 
 // MARK: - Public Interface
-@MainActor extension ItemColorPickerViewModelTests {
+@MainActor extension IconPickerViewModelTests {
 
 	@Test func show_tracksShowEventOnce() async {
 		let analytics = PickerAnalyticsServiceMock()
@@ -17,66 +17,73 @@ import Testing
 
 		let event = await analytics.waitForEvent()
 		let events = await analytics.trackedEvents()
-		#expect(event.name == "color_picker_show")
+		#expect(event.name == .screenShow)
+		#expect(event.area == "icon_picker")
 		#expect(events.count == 1)
 	}
 
-	@Test func selectNone_tracksColorClickWithNoneRawValueAndCallsAction() async {
+	@Test func selectNone_tracksIconClickWithNoneRawValueAndCallsAction() async {
 		let analytics = PickerAnalyticsServiceMock()
-		var result: (color: ItemColor?, isSuccess: Bool)?
-		let sut = makeSUT(analytics: analytics) { color, isSuccess in
-			result = (color, isSuccess)
+		var result: (icon: IconName?, isSuccess: Bool)?
+		let sut = makeSUT(analytics: analytics) { icon, isSuccess in
+			result = (icon, isSuccess)
 		}
 
 		sut.selectNone()
 
 		let event = await analytics.waitForEvent()
-		#expect(event.name == "color_click")
+		#expect(event.name == .buttonClick)
+		#expect(event.area == "icon_picker")
+		#expect(event.parameters["id"] == .string("select_icon"))
 		#expect(event.parameters["raw_value"] == .string("none"))
-		#expect(result?.color == nil)
+		#expect(result?.icon == nil)
 		#expect(result?.isSuccess == true)
 	}
 
-	@Test func select_tracksColorClickWithRawValueAndCallsAction() async {
+	@Test func select_tracksIconClickWithRawValueAndCallsAction() async {
 		let analytics = PickerAnalyticsServiceMock()
-		var result: (color: ItemColor?, isSuccess: Bool)?
-		let sut = makeSUT(analytics: analytics) { color, isSuccess in
-			result = (color, isSuccess)
+		var result: (icon: IconName?, isSuccess: Bool)?
+		let sut = makeSUT(analytics: analytics) { icon, isSuccess in
+			result = (icon, isSuccess)
 		}
 
-		sut.select(ColorMapper.map(color: .red))
+		sut.select(IconMapper.map(icon: .star))
 
 		let event = await analytics.waitForEvent()
-		#expect(event.name == "color_click")
-		#expect(event.parameters["raw_value"] == .int(ItemColor.red.rawValue))
-		#expect(result?.color == .red)
+		#expect(event.name == .buttonClick)
+		#expect(event.area == "icon_picker")
+		#expect(event.parameters["id"] == .string("select_icon"))
+		#expect(event.parameters["raw_value"] == .int(IconName.star.rawValue))
+		#expect(result?.icon == .star)
 		#expect(result?.isSuccess == true)
 	}
 
 	@Test func cancel_tracksCancelEventAndCallsAction() async {
 		let analytics = PickerAnalyticsServiceMock()
-		var result: (color: ItemColor?, isSuccess: Bool)?
-		let sut = makeSUT(analytics: analytics) { color, isSuccess in
-			result = (color, isSuccess)
+		var result: (icon: IconName?, isSuccess: Bool)?
+		let sut = makeSUT(analytics: analytics) { icon, isSuccess in
+			result = (icon, isSuccess)
 		}
 
 		sut.cancel()
 
 		let event = await analytics.waitForEvent()
-		#expect(event.name == "color_picker_cancel_button_click")
-		#expect(result?.color == nil)
+		#expect(event.name == .buttonClick)
+		#expect(event.area == "icon_picker")
+		#expect(event.parameters["id"] == .string("cancel"))
+		#expect(result?.icon == nil)
 		#expect(result?.isSuccess == false)
 	}
 }
 
 // MARK: - Private methods
-@MainActor private extension ItemColorPickerViewModelTests {
+@MainActor private extension IconPickerViewModelTests {
 
 	func makeSUT(
 		analytics: PickerAnalyticsServiceMock,
-		action: @escaping @MainActor (ItemColor?, Bool) -> Void = { _, _ in }
-	) -> ItemColorPickerViewModel {
-		return ItemColorPickerViewModel(title: "Choose Color", analytics: analytics, action: action)
+		action: @escaping @MainActor (IconName?, Bool) -> Void = { _, _ in }
+	) -> IconPickerViewModel {
+		return IconPickerViewModel(title: "Choose Icon", analytics: analytics, action: action)
 	}
 }
 

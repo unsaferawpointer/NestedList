@@ -139,7 +139,7 @@ extension UnitPresenterTests {
 		#expect(id == expectedId)
 		#expect(moveToEnd == false)
 		#expect(sound == .mark)
-		#expect(event.name == "item_double_click")
+		#expect(event.name == .buttonClick)
 	}
 
 	@Test func test_handleDoubleClick_whenCompletionBehaviourIsMoveToEnd() {
@@ -189,8 +189,8 @@ extension UnitPresenterTests {
 			return
 		}
 
-		#expect(event.name == "subitems_show")
-		#expect(event.parameters.isEmpty)
+		#expect(event.name == .buttonClick)
+		#expect(event.parameters["id"] == .string("show_subitems"))
 	}
 }
 
@@ -246,8 +246,8 @@ extension UnitPresenterTests {
 			return
 		}
 
-		#expect(event.name == "document_show")
-		#expect(event.parameters["isRoot"] == .bool(true))
+		#expect(event.name == .screenShow)
+		#expect(event.parameters["is_root"] == .bool(true))
 	}
 
 	@Test func test_viewDidLoad_whenNestedDocument_tracksAnalytics() async {
@@ -267,8 +267,8 @@ extension UnitPresenterTests {
 			return
 		}
 
-		#expect(event.name == "document_show")
-		#expect(event.parameters["isRoot"] == .bool(false))
+		#expect(event.name == .screenShow)
+		#expect(event.parameters["is_root"] == .bool(false))
 	}
 
 	@Test func test_toolbarButtonClicked_tracksAnalytics() async {
@@ -286,7 +286,7 @@ extension UnitPresenterTests {
 			return
 		}
 
-		#expect(event.name == "button_click")
+		#expect(event.name == .buttonClick)
 		#expect(event.parameters["id"] == .string("new-item"))
 		#expect(event.parameters["source"] == .string("toolbar"))
 	}
@@ -305,7 +305,7 @@ extension UnitPresenterTests {
 			return
 		}
 
-		#expect(event.name == "menu_click")
+		#expect(event.name == .menuItemClick)
 		#expect(event.parameters["id"] == .string("delete"))
 		#expect(event.parameters["source"] == .string("context-menu"))
 	}
@@ -324,7 +324,7 @@ extension UnitPresenterTests {
 			return
 		}
 
-		#expect(event.name == "menu_click")
+		#expect(event.name == .menuItemClick)
 		#expect(event.parameters["id"] == .string("delete"))
 		#expect(event.parameters["source"] == .string("main-menu"))
 	}
@@ -619,7 +619,7 @@ extension UnitPresenterTests {
 			return
 		}
 
-		#expect(event.name == "drag_drop_move")
+		#expect(event.name == .dragDropMove)
 		#expect(event.parameters["items_count"] == .int(expectedIds.count))
 	}
 
@@ -638,7 +638,7 @@ extension UnitPresenterTests {
 			return
 		}
 
-		#expect(event.name == "drag_drop_copy")
+		#expect(event.name == .dragDropCopy)
 		#expect(event.parameters["items_count"] == .int(expectedIds.count))
 	}
 
@@ -755,7 +755,7 @@ extension UnitPresenterTests {
 			return
 		}
 
-		#expect(event.name == "drag_drop_drop")
+		#expect(event.name == .dragDropInsert)
 		#expect(event.parameters["items_count"] == .int(2))
 		#expect(event.parameters["content_type"] == .string("item"))
 	}
@@ -783,7 +783,7 @@ extension UnitPresenterTests {
 			return
 		}
 
-		#expect(event.name == "drag_drop_drop")
+		#expect(event.name == .dragDropInsert)
 		#expect(event.parameters["items_count"] == .int(2))
 		#expect(event.parameters["content_type"] == .string("string"))
 	}

@@ -29,14 +29,12 @@ extension ItemDetailsAnalyticsEvent: AnalyticsEvent {
 
 	public var area: String { "item_details" }
 
-	public var name: String {
+	public var name: AnalyticsEventName {
 		switch self {
 		case .itemDetailsShow:
-			"item_details_show"
-		case .itemDetailsCancelButtonClick:
-			"item_details_cancel_button_click"
-		case .itemDetailsSaveButtonClick:
-			"item_details_save_button_click"
+			.screenShow
+		case .itemDetailsCancelButtonClick, .itemDetailsSaveButtonClick:
+			.buttonClick
 		}
 	}
 
@@ -47,8 +45,14 @@ extension ItemDetailsAnalyticsEvent: AnalyticsEvent {
 				"initial_text_length": .int(initialTextLength),
 				"mode": .string(mode.rawValue)
 			]
-		case .itemDetailsCancelButtonClick, .itemDetailsSaveButtonClick:
-			[:]
+		case .itemDetailsCancelButtonClick:
+			[
+				"id": .string("cancel")
+			]
+		case .itemDetailsSaveButtonClick:
+			[
+				"id": .string("save")
+			]
 		}
 	}
 }

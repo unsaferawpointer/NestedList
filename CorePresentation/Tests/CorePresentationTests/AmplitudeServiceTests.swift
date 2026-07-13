@@ -54,7 +54,7 @@ extension AmplitudeServiceTests {
 		let payloadIdentifier = try #require(UUID(uuidString: "33333333-3333-3333-3333-333333333333"))
 		let payload = AnalyticsPayload(
 			id: payloadIdentifier,
-			event: TestEvent(area: "content", name: "button_click", parameters: [
+			event: TestEvent(area: "content", name: .buttonClick, parameters: [
 				"id": .string("new-item"),
 				"source": .string("toolbar"),
 				"enabled": .bool(true),
@@ -145,7 +145,7 @@ private extension AmplitudeServiceTests {
 
 	func makePayload() -> AnalyticsPayload {
 		return AnalyticsPayload(
-			event: TestEvent(area: "content", name: "button_click"),
+			event: TestEvent(area: "content", name: .buttonClick),
 			userIdentifier: UUID(),
 			sessionIdentifier: UUID(),
 			sessionStartedAt: Date()
@@ -156,10 +156,10 @@ private extension AmplitudeServiceTests {
 // MARK: - TestEvent
 private struct TestEvent {
 	let area: String
-	let name: String
+	let name: AnalyticsEventName
 	let parameters: [String: AnalyticsValue]
 
-	init(area: String, name: String, parameters: [String: AnalyticsValue] = [:]) {
+	init(area: String, name: AnalyticsEventName, parameters: [String: AnalyticsValue] = [:]) {
 		self.area = area
 		self.name = name
 		self.parameters = parameters

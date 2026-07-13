@@ -14,6 +14,12 @@
 * `dropdown_item_click` — any dropdown item selection (`id: String`, `value: String`).
 * `toggle_click` — any toggle selection (`id: String`, `value: Bool`).
 
+### Drag and Drop
+
+* `drag_drop_move` — items moved through drag and drop (`items_count: Int`).
+* `drag_drop_copy` — items copied through drag and drop (`items_count: Int`).
+* `drag_drop_insert` — external or pasteboard content inserted through drag and drop (`items_count: Int`, `content_type: String`).
+
 ### Screen Views
 
 * `screen_show` — any screen presentation (`area: String`).

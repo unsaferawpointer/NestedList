@@ -34,12 +34,12 @@ extension OnboardingAnalyticsEvent: AnalyticsEvent {
 
 	public var area: String { "onboarding" }
 
-	public var name: String {
+	public var name: AnalyticsEventName {
 		switch self {
 		case .screenShow:
-			"screen_show"
+			.screenShow
 		case .buttonClick:
-			"button_click"
+			.buttonClick
 		}
 	}
 
@@ -51,7 +51,7 @@ extension OnboardingAnalyticsEvent: AnalyticsEvent {
 			]
 		case let .buttonClick(button, index):
 			[
-				"button": .string(button.rawValue),
+				"id": .string(button.rawValue),
 				"index": .int(index)
 			]
 		}

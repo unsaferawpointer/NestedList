@@ -44,12 +44,12 @@ public enum ContentAnalyticsEvent {
 	/// - Parameter itemsCount: Number of moved items.
 	case dragDropMove(itemsCount: Int)
 
-	/// User dropped external or pasteboard content into the document.
+	/// User inserted external or pasteboard content into the document through drag and drop.
 	///
 	/// - Parameters:
 	///   - itemsCount: Number of inserted items produced by the drop.
 	///   - contentType: Type of dropped content, such as text or serialized item data.
-	case dragDropDrop(itemsCount: Int, contentType: String)
+	case dragDropInsert(itemsCount: Int, contentType: String)
 
 	#if os(macOS)
 	/// User opened an item by double-clicking it in the macOS content outline.
@@ -69,26 +69,24 @@ extension ContentAnalyticsEvent: AnalyticsEvent {
 	public var area: String { "content" }
 
 	/// Stable analytics backend event name.
-	public var name: String {
+	public var name: AnalyticsEventName {
 		switch self {
 		case .menuClick:
-			"menu_click"
+			.menuItemClick
 		case .documentShow:
-			"document_show"
-		case .subitemsShow:
-			"subitems_show"
-		case .buttonClick:
-			"button_click"
+			.screenShow
+		case .subitemsShow, .buttonClick:
+			.buttonClick
 		case .dragDropMove:
-			"drag_drop_move"
-		case .dragDropDrop:
-			"drag_drop_drop"
+			.dragDropMove
+		case .dragDropInsert:
+			.dragDropInsert
 
 		#if os(macOS)
 		case .itemDoubleClick:
-			"item_double_click"
+			.buttonClick
 		case .dragDropCopy:
-			"drag_drop_copy"
+			.dragDropCopy
 		#endif
 		}
 	}
@@ -105,10 +103,12 @@ extension ContentAnalyticsEvent: AnalyticsEvent {
 			[
 				"depth": .int(depth),
 				"total_count": .int(totalCount),
-				"isRoot": .bool(isRoot)
+				"is_root": .bool(isRoot)
 			]
 		case .subitemsShow:
-			[:]
+			[
+				"id": .string("show_subitems")
+			]
 		case let .buttonClick(id, source):
 			[
 				"id": .string(id),
@@ -118,7 +118,7 @@ extension ContentAnalyticsEvent: AnalyticsEvent {
 			[
 				"items_count": .int(itemsCount)
 			]
-		case let .dragDropDrop(itemsCount, contentType):
+		case let .dragDropInsert(itemsCount, contentType):
 			[
 				"items_count": .int(itemsCount),
 				"content_type": .string(contentType)
@@ -126,7 +126,9 @@ extension ContentAnalyticsEvent: AnalyticsEvent {
 
 		#if os(macOS)
 		case .itemDoubleClick:
-			[:]
+			[
+				"id": .string("open_item")
+			]
 		case let .dragDropCopy(itemsCount):
 			[
 				"items_count": .int(itemsCount)

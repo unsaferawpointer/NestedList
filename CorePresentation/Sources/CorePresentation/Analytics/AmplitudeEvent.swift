@@ -57,7 +57,7 @@ struct AmplitudeEvent {
 		eventProperties["area"] = .string(payload.area)
 
 		self.userID = payload.userIdentifier.uuidString
-		self.eventType = payload.name
+		self.eventType = payload.name.rawValue
 		self.time = Int64((payload.createdAt.timeIntervalSince1970 * 1000).rounded())
 		self.sessionID = Int64((payload.sessionStartedAt.timeIntervalSince1970 * 1000).rounded())
 		self.insertID = payload.id.uuidString

@@ -42,16 +42,16 @@ extension SettingsAnalyticsEvent: AnalyticsEvent {
 
 	public var area: String { "settings" }
 
-	public var name: String {
+	public var name: AnalyticsEventName {
 		switch self {
 		case .screenShow:
-			"screen_show"
+			.screenShow
 		case .buttonClick:
-			"button_click"
+			.buttonClick
 		case .dropdownItemClick:
-			"dropdown_item_click"
+			.dropdownItemClick
 		case .toggleClick:
-			"toggle_click"
+			.toggleClick
 		}
 	}
 

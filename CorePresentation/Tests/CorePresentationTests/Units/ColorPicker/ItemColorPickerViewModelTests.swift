@@ -3,10 +3,10 @@ import CoreModule
 import Testing
 @testable import CorePresentation
 
-@MainActor struct IconPickerViewModelTests { }
+@MainActor struct ItemColorPickerViewModelTests { }
 
 // MARK: - Public Interface
-@MainActor extension IconPickerViewModelTests {
+@MainActor extension ItemColorPickerViewModelTests {
 
 	@Test func show_tracksShowEventOnce() async {
 		let analytics = PickerAnalyticsServiceMock()
@@ -17,66 +17,73 @@ import Testing
 
 		let event = await analytics.waitForEvent()
 		let events = await analytics.trackedEvents()
-		#expect(event.name == "icon_picker_show")
+		#expect(event.name == .screenShow)
+		#expect(event.area == "color_picker")
 		#expect(events.count == 1)
 	}
 
-	@Test func selectNone_tracksIconClickWithNoneRawValueAndCallsAction() async {
+	@Test func selectNone_tracksColorClickWithNoneRawValueAndCallsAction() async {
 		let analytics = PickerAnalyticsServiceMock()
-		var result: (icon: IconName?, isSuccess: Bool)?
-		let sut = makeSUT(analytics: analytics) { icon, isSuccess in
-			result = (icon, isSuccess)
+		var result: (color: ItemColor?, isSuccess: Bool)?
+		let sut = makeSUT(analytics: analytics) { color, isSuccess in
+			result = (color, isSuccess)
 		}
 
 		sut.selectNone()
 
 		let event = await analytics.waitForEvent()
-		#expect(event.name == "icon_click")
+		#expect(event.name == .buttonClick)
+		#expect(event.area == "color_picker")
+		#expect(event.parameters["id"] == .string("select_color"))
 		#expect(event.parameters["raw_value"] == .string("none"))
-		#expect(result?.icon == nil)
+		#expect(result?.color == nil)
 		#expect(result?.isSuccess == true)
 	}
 
-	@Test func select_tracksIconClickWithRawValueAndCallsAction() async {
+	@Test func select_tracksColorClickWithRawValueAndCallsAction() async {
 		let analytics = PickerAnalyticsServiceMock()
-		var result: (icon: IconName?, isSuccess: Bool)?
-		let sut = makeSUT(analytics: analytics) { icon, isSuccess in
-			result = (icon, isSuccess)
+		var result: (color: ItemColor?, isSuccess: Bool)?
+		let sut = makeSUT(analytics: analytics) { color, isSuccess in
+			result = (color, isSuccess)
 		}
 
-		sut.select(IconMapper.map(icon: .star))
+		sut.select(ColorMapper.map(color: .red))
 
 		let event = await analytics.waitForEvent()
-		#expect(event.name == "icon_click")
-		#expect(event.parameters["raw_value"] == .int(IconName.star.rawValue))
-		#expect(result?.icon == .star)
+		#expect(event.name == .buttonClick)
+		#expect(event.area == "color_picker")
+		#expect(event.parameters["id"] == .string("select_color"))
+		#expect(event.parameters["raw_value"] == .int(ItemColor.red.rawValue))
+		#expect(result?.color == .red)
 		#expect(result?.isSuccess == true)
 	}
 
 	@Test func cancel_tracksCancelEventAndCallsAction() async {
 		let analytics = PickerAnalyticsServiceMock()
-		var result: (icon: IconName?, isSuccess: Bool)?
-		let sut = makeSUT(analytics: analytics) { icon, isSuccess in
-			result = (icon, isSuccess)
+		var result: (color: ItemColor?, isSuccess: Bool)?
+		let sut = makeSUT(analytics: analytics) { color, isSuccess in
+			result = (color, isSuccess)
 		}
 
 		sut.cancel()
 
 		let event = await analytics.waitForEvent()
-		#expect(event.name == "icon_picker_cancel_button_click")
-		#expect(result?.icon == nil)
+		#expect(event.name == .buttonClick)
+		#expect(event.area == "color_picker")
+		#expect(event.parameters["id"] == .string("cancel"))
+		#expect(result?.color == nil)
 		#expect(result?.isSuccess == false)
 	}
 }
 
 // MARK: - Private methods
-@MainActor private extension IconPickerViewModelTests {
+@MainActor private extension ItemColorPickerViewModelTests {
 
 	func makeSUT(
 		analytics: PickerAnalyticsServiceMock,
-		action: @escaping @MainActor (IconName?, Bool) -> Void = { _, _ in }
-	) -> IconPickerViewModel {
-		return IconPickerViewModel(title: "Choose Icon", analytics: analytics, action: action)
+		action: @escaping @MainActor (ItemColor?, Bool) -> Void = { _, _ in }
+	) -> ItemColorPickerViewModel {
+		return ItemColorPickerViewModel(title: "Choose Color", analytics: analytics, action: action)
 	}
 }
 

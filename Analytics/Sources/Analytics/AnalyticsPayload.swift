@@ -61,7 +61,7 @@ extension AnalyticsPayload {
 	}
 
 	/// Stable event name forwarded from the wrapped event.
-	public var name: String {
+	public var name: AnalyticsEventName {
 		return event.name
 	}
 

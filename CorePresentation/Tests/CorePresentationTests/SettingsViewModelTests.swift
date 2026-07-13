@@ -15,7 +15,7 @@ import Testing
 
 		let event = await analytics.waitForEvent()
 		let events = await analytics.trackedEvents()
-		#expect(event.name == "screen_show")
+		#expect(event.name == .screenShow)
 		#expect(event.area == "settings")
 		#expect(events.count == 1)
 	}
@@ -27,7 +27,7 @@ import Testing
 		sut.click(.contactDeveloper)
 
 		let event = await analytics.waitForEvent()
-		#expect(event.name == "button_click")
+		#expect(event.name == .buttonClick)
 		#expect(event.parameters["id"] == .string("contact_developer"))
 	}
 
@@ -38,7 +38,7 @@ import Testing
 		sut.setCompletionBehaviour(isMoveToEnd: true)
 
 		let event = await analytics.waitForEvent()
-		#expect(event.name == "toggle_click")
+		#expect(event.name == .toggleClick)
 		#expect(event.parameters["id"] == .string("completion_behaviour"))
 		#expect(event.parameters["value"] == .bool(true))
 		#expect(sut.settings.completionBehaviour == .moveToEnd)
@@ -62,7 +62,7 @@ import Testing
 		sut.setIconColor(.primary)
 
 		let event = await analytics.waitForEvent()
-		#expect(event.name == "dropdown_item_click")
+		#expect(event.name == .dropdownItemClick)
 		#expect(event.parameters["id"] == .string("icon_color"))
 		#expect(event.parameters["value"] == .string("primary"))
 		#expect(sut.settings.iconColor == .primary)

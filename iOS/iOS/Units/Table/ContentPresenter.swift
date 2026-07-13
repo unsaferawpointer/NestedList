@@ -378,7 +378,7 @@ extension ContentPresenter: DropDelegate {
 
 		let canLoad = contentLoader.loadItems(providers: providers) { [weak self] nodes in
 			// MARK: - Analytics
-			let event: ContentAnalyticsEvent = .dragDropDrop(itemsCount: nodes.count, contentType: "item")
+			let event: ContentAnalyticsEvent = .dragDropInsert(itemsCount: nodes.count, contentType: "item")
 			Task { await self?.analytics.track(event) }
 
 			self?.interactor?.insertNodes(nodes, to: destination)
@@ -390,7 +390,7 @@ extension ContentPresenter: DropDelegate {
 
 		_ = contentLoader.loadStrings(providers: providers) { [weak self] strings in
 			// MARK: - Analytics
-			let event: ContentAnalyticsEvent = .dragDropDrop(itemsCount: strings.count, contentType: "string")
+			let event: ContentAnalyticsEvent = .dragDropInsert(itemsCount: strings.count, contentType: "string")
 			Task { await self?.analytics.track(event) }
 
 			self?.interactor?.insertStrings(strings, to: destination)

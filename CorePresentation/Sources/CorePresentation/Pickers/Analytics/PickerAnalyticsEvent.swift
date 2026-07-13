@@ -36,31 +36,40 @@ public enum PickerAnalyticsEvent {
 // MARK: - AnalyticsEvent
 extension PickerAnalyticsEvent: AnalyticsEvent {
 
-	public var area: String { "pickers" }
-
-	public var name: String {
+	public var area: String {
 		switch self {
-		case .iconPickerShow:
-			"icon_picker_show"
-		case .colorPickerShow:
-			"color_picker_show"
-		case .iconPickerCancelButtonClick:
-			"icon_picker_cancel_button_click"
-		case .colorPickerCancelButtonClick:
-			"color_picker_cancel_button_click"
-		case .iconClick:
-			"icon_click"
-		case .colorClick:
-			"color_click"
+		case .iconPickerShow, .iconPickerCancelButtonClick, .iconClick:
+			"icon_picker"
+		case .colorPickerShow, .colorPickerCancelButtonClick, .colorClick:
+			"color_picker"
+		}
+	}
+
+	public var name: AnalyticsEventName {
+		switch self {
+		case .iconPickerShow, .colorPickerShow:
+			.screenShow
+		case .iconPickerCancelButtonClick, .colorPickerCancelButtonClick, .iconClick, .colorClick:
+			.buttonClick
 		}
 	}
 
 	public var parameters: [String: AnalyticsValue] {
 		switch self {
-		case .iconPickerShow, .colorPickerShow, .iconPickerCancelButtonClick, .colorPickerCancelButtonClick:
+		case .iconPickerShow, .colorPickerShow:
 			[:]
-		case let .iconClick(rawValue), let .colorClick(rawValue):
+		case .iconPickerCancelButtonClick, .colorPickerCancelButtonClick:
 			[
+				"id": .string("cancel")
+			]
+		case let .iconClick(rawValue):
+			[
+				"id": .string("select_icon"),
+				"raw_value": rawValue.map(AnalyticsValue.int) ?? .string("none")
+			]
+		case let .colorClick(rawValue):
+			[
+				"id": .string("select_color"),
 				"raw_value": rawValue.map(AnalyticsValue.int) ?? .string("none")
 			]
 		}

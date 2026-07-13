@@ -88,10 +88,10 @@ extension ContentPresenterTests {
 			return
 		}
 
-		#expect(event.name == "document_show")
+		#expect(event.name == .screenShow)
 		#expect(event.parameters["depth"] == 2)
 		#expect(event.parameters["total_count"] == 2)
-		#expect(event.parameters["isRoot"] == true)
+		#expect(event.parameters["is_root"] == true)
 	}
 }
 
@@ -112,7 +112,7 @@ extension ContentPresenterTests {
 			return
 		}
 
-		#expect(event.name == "menu_click")
+		#expect(event.name == .menuItemClick)
 		#expect(event.parameters["id"] == "completed-toggle")
 		#expect(event.parameters["source"] == "context-menu")
 	}
@@ -187,7 +187,7 @@ extension ContentPresenterTests {
 			return
 		}
 
-		#expect(event.name == "drag_drop_move")
+		#expect(event.name == .dragDropMove)
 		#expect(event.parameters["items_count"] == 2)
 	}
 

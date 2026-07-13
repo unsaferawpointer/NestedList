@@ -11,7 +11,7 @@ extension SettingsAnalyticsEventTests {
 		let sut = SettingsAnalyticsEvent.screenShow
 
 		#expect(sut.area == "settings")
-		#expect(sut.name == "screen_show")
+		#expect(sut.name == .screenShow)
 		#expect(sut.parameters.isEmpty)
 	}
 
@@ -25,7 +25,7 @@ extension SettingsAnalyticsEventTests {
 			let event = SettingsAnalyticsEvent.buttonClick(id: id)
 
 			#expect(event.area == "settings")
-			#expect(event.name == "button_click")
+			#expect(event.name == .buttonClick)
 			#expect(event.parameters["id"] == .string(rawValue))
 		}
 	}
@@ -34,7 +34,7 @@ extension SettingsAnalyticsEventTests {
 		let sut = SettingsAnalyticsEvent.dropdownItemClick(id: .iconColor, value: "accent")
 
 		#expect(sut.area == "settings")
-		#expect(sut.name == "dropdown_item_click")
+		#expect(sut.name == .dropdownItemClick)
 		#expect(sut.parameters["id"] == .string("icon_color"))
 		#expect(sut.parameters["value"] == .string("accent"))
 	}
@@ -43,7 +43,7 @@ extension SettingsAnalyticsEventTests {
 		let sut = SettingsAnalyticsEvent.toggleClick(id: .completionBehaviour, value: true)
 
 		#expect(sut.area == "settings")
-		#expect(sut.name == "toggle_click")
+		#expect(sut.name == .toggleClick)
 		#expect(sut.parameters["id"] == .string("completion_behaviour"))
 		#expect(sut.parameters["value"] == .bool(true))
 	}

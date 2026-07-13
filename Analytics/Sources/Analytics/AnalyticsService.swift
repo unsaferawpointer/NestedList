@@ -129,7 +129,7 @@ private extension AnalyticsService {
 
 		let message = "\n"
 			+ "📦 [Analytics]\n"
-			+ "Event: \(payload.area).\(payload.name)\n"
+			+ "Event: \(payload.area).\(payload.name.rawValue)\n"
 			+ "User: \(payload.userIdentifier)\n"
 			+ "Session: \(payload.sessionIdentifier)\n"
 			+ "Parameters:\n\(parameters)"
