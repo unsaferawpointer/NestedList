@@ -137,9 +137,9 @@ extension ContentPresenter: ListDelegate {
 
 		let isValid = cache.validate(.isStrikethrough, other: [item])
 		if isValid == true {
-			soundPlayer.play(sound: .unmark)
+			playSound(.unmark)
 		} else {
-			soundPlayer.play(sound: .mark)
+			playSound(.mark)
 		}
 		let completionBehaviour = settingsProvider.state.completionBehaviour
 		let moveToEnd = completionBehaviour == .moveToEnd
@@ -345,6 +345,13 @@ private extension ContentPresenter {
 	func delete(ids: [UUID]) {
 		interactor?.deleteItems(ids)
 	}
+
+	func playSound(_ sound: Sound) {
+		guard settingsProvider.state.soundEffects == .enabled else {
+			return
+		}
+		soundPlayer.play(sound: sound)
+	}
 }
 
 // MARK: - Support Pasteboard
@@ -415,7 +422,7 @@ extension ContentPresenter: DropDelegate {
 		let event: ContentAnalyticsEvent = .dragDropMove(itemsCount: ids.count)
 		Task { await analytics.track(event) }
 
-		soundPlayer.play(sound: .place)
+		playSound(.place)
 		interactor?.move(ids, to: destination)
 	}
 	

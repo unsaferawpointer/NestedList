@@ -43,17 +43,25 @@ extension SettingsView: View {
 
 	public var body: some View {
 		Form {
-				Section(localization.behaviorsSectionTitle) {
-					Toggle(isOn: .init(get: {
-						model.settings.completionBehaviour == .moveToEnd
-					}, set: { newValue in
-						model.setCompletionBehaviour(isMoveToEnd: newValue)
-					})) {
-						Text(localization.strikethroughBehaviourText)
-						Text(localization.strikethroughBehaviourDescription)
-					}
+			Section(localization.behaviorsSectionTitle) {
+				Toggle(isOn: .init(get: {
+					model.settings.soundEffects == .enabled
+				}, set: { newValue in
+					model.setSoundEffects(isEnabled: newValue)
+				})) {
+					Text(localization.soundEffectsText)
+					Text(localization.soundEffectsDescription)
 				}
-				Section(localization.styleSectionTitle) {
+				Toggle(isOn: .init(get: {
+					model.settings.completionBehaviour == .moveToEnd
+				}, set: { newValue in
+					model.setCompletionBehaviour(isMoveToEnd: newValue)
+				})) {
+					Text(localization.strikethroughBehaviourText)
+					Text(localization.strikethroughBehaviourDescription)
+				}
+			}
+			Section(localization.styleSectionTitle) {
 					Picker(selection: .init(get: {
 						model.settings.iconColor
 					}, set: { newValue in

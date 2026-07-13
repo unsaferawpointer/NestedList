@@ -78,6 +78,30 @@ import Testing
 		#expect(events.isEmpty)
 		#expect(sut.settings.iconColor == .neutral)
 	}
+
+	@Test func setSoundEffects_whenValueChanged_tracksToggleClick() async {
+		let analytics = SettingsAnalyticsServiceMock()
+		let sut = makeSUT(analytics: analytics)
+
+		sut.setSoundEffects(isEnabled: false)
+
+		let event = await analytics.waitForEvent()
+		#expect(event.name == .toggleClick)
+		#expect(event.parameters["id"] == .string("sound_effects"))
+		#expect(event.parameters["value"] == .bool(false))
+		#expect(sut.settings.soundEffects == .disabled)
+	}
+
+	@Test func setSoundEffects_whenValueIsSame_doesNotTrackAnalytics() async {
+		let analytics = SettingsAnalyticsServiceMock()
+		let sut = makeSUT(analytics: analytics)
+
+		sut.setSoundEffects(isEnabled: true)
+
+		let events = await analytics.trackedEvents()
+		#expect(events.isEmpty)
+		#expect(sut.settings.soundEffects == .enabled)
+	}
 }
 
 // MARK: - Private methods

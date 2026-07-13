@@ -135,6 +135,18 @@ extension ContentPresenterTests {
 		#expect(sound == .mark)
 	}
 
+	@Test func test_userDidTapMenuStrikethrough_whenSoundEffectsDisabled_doesNotPlaySound() {
+		// Arrange
+		let expectedId = UUID()
+		settingsProvider.stubs.state = Settings(soundEffects: .disabled)
+
+		// Act
+		sut.userDidTapMenu(with: .toggleStrikethrough, selection: [expectedId])
+
+		// Assert
+		#expect(soundPlayer.invocations.isEmpty)
+	}
+
 	@Test func test_userDidTapMenuStrikethrough_whenItemIsCompleted_playsUnmarkSound() {
 		// Arrange
 		let expectedId = UUID()
@@ -207,5 +219,18 @@ extension ContentPresenterTests {
 		#expect(ids == expectedIds)
 		#expect(destination == expectedDestination)
 		#expect(sound == .place)
+	}
+
+	@Test func test_moveItems_whenSoundEffectsDisabled_doesNotPlaySound() {
+		// Arrange
+		let expectedIds = [UUID(), UUID()]
+		let expectedDestination: Destination<UUID> = .toRoot
+		settingsProvider.stubs.state = Settings(soundEffects: .disabled)
+
+		// Act
+		sut.move(expectedIds, to: expectedDestination)
+
+		// Assert
+		#expect(soundPlayer.invocations.isEmpty)
 	}
 }

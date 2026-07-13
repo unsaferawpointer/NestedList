@@ -80,6 +80,15 @@ extension SettingsViewModel {
 		settings.iconColor = value
 		track(.dropdownItemClick(id: .iconColor, value: value.analyticsValue))
 	}
+
+	func setSoundEffects(isEnabled: Bool) {
+		let value: SoundEffects = isEnabled ? .enabled : .disabled
+		guard settings.soundEffects != value else {
+			return
+		}
+		settings.soundEffects = value
+		track(.toggleClick(id: .soundEffects, value: isEnabled))
+	}
 }
 
 // MARK: - Private methods

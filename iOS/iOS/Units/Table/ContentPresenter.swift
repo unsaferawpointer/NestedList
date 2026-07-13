@@ -210,7 +210,7 @@ private extension ContentPresenter {
 				return
 			}
 			self?.editingMode = nil
-			self?.soundPlayer.play(sound: .place)
+			self?.playSound(.place)
 			self?.interactor?.move(ids: selection, to: target)
 		}
 	}
@@ -248,8 +248,15 @@ private extension ContentPresenter {
 		editingMode = nil
 		let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
 		let newValue = !(cache.validate(.isStrikethrough, other: selection) ?? false)
-		soundPlayer.play(sound: newValue ? .mark : .unmark)
+		playSound(newValue ? .mark : .unmark)
 		interactor?.setStatus(newValue, for: selection, moveToEnd: moveToEnd)
+	}
+
+	func playSound(_ sound: Sound) {
+		guard settingsProvider.state.soundEffects == .enabled else {
+			return
+		}
+		soundPlayer.play(sound: sound)
 	}
 }
 
@@ -359,7 +366,7 @@ extension ContentPresenter: DropDelegate {
 		let event: ContentAnalyticsEvent = .dragDropMove(itemsCount: ids.count)
 		Task { await analytics.track(event) }
 
-		soundPlayer.play(sound: .place)
+		playSound(.place)
 		interactor?.move(ids: ids, to: destination)
 		if let target = destination.id {
 			view?.expand(target)

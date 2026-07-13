@@ -169,6 +169,18 @@ extension UnitPresenterTests {
 		#expect(sound == .unmark)
 	}
 
+	@Test func test_handleDoubleClick_whenSoundEffectsDisabled_doesNotPlaySound() {
+		// Arrange
+		let expectedId: UUID = .random
+		settingsProvider.stubs.state = Settings(soundEffects: .disabled)
+
+		// Act
+		sut.handleDoubleClick(on: expectedId)
+
+		// Assert
+		#expect(soundPlayer.invocations.isEmpty)
+	}
+
 	@Test func test_cellDidTapDisclosure_showsDocumentAndTracksAnalytics() async {
 		// Arrange
 		let id: UUID = .random
@@ -585,6 +597,19 @@ extension UnitPresenterTests {
 		#expect(ids == expectedIds)
 		#expect(destination == expectedDestination)
 		#expect(sound == .place)
+	}
+
+	@Test func test_moveItems_whenSoundEffectsDisabled_doesNotPlaySound() {
+		// Arrange
+		let expectedIds: [UUID] = [.random, .random]
+		let expectedDestination: Destination<UUID> = .toRoot
+		settingsProvider.stubs.state = Settings(soundEffects: .disabled)
+
+		// Act
+		sut.move(expectedIds, to: expectedDestination)
+
+		// Assert
+		#expect(soundPlayer.invocations.isEmpty)
 	}
 
 	@Test func test_copyItems() {

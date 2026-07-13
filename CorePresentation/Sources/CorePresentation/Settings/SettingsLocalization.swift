@@ -26,6 +26,18 @@ struct SettingsLocalization {
 		bundle: .module
 	)
 
+	let soundEffectsText = String(
+		localized: "sound-effects-text",
+		table: "SettingsLocalizable",
+		bundle: .module
+	)
+
+	let soundEffectsDescription = String(
+		localized: "sound-effects-description",
+		table: "SettingsLocalizable",
+		bundle: .module
+	)
+
 	let styleSectionTitle = String(
 		localized: "style-section-title",
 		table: "SettingsLocalizable",

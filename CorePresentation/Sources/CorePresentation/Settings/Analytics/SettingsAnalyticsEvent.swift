@@ -34,6 +34,7 @@ public extension SettingsAnalyticsEvent {
 	enum ControlIdentifier: String, Sendable {
 		case completionBehaviour = "completion_behaviour"
 		case iconColor = "icon_color"
+		case soundEffects = "sound_effects"
 	}
 }
 

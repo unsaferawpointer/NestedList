@@ -40,11 +40,18 @@ extension SettingsAnalyticsEventTests {
 	}
 
 	@Test func toggleClick_hasExpectedSchema() {
-		let sut = SettingsAnalyticsEvent.toggleClick(id: .completionBehaviour, value: true)
+		let cases: [(id: SettingsAnalyticsEvent.ControlIdentifier, rawValue: String)] = [
+			(.completionBehaviour, "completion_behaviour"),
+			(.soundEffects, "sound_effects")
+		]
 
-		#expect(sut.area == "settings")
-		#expect(sut.name == .toggleClick)
-		#expect(sut.parameters["id"] == .string("completion_behaviour"))
-		#expect(sut.parameters["value"] == .bool(true))
+		for (id, rawValue) in cases {
+			let event = SettingsAnalyticsEvent.toggleClick(id: id, value: true)
+
+			#expect(event.area == "settings")
+			#expect(event.name == .toggleClick)
+			#expect(event.parameters["id"] == .string(rawValue))
+			#expect(event.parameters["value"] == .bool(true))
+		}
 	}
 }
