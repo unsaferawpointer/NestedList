@@ -11,17 +11,42 @@ import CorePresentation
 actor ContentAnalyticsServiceMock {
 
 	private(set) var invocations: [Action] = []
+
+	private var continuation: CheckedContinuation<Action?, Never>?
 }
 
 // MARK: - ContentAnalyticsServiceProtocol
 extension ContentAnalyticsServiceMock: ContentAnalyticsServiceProtocol {
 
 	func track(_ event: ContentAnalyticsEvent) async {
-		invocations.append(.track(event))
+		append(.track(event))
 	}
 
 	func flush() async {
-		invocations.append(.flush)
+		append(.flush)
+	}
+}
+
+// MARK: - Public Interface
+extension ContentAnalyticsServiceMock {
+
+	func waitForInvocation() async -> Action? {
+		if let invocation = invocations.first {
+			return invocation
+		}
+		return await withCheckedContinuation { continuation in
+			self.continuation = continuation
+		}
+	}
+}
+
+// MARK: - Private methods
+private extension ContentAnalyticsServiceMock {
+
+	func append(_ action: Action) {
+		invocations.append(action)
+		continuation?.resume(returning: action)
+		continuation = nil
 	}
 }
 

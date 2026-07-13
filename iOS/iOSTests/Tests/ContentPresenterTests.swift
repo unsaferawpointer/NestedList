@@ -57,13 +57,7 @@ final class ContentPresenterTests {
 private extension ContentPresenterTests {
 
 	func waitForAnalyticsInvocation() async -> ContentAnalyticsServiceMock.Action? {
-		for _ in 0 ..< 10 {
-			if let invocation = await analytics.invocations.first {
-				return invocation
-			}
-			try? await Task.sleep(nanoseconds: 100_000_000)
-		}
-		return nil
+		await analytics.waitForInvocation()
 	}
 }
 

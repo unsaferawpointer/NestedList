@@ -21,11 +21,21 @@ final class ReorderViewModel {
 	@ObservationIgnored
 	var storage: DocumentStorage<Content>
 
+	@ObservationIgnored
+	private let analytics: any ReorderAnalyticsServiceProtocol
+
+	private var didTrackShow = false
+
 	// MARK: - Initialization
 
-	init(item: UUID, storage: DocumentStorage<Content>) {
+	init(
+		item: UUID,
+		storage: DocumentStorage<Content>,
+		analytics: any ReorderAnalyticsServiceProtocol
+	) {
 		self.parent = storage.state.root.parent(for: item)?.id
 		self.storage = storage
+		self.analytics = analytics
 
 		self.present(root: parent)
 		storage.addObservation(for: self) { [weak self] content in
@@ -43,15 +53,28 @@ final class ReorderViewModel {
 // MARK: - Public Interface
 extension ReorderViewModel {
 
+	func show() {
+		guard !didTrackShow else {
+			return
+		}
+		didTrackShow = true
+		track(.reorderShow(itemsCount: items.count))
+	}
+
+	func close() {
+		track(.reorderCloseButtonClick)
+	}
+
 	func move(fromOffsets source: IndexSet, toOffset destination: Int) {
 		let ids = source.map { items[$0].id }
 		storage.modificate { content in
 			content.root.moveItems(with: ids, to: .init(target: parent, index: destination))
 		}
+		track(.dragDropMove(itemsCount: ids.count))
 	}
 }
 
-// MARK: - Helpers
+// MARK: - Private methods
 private extension ReorderViewModel {
 
 	func present(root: UUID?) {
@@ -66,5 +89,12 @@ private extension ReorderViewModel {
 					icon: IconMapper.map(icon: $0.iconName, filled: true)
 				)
 			}
+	}
+
+	func track(_ event: ReorderAnalyticsEvent) {
+		let analytics = analytics
+		Task {
+			await analytics.track(event)
+		}
 	}
 }

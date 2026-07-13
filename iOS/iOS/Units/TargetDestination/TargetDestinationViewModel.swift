@@ -40,10 +40,20 @@ final class TargetDestinationViewModel {
 	@ObservationIgnored
 	var storage: DocumentStorage<Content>
 
+	@ObservationIgnored
+	private let analytics: any TargetDestinationAnalyticsServiceProtocol
+
+	private var didTrackShow = false
+
 	// MARK: - Initialization
 
-	init(storage: DocumentStorage<Content>, movingItems: Set<UUID>) {
+	init(
+		storage: DocumentStorage<Content>,
+		movingItems: Set<UUID>,
+		analytics: any TargetDestinationAnalyticsServiceProtocol
+	) {
 		self.storage = storage
+		self.analytics = analytics
 		self.excludedIds = storage.state.root.invalidTargets(movingItems: movingItems)
 
 		self.present(root: storage.state.root)
@@ -59,7 +69,36 @@ final class TargetDestinationViewModel {
 	}
 }
 
-// MARK: - Helpers
+// MARK: - Public Interface
+extension TargetDestinationViewModel {
+
+	func show() {
+		guard !didTrackShow else {
+			return
+		}
+		didTrackShow = true
+		track(
+			.targetDestinationShow(
+				availableItemsCount: filteredItems.count,
+				unavailableItemsCount: unavailableItems.count
+			)
+		)
+	}
+
+	func selectRoot() {
+		track(.rootDestinationClick)
+	}
+
+	func selectItem() {
+		track(.itemDestinationClick)
+	}
+
+	func close() {
+		track(.closeButtonClick)
+	}
+}
+
+// MARK: - Private methods
 private extension TargetDestinationViewModel {
 
 	func present(root: NodeStore<Item>) {
@@ -74,5 +113,12 @@ private extension TargetDestinationViewModel {
 					isDisabled: self.excludedIds.contains($0.id)
 				)
 			}
+	}
+
+	func track(_ event: TargetDestinationAnalyticsEvent) {
+		let analytics = analytics
+		Task {
+			await analytics.track(event)
+		}
 	}
 }
