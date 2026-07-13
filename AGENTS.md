@@ -11,6 +11,8 @@
 
 * `button_click` — any button tap (`id: String`).
 * `menu_item_click` — any context menu item selection (`id: String`).
+* `dropdown_item_click` — any dropdown item selection (`id: String`, `value: String`).
+* `toggle_click` — any toggle selection (`id: String`, `value: Bool`).
 
 ### Screen Views
 
