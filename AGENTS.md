@@ -5,6 +5,23 @@
 - Private methods should be placed in a separate extension.
 - When defining a SwiftUI view, View protocol conformance should be implemented in a separate extension.
 
+## Analytics
+
+### User Actions
+
+* `button_click` — any button tap (`id: String`).
+* `menu_item_click` — any context menu item selection (`id: String`).
+
+### Screen Views
+
+* `screen_show` — any screen presentation (`area: String`).
+
+### Naming
+
+* Use stable, descriptive values for `id` and `area`.
+* Do not introduce custom event names for these event types.
+
+
 ## Workflow
 
 - Each conversation must end with a proposed git commit message.
