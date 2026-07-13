@@ -8,20 +8,22 @@
 import SwiftUI
 
 #if os(macOS)
-struct OnboardingFooter: View {
+struct OnboardingFooter {
 
-	@Binding var state: OnboardingState
+	let state: OnboardingState
 
 	var onBack: (() -> Void)?
-
 	var secondaryAction: (() -> Void)?
-
 	var primaryAction: (() -> Void)?
+}
+
+// MARK: - View
+extension OnboardingFooter: View {
 
 	var body: some View {
 		HStack {
 
-			if state.canBack() {
+			if state.canBack {
 				Button {
 					onBack?()
 				} label: {
@@ -31,21 +33,20 @@ struct OnboardingFooter: View {
 			}
 
 			Spacer()
+				if state.canNext {
+					Button {
+						secondaryAction?()
+					} label: {
+						Text(OnboardingLocalization.skipButtonTitle)
+					}
+					.controlSize(.large)
+				}
 
-			// Кнопка Пропустить
-			Button {
-				secondaryAction?()
-			} label: {
-				Text(OnboardingLocalization.skipButtonTitle)
-			}
-			.controlSize(.large)
-
-			// Кнопка Продолжить
-			Button(action: {
-				primaryAction?()
+				Button(action: {
+					primaryAction?()
 			}) {
 				Text(
-					state.canNext()
+					state.canNext
 						? OnboardingLocalization.nextButtonTitle
 						: OnboardingLocalization.getStaredButtonTitle
 				)
@@ -60,27 +61,26 @@ struct OnboardingFooter: View {
 #endif
 
 #if os(iOS)
-struct OnboardingFooter: View {
+struct OnboardingFooter {
 
-	@Binding var state: OnboardingState
+	let state: OnboardingState
 
 	var secondaryAction: (() -> Void)?
-
 	var primaryAction: (() -> Void)?
+}
+
+// MARK: - View
+extension OnboardingFooter: View {
 
 	var body: some View {
 		VStack(spacing: 16) {
 			Button {
 				withAnimation {
-					if state.canNext() {
-						state.performPrimaryAction()
-					} else {
-						primaryAction?()
-					}
+					primaryAction?()
 				}
 			} label: {
 				Text(
-					state.canNext()
+					state.canNext
 						? OnboardingLocalization.nextButtonTitle
 						: OnboardingLocalization.getStaredButtonTitle
 				)
@@ -92,20 +92,40 @@ struct OnboardingFooter: View {
 			.foregroundStyle(.background)
 			.controlSize(.large)
 
-			Button {
-				secondaryAction?()
-			} label: {
-				Text(OnboardingLocalization.skipButtonTitle)
-					.frame(maxWidth: .infinity)
+				if state.canNext {
+					Button {
+						secondaryAction?()
+					} label: {
+						Text(OnboardingLocalization.skipButtonTitle)
+							.frame(maxWidth: .infinity)
+					}
+					.buttonStyle(.borderless)
+					.foregroundStyle(.primary)
+					.controlSize(.large)
+				}
 			}
-			.buttonStyle(.borderless)
-			.foregroundStyle(.primary)
-			.controlSize(.large)
 		}
 	}
-}
 #endif
 
 #Preview {
-	OnboardingFooter(state: .constant(.init(features: .newFormat)))
+	OnboardingFooter(state: .preview(currentPage: 1))
+}
+
+#Preview {
+	OnboardingFooter(state: .preview(currentPage: 0))
+}
+
+#Preview {
+	OnboardingFooter(state: .preview(currentPage: 2))
+}
+
+// MARK: - Preview Helpers
+private extension OnboardingState {
+
+	static func preview(currentPage: Int) -> OnboardingState {
+		var state = OnboardingState(features: .newFormat)
+		state.currentPage = currentPage
+		return state
+	}
 }

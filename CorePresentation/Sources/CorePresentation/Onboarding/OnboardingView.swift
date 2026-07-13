@@ -11,47 +11,60 @@ public struct OnboardingView {
 
 	@Environment(\.dismiss) private var dismiss
 
-	@State private var isMovingForward = true
+	@State private var viewModel: OnboardingViewModel
 
-	@State var state: OnboardingState
-
-	var onComplete: (@MainActor () -> Void)?
+	private var onComplete: (@MainActor () -> Void)?
 
 	// MARK: - Initialization
 
-	public init(features: [Feature], onComplete: (@MainActor () -> Void)?) {
-		self._state = State(initialValue: .init(features: features))
+	public init(
+		features: [Feature],
+		analytics: any OnboardingAnalyticsServiceProtocol = OnboardingAnalyticsService(),
+		onComplete: (@MainActor () -> Void)?
+	) {
+		self._viewModel = State(
+			initialValue: .init(features: features, analytics: analytics)
+		)
 		self.onComplete = onComplete
 	}
-
 }
 
 #if os(iOS)
 extension OnboardingView: View {
 
 	public var body: some View {
+		@Bindable var viewModel = viewModel
+
 		VStack {
-			TabView(selection: $state.currentPage) {
-				ForEach(0..<state.features.count) { pageIndex in
+			TabView(selection: $viewModel.currentPage) {
+				ForEach(viewModel.pageIndices, id: \.self) { pageIndex in
+					let feature = viewModel.features[pageIndex]
 					PageView(
-						systemName: state.feature.icon,
-						title: state.feature.title,
-						description: state.feature.description
+						systemName: feature.icon,
+						title: feature.title,
+						description: feature.description
 					)
 					.tag(pageIndex)
 				}
-			}
-			.tabViewStyle(.page(indexDisplayMode: .never))
-			OnboardingFooter(state: $state) {
-				dismiss()
-				onComplete?()
-			} primaryAction: {
-				dismiss()
-				onComplete?()
-			}
+				}
+				.tabViewStyle(.page(indexDisplayMode: .never))
+				OnboardingFooter(
+					state: viewModel.state,
+					secondaryAction: viewModel.skip,
+					primaryAction: viewModel.primaryAction
+				)
 			.padding()
 		}
 		.ignoresSafeArea(edges: .all)
+		.onAppear {
+			viewModel.show()
+		}
+		.onChange(of: viewModel.isCompleted) { _, isCompleted in
+			guard isCompleted else {
+				return
+			}
+			handleCompletion()
+		}
 	}
 }
 #elseif os(macOS)
@@ -61,35 +74,23 @@ extension OnboardingView: View {
 	public var body: some View {
 		VStack(spacing: 0) {
 			PageView(
-				systemName: state.feature.icon,
-				title: state.feature.title,
-				description: state.feature.description
+				systemName: viewModel.feature.icon,
+				title: viewModel.feature.title,
+				description: viewModel.feature.description
 			)
-			.id(state.id)
+			.id(viewModel.id)
 			.transition(
 				.asymmetric(insertion: .opacity, removal: .opacity)
 			)
 			Spacer(minLength: 16)
 			Divider()
 
-			OnboardingFooter(state: $state) {
-				withAnimation {
-					state.back()
-					isMovingForward = false
-				}
-			} secondaryAction: {
-				onComplete?()
-			} primaryAction: {
-				withAnimation {
-					if state.canNext() {
-						state.performPrimaryAction()
-						isMovingForward = true
-					} else {
-						onComplete?()
-					}
-				}
-			}
-
+				OnboardingFooter(
+					state: viewModel.state,
+					onBack: viewModel.back,
+					secondaryAction: viewModel.skip,
+					primaryAction: viewModel.primaryAction
+			)
 		}
 		.background(.ultraThickMaterial)
 		.frame(
@@ -100,61 +101,27 @@ extension OnboardingView: View {
 			maxHeight: 640,
 			alignment: .bottom
 		)
+		.onAppear {
+			viewModel.show()
+		}
+		.onChange(of: viewModel.isCompleted) { _, isCompleted in
+			guard isCompleted else {
+				return
+			}
+			handleCompletion()
+		}
 	}
 }
 #endif
 
-struct OnboardingState {
+// MARK: - Private methods
+private extension OnboardingView {
 
-	var features: [Feature]
-
-	var currentPage: Int
-
-	init(features: [Feature]) {
-		assert(!features.isEmpty, "Features list is empty")
-		self.features = features
-		self.currentPage = 0
-	}
-}
-
-extension OnboardingState {
-
-	var feature: Feature {
-		return features[currentPage]
-	}
-
-	func canNext() -> Bool {
-		currentPage < features.count - 1
-	}
-
-	func canBack() -> Bool {
-		currentPage > 0
-	}
-
-	var pageTitle: String {
-		return features[currentPage].title
-	}
-
-	var pageDescription: String {
-		return features[currentPage].description
-	}
-
-	var id: String {
-		return features[currentPage].id
-	}
-
-	mutating func performPrimaryAction() {
-		if currentPage < features.count - 1 {
-			withAnimation {
-				currentPage += 1
-			}
-		}
-	}
-
-	mutating func back() {
-		if currentPage > 0 {
-			currentPage -= 1
-		}
+	@MainActor func handleCompletion() {
+		#if os(iOS)
+		dismiss()
+		#endif
+		onComplete?()
 	}
 }
 
