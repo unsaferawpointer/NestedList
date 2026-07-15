@@ -35,7 +35,7 @@ protocol ContentUnitInteractorProtocol {
 
 final class ContentUnitInteractor {
 
-	private let storage: DocumentStorage<Content>
+	private let storage: DocumentStorage<DocumentContent>
 
 	var presenter: ContentPresenterProtocol?
 
@@ -47,7 +47,7 @@ final class ContentUnitInteractor {
 
 	// MARK: - Initialization
 
-	init(root: UUID?, storage: DocumentStorage<Content>) {
+	init(root: UUID?, storage: DocumentStorage<DocumentContent>) {
 		self.storage = storage
 		self.base = CommonInteractor(storage: storage)
 		self.root = root

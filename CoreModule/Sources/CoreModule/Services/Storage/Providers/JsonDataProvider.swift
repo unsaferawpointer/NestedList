@@ -19,7 +19,7 @@ public final class JsonDataProvider {
 // MARK: - ContentProvider
 extension JsonDataProvider: ContentProvider {
 
-	public func data(ofType typeName: String, content: Content) throws -> Data {
+	public func data(ofType typeName: String, content: DocumentContent) throws -> Data {
 		log("Encoding data of type '\(typeName)'…")
 
 		guard let type = DocumentType(rawValue: typeName.lowercased()) else {
@@ -42,7 +42,7 @@ extension JsonDataProvider: ContentProvider {
 		}
 	}
 
-	public func read(from data: Data, ofType typeName: String) throws -> Content {
+	public func read(from data: Data, ofType typeName: String) throws -> DocumentContent {
 		log("Decoding \(data.count) bytes of type '\(typeName)'…")
 
 		guard let type = DocumentType(rawValue: typeName.lowercased()) else {
@@ -63,7 +63,7 @@ extension JsonDataProvider: ContentProvider {
 // MARK: - Helpers
 private extension JsonDataProvider {
 
-	func migrate(_ data: Data, type: DocumentType) throws -> Content {
+	func migrate(_ data: Data, type: DocumentType) throws -> DocumentContent {
 
 		let decoder = JSONDecoder()
 		decoder.dateDecodingStrategy = .secondsSince1970
@@ -78,7 +78,7 @@ private extension JsonDataProvider {
 			throw DocumentError.unknownVersion
 		}
 
-		guard let file = try? decoder.decode(DocumentFile<Content>.self, from: data) else {
+		guard let file = try? decoder.decode(DocumentFile<DocumentContent>.self, from: data) else {
 			logError("Failed to decode document content")
 			throw DocumentError.unexpectedFormat
 		}

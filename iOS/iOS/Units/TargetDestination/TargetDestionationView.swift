@@ -17,7 +17,7 @@ struct TargetDestionationView {
 	// MARK: - Initialization
 
 	init(
-		storage: DocumentStorage<Content>,
+		storage: DocumentStorage<DocumentContent>,
 		movingItems: Set<UUID>,
 		analytics: any TargetDestinationAnalyticsServiceProtocol = TargetDestinationAnalyticsService(),
 		completionHandler: ((UUID?, Bool) -> Void)?

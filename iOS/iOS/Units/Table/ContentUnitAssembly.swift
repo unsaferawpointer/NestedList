@@ -11,7 +11,7 @@ import DesignSystem
 
 final class ContentUnitAssembly {
 
-	static func build(for root: UUID? = nil, router: ContentRouterProtocol?, storage: DocumentStorage<Content>) -> TableViewController {
+	static func build(for root: UUID? = nil, router: ContentRouterProtocol?, storage: DocumentStorage<DocumentContent>) -> TableViewController {
 
 		let interactor = ContentUnitInteractor(root: root, storage: storage)
 

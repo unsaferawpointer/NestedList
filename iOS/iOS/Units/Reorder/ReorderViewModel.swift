@@ -19,7 +19,7 @@ final class ReorderViewModel {
 	var items: [ItemViewModel] = []
 
 	@ObservationIgnored
-	var storage: DocumentStorage<Content>
+	var storage: DocumentStorage<DocumentContent>
 
 	@ObservationIgnored
 	private let analytics: any ReorderAnalyticsServiceProtocol
@@ -30,7 +30,7 @@ final class ReorderViewModel {
 
 	init(
 		item: UUID,
-		storage: DocumentStorage<Content>,
+		storage: DocumentStorage<DocumentContent>,
 		analytics: any ReorderAnalyticsServiceProtocol
 	) {
 		self.parent = storage.state.root.parent(for: item)?.id

@@ -19,7 +19,7 @@ public final class DataProvider {
 // MARK: - ContentProvider
 extension DataProvider: ContentProvider {
 
-	public func data(ofType typeName: String, content: Content) throws -> Data {
+	public func data(ofType typeName: String, content: DocumentContent) throws -> Data {
 		log("Writing data of type '\(typeName)'…")
 		do {
 			let provider = try provider(for: typeName)
@@ -32,7 +32,7 @@ extension DataProvider: ContentProvider {
 		}
 	}
 
-	public func read(from data: Data, ofType typeName: String) throws -> Content {
+	public func read(from data: Data, ofType typeName: String) throws -> DocumentContent {
 		log("Reading \(data.count) bytes of type '\(typeName)'…")
 		do {
 			let provider = try provider(for: typeName)
@@ -49,7 +49,7 @@ extension DataProvider: ContentProvider {
 // MARK: - Helpers
 private extension DataProvider {
 
-	func provider(for typeName: String) throws -> any ContentProvider<Content> {
+	func provider(for typeName: String) throws -> any ContentProvider<DocumentContent> {
 		guard let type = DocumentType(rawValue: typeName.lowercased()) else {
 			logError("Unexpected document type '\(typeName)'")
 			throw DocumentError.unexpectedFormat

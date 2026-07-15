@@ -31,11 +31,11 @@ final class ContentRouter {
 
 	unowned var root: UIViewController
 
-	unowned var storage: DocumentStorage<Content>
+	unowned var storage: DocumentStorage<DocumentContent>
 
 	// MARK: - Initialization
 
-	init(root: UIViewController, storage: DocumentStorage<Content>) {
+	init(root: UIViewController, storage: DocumentStorage<DocumentContent>) {
 		self.root = root
 		self.storage = storage
 	}

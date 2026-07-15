@@ -17,8 +17,8 @@ class Document: UIDocument {
 
 	// MARK: - DI
 
-	lazy var storage: DocumentStorage<Content> = {
-		return DocumentStorage<Content>(
+	lazy var storage: DocumentStorage<DocumentContent> = {
+		return DocumentStorage<DocumentContent>(
 			stateProvider: StateProvider(initialState: .empty),
 			contentProvider: DataProvider(),
 			undoManager: undoManager

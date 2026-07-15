@@ -162,7 +162,7 @@ private extension ContentInteractorTests {
 
 	func makeSUT(root: UUID? = nil, base: CommonInteractorMock) -> ContentInteractor {
 		let storage = DocumentStorage(
-			stateProvider: StateProvider(initialState: Content.empty),
+			stateProvider: StateProvider(initialState: DocumentContent.empty),
 			contentProvider: JsonDataProvider(),
 			undoManager: nil
 		)

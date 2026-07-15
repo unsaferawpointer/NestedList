@@ -23,7 +23,7 @@ public final class TextDataProvider {
 // MARK: - ContentProvider
 extension TextDataProvider: ContentProvider {
 
-	public func data(ofType typeName: String, content: Content) throws -> Data {
+	public func data(ofType typeName: String, content: DocumentContent) throws -> Data {
 		log("Formatting content of type '\(typeName)'…")
 
 		let text = content.root.nodes.map {
@@ -35,7 +35,7 @@ extension TextDataProvider: ContentProvider {
 		return data
 	}
 
-	public func read(from data: Data, ofType typeName: String) throws -> Content {
+	public func read(from data: Data, ofType typeName: String) throws -> DocumentContent {
 		log("Parsing \(data.count) bytes of type '\(typeName)'…")
 
 		guard let type = DocumentType(rawValue: typeName.lowercased()), type == .text else {
@@ -53,7 +53,7 @@ extension TextDataProvider: ContentProvider {
 		return .init(uuid: UUID(), nodes: nodes)
 	}
 
-	public func data(of content: Content) throws -> Data {
+	public func data(of content: DocumentContent) throws -> Data {
 		log("Formatting content…")
 
 		let text = content.root.nodes.map {
@@ -65,7 +65,7 @@ extension TextDataProvider: ContentProvider {
 		return data
 	}
 
-	public func read(from data: Data) throws -> Content {
+	public func read(from data: Data) throws -> DocumentContent {
 		log("Parsing \(data.count) bytes…")
 
 		guard let string = String(data: data, encoding: .utf8) else {

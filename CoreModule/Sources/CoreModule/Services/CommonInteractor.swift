@@ -35,9 +35,9 @@ public protocol CommonInteractorProtocol {
 
 public final class CommonInteractor {
 
-	private let storage: DocumentStorage<Content>
+	private let storage: DocumentStorage<DocumentContent>
 
-	public init(storage: DocumentStorage<Content>) {
+	public init(storage: DocumentStorage<DocumentContent>) {
 		self.storage = storage
 	}
 }

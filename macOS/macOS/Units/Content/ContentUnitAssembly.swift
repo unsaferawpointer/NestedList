@@ -12,7 +12,7 @@ import DesignSystem
 final class ContentUnitAssembly {
 
 	@MainActor
-	static func build(for root: UUID? = nil, storage: DocumentStorage<Content>) -> ContentViewController {
+	static func build(for root: UUID? = nil, storage: DocumentStorage<DocumentContent>) -> ContentViewController {
 
 		let interactor = ContentInteractor(storage: storage, root: root)
 		return ContentViewController { viewController in

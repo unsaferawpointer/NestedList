@@ -34,11 +34,11 @@ final class ContentRouter {
 
 	unowned var root: NSViewController
 
-	private let storage: DocumentStorage<Content>
+	private let storage: DocumentStorage<DocumentContent>
 
 	// MARK: - Initialization
 
-	init(root: NSViewController, storage: DocumentStorage<Content>) {
+	init(root: NSViewController, storage: DocumentStorage<DocumentContent>) {
 		self.root = root
 		self.storage = storage
 	}

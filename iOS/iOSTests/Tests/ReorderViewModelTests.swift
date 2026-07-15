@@ -91,7 +91,7 @@ private extension ReorderViewModelTests {
 		analytics: ReorderAnalyticsServiceMock
 	) -> ReorderViewModel {
 		let nodes = items.map { Node(value: $0) }
-		let content = Content(uuid: UUID(), nodes: nodes)
+		let content = DocumentContent(uuid: UUID(), nodes: nodes)
 		let storage = DocumentStorage(
 			stateProvider: StateProvider(initialState: content),
 			contentProvider: ContentProviderMock(),
@@ -164,11 +164,11 @@ private final class ContentProviderMock { }
 // MARK: - ContentProvider
 extension ContentProviderMock: ContentProvider {
 
-	func data(ofType typeName: String, content: Content) throws -> Data {
+	func data(ofType typeName: String, content: DocumentContent) throws -> Data {
 		try JSONEncoder().encode(content)
 	}
 
-	func read(from data: Data, ofType typeName: String) throws -> Content {
-		try JSONDecoder().decode(Content.self, from: data)
+	func read(from data: Data, ofType typeName: String) throws -> DocumentContent {
+		try JSONDecoder().decode(DocumentContent.self, from: data)
 	}
 }

@@ -38,7 +38,7 @@ final class TargetDestinationViewModel {
 	var items: [ItemViewModel] = []
 
 	@ObservationIgnored
-	var storage: DocumentStorage<Content>
+	var storage: DocumentStorage<DocumentContent>
 
 	@ObservationIgnored
 	private let analytics: any TargetDestinationAnalyticsServiceProtocol
@@ -48,7 +48,7 @@ final class TargetDestinationViewModel {
 	// MARK: - Initialization
 
 	init(
-		storage: DocumentStorage<Content>,
+		storage: DocumentStorage<DocumentContent>,
 		movingItems: Set<UUID>,
 		analytics: any TargetDestinationAnalyticsServiceProtocol
 	) {

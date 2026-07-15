@@ -1,5 +1,5 @@
 //
-//  Content.swift
+//  DocumentContent.swift
 //  CoreModule
 //
 //  Created by Anton Cherkasov on 16.11.2024.
@@ -8,7 +8,7 @@
 import Foundation
 import Hierarchy
 
-public struct Content {
+public struct DocumentContent {
 
 	public var uuid: UUID?
 
@@ -30,18 +30,18 @@ public struct Content {
 }
 
 // MARK: - Templates
-public extension Content {
+public extension DocumentContent {
 
-	static var empty: Content {
+	static var empty: DocumentContent {
 		return .init(uuid: UUID())
 	}
 }
 
 // MARK: - Equatable
-extension Content: Equatable { }
+extension DocumentContent: Equatable { }
 
 // MARK: - Codable
-extension Content: Codable {
+extension DocumentContent: Codable {
 
 	enum CodingKeys: CodingKey {
 		case items
@@ -66,7 +66,7 @@ extension Content: Codable {
 }
 
 // MARK: - Nested structs
-public extension Content {
+public extension DocumentContent {
 
 	enum ContentView: Int, Codable {
 		case list = 0

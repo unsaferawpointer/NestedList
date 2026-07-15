@@ -40,7 +40,7 @@ protocol ContentInteractorProtocol {
 
 @MainActor final class ContentInteractor {
 
-	private let storage: DocumentStorage<Content>
+	private let storage: DocumentStorage<DocumentContent>
 
 	weak var presenter: ContentPresenterProtocol?
 
@@ -52,7 +52,7 @@ protocol ContentInteractorProtocol {
 
 	// MARK: - Initialization
 
-	init(storage: DocumentStorage<Content>, root: UUID? = nil) {
+	init(storage: DocumentStorage<DocumentContent>, root: UUID? = nil) {
 		self.storage = storage
 		self.base = CommonInteractor(storage: storage)
 		self.root = root

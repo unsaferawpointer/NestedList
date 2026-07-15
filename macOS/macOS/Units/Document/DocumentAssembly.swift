@@ -11,7 +11,7 @@ import CoreModule
 final class DocumentAssembly {
 
 	@MainActor
-	static func build(storage: DocumentStorage<Content>) -> NSViewController {
+	static func build(storage: DocumentStorage<DocumentContent>) -> NSViewController {
 		ContentUnitAssembly.build(storage: storage)
 	}
 }

@@ -20,7 +20,7 @@ struct ReorderView {
 
 	init(
 		item: UUID,
-		storage: DocumentStorage<Content>,
+		storage: DocumentStorage<DocumentContent>,
 		analytics: any ReorderAnalyticsServiceProtocol = ReorderAnalyticsService(),
 		completionHandler: (() -> Void)?
 	) {
