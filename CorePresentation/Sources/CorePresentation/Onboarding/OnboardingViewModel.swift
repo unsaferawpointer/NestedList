@@ -16,7 +16,7 @@ final class OnboardingViewModel {
 
 	// MARK: - Analytics
 
-	private let analytics: any OnboardingAnalyticsServiceProtocol
+	private let analytics: any ConcreteAnalyticsServiceProtocol<OnboardingAnalyticsEvent>
 
 	private var didTrackShow = false
 
@@ -24,7 +24,7 @@ final class OnboardingViewModel {
 
 	init(
 		features: [Feature],
-		analytics: any OnboardingAnalyticsServiceProtocol
+		analytics: any ConcreteAnalyticsServiceProtocol<OnboardingAnalyticsEvent>
 	) {
 		self.state = .init(features: features)
 		self.analytics = analytics

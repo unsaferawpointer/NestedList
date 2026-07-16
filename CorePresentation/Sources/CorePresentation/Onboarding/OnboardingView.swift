@@ -19,7 +19,7 @@ public struct OnboardingView {
 
 	public init(
 		features: [Feature],
-		analytics: any OnboardingAnalyticsServiceProtocol = OnboardingAnalyticsService(),
+		analytics: any ConcreteAnalyticsServiceProtocol<OnboardingAnalyticsEvent> = ConcreteAnalyticsService<OnboardingAnalyticsEvent>(),
 		onComplete: (@MainActor () -> Void)?
 	) {
 		self._viewModel = State(

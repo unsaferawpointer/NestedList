@@ -1,5 +1,5 @@
 //
-//  ContentAnalyticsServiceMock.swift
+//  ContentAnalyticsMock.swift
 //  macOSTests
 //
 //  Created by Anton Cherkasov on 30.06.2026.
@@ -8,13 +8,13 @@
 import CorePresentation
 @testable import Nested_List
 
-actor ContentAnalyticsServiceMock {
+actor ContentAnalyticsMock {
 
 	private(set) var invocations: [Action] = []
 }
 
-// MARK: - ContentAnalyticsServiceProtocol
-extension ContentAnalyticsServiceMock: ContentAnalyticsServiceProtocol {
+// MARK: - ConcreteAnalyticsServiceProtocol<ContentAnalyticsEvent>
+extension ContentAnalyticsMock: ConcreteAnalyticsServiceProtocol<ContentAnalyticsEvent> {
 
 	func track(_ event: ContentAnalyticsEvent) async {
 		invocations.append(.track(event))
@@ -26,7 +26,7 @@ extension ContentAnalyticsServiceMock: ContentAnalyticsServiceProtocol {
 }
 
 // MARK: - Nested data structs
-extension ContentAnalyticsServiceMock {
+extension ContentAnalyticsMock {
 
 	enum Action {
 		case track(ContentAnalyticsEvent)

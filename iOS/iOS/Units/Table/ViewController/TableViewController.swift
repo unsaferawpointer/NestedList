@@ -36,7 +36,7 @@ class TableViewController: UIViewController {
 
 	// MARK: - Initialization
 
-	init(id: UUID?, configure: (TableViewController) -> Void) {
+	init(id: UUID?, configure: @MainActor (TableViewController) -> Void) {
 		self.id = id
 		super.init(nibName: nil, bundle: nil)
 		configure(self)

@@ -21,7 +21,7 @@ final class SettingsViewModel: ObservableObject {
 
 	// MARK: - Analytics
 
-	private let analytics: any SettingsAnalyticsServiceProtocol
+	private let analytics: any ConcreteAnalyticsServiceProtocol<SettingsAnalyticsEvent>
 
 	private var didTrackShow = false
 
@@ -29,7 +29,7 @@ final class SettingsViewModel: ObservableObject {
 
 	init(
 		provider: SettingsProvider,
-		analytics: any SettingsAnalyticsServiceProtocol
+		analytics: any ConcreteAnalyticsServiceProtocol<SettingsAnalyticsEvent>
 	) {
 		self.settings = provider.state
 		self.provider = provider

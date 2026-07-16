@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CorePresentation
 import CoreModule
 
 struct TargetDestionationView {
@@ -19,7 +20,7 @@ struct TargetDestionationView {
 	init(
 		storage: DocumentStorage<DocumentContent>,
 		movingItems: Set<UUID>,
-		analytics: any TargetDestinationAnalyticsServiceProtocol = TargetDestinationAnalyticsService(),
+		analytics: any ConcreteAnalyticsServiceProtocol<TargetDestinationAnalyticsEvent> = ConcreteAnalyticsService<TargetDestinationAnalyticsEvent>(),
 		completionHandler: ((UUID?, Bool) -> Void)?
 	) {
 		self.model = TargetDestinationViewModel(

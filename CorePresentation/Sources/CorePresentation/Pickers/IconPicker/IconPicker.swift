@@ -17,7 +17,7 @@ import DesignSystem
 
 	public init(
 		title: String,
-		analytics: any PickerAnalyticsServiceProtocol = PickerAnalyticsService(),
+		analytics: any ConcreteAnalyticsServiceProtocol<PickerAnalyticsEvent> = ConcreteAnalyticsService<PickerAnalyticsEvent>(),
 		action: @escaping @MainActor (IconName?, Bool) -> Void
 	) {
 		self.model = IconPickerViewModel(title: title, analytics: analytics, action: action)

@@ -39,7 +39,7 @@ final class ContentPresenter {
 
 	private(set) var settingsProvider: any StateProviderProtocol<Settings>
 
-	private(set) var analytics: any ContentAnalyticsServiceProtocol
+	private(set) var analytics: any ConcreteAnalyticsServiceProtocol<ContentAnalyticsEvent>
 
 	private(set) var soundPlayer: any SoundPlayerProtocol
 
@@ -57,7 +57,7 @@ final class ContentPresenter {
 		router: any ContentRouterProtocol,
 		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared,
 		localization: ContentLocalizationProtocol = ContentLocalization(),
-		analytics: any ContentAnalyticsServiceProtocol = ContentAnalyticsService(),
+		analytics: any ConcreteAnalyticsServiceProtocol<ContentAnalyticsEvent> = ConcreteAnalyticsService<ContentAnalyticsEvent>(),
 		soundPlayer: any SoundPlayerProtocol
 	) {
 		self.router = router

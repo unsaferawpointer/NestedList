@@ -17,7 +17,7 @@ final class ItemDetailsViewModel {
 	let icons: [SemanticImage]
 
 	private let completionHandler: (ItemDetailsView.Properties, Bool) -> Void
-	private let analytics: any ItemDetailsAnalyticsServiceProtocol
+	private let analytics: any ConcreteAnalyticsServiceProtocol<ItemDetailsAnalyticsEvent>
 
 	// MARK: - Analytics
 
@@ -28,7 +28,7 @@ final class ItemDetailsViewModel {
 
 	init(
 		item: ItemDetailsView.Model,
-		analytics: any ItemDetailsAnalyticsServiceProtocol,
+		analytics: any ConcreteAnalyticsServiceProtocol<ItemDetailsAnalyticsEvent>,
 		completionHandler: @escaping (ItemDetailsView.Properties, Bool) -> Void
 	) {
 		self.item = item

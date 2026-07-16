@@ -8,8 +8,9 @@
 import Foundation
 import CoreModule
 import DesignSystem
+import CorePresentation
 
-final class ContentUnitAssembly {
+@MainActor final class ContentUnitAssembly {
 
 	static func build(for root: UUID? = nil, router: ContentRouterProtocol?, storage: DocumentStorage<DocumentContent>) -> TableViewController {
 
@@ -22,6 +23,7 @@ final class ContentUnitAssembly {
 					root: viewController,
 					storage: storage
 				),
+				analytics: ConcreteAnalyticsService(),
 				soundPlayer: SoundPlayer.shared
 			)
 			presenter.interactor = interactor

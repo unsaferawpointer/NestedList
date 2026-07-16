@@ -16,7 +16,7 @@ import Foundation
 	let colors: [ColorToken]
 
 	private let action: @MainActor (ItemColor?, Bool) -> Void
-	private let analytics: any PickerAnalyticsServiceProtocol
+	private let analytics: any ConcreteAnalyticsServiceProtocol<PickerAnalyticsEvent>
 
 	private var didTrackShow = false
 
@@ -24,7 +24,7 @@ import Foundation
 
 	init(
 		title: String,
-		analytics: any PickerAnalyticsServiceProtocol,
+		analytics: any ConcreteAnalyticsServiceProtocol<PickerAnalyticsEvent>,
 		action: @escaping @MainActor (ItemColor?, Bool) -> Void
 	) {
 		self.title = title

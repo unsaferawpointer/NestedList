@@ -19,7 +19,7 @@ final class ReorderViewModelTests {
 		// Arrange
 		let first = Item(text: "First")
 		let second = Item(text: "Second")
-		let analytics = ReorderAnalyticsServiceMock()
+		let analytics = ReorderAnalyticsMock()
 		let sut = makeSUT(items: [first, second], selected: first.id, analytics: analytics)
 
 		// Act
@@ -40,7 +40,7 @@ final class ReorderViewModelTests {
 	@Test func test_close_tracksButtonClick() async {
 		// Arrange
 		let item = Item(text: "First")
-		let analytics = ReorderAnalyticsServiceMock()
+		let analytics = ReorderAnalyticsMock()
 		let sut = makeSUT(items: [item], selected: item.id, analytics: analytics)
 
 		// Act
@@ -63,7 +63,7 @@ final class ReorderViewModelTests {
 		let first = Item(text: "First")
 		let second = Item(text: "Second")
 		let third = Item(text: "Third")
-		let analytics = ReorderAnalyticsServiceMock()
+		let analytics = ReorderAnalyticsMock()
 		let sut = makeSUT(items: [first, second, third], selected: first.id, analytics: analytics)
 
 		// Act
@@ -88,7 +88,7 @@ private extension ReorderViewModelTests {
 	func makeSUT(
 		items: [Item],
 		selected: UUID,
-		analytics: ReorderAnalyticsServiceMock
+		analytics: ReorderAnalyticsMock
 	) -> ReorderViewModel {
 		let nodes = items.map { Node(value: $0) }
 		let content = DocumentContent(uuid: UUID(), nodes: nodes)
@@ -105,22 +105,22 @@ private extension ReorderViewModelTests {
 	}
 
 	func waitForAnalyticsInvocation(
-		in analytics: ReorderAnalyticsServiceMock
-	) async -> ReorderAnalyticsServiceMock.Action? {
+		in analytics: ReorderAnalyticsMock
+	) async -> ReorderAnalyticsMock.Action? {
 		await analytics.waitForInvocation()
 	}
 }
 
-// MARK: - ReorderAnalyticsServiceMock
-private actor ReorderAnalyticsServiceMock {
+// MARK: - ReorderAnalyticsMock
+private actor ReorderAnalyticsMock {
 
 	private(set) var invocations: [Action] = []
 
 	private var continuation: CheckedContinuation<Action?, Never>?
 }
 
-// MARK: - ReorderAnalyticsServiceProtocol
-extension ReorderAnalyticsServiceMock: ReorderAnalyticsServiceProtocol {
+// MARK: - ConcreteAnalyticsServiceProtocol<ReorderAnalyticsEvent>
+extension ReorderAnalyticsMock: ConcreteAnalyticsServiceProtocol<ReorderAnalyticsEvent> {
 
 	func track(_ event: ReorderAnalyticsEvent) async {
 		append(.track(event))
@@ -128,7 +128,7 @@ extension ReorderAnalyticsServiceMock: ReorderAnalyticsServiceProtocol {
 }
 
 // MARK: - Public Interface
-private extension ReorderAnalyticsServiceMock {
+private extension ReorderAnalyticsMock {
 
 	func waitForInvocation() async -> Action? {
 		if let invocation = invocations.first {
@@ -141,7 +141,7 @@ private extension ReorderAnalyticsServiceMock {
 }
 
 // MARK: - Private methods
-private extension ReorderAnalyticsServiceMock {
+private extension ReorderAnalyticsMock {
 
 	func append(_ action: Action) {
 		invocations.append(action)
@@ -151,7 +151,7 @@ private extension ReorderAnalyticsServiceMock {
 }
 
 // MARK: - Nested data structs
-private extension ReorderAnalyticsServiceMock {
+private extension ReorderAnalyticsMock {
 
 	enum Action {
 		case track(ReorderAnalyticsEvent)

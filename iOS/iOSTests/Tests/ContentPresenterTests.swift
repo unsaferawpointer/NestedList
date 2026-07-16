@@ -24,7 +24,7 @@ final class ContentPresenterTests {
 	var interactor: ContentUnitInteractorMock!
 	var router: ContentRouterMock!
 	var settingsProvider: StateProviderMock<Settings>!
-	var analytics: ContentAnalyticsServiceMock!
+	var analytics: ContentAnalyticsMock!
 	var soundPlayer: SoundPlayerMock!
 
 	init() {
@@ -32,7 +32,7 @@ final class ContentPresenterTests {
 		router = ContentRouterMock()
 		settingsProvider = StateProviderMock<Settings>()
 		settingsProvider.stubs.state = Settings()
-		analytics = ContentAnalyticsServiceMock()
+		analytics = ContentAnalyticsMock()
 		soundPlayer = SoundPlayerMock()
 		sut = ContentPresenter(
 			router: router,
@@ -56,7 +56,7 @@ final class ContentPresenterTests {
 // MARK: - Helpers
 private extension ContentPresenterTests {
 
-	func waitForAnalyticsInvocation() async -> ContentAnalyticsServiceMock.Action? {
+	func waitForAnalyticsInvocation() async -> ContentAnalyticsMock.Action? {
 		await analytics.waitForInvocation()
 	}
 }

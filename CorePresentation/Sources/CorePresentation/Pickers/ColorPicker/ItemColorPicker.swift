@@ -17,7 +17,7 @@ import CoreModule
 
 	public init(
 		title: String,
-		analytics: any PickerAnalyticsServiceProtocol = PickerAnalyticsService(),
+		analytics: any ConcreteAnalyticsServiceProtocol<PickerAnalyticsEvent> = ConcreteAnalyticsService<PickerAnalyticsEvent>(),
 		action: @escaping @MainActor (ItemColor?, Bool) -> Void
 	) {
 		self.model = ItemColorPickerViewModel(title: title, analytics: analytics, action: action)

@@ -9,7 +9,7 @@ import Testing
 @MainActor extension IconPickerViewModelTests {
 
 	@Test func show_tracksShowEventOnce() async {
-		let analytics = PickerAnalyticsServiceMock()
+		let analytics = PickerAnalyticsMock()
 		let sut = makeSUT(analytics: analytics)
 
 		sut.show()
@@ -23,7 +23,7 @@ import Testing
 	}
 
 	@Test func selectNone_tracksIconClickWithNoneRawValueAndCallsAction() async {
-		let analytics = PickerAnalyticsServiceMock()
+		let analytics = PickerAnalyticsMock()
 		var result: (icon: IconName?, isSuccess: Bool)?
 		let sut = makeSUT(analytics: analytics) { icon, isSuccess in
 			result = (icon, isSuccess)
@@ -41,7 +41,7 @@ import Testing
 	}
 
 	@Test func select_tracksIconClickWithRawValueAndCallsAction() async {
-		let analytics = PickerAnalyticsServiceMock()
+		let analytics = PickerAnalyticsMock()
 		var result: (icon: IconName?, isSuccess: Bool)?
 		let sut = makeSUT(analytics: analytics) { icon, isSuccess in
 			result = (icon, isSuccess)
@@ -59,7 +59,7 @@ import Testing
 	}
 
 	@Test func cancel_tracksCancelEventAndCallsAction() async {
-		let analytics = PickerAnalyticsServiceMock()
+		let analytics = PickerAnalyticsMock()
 		var result: (icon: IconName?, isSuccess: Bool)?
 		let sut = makeSUT(analytics: analytics) { icon, isSuccess in
 			result = (icon, isSuccess)
@@ -80,15 +80,15 @@ import Testing
 @MainActor private extension IconPickerViewModelTests {
 
 	func makeSUT(
-		analytics: PickerAnalyticsServiceMock,
+		analytics: PickerAnalyticsMock,
 		action: @escaping @MainActor (IconName?, Bool) -> Void = { _, _ in }
 	) -> IconPickerViewModel {
 		return IconPickerViewModel(title: "Choose Icon", analytics: analytics, action: action)
 	}
 }
 
-// MARK: - PickerAnalyticsServiceMock
-private actor PickerAnalyticsServiceMock {
+// MARK: - PickerAnalyticsMock
+private actor PickerAnalyticsMock {
 	private var events: [PickerAnalyticsEvent] = []
 	private var eventContinuation: CheckedContinuation<PickerAnalyticsEvent, Never>?
 
@@ -102,7 +102,7 @@ private actor PickerAnalyticsServiceMock {
 }
 
 // MARK: - Private methods
-private extension PickerAnalyticsServiceMock {
+private extension PickerAnalyticsMock {
 
 	func nextEvent() async -> PickerAnalyticsEvent {
 		if let event = events.first {
@@ -114,8 +114,8 @@ private extension PickerAnalyticsServiceMock {
 	}
 }
 
-// MARK: - PickerAnalyticsServiceProtocol
-extension PickerAnalyticsServiceMock: PickerAnalyticsServiceProtocol {
+// MARK: - ConcreteAnalyticsServiceProtocol<PickerAnalyticsEvent>
+extension PickerAnalyticsMock: ConcreteAnalyticsServiceProtocol<PickerAnalyticsEvent> {
 
 	func track(_ event: PickerAnalyticsEvent) async {
 		events.append(event)

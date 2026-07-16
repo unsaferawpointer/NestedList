@@ -98,8 +98,8 @@ private extension ItemDetailsAnalyticsServiceMock {
 	}
 }
 
-// MARK: - ItemDetailsAnalyticsServiceProtocol
-extension ItemDetailsAnalyticsServiceMock: ItemDetailsAnalyticsServiceProtocol {
+// MARK: - ConcreteAnalyticsServiceProtocol<ItemDetailsAnalyticsEvent>
+extension ItemDetailsAnalyticsServiceMock: ConcreteAnalyticsServiceProtocol<ItemDetailsAnalyticsEvent> {
 
 	func track(_ event: ItemDetailsAnalyticsEvent) async {
 		events.append(event)

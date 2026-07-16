@@ -16,7 +16,7 @@ import Foundation
 	let icons: [SemanticImage]
 
 	private let action: @MainActor (IconName?, Bool) -> Void
-	private let analytics: any PickerAnalyticsServiceProtocol
+	private let analytics: any ConcreteAnalyticsServiceProtocol<PickerAnalyticsEvent>
 
 	private var didTrackShow = false
 
@@ -24,7 +24,7 @@ import Foundation
 
 	init(
 		title: String,
-		analytics: any PickerAnalyticsServiceProtocol,
+		analytics: any ConcreteAnalyticsServiceProtocol<PickerAnalyticsEvent>,
 		action: @escaping @MainActor (IconName?, Bool) -> Void
 	) {
 		self.title = title

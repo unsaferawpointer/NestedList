@@ -40,7 +40,7 @@ final class ContentPresenter {
 
 	private(set) var soundPlayer: any SoundPlayerProtocol
 
-	private(set) var analytics: any ContentAnalyticsServiceProtocol
+	private(set) var analytics: any ConcreteAnalyticsServiceProtocol<ContentAnalyticsEvent>
 
 	var editingMode: EditingMode? {
 		didSet {
@@ -58,7 +58,7 @@ final class ContentPresenter {
 	init(
 		router: ContentRouterProtocol,
 		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared,
-		analytics: any ContentAnalyticsServiceProtocol = ContentAnalyticsService(),
+		analytics: any ConcreteAnalyticsServiceProtocol<ContentAnalyticsEvent>,
 		soundPlayer: any SoundPlayerProtocol
 	) {
 		self.router = router

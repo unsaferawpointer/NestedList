@@ -9,6 +9,7 @@ import Testing
 import Foundation
 import CoreModule
 import Hierarchy
+import CorePresentation
 @testable import iOS
 
 @MainActor
@@ -18,7 +19,7 @@ final class TargetDestinationViewModelTests {
 		// Arrange
 		let first = Item(text: "First")
 		let second = Item(text: "Second")
-		let analytics = TargetDestinationAnalyticsServiceMock()
+		let analytics = TargetDestinationAnalyticsMock()
 		let sut = makeSUT(items: [first, second], movingItems: [first.id], analytics: analytics)
 
 		// Act
@@ -40,7 +41,7 @@ final class TargetDestinationViewModelTests {
 	@Test func test_selectRoot_tracksButtonClick() async {
 		// Arrange
 		let item = Item(text: "First")
-		let analytics = TargetDestinationAnalyticsServiceMock()
+		let analytics = TargetDestinationAnalyticsMock()
 		let sut = makeSUT(items: [item], movingItems: [], analytics: analytics)
 
 		// Act
@@ -61,7 +62,7 @@ final class TargetDestinationViewModelTests {
 	@Test func test_selectItem_tracksButtonClick() async {
 		// Arrange
 		let item = Item(text: "First")
-		let analytics = TargetDestinationAnalyticsServiceMock()
+		let analytics = TargetDestinationAnalyticsMock()
 		let sut = makeSUT(items: [item], movingItems: [], analytics: analytics)
 
 		// Act
@@ -82,7 +83,7 @@ final class TargetDestinationViewModelTests {
 	@Test func test_close_tracksButtonClick() async {
 		// Arrange
 		let item = Item(text: "First")
-		let analytics = TargetDestinationAnalyticsServiceMock()
+		let analytics = TargetDestinationAnalyticsMock()
 		let sut = makeSUT(items: [item], movingItems: [], analytics: analytics)
 
 		// Act
@@ -107,7 +108,7 @@ private extension TargetDestinationViewModelTests {
 	func makeSUT(
 		items: [Item],
 		movingItems: Set<UUID>,
-		analytics: TargetDestinationAnalyticsServiceMock
+		analytics: TargetDestinationAnalyticsMock
 	) -> TargetDestinationViewModel {
 		let nodes = items.map { Node(value: $0) }
 		let content = DocumentContent(uuid: UUID(), nodes: nodes)
@@ -124,22 +125,22 @@ private extension TargetDestinationViewModelTests {
 	}
 
 	func waitForAnalyticsInvocation(
-		in analytics: TargetDestinationAnalyticsServiceMock
-	) async -> TargetDestinationAnalyticsServiceMock.Action? {
+		in analytics: TargetDestinationAnalyticsMock
+	) async -> TargetDestinationAnalyticsMock.Action? {
 		await analytics.waitForInvocation()
 	}
 }
 
-// MARK: - TargetDestinationAnalyticsServiceMock
-private actor TargetDestinationAnalyticsServiceMock {
+// MARK: - TargetDestinationAnalyticsMock
+private actor TargetDestinationAnalyticsMock {
 
 	private(set) var invocations: [Action] = []
 
 	private var continuation: CheckedContinuation<Action?, Never>?
 }
 
-// MARK: - TargetDestinationAnalyticsServiceProtocol
-extension TargetDestinationAnalyticsServiceMock: TargetDestinationAnalyticsServiceProtocol {
+// MARK: - ConcreteAnalyticsServiceProtocol<TargetDestinationAnalyticsEvent>
+extension TargetDestinationAnalyticsMock: ConcreteAnalyticsServiceProtocol<TargetDestinationAnalyticsEvent> {
 
 	func track(_ event: TargetDestinationAnalyticsEvent) async {
 		append(.track(event))
@@ -147,7 +148,7 @@ extension TargetDestinationAnalyticsServiceMock: TargetDestinationAnalyticsServi
 }
 
 // MARK: - Public Interface
-private extension TargetDestinationAnalyticsServiceMock {
+private extension TargetDestinationAnalyticsMock {
 
 	func waitForInvocation() async -> Action? {
 		if let invocation = invocations.first {
@@ -160,7 +161,7 @@ private extension TargetDestinationAnalyticsServiceMock {
 }
 
 // MARK: - Private methods
-private extension TargetDestinationAnalyticsServiceMock {
+private extension TargetDestinationAnalyticsMock {
 
 	func append(_ action: Action) {
 		invocations.append(action)
@@ -170,7 +171,7 @@ private extension TargetDestinationAnalyticsServiceMock {
 }
 
 // MARK: - Nested data structs
-private extension TargetDestinationAnalyticsServiceMock {
+private extension TargetDestinationAnalyticsMock {
 
 	enum Action {
 		case track(TargetDestinationAnalyticsEvent)

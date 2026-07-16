@@ -7,7 +7,7 @@ import Testing
 @MainActor extension SettingsViewModelTests {
 
 	@Test func show_tracksShowEventOnce() async {
-		let analytics = SettingsAnalyticsServiceMock()
+		let analytics = SettingsAnalyticsMock()
 		let sut = makeSUT(analytics: analytics)
 
 		sut.show()
@@ -21,7 +21,7 @@ import Testing
 	}
 
 	@Test func click_tracksButtonClick() async {
-		let analytics = SettingsAnalyticsServiceMock()
+		let analytics = SettingsAnalyticsMock()
 		let sut = makeSUT(analytics: analytics)
 
 		sut.click(.contactDeveloper)
@@ -32,7 +32,7 @@ import Testing
 	}
 
 	@Test func setCompletionBehaviour_whenValueChanged_tracksToggleClick() async {
-		let analytics = SettingsAnalyticsServiceMock()
+		let analytics = SettingsAnalyticsMock()
 		let sut = makeSUT(analytics: analytics)
 
 		sut.setCompletionBehaviour(isMoveToEnd: true)
@@ -45,7 +45,7 @@ import Testing
 	}
 
 	@Test func setCompletionBehaviour_whenValueIsSame_doesNotTrackAnalytics() async {
-		let analytics = SettingsAnalyticsServiceMock()
+		let analytics = SettingsAnalyticsMock()
 		let sut = makeSUT(analytics: analytics)
 
 		sut.setCompletionBehaviour(isMoveToEnd: false)
@@ -56,7 +56,7 @@ import Testing
 	}
 
 	@Test func setIconColor_whenValueChanged_tracksDropdownItemClick() async {
-		let analytics = SettingsAnalyticsServiceMock()
+		let analytics = SettingsAnalyticsMock()
 		let sut = makeSUT(analytics: analytics)
 
 		sut.setIconColor(.primary)
@@ -69,7 +69,7 @@ import Testing
 	}
 
 	@Test func setIconColor_whenValueIsSame_doesNotTrackAnalytics() async {
-		let analytics = SettingsAnalyticsServiceMock()
+		let analytics = SettingsAnalyticsMock()
 		let sut = makeSUT(analytics: analytics)
 
 		sut.setIconColor(.neutral)
@@ -80,7 +80,7 @@ import Testing
 	}
 
 	@Test func setSoundEffects_whenValueChanged_tracksToggleClick() async {
-		let analytics = SettingsAnalyticsServiceMock()
+		let analytics = SettingsAnalyticsMock()
 		let sut = makeSUT(analytics: analytics)
 
 		sut.setSoundEffects(isEnabled: false)
@@ -93,7 +93,7 @@ import Testing
 	}
 
 	@Test func setSoundEffects_whenValueIsSame_doesNotTrackAnalytics() async {
-		let analytics = SettingsAnalyticsServiceMock()
+		let analytics = SettingsAnalyticsMock()
 		let sut = makeSUT(analytics: analytics)
 
 		sut.setSoundEffects(isEnabled: true)
@@ -107,15 +107,15 @@ import Testing
 // MARK: - Private methods
 @MainActor private extension SettingsViewModelTests {
 
-	func makeSUT(analytics: SettingsAnalyticsServiceMock) -> SettingsViewModel {
+	func makeSUT(analytics: SettingsAnalyticsMock) -> SettingsViewModel {
 		let provider = SettingsProvider()
 		provider.state = Settings(completionBehaviour: .regular, iconColor: .neutral)
 		return SettingsViewModel(provider: provider, analytics: analytics)
 	}
 }
 
-// MARK: - SettingsAnalyticsServiceMock
-private actor SettingsAnalyticsServiceMock {
+// MARK: - SettingsAnalyticsMock
+private actor SettingsAnalyticsMock {
 	private var events: [SettingsAnalyticsEvent] = []
 	private var eventContinuation: CheckedContinuation<SettingsAnalyticsEvent, Never>?
 
@@ -129,7 +129,7 @@ private actor SettingsAnalyticsServiceMock {
 }
 
 // MARK: - Private methods
-private extension SettingsAnalyticsServiceMock {
+private extension SettingsAnalyticsMock {
 
 	func nextEvent() async -> SettingsAnalyticsEvent {
 		if let event = events.first {
@@ -141,8 +141,8 @@ private extension SettingsAnalyticsServiceMock {
 	}
 }
 
-// MARK: - SettingsAnalyticsServiceProtocol
-extension SettingsAnalyticsServiceMock: SettingsAnalyticsServiceProtocol {
+// MARK: - ConcreteAnalyticsServiceProtocol<SettingsAnalyticsEvent>
+extension SettingsAnalyticsMock: ConcreteAnalyticsServiceProtocol<SettingsAnalyticsEvent> {
 
 	func track(_ event: SettingsAnalyticsEvent) async {
 		events.append(event)

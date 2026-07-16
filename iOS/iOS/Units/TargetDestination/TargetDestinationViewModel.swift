@@ -41,7 +41,7 @@ final class TargetDestinationViewModel {
 	var storage: DocumentStorage<DocumentContent>
 
 	@ObservationIgnored
-	private let analytics: any TargetDestinationAnalyticsServiceProtocol
+	private let analytics: any ConcreteAnalyticsServiceProtocol<TargetDestinationAnalyticsEvent>
 
 	private var didTrackShow = false
 
@@ -50,7 +50,7 @@ final class TargetDestinationViewModel {
 	init(
 		storage: DocumentStorage<DocumentContent>,
 		movingItems: Set<UUID>,
-		analytics: any TargetDestinationAnalyticsServiceProtocol
+		analytics: any ConcreteAnalyticsServiceProtocol<TargetDestinationAnalyticsEvent>
 	) {
 		self.storage = storage
 		self.analytics = analytics

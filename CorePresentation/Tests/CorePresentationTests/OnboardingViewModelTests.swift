@@ -7,7 +7,7 @@ import Testing
 @MainActor extension OnboardingViewModelTests {
 
 	@Test func show_tracksShowEventOnce() async {
-		let analytics = OnboardingAnalyticsServiceMock()
+		let analytics = OnboardingAnalyticsMock()
 		let sut = makeSUT(analytics: analytics)
 
 		sut.show()
@@ -21,7 +21,7 @@ import Testing
 	}
 
 	@Test func primaryAction_whenCanNext_movesForwardWithoutTrackingAnalytics() async {
-		let analytics = OnboardingAnalyticsServiceMock()
+		let analytics = OnboardingAnalyticsMock()
 		let sut = makeSUT(analytics: analytics)
 
 		sut.primaryAction()
@@ -34,7 +34,7 @@ import Testing
 	}
 
 	@Test func primaryAction_whenCannotNext_tracksGetStartedAndCompletes() async {
-		let analytics = OnboardingAnalyticsServiceMock()
+		let analytics = OnboardingAnalyticsMock()
 		let sut = makeSUT(analytics: analytics)
 		sut.currentPage = 1
 
@@ -49,7 +49,7 @@ import Testing
 	}
 
 	@Test func back_whenCanBack_tracksBackAndMovesBack() async {
-		let analytics = OnboardingAnalyticsServiceMock()
+		let analytics = OnboardingAnalyticsMock()
 		let sut = makeSUT(analytics: analytics)
 		sut.currentPage = 1
 
@@ -64,7 +64,7 @@ import Testing
 	}
 
 	@Test func skip_tracksSkipAndCompletes() async {
-		let analytics = OnboardingAnalyticsServiceMock()
+		let analytics = OnboardingAnalyticsMock()
 		let sut = makeSUT(analytics: analytics)
 
 		sut.skip()
@@ -80,7 +80,7 @@ import Testing
 // MARK: - Private methods
 @MainActor private extension OnboardingViewModelTests {
 
-	func makeSUT(analytics: OnboardingAnalyticsServiceMock) -> OnboardingViewModel {
+	func makeSUT(analytics: OnboardingAnalyticsMock) -> OnboardingViewModel {
 		return OnboardingViewModel(features: features, analytics: analytics)
 	}
 
@@ -102,8 +102,8 @@ import Testing
 	}
 }
 
-// MARK: - OnboardingAnalyticsServiceMock
-private actor OnboardingAnalyticsServiceMock {
+// MARK: - OnboardingAnalyticsMock
+private actor OnboardingAnalyticsMock {
 	private var events: [OnboardingAnalyticsEvent] = []
 	private var eventContinuation: CheckedContinuation<OnboardingAnalyticsEvent, Never>?
 
@@ -117,7 +117,7 @@ private actor OnboardingAnalyticsServiceMock {
 }
 
 // MARK: - Private methods
-private extension OnboardingAnalyticsServiceMock {
+private extension OnboardingAnalyticsMock {
 
 	func nextEvent() async -> OnboardingAnalyticsEvent {
 		if let event = events.first {
@@ -129,8 +129,8 @@ private extension OnboardingAnalyticsServiceMock {
 	}
 }
 
-// MARK: - OnboardingAnalyticsServiceProtocol
-extension OnboardingAnalyticsServiceMock: OnboardingAnalyticsServiceProtocol {
+// MARK: - ConcreteAnalyticsServiceProtocol<OnboardingAnalyticsEvent>
+extension OnboardingAnalyticsMock: ConcreteAnalyticsServiceProtocol<OnboardingAnalyticsEvent> {
 
 	func track(_ event: OnboardingAnalyticsEvent) async {
 		events.append(event)

@@ -22,7 +22,7 @@ final class ReorderViewModel {
 	var storage: DocumentStorage<DocumentContent>
 
 	@ObservationIgnored
-	private let analytics: any ReorderAnalyticsServiceProtocol
+	private let analytics: any ConcreteAnalyticsServiceProtocol<ReorderAnalyticsEvent>
 
 	private var didTrackShow = false
 
@@ -31,7 +31,7 @@ final class ReorderViewModel {
 	init(
 		item: UUID,
 		storage: DocumentStorage<DocumentContent>,
-		analytics: any ReorderAnalyticsServiceProtocol
+		analytics: any ConcreteAnalyticsServiceProtocol<ReorderAnalyticsEvent>
 	) {
 		self.parent = storage.state.root.parent(for: item)?.id
 		self.storage = storage
@@ -58,11 +58,11 @@ extension ReorderViewModel {
 			return
 		}
 		didTrackShow = true
-		track(.reorderShow(itemsCount: items.count))
+		track(.show(itemsCount: items.count))
 	}
 
 	func close() {
-		track(.reorderCloseButtonClick)
+		track(.closeButtonClick)
 	}
 
 	func move(fromOffsets source: IndexSet, toOffset destination: Int) {

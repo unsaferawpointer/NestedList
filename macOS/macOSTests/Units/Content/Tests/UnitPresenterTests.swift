@@ -26,7 +26,7 @@ final class UnitPresenterTests {
 	var interactor: UnitInteractorMock!
 	var router: UnitRouterMock!
 	var settingsProvider: StateProviderMock<Settings>!
-	var analytics: ContentAnalyticsServiceMock!
+	var analytics: ContentAnalyticsMock!
 	var soundPlayer: SoundPlayerMock!
 
 	init() {
@@ -34,7 +34,7 @@ final class UnitPresenterTests {
 		interactor = UnitInteractorMock()
 		router = UnitRouterMock()
 		settingsProvider = StateProviderMock<Settings>()
-		analytics = ContentAnalyticsServiceMock()
+		analytics = ContentAnalyticsMock()
 		soundPlayer = SoundPlayerMock()
 		sut = ContentPresenter(
 			router: router,
@@ -861,7 +861,7 @@ private extension UnitPresenterTests {
 		Snapshot([.init(value: .random), .init(value: .random)])
 	}
 
-	func waitForAnalyticsInvocation() async -> ContentAnalyticsServiceMock.Action? {
+	func waitForAnalyticsInvocation() async -> ContentAnalyticsMock.Action? {
 		for _ in 0..<10 {
 			if let invocation = await analytics.invocations.first {
 				return invocation

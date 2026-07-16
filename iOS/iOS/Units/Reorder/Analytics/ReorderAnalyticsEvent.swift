@@ -13,10 +13,10 @@ enum ReorderAnalyticsEvent {
 	/// Reorder screen became visible to the user.
 	///
 	/// - Parameter itemsCount: Number of reorderable sibling items shown on the screen.
-	case reorderShow(itemsCount: Int)
+	case show(itemsCount: Int)
 
-	/// User clicked the reorder close button.
-	case reorderCloseButtonClick
+	/// User clicked the close button.
+	case closeButtonClick
 
 	/// User moved items through the reorder list drag control.
 	///
@@ -31,22 +31,19 @@ extension ReorderAnalyticsEvent: AnalyticsEvent {
 
 	var name: AnalyticsEventName {
 		switch self {
-		case .reorderShow:
-			.screenShow
-		case .reorderCloseButtonClick:
-			.buttonClick
-		case .dragDropMove:
-			.dragDropMove
+		case .show:					.screenShow
+		case .closeButtonClick:		.buttonClick
+		case .dragDropMove:			.dragDropMove
 		}
 	}
 
 	var parameters: [String: AnalyticsValue] {
 		switch self {
-		case let .reorderShow(itemsCount):
+		case let .show(itemsCount):
 			[
 				"items_count": .int(itemsCount)
 			]
-		case .reorderCloseButtonClick:
+		case .closeButtonClick:
 			[
 				"id": .string("close")
 			]

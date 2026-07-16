@@ -22,7 +22,7 @@ public struct ItemDetailsView {
 
 	public init(
 		item: Model,
-		analytics: any ItemDetailsAnalyticsServiceProtocol = ItemDetailsAnalyticsService(),
+		analytics: any ConcreteAnalyticsServiceProtocol<ItemDetailsAnalyticsEvent> = ConcreteAnalyticsService<ItemDetailsAnalyticsEvent>(),
 		completionHandler: @escaping (Properties, Bool) -> Void
 	) {
 		self._model = State(

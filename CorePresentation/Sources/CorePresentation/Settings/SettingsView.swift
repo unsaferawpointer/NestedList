@@ -31,7 +31,7 @@ public struct SettingsView {
 	public init(
 		provider: SettingsProvider,
 		infoProvider: InfoProvider = AppInfo(),
-		analytics: any SettingsAnalyticsServiceProtocol = SettingsAnalyticsService()
+		analytics: any ConcreteAnalyticsServiceProtocol<SettingsAnalyticsEvent> = ConcreteAnalyticsService<SettingsAnalyticsEvent>()
 	) {
 		self.model = SettingsViewModel(provider: provider, analytics: analytics)
 		self.infoProvider = infoProvider

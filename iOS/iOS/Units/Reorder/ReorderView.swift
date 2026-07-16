@@ -21,7 +21,7 @@ struct ReorderView {
 	init(
 		item: UUID,
 		storage: DocumentStorage<DocumentContent>,
-		analytics: any ReorderAnalyticsServiceProtocol = ReorderAnalyticsService(),
+		analytics: any ConcreteAnalyticsServiceProtocol<ReorderAnalyticsEvent> = ConcreteAnalyticsService<ReorderAnalyticsEvent>(),
 		completionHandler: (() -> Void)?
 	) {
 		self.model = ReorderViewModel.init(
