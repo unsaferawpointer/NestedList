@@ -26,9 +26,9 @@ extension TextDataProvider: ContentProvider {
 	public func data(ofType typeName: String, content: DocumentContent) throws -> Data {
 		log("Formatting content of type '\(typeName)'…")
 
-		let text = content.root.nodes.map {
-			parser.format($0)
-		}.joined(separator: "\n")
+		let text = content.tree()
+			.map { parser.format($0) }
+			.joined(separator: "\n")
 
 		let data = text.data(using: .utf8)!
 		log("Formatted \(data.count) bytes of type '\(typeName)'")
@@ -56,9 +56,9 @@ extension TextDataProvider: ContentProvider {
 	public func data(of content: DocumentContent) throws -> Data {
 		log("Formatting content…")
 
-		let text = content.root.nodes.map {
-			parser.format($0)
-		}.joined(separator: "\n")
+		let text = content.tree()
+			.map { parser.format($0) }
+			.joined(separator: "\n")
 
 		let data = text.data(using: .utf8)!
 		log("Formatted \(data.count) bytes")

@@ -14,7 +14,7 @@ public struct DocumentContent {
 
 	public var view: ContentView
 
-	public var root: NodeStore<Item>
+	private var root: NodeStore<Item>
 
 	// MARK: - Initialization
 
@@ -26,6 +26,87 @@ public struct DocumentContent {
 		self.uuid = uuid
 		self.root = NodeStore<Item>(hierarchy: nodes)
 		self.view = view
+	}
+}
+
+// MARK: - Subscript
+public extension DocumentContent {
+
+	subscript(id: UUID) -> Item? {
+		return root[id]
+	}
+}
+
+// MARK: - Public Interface
+public extension DocumentContent {
+
+	func snapshot() -> Snapshot<Item> {
+		root.snapshot()
+	}
+
+	func insertItems(with contents: [Item], to destination: Destination<UUID>) {
+		root.insertItems(with: contents, to: destination)
+	}
+
+	func insertItems(from data: [any TreeNode<Item>], to destination: Destination<UUID>) {
+		root.insertItems(from: data, to: destination)
+	}
+
+	func insertItems(from data: [Data], to destination: Destination<UUID>) {
+		root.insertItems(from: data, to: destination)
+	}
+
+	func validateMoving(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
+		root.validateMoving(ids, to: destination)
+	}
+
+	func moveItems(with ids: [UUID], to destination: Destination<UUID>) {
+		root.moveItems(with: ids, to: destination)
+	}
+
+	func moveToEnd(_ ids: [UUID]) {
+		root.moveToEnd(ids)
+	}
+
+	func invalidTargets(movingItems ids: Set<UUID>) -> Set<UUID> {
+		root.invalidTargets(movingItems: ids)
+	}
+
+	func deleteItems(_ ids: [UUID]) {
+		root.deleteItems(ids)
+	}
+
+	func parent(for id: UUID?) -> Item? {
+		root.parent(for: id)
+	}
+
+	func setProperty<T>(
+		_ keyPath: WritableKeyPath<Item, T>,
+		to value: T,
+		for ids: [UUID],
+		downstream: Bool = false
+	) {
+		root.setProperty(keyPath, to: value, for: ids, downstream: downstream)
+	}
+
+	func copiedDisjointSubtrees(with ids: [UUID]) -> [any TreeNode<Item>] {
+		root.copiedDisjointSubtrees(with: ids)
+	}
+
+	func tree() -> [any TreeNode<Item>] {
+		root.nodes
+	}
+
+	func copy(ids: [UUID], to destination: Destination<UUID>) {
+		root.copy(ids: ids, to: destination)
+	}
+
+	func allMatch<T: Equatable>(id: UUID, keyPath: KeyPath<Item, T>, equalsTo value: T) -> Bool {
+		root.allMatch(id: id, keyPath: keyPath, equalsTo: value)
+	}
+
+	func encode(id: UUID) -> Data? {
+		root.encode(id: id)
 	}
 }
 

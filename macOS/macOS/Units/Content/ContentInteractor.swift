@@ -61,14 +61,14 @@ protocol ContentInteractorProtocol {
 				return
 			}
 			if let id = root {
-				if let item = content.root[id] {
+				if let item = content[id] {
 					self.presenter?.presentRoot(item: item)
 				} else {
 					self.presenter?.close()
 					return
 				}
 			}
-			let snapshot = content.root
+			let snapshot = content
 				.snapshot()
 				.withRoot(parent: self.root)
 			self.presenter?.present(snapshot)
@@ -84,10 +84,10 @@ protocol ContentInteractorProtocol {
 extension ContentInteractor: ContentInteractorProtocol {
 
 	func fetchData() -> (Item?, Snapshot<Item>) {
-		let snapshot = storage.state.root
+		let snapshot = storage.state
 			.snapshot()
 			.withRoot(parent: root)
-		guard let id = root, let item = storage.state.root[id] else {
+		guard let id = root, let item = storage.state[id] else {
 			return (nil, snapshot)
 		}
 		return (item, snapshot)

@@ -54,11 +54,11 @@ final class TargetDestinationViewModel {
 	) {
 		self.storage = storage
 		self.analytics = analytics
-		self.excludedIds = storage.state.root.invalidTargets(movingItems: movingItems)
+		self.excludedIds = storage.state.invalidTargets(movingItems: movingItems)
 
-		self.present(root: storage.state.root)
+		self.present(content: storage.state)
 		storage.addObservation(for: self) { [weak self] content in
-			self?.present(root: content.root)
+			self?.present(content: content)
 		}
 	}
 
@@ -101,8 +101,8 @@ extension TargetDestinationViewModel {
 // MARK: - Private methods
 private extension TargetDestinationViewModel {
 
-	func present(root: NodeStore<Item>) {
-		self.items = storage.state.root
+	func present(content: DocumentContent) {
+		self.items = storage.state
 			.snapshot()
 			.flattened { _ in true }.map {
 				ItemViewModel(

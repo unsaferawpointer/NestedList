@@ -56,10 +56,10 @@ final class ContentUnitInteractor {
 				return
 			}
 			Task { @MainActor [weak self] in
-				let snapshot = content.root.snapshot()
+				let snapshot = content.snapshot()
 					.withRoot(parent: root)
 				self?.presenter?.present(snapshot: snapshot)
-				if let root, let item = content.root[root] {
+				if let root, let item = content[root] {
 					self?.presenter?.presentRoot(item: item)
 				}
 			}
@@ -75,10 +75,10 @@ final class ContentUnitInteractor {
 extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 
 	func fetchData() -> (Item?, Snapshot<Item>) {
-		let snapshot = storage.state.root
+		let snapshot = storage.state
 			.snapshot()
 			.withRoot(parent: root)
-		guard let id = root, let item = storage.state.root[id] else {
+		guard let id = root, let item = storage.state[id] else {
 			return (nil, snapshot)
 		}
 		return (item, snapshot)
@@ -90,7 +90,7 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 	}
 
 	func item(for id: UUID) -> Item {
-		guard let item = storage.state.root[id] else {
+		guard let item = storage.state[id] else {
 			fatalError()
 		}
 		return item

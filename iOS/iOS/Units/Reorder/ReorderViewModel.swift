@@ -33,7 +33,7 @@ final class ReorderViewModel {
 		storage: DocumentStorage<DocumentContent>,
 		analytics: any ConcreteAnalyticsServiceProtocol<ReorderAnalyticsEvent>
 	) {
-		self.parent = storage.state.root.parent(for: item)?.id
+		self.parent = storage.state.parent(for: item)?.id
 		self.storage = storage
 		self.analytics = analytics
 
@@ -68,7 +68,7 @@ extension ReorderViewModel {
 	func move(fromOffsets source: IndexSet, toOffset destination: Int) {
 		let ids = source.map { items[$0].id }
 		storage.modificate { content in
-			content.root.moveItems(with: ids, to: .init(target: parent, index: destination))
+			content.moveItems(with: ids, to: .init(target: parent, index: destination))
 		}
 		track(.dragDropMove(itemsCount: ids.count))
 	}
@@ -78,7 +78,7 @@ extension ReorderViewModel {
 private extension ReorderViewModel {
 
 	func present(root: UUID?) {
-		self.items = storage.state.root
+		self.items = storage.state
 			.snapshot()
 			.children(of: root)
 			.map {
