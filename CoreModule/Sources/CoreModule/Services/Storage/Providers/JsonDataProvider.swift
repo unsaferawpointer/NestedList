@@ -78,6 +78,10 @@ private extension JsonDataProvider {
 			throw DocumentError.unknownVersion
 		}
 
+		if let key = CodingUserInfoKey.documentVersion {
+			decoder.userInfo[key] = versionedFile.version
+		}
+
 		guard let file = try? decoder.decode(DocumentFile<DocumentContent>.self, from: data) else {
 			logError("Failed to decode document content")
 			throw DocumentError.unexpectedFormat
@@ -94,4 +98,9 @@ private extension JsonDataProvider {
 	func logError(_ message: String) {
 		logger.error("📄 \(message, privacy: .public)")
 	}
+}
+
+extension CodingUserInfoKey {
+
+	static let documentVersion = CodingUserInfoKey(rawValue: "documentVersion")
 }

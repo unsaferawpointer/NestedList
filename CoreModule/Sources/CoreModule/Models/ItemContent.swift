@@ -1,5 +1,5 @@
 //
-//  ItemV2.swift
+//  ItemContent.swift
 //  CoreModule
 //
 //  Created by Anton Cherkasov on 16.11.2024.
@@ -8,7 +8,7 @@
 import Foundation
 import Hierarchy
 
-public struct ItemV2 {
+public struct ItemContent {
 
 	public var uuid: UUID
 
@@ -53,7 +53,7 @@ public struct ItemV2 {
 }
 
 // MARK: - Identifiable
-extension ItemV2: Identifiable {
+extension ItemContent: Identifiable {
 
 	public var id: UUID {
 		uuid
@@ -61,10 +61,10 @@ extension ItemV2: Identifiable {
 }
 
 // MARK: - Public Interface
-public extension ItemV2 {
+public extension ItemContent {
 
-	func copy(with newId: UUID = .init()) -> ItemV2 {
-		return ItemV2(
+	func copy(with newId: UUID = .init()) -> ItemContent {
+		return ItemContent(
 			uuid: newId,
 			text: text,
 			note: note,
@@ -76,7 +76,7 @@ public extension ItemV2 {
 }
 
 // MARK: - Computed properties
-public extension ItemV2 {
+public extension ItemContent {
 
 	var isStrikethrough: Bool {
 		get { options.contains(.strikethrough) }
@@ -109,7 +109,7 @@ public extension ItemV2 {
 }
 
 // MARK: - Codable
-extension ItemV2: Codable {
+extension ItemContent: Codable {
 	
 	enum CodingKeys: String, CodingKey {
 		case uuid
@@ -123,26 +123,30 @@ extension ItemV2: Codable {
 	
 	public init(from decoder: any Decoder) throws {
 		let container = try decoder.container(keyedBy: CodingKeys.self)
-		
+
 		self.uuid = try container.decode(UUID.self, forKey: .uuid)
 		self.text = try container.decode(String.self, forKey: .text)
 		self.note = try container.decodeIfPresent(String.self, forKey: .note)
 		self.options = try container.decode(ItemOptions.self, forKey: .options)
-		
-		let decodedIconName = try? container.decodeIfPresent(IconName.self, forKey: .iconName)
-		let decodedTintColor = try? container.decodeIfPresent(ItemColor.self, forKey: .tintColor)
-		
-		if let style = try container.decodeIfPresent(ItemStyle.self, forKey: .style),
-		   case let .section(icon) = style {
-			self.iconName = decodedIconName ?? icon?.name
-			if options.contains(.marked) {
-				self.tintColor = .yellow
-			} else {
-				self.tintColor = decodedTintColor ?? icon?.color
+
+		guard let key = CodingUserInfoKey.documentVersion, let version = decoder.userInfo[key] as? Version else {
+			throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "No document version found"))
+		}
+
+		// MARK: - Versioning
+
+		switch version.major {
+		case 1:
+			let style = try container.decode(ItemStyle.self, forKey: .style)
+			if case let .section(icon) = style {
+				self.iconName = icon?.name
+				self.tintColor = options.contains(.marked) ? .yellow : icon?.color
 			}
-		} else {
-			self.iconName = decodedIconName
-			self.tintColor = decodedTintColor
+		case 2:
+			self.iconName = try? container.decodeIfPresent(IconName.self, forKey: .iconName)
+			self.tintColor = try? container.decodeIfPresent(ItemColor.self, forKey: .tintColor)
+		default:
+			throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "Unsupported document version: \(version)"))
 		}
 	}
 	
@@ -158,7 +162,7 @@ extension ItemV2: Codable {
 }
 
 // MARK: - IdentifiableValue
-extension ItemV2: IdentifiableValue {
+extension ItemContent: IdentifiableValue {
 
 	public mutating func generateId() {
 		self.uuid = UUID()
@@ -166,7 +170,7 @@ extension ItemV2: IdentifiableValue {
 }
 
 // MARK: - Nested data structs
-public extension ItemV2 {
+public extension ItemContent {
 
 	enum Style: Int, Codable {
 		case item
