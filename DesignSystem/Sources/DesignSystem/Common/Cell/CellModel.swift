@@ -37,8 +37,9 @@ extension CellModel where Value: Identifiable {
 #elseif os(iOS)
 
 import UIKit
+import Hierarchy
 
-public protocol CellModel: Identifiable, Hashable {
+public protocol CellModel: MutableIdentifiable, Hashable {
 
 	associatedtype Cell: ListCell where Cell.Model == Self
 

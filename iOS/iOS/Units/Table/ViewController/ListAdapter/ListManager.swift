@@ -26,7 +26,7 @@ protocol CacheDelegate<Model>: AnyObject {
 }
 
 @MainActor
-final class ListManager<Model: CellModel & IdentifiableValue> {
+final class ListManager<Model: CellModel> where Model.ID: RandomizableIdentifier {
 
 	unowned var tableView: UITableView
 

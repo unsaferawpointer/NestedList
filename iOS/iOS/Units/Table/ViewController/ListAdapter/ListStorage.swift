@@ -9,7 +9,7 @@ import Foundation
 import DesignSystem
 import Hierarchy
 
-final class ListStorage<Model: CellModel & IdentifiableValue> {
+final class ListStorage<Model: CellModel> where Model.ID: RandomizableIdentifier{
 
 	weak var delegate: (any CacheDelegate<Model>)?
 

@@ -125,7 +125,7 @@ public extension Snapshot {
 }
 
 // MARK: - IdentifiableValue Transforming
-public extension Snapshot where Model: IdentifiableValue {
+public extension Snapshot where Model.ID: RandomizableIdentifier, Model: MutableIdentifiable & Hashable {
 
 	/// Returns a copy of this snapshot with models inserted at the specified destination.
 	///

@@ -23,6 +23,15 @@ struct ItemModel {
 	var showsTrailingDisclosure: Bool
 }
 
+// MARK: - MutableIdentifiable
+extension ItemModel: MutableIdentifiable {
+
+	var id: UUID {
+		get { uuid }
+		set { uuid = newValue }
+	}
+}
+
 // MARK: - CellModel
 extension ItemModel: CellModel {
 
@@ -80,22 +89,6 @@ extension ItemModel: CellModel {
 	func contentIsEquals(to other: ItemModel) -> Bool {
 		return other.configuration == configuration
 		&& other.showsTrailingDisclosure == showsTrailingDisclosure
-	}
-}
-
-// MARK: - Identifiable
-extension ItemModel: Identifiable {
-
-	var id: UUID {
-		uuid
-	}
-}
-
-// MARK: - IdentifiableValue
-extension ItemModel: IdentifiableValue {
-
-	mutating func generateId() {
-		uuid = UUID()
 	}
 }
 

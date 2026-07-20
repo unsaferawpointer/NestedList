@@ -53,12 +53,16 @@ public struct ItemContent {
 }
 
 // MARK: - Identifiable
-extension ItemContent: Identifiable {
+extension ItemContent: MutableIdentifiable {
 
 	public var id: UUID {
-		uuid
+		get { uuid }
+		set { uuid = newValue }
 	}
 }
+
+// MARK: - Hashable
+extension ItemContent: Hashable { }
 
 // MARK: - Public Interface
 public extension ItemContent {
@@ -158,14 +162,6 @@ extension ItemContent: Codable {
 		try container.encode(options, forKey: .options)
 		try container.encodeIfPresent(iconName, forKey: .iconName)
 		try container.encodeIfPresent(tintColor, forKey: .tintColor)
-	}
-}
-
-// MARK: - IdentifiableValue
-extension ItemContent: IdentifiableValue {
-
-	public mutating func generateId() {
-		self.uuid = UUID()
 	}
 }
 

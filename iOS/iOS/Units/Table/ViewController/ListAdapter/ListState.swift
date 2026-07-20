@@ -9,7 +9,7 @@ import Foundation
 import Hierarchy
 import DesignSystem
 
-struct ListState<Model: CellModel & IdentifiableValue> {
+struct ListState<Model: CellModel> where Model.ID: RandomizableIdentifier {
 
 	var expanded: Set<Model.ID> = []
 

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public final class NodeStore<Value: IdentifiableValue> {
+public final class NodeStore<Value: MutableIdentifiable & Hashable> where Value.ID: RandomizableIdentifier {
 
 	public typealias ID = Value.ID
 
@@ -168,7 +168,7 @@ private extension NodeStore {
 		for node in nodes {
 			node.enumerate {
 				if cache[$0.id] != nil {
-					$0.value.generateId()
+					$0.value.id = Value.ID.random()
 				}
 				cache[$0.id] = $0
 			}
