@@ -9,6 +9,7 @@ public enum Sound: Hashable {
 	case mark
 	case unmark
 	case place
+	case erase
 }
 
 public extension Sound {
@@ -18,6 +19,7 @@ public extension Sound {
 		case .mark:		"mark"
 		case .unmark:	"unmark"
 		case .place:	"place"
+		case .erase:	"erase"
 		}
 	}
 }

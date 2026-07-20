@@ -178,6 +178,7 @@ private extension ContentPresenter {
 
 	func delete(selection: [UUID]) {
 		editingMode = nil
+		playSound(.erase)
 		interactor?.deleteItems(selection)
 	}
 

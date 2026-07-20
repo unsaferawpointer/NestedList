@@ -343,6 +343,7 @@ private extension ContentPresenter {
 	}
 
 	func delete(ids: [UUID]) {
+		playSound(.erase)
 		interactor?.deleteItems(ids)
 	}
 
