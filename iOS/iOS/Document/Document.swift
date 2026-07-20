@@ -25,6 +25,9 @@ class Document: UIDocument {
 		)
 	}()
 
+	lazy var analytics: any ConcreteAnalyticsServiceProtocol<DocumentAnalyticsEvent> =
+		ConcreteAnalyticsService<DocumentAnalyticsEvent>()
+
 	// MARK: - Document life-cycle
 
 	override func contents(forType typeName: String) throws -> Any {
@@ -46,6 +49,7 @@ class Document: UIDocument {
 		do {
 			try storage.read(from: data, ofType: typeName)
 		} catch let error as DocumentError {
+			Task { await analytics.track(.readError(error)) }
 			throw ErrorMapper.map(error: error)
 		}
 	}

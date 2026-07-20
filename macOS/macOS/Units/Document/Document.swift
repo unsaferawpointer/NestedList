@@ -21,6 +21,9 @@ class Document: NSDocument {
 		)
 	}()
 
+	lazy var analytics: any ConcreteAnalyticsServiceProtocol<DocumentAnalyticsEvent> =
+		ConcreteAnalyticsService<DocumentAnalyticsEvent>()
+
 	override func printOperation(
 		withSettings printSettings: [NSPrintInfo.AttributeKey : Any]
 	) throws -> NSPrintOperation {
@@ -61,6 +64,7 @@ class Document: NSDocument {
 		do {
 			try storage.read(from: data, ofType: typeName)
 		} catch let error as DocumentError {
+			Task { await analytics.track(.readError(error)) }
 			throw ErrorMapper.map(error: error)
 		}
 	}
