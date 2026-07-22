@@ -37,5 +37,10 @@ extension CellFactory {
 		let cell = table?.view(atColumn: 0, row: row, makeIfNecessary: false) as? T.Cell
 		cell?.model = model
 	}
+
+	static func animateCell<C: ListCell>(type: C.Type, at row: Int, in table: NSTableView?) {
+		let cell = table?.view(atColumn: 0, row: row, makeIfNecessary: false) as? C
+		cell?.animate()
+	}
 }
 #endif

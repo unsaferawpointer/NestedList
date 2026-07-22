@@ -13,4 +13,6 @@ class ItemCell: UITableViewCell, ListCell {
 	typealias Model = ItemModel
 
 	static var reuseIdentifier: String = "cell"
+
+	func animate() { }
 }

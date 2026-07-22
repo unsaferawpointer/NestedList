@@ -44,6 +44,10 @@ final class ItemCell: NSView, ListCell {
 		}
 	}
 
+	func animate() {
+		iconView.addSymbolEffect(.bounce, options: .repeat(1))
+	}
+
 	// MARK: - UI-Properties
 
 	lazy var titleTextfield: NSTextField = {

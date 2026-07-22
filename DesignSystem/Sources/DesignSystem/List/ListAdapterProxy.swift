@@ -402,13 +402,15 @@ private extension ListAdapterProxy {
 
 		// MARK: - Animate
 
+		var animate = Set<InternalModel.ID>()
+
 		tableView?.beginUpdates()
 		animator.calculate(old: old, new: new) { [weak self] animation in
 			guard let self else {
 				return
 			}
 			switch animation {
-			case .remove(let offset, let parent):
+			case .remove(_, let offset, let parent):
 				let item = cache[optional: parent]
 				let rows = IndexSet(integer: offset)
 				tableView?.removeItems(
@@ -416,7 +418,12 @@ private extension ListAdapterProxy {
 					inParent: item,
 					withAnimation: [.effectFade, .effectGap]
 				)
-			case .insert(let offset, let parent):
+			case let .insert(id, offset, parent, isMoving):
+
+				if let parent, case .item = id, !isMoving {
+					animate.insert(parent)
+				}
+
 				let destination = cache[optional: parent]
 				let rows = IndexSet(integer: offset)
 				tableView?.insertItems(
@@ -431,8 +438,22 @@ private extension ListAdapterProxy {
 				tableView?.reloadItem(item)
 			}
 		}
-
 		tableView?.endUpdates()
+
+		animate.forEach { id in
+			let item = cache[unsafe: id]
+			guard let row = tableView?.row(forItem: item), row != -1 else {
+				return
+			}
+			let model = snapshot.model(with: id)
+			switch model {
+			case .model:
+				CellFactory.animateCell(type: Model.Cell.self, at: row, in: tableView)
+			case .spacer:
+				break
+			}
+		}
+
 		validateSelection()
 	}
 
