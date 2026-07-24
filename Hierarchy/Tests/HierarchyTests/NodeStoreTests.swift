@@ -44,18 +44,141 @@ import Testing
 	#expect(root.children.count == 1)
 }
 
+@Test func allMatchChecksOnlyLeafNodes() async throws {
+	let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
+	let root = store.nodes[0]
+	let child = root.children[0]
+
+	#expect(store.allMatch(\.title, equalsTo: "grandchild"))
+	#expect(store.allMatch(id: root.id, keyPath: \.title, equalsTo: "grandchild"))
+	#expect(store.allMatch(id: child.id, keyPath: \.title, equalsTo: "grandchild"))
+	#expect(!store.allMatch(\.title, equalsTo: "child"))
+	#expect(!store.allMatch(id: 404, keyPath: \.title, equalsTo: "grandchild"))
+}
+
+@Test func countReturnsLeafNodeCount() async throws {
+	let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
+
+	#expect(store.count == 1)
+	#expect(store.count(where: \.title, equalsTo: "grandchild") == 1)
+	#expect(store.count(where: \.title, equalsTo: "child") == 0)
+}
+
+@Test func setPropertyUpdatesSelectedNodeOnly() async throws {
+	let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
+	let root = store.nodes[0]
+	let child = root.children[0]
+	let grandchild = child.children[0]
+
+	store.setProperty(\.title, to: "updated", for: [child.id])
+
+	#expect(root.value.title == "root")
+	#expect(child.value.title == "updated")
+	#expect(grandchild.value.title == "grandchild")
+}
+
+@Test func setPropertyUpdatesSelectedNodeAndDescendants() async throws {
+	let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
+	let root = store.nodes[0]
+	let child = root.children[0]
+	let grandchild = child.children[0]
+
+	store.setProperty(\.title, to: "updated", for: [child.id], downstream: true)
+
+	#expect(root.value.title == "root")
+	#expect(child.value.title == "updated")
+	#expect(grandchild.value.title == "updated")
+}
+
+@Test func parentReturnsParentValueForNestedNode() async throws {
+	let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
+	let root = store.nodes[0]
+	let child = root.children[0]
+	let grandchild = child.children[0]
+
+	#expect(store.parent(for: nil) == nil)
+	#expect(store.parent(for: root.id) == nil)
+	#expect(store.parent(for: child.id)?.id == root.id)
+	#expect(store.parent(for: grandchild.id)?.id == child.id)
+}
+
+@Test func insertItemsAddsRootAndNestedItemsToCache() async throws {
+	let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
+	let root = store.nodes[0]
+
+	store.insertItems(with: [
+		NodeStoreTestItem(id: 4, title: "inserted-root")
+	], to: .toRoot)
+	store.insertItems(with: [
+		NodeStoreTestItem(id: 5, title: "inserted-child")
+	], to: .inItem(with: root.id, atIndex: 0))
+
+	#expect(store.nodes.map(\.id) == [1, 4])
+	#expect(root.children.map(\.id) == [5, 2])
+	#expect(store[4]?.title == "inserted-root")
+	#expect(store[5]?.title == "inserted-child")
+	#expect(store.parent(for: 5)?.id == root.id)
+}
+
+@Test func deleteItemRemovesNodeAndDescendantsFromCache() async throws {
+	let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
+	let root = store.nodes[0]
+	let child = root.children[0]
+	let grandchild = child.children[0]
+
+	store.deleteItem(child.id)
+
+	#expect(root.children.isEmpty)
+	#expect(store[child.id] == nil)
+	#expect(store[grandchild.id] == nil)
+	#expect(store[root.id]?.title == "root")
+}
+
+@Test func invalidTargetsIncludesMovedNodesAndDescendants() async throws {
+	let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
+	let root = store.nodes[0]
+	let child = root.children[0]
+	let grandchild = child.children[0]
+
+	let result = store.invalidTargets(movingItems: [child.id])
+
+	#expect(result == Set([child.id, grandchild.id]))
+	#expect(!result.contains(root.id))
+}
+
+@Test func validateMovingRejectsMovingNodeIntoDescendant() async throws {
+	let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
+	let root = store.nodes[0]
+	let child = root.children[0]
+	let grandchild = child.children[0]
+
+	#expect(!store.validateMoving([root.id], to: .onItem(with: grandchild.id)))
+	#expect(!store.validateMoving([child.id], to: .inItem(with: grandchild.id, atIndex: 0)))
+	#expect(store.validateMoving([grandchild.id], to: .onItem(with: root.id)))
+}
+
+@Test func moveItemsMovesNestedNodeToRoot() async throws {
+	let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
+	let root = store.nodes[0]
+	let child = root.children[0]
+	let grandchild = child.children[0]
+
+	store.moveItems(with: [child.id], to: .toRoot)
+
+	#expect(store.nodes.map(\.id) == [root.id, child.id])
+	#expect(root.children.isEmpty)
+	#expect(child.parent == nil)
+	#expect(child.children[0] === grandchild)
+	#expect(store.parent(for: grandchild.id)?.id == child.id)
+}
+
 private struct NodeStoreTestItem: Hashable {
 	var id: Int
-	let title: String
+	var title: String
 }
 
-// MARK: - IdentifiableValue
-extension NodeStoreTestItem: IdentifiableValue {
-
-	mutating func generateId() {
-		id += 100
-	}
-}
+// MARK: - MutableIdentifiable
+extension NodeStoreTestItem: MutableIdentifiable { }
 
 // MARK: - Test fixtures
 private enum NodeStoreTestFixtures {

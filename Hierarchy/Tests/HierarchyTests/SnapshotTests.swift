@@ -192,15 +192,12 @@ import Testing
 }
 
 
-private struct TestItem {
+private struct TestItem: Hashable {
 	var id: String
 }
 
-// MARK: - IdentifiableValue
-extension TestItem: IdentifiableValue {
-
-	mutating func generateId() { }
-}
+// MARK: - MutableIdentifiable
+extension TestItem: MutableIdentifiable { }
 
 // MARK: - Test fixtures
 private enum TestFixtures {

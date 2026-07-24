@@ -53,14 +53,12 @@ public extension NodeStore {
 		guard let node = cache[id] else {
 			return false
 		}
-		return node.allMatch(keyPath, equalsTo: value)
+		return allMatch(in: [node], keyPath: keyPath, equalsTo: value)
 	}
 
 	/// Returns `true` when every leaf node in the store has a value equal to the given value at the specified key path.
 	func allMatch<T: Equatable>(_ keyPath: KeyPath<Value, T>, equalsTo value: T) -> Bool {
-		return nodes.allSatisfy {
-			$0.allMatch(keyPath, equalsTo: value)
-		}
+		return allMatch(in: nodes, keyPath: keyPath, equalsTo: value)
 	}
 
 	/// Returns the parent value for the node with the specified identifier.
@@ -85,7 +83,9 @@ public extension NodeStore {
 	///   - ids: The identifiers of the nodes to copy.
 	///   - destination: The destination for the copied nodes.
 	func copy(ids: [ID], to destination: Destination<ID>) {
-		let copied = nodes(with: ids).map { $0.copy() }
+		let copied = nodes(with: ids).map { node in
+			copy(node)
+		}
 		insertItems(from: copied, to: destination)
 	}
 
@@ -96,11 +96,11 @@ public extension NodeStore {
 	func copiedDisjointSubtrees(with ids: [ID]) -> [any TreeNode<Value>] {
 		let cache = Set(ids)
 		let copied = nodes(with: ids).map { node in
-			node.map { $0 }
+			copy(node)
 		}
 
 		copied.forEach { node in
-			node.deleteDescendants(with: cache)
+			deleteDescendants(in: node, with: cache)
 		}
 		return copied
 	}
@@ -116,20 +116,38 @@ public extension NodeStore {
 			guard let node = cache[id] else {
 				continue
 			}
-			node.setProperty(keyPath, to: value, downstream: downstream)
+			guard downstream else {
+				node.value[keyPath: keyPath] = value
+				continue
+			}
+			enumerate([node]) { node in
+				node.value[keyPath: keyPath] = value
+			}
 		}
 	}
 
 	var count: Int {
-		return nodes.reduce(0) { partialResult, node in
-			return partialResult + node.count
+		var result = 0
+		enumerate(nodes) { node in
+			guard node.children.isEmpty else {
+				return
+			}
+			result += 1
 		}
+		return result
 	}
 
 	func count<T: Equatable>(where keyPath: KeyPath<Value, T>, equalsTo value: T) -> Int {
-		return nodes.reduce(0) { partialResult, node in
-			return partialResult + node.count(where: keyPath, equalsTo: value)
+		var result = 0
+		enumerate(nodes) { node in
+			guard node.children.isEmpty else {
+				return
+			}
+			if node.value[keyPath: keyPath] == value {
+				result += 1
+			}
 		}
+		return result
 	}
 }
 
@@ -158,28 +176,74 @@ public extension NodeStore where Value: Codable {
 private extension NodeStore {
 
 	func makeNode(from other: any TreeNode<Value>) -> Node<Value> {
-		let node = Node<Value>(value: other.value, children: other.children.map({ node in
-			makeNode(from: node)
-		}))
-		return node
+		let root = Node<Value>(value: other.value)
+		var stack: [(source: any TreeNode<Value>, destination: Node<Value>)] = [(other, root)]
+		while let item = stack.popLast() {
+			for child in item.source.children {
+				let childNode = Node<Value>(value: child.value)
+				childNode.parent = item.destination
+				item.destination.children.append(childNode)
+				stack.append((source: child, destination: childNode))
+			}
+		}
+		return root
+	}
+
+	func copy(_ node: Node<Value>) -> Node<Value> {
+		let copied = Node(value: node.value)
+		var stack = [(source: node, destination: copied)]
+		while let item = stack.popLast() {
+			for child in item.source.children {
+				let childCopy = Node(value: child.value)
+				childCopy.parent = item.destination
+				item.destination.children.append(childCopy)
+				stack.append((source: child, destination: childCopy))
+			}
+		}
+		return copied
+	}
+
+	func deleteDescendants(in node: Node<Value>, with ids: Set<ID>) {
+		var stack = [node]
+		while let item = stack.popLast() {
+			item.children.removeAll {
+				ids.contains($0.id)
+			}
+			stack.append(contentsOf: item.children)
+		}
+	}
+
+	func allMatch<T: Equatable>(in nodes: [Node<Value>], keyPath: KeyPath<Value, T>, equalsTo value: T) -> Bool {
+		var result = true
+		enumerate(nodes) { node in
+			guard result, node.children.isEmpty else {
+				return
+			}
+			result = node.value[keyPath: keyPath] == value
+		}
+		return result
 	}
 
 	func updateCache(inserted nodes: [Node<Value>]) {
-		for node in nodes {
-			node.enumerate {
-				if cache[$0.id] != nil {
-					$0.value.id = Value.ID.random()
-				}
-				cache[$0.id] = $0
+		enumerate(nodes) { node in
+			if cache[node.id] != nil {
+				node.value.id = Value.ID.random()
 			}
+			cache[node.id] = node
 		}
 	}
 
 	func updateCache(removed nodes: [Node<Value>]) {
-		for node in nodes {
-			node.enumerate {
-				cache[$0.id] = nil
-			}
+		enumerate(nodes) { node in
+			cache[node.id] = nil
+		}
+	}
+
+	func enumerate(_ nodes: [Node<Value>], _ block: (Node<Value>) -> Void) {
+		var stack = Array(nodes.reversed())
+		while let node = stack.popLast() {
+			block(node)
+			stack.append(contentsOf: node.children.reversed())
 		}
 	}
 }
@@ -257,8 +321,8 @@ public extension NodeStore {
 			guard let node = cache[id] else {
 				continue
 			}
-			node.enumerate {
-				result.insert($0.id)
+			enumerate([node]) { node in
+				result.insert(node.id)
 			}
 		}
 
@@ -271,8 +335,10 @@ public extension NodeStore {
 		}
 
 		var chain = Set<ID>()
-		item.enumerateBackwards {
-			chain.insert($0.id)
+		var current: Node<Value>? = item
+		while let node = current {
+			chain.insert(node.id)
+			current = node.parent
 		}
 
 		let intersection = chain.intersection(ids)
