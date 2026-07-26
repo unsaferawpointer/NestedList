@@ -75,6 +75,19 @@ extension DropManager {
 		delegate.drop(info, to: destination)
 		return true
 	}
+
+	func moving(info: NSDraggingInfo) -> [ID]? {
+		if isLocal(from: info) {
+			let ids: [ID] = info.objects(objectType: ID.self, with: .identifier)
+			if info.draggingSourceOperationMask == .copy {
+				return nil
+			} else {
+				return ids
+			}
+		} else {
+			return nil
+		}
+	}
 }
 
 // MARK: - Helpers

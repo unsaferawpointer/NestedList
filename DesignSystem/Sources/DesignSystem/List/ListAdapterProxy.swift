@@ -190,10 +190,15 @@ extension ListAdapterProxy {
 			return false
 		}
 
+		let shouldAnimate = shouldAnimateDrop(info: info, to: destination)
+
 		let result = dropManager.acceptDrop(info: info, to: destination)
 
 		if let id = destination.id, let targetItem = cache[.item(id: id)] {
 			tableView?.expandItem(targetItem, expandChildren: false)
+			if result, let row = tableView?.row(forItem: targetItem), row != -1, shouldAnimate {
+				CellFactory.animateCell(type: Model.Cell.self, at: row, in: tableView)
+			}
 		}
 
 		outlineView.window?.makeKeyAndOrderFront(nil)
@@ -400,10 +405,6 @@ private extension ListAdapterProxy {
 		self.snapshot = new
 		tableView?.noteHeightOfRows(withIndexesChanged: updateHeight)
 
-		// MARK: - Animate
-
-		var animate = Set<InternalModel.ID>()
-
 		tableView?.beginUpdates()
 		animator.calculate(old: old, new: new) { [weak self] animation in
 			guard let self else {
@@ -418,12 +419,7 @@ private extension ListAdapterProxy {
 					inParent: item,
 					withAnimation: [.effectFade, .effectGap]
 				)
-			case let .insert(id, offset, parent, isMoving):
-
-				if let parent, case .item = id, !isMoving {
-					animate.insert(parent)
-				}
-
+			case let .insert(_, offset, parent, _):
 				let destination = cache[optional: parent]
 				let rows = IndexSet(integer: offset)
 				tableView?.insertItems(
@@ -440,21 +436,21 @@ private extension ListAdapterProxy {
 		}
 		tableView?.endUpdates()
 
-		animate.forEach { id in
-			let item = cache[unsafe: id]
-			guard let row = tableView?.row(forItem: item), row != -1 else {
-				return
-			}
-			let model = snapshot.model(with: id)
-			switch model {
-			case .model:
-				CellFactory.animateCell(type: Model.Cell.self, at: row, in: tableView)
-			case .spacer:
-				break
-			}
-		}
-
 		validateSelection()
+	}
+
+	/// Animate the drop target only when the drop actually changes the hierarchy,
+	/// i.e. at least one moved item isn't already a direct child of the target.
+	func shouldAnimateDrop(info: NSDraggingInfo, to destination: Destination<ID>) -> Bool {
+		guard let id = destination.id, let targetItem = cache[.item(id: id)] else {
+			return false
+		}
+		guard let moving = dropManager.moving(info: info) else {
+			return true
+		}
+		return moving.contains {
+			snapshot.parent(for: .item(id: $0))?.id != targetItem.id
+		}
 	}
 
 	func normalize(destination: Destination<InternalModel.ID>) -> Destination<ID>? {
