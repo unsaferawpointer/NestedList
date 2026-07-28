@@ -13,30 +13,16 @@ protocol AmplitudeAPIKeyProviding: Sendable {
 }
 
 /// Default Amplitude API key provider.
-struct AmplitudeAPIKeyProvider: Sendable {
-
-	// MARK: - Constants
-
-	private static let infoPlistKey = "NestedListAnalyticsAPIKey"
-
-	// MARK: - Properties
-
-	private let infoDictionary: [String: String]?
-
-	// MARK: - Initialization
-
-	init(infoDictionary: [String: String]? = nil) {
-		self.infoDictionary = infoDictionary
-	}
-}
+struct AmplitudeAPIKeyProvider: Sendable { }
 
 // MARK: - AmplitudeAPIKeyProviding
 extension AmplitudeAPIKeyProvider: AmplitudeAPIKeyProviding {
 
 	var apiKey: String? {
-		if let infoDictionary {
-			return infoDictionary[Self.infoPlistKey]
-		}
-		return Bundle.main.object(forInfoDictionaryKey: Self.infoPlistKey) as? String
+		#if DEBUG
+		return nil
+		#else
+		return Self.releaseAPIKey
+		#endif
 	}
 }

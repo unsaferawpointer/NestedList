@@ -1,4 +1,5 @@
 xcuserdata/
 **/xcuserdata/
 .DS_Store
-Local.xcconfig
+
+CorePresentation/Sources/CorePresentation/Analytics/AmplitudeAPIKey.swift

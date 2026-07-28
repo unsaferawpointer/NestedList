@@ -25,7 +25,7 @@ public final class AmplitudeService: Sendable {
 	// MARK: - Initialization
 
 	public convenience init(
-		isSendingEnabled: Bool = false
+		isSendingEnabled: Bool = true
 	) {
 		self.init(
 			apiKeyProvider: AmplitudeAPIKeyProvider(),
@@ -37,7 +37,7 @@ public final class AmplitudeService: Sendable {
 
 	public convenience init(
 		apiKey: String?,
-		isSendingEnabled: Bool = false
+		isSendingEnabled: Bool = true
 	) {
 		self.init(
 			apiKey: apiKey,
@@ -50,7 +50,7 @@ public final class AmplitudeService: Sendable {
 	public convenience init(
 		apiKey: String?,
 		endpoint: URL,
-		isSendingEnabled: Bool = false
+		isSendingEnabled: Bool = true
 	) {
 		self.init(apiKey: apiKey, endpoint: endpoint, session: URLSession.shared, isSendingEnabled: isSendingEnabled)
 	}

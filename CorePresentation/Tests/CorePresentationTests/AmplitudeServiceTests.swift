@@ -8,14 +8,8 @@ struct AmplitudeServiceTests { }
 // MARK: - AmplitudeAPIKeyProvider
 extension AmplitudeServiceTests {
 
-	@Test func apiKeyProvider_returnsAPIKeyFromInfoDictionary() {
-		let sut = AmplitudeAPIKeyProvider(infoDictionary: ["NestedListAnalyticsAPIKey": "test-api-key"])
-
-		#expect(sut.apiKey == "test-api-key")
-	}
-
-	@Test func apiKeyProvider_whenInfoDictionaryDoesNotContainKey_returnsNil() {
-		let sut = AmplitudeAPIKeyProvider(infoDictionary: [:])
+	@Test func apiKeyProvider_inDebugBuild_returnsNil() {
+		let sut = AmplitudeAPIKeyProvider()
 
 		#expect(sut.apiKey == nil)
 	}
