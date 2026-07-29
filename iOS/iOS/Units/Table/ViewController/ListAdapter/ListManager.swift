@@ -9,12 +9,6 @@ import UIKit
 import DesignSystem
 import Hierarchy
 
-struct RowConfiguration: Equatable {
-	var level: Int
-	var isExpanded: Bool
-	var isLeaf: Bool
-}
-
 protocol CacheDelegate<Model>: AnyObject {
 
 	associatedtype Model
@@ -59,7 +53,7 @@ final class ListManager<Model: CellModel> where Model.ID: RandomizableIdentifier
 	init(tableView: UITableView, delegate: (any ContentViewDelegate<Model.ID>)?) {
 		self.tableView = tableView
 
-		self.tableView.register(ItemCell.self, forCellReuseIdentifier: "cell")
+		self.tableView.register(ItemCell<Model>.self, forCellReuseIdentifier: "cell")
 		self.storage.delegate = self
 		self.delegate = delegate
 	}

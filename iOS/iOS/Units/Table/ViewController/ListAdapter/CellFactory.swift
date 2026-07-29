@@ -19,7 +19,7 @@ extension CellFactory {
 		for model: C.Model,
 		row: RowConfiguration
 	) -> C {
-		let identifier = C.reuseIdentifier
+		let identifier = "cell"
 		guard let cell = table.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as? C else {
 			fatalError("Invalid cell type")
 		}

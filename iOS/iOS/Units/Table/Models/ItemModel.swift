@@ -84,7 +84,7 @@ extension ItemModel: CellModel {
 		return configuration
 	}
 
-	typealias Cell = ItemCell
+	typealias Cell = ItemCell<ItemModel>
 
 	func contentIsEquals(to other: ItemModel) -> Bool {
 		return other.configuration == configuration
