@@ -27,8 +27,7 @@ extension CellFactory {
 		cell.contentConfiguration = ItemContentConfiguration(
 			id: model.id,
 			row: row,
-			content: model.configuration,
-			showsTrailingDisclosure: model.showsTrailingDisclosure
+			content: model.configuration
 		)
 		return cell
 	}
@@ -48,8 +47,7 @@ extension CellFactory {
 		cell.contentConfiguration = ItemContentConfiguration(
 			id: model.id,
 			row: row,
-			content: content,
-			showsTrailingDisclosure: model.showsTrailingDisclosure
+			content: content
 		)
 	}
 }

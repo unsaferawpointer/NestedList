@@ -43,11 +43,11 @@ public protocol CellModel: MutableIdentifiable, Hashable {
 
 	associatedtype Cell: ListCell where Cell.Model == Self
 
-	var configuration: UIListContentConfiguration { get }
+	associatedtype Configuration: UIContentConfiguration & Equatable
 
-	var selectionConfiguration: UIListContentConfiguration { get }
+	var configuration: Configuration { get }
 
-	var showsTrailingDisclosure: Bool { get }
+	var selectionConfiguration: Configuration { get }
 
 	func contentIsEquals(to other: Self) -> Bool
 }

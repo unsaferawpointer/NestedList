@@ -346,7 +346,10 @@ extension ContentPresenter: ListDelegate {
 		displayToolbar(selection: ids)
 	}
 
-	func listDidTapDisclosure(id: UUID) {
+	func listDidTap(id: UUID) {
+		guard let item = interactor?.item(for: id), item.isSubitemsHidden else {
+			return
+		}
 		// MARK: - Analytics
 		Task {
 			let event: ContentAnalyticsEvent = .subitemsShow

@@ -136,9 +136,9 @@ extension ListManager {
 			return
 		}
 		tableView.deselectRow(at: indexPath, animated: true)
-		let model = storage.model(with: indexPath.row)
-		guard !model.showsTrailingDisclosure else {
-			delegate?.listDidTapDisclosure(id: model.id)
+		let id = storage.identifier(for: indexPath.row)
+		guard !storage.rowConfiguration(for: indexPath.row).isLeaf else {
+			delegate?.listDidTap(id: id)
 			return
 		}
 		storage.toggle(indexPath: indexPath)

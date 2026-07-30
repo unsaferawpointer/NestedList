@@ -27,6 +27,6 @@ public protocol ListDelegate<ID>: AnyObject {
 
 	func listDidChangeSelection(ids: [ID])
 
-	func listDidTapDisclosure(id: ID)
+	func listDidTap(id: ID)
 }
 #endif

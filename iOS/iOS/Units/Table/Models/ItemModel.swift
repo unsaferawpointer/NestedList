@@ -35,60 +35,21 @@ extension ItemModel: MutableIdentifiable {
 // MARK: - CellModel
 extension ItemModel: CellModel {
 
-	var selectionConfiguration: UIListContentConfiguration { configuration }
+	var selectionConfiguration: ItemConfiguration { configuration }
 
-	var configuration: UIListContentConfiguration {
-		let configuration = {
-			var configuration = UIListContentConfiguration.cell()
-			let image: UIImage? = {
-				if let iconConfiguration = icon {
-					let symbolConfiguration = iconConfiguration.appearence.configuration
-					return iconConfiguration.name?.uiImage
-						.applyingSymbolConfiguration(symbolConfiguration)?
-						.applyingSymbolConfiguration(.init(textStyle: title.style.value))?
-						.applyingSymbolConfiguration(.init(scale: .medium))
-				} else {
-					return nil
-				}
-			}()
-			configuration.image = image
-			configuration.imageToTextPadding = 8
-			configuration.directionalLayoutMargins.leading = 12
-
-			if let iconConfiguration = icon {
-				configuration.imageProperties.tintColor = iconConfiguration.appearence.tint
-			}
-
-			configuration.attributedText = .init(
-				string: title.text,
-				textColor: title.colorToken.value,
-				strikethrough: title.strikethrough
-			)
-
-			configuration.textProperties.font = .preferredFont(forTextStyle: title.style.value)
-
-			if let subtitleConfiguration = subtitle {
-				configuration.secondaryTextProperties.font = .preferredFont(forTextStyle: subtitleConfiguration.style.value)
-				configuration.secondaryTextProperties.color = subtitleConfiguration.colorToken.value
-				configuration.secondaryText = subtitleConfiguration.text
-			} else {
-				configuration.secondaryText = nil
-				configuration.secondaryText = nil
-			}
-
-			configuration.secondaryText = subtitle?.text
-
-			return configuration
-		}()
-
-		return configuration
+	var configuration: ItemConfiguration {
+		ItemConfiguration(
+			icon: icon,
+			title: title,
+			subtitle: subtitle,
+			showsTrailingDisclosure: showsTrailingDisclosure
+		)
 	}
 
 	typealias Cell = ItemCell<ItemModel>
 
 	func contentIsEquals(to other: ItemModel) -> Bool {
 		return other.configuration == configuration
-		&& other.showsTrailingDisclosure == showsTrailingDisclosure
 	}
 }
 
