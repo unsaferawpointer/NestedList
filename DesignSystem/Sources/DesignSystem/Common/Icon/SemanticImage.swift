@@ -79,6 +79,13 @@ public enum SemanticImage {
 	case film
 	case photo
 	case photoOnRectangle
+
+	// MARK: - Point shapes
+
+	case asteriskPoint
+	case diamondPoint
+	case starPoint
+	case stopPoint
 }
 
 // MARK: - Codable
@@ -465,6 +472,34 @@ public extension SemanticImage {
 				table: "Localizable",
 				bundle: .module
 			)
+		case .asteriskPoint:
+			String(
+				localized: "semantic-image-asterisk-point",
+				defaultValue: "Asterisk",
+				table: "Localizable",
+				bundle: .module
+			)
+		case .diamondPoint:
+			String(
+				localized: "semantic-image-diamond-point",
+				defaultValue: "Diamond",
+				table: "Localizable",
+				bundle: .module
+			)
+		case .starPoint:
+			String(
+				localized: "semantic-image-star-point",
+				defaultValue: "Star",
+				table: "Localizable",
+				bundle: .module
+			)
+		case .stopPoint:
+			String(
+				localized: "semantic-image-stop-point",
+				defaultValue: "Stop",
+				table: "Localizable",
+				bundle: .module
+			)
 		}
 	}
 
@@ -474,7 +509,7 @@ public extension SemanticImage {
 			"circle.slash"
 		case .filledCircle:
 			"circle.fill"
-		case .point:
+		case .point, .asteriskPoint, .diamondPoint, .starPoint, .stopPoint:
 			nil
 		case .folder:
 			"folder"
@@ -619,8 +654,12 @@ private extension SemanticImage {
 
 	var resource: ImageResource? {
 		switch self {
-		case .point:	.point
-		default:		nil
+		case .point:			.point
+		case .asteriskPoint:	.customAsteriskCircle
+		case .diamondPoint:		.customDiamondCircle
+		case .starPoint:		.customStarCircle
+		case .stopPoint:		.customStopCircle
+		default:				nil
 		}
 	}
 }

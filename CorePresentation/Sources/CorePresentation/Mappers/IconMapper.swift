@@ -67,7 +67,11 @@ public final class IconMapper {
 		case .personGroup:			.personGroup
 		case .leaf:					.leaf
 		case .house:				.house
-		case .unknown:				.textDoc
+		case .asteriskPoint:		.asteriskPoint
+		case .diamondPoint:			.diamondPoint
+		case .starPoint:			.starPoint
+		case .stopPoint:			.stopPoint
+		case .unknown:				.point
 		}
 	}
 
@@ -125,6 +129,10 @@ public final class IconMapper {
 		case .personGroup: 		.personGroup
 		case .leaf:				.leaf
 		case .house:			.house
+		case .asteriskPoint:	.asteriskPoint
+		case .diamondPoint:		.diamondPoint
+		case .starPoint:		.starPoint
+		case .stopPoint:		.stopPoint
 		case .unknown:			.point
 		}
 	}
@@ -186,6 +194,10 @@ public final class IconMapper {
 		case .personGroup:		.personGroup
 		case .leaf:				.leaf
 		case .house:			.house
+		case .asteriskPoint:	.asteriskPoint
+		case .diamondPoint:		.diamondPoint
+		case .starPoint:		.starPoint
+		case .stopPoint:		.stopPoint
 		default:				nil
 		}
 	}

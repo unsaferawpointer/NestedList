@@ -63,6 +63,10 @@ extension IconName {
 		case .pc: 49
 		case .trash: 50
 		case .key: 51
+		case .asteriskPoint: 52
+		case .diamondPoint: 53
+		case .starPoint: 54
+		case .stopPoint: 55
 		case .unknown: -1
 		}
 	}
