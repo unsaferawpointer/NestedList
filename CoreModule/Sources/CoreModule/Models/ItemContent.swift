@@ -133,24 +133,24 @@ extension ItemContent: Codable {
 		self.note = try container.decodeIfPresent(String.self, forKey: .note)
 		self.options = try container.decode(ItemOptions.self, forKey: .options)
 
-		guard let key = CodingUserInfoKey.documentVersion, let version = decoder.userInfo[key] as? Version else {
-			throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "No document version found"))
+		let version: Version? = if let key = CodingUserInfoKey.documentVersion {
+			decoder.userInfo[key] as? Version
+		} else {
+			nil
 		}
 
 		// MARK: - Versioning
 
-		switch version.major {
+		switch version?.major {
 		case 1:
 			let style = try container.decode(ItemStyle.self, forKey: .style)
 			if case let .section(icon) = style {
 				self.iconName = icon?.name
 				self.tintColor = options.contains(.marked) ? .yellow : icon?.color
 			}
-		case 2:
+		default:
 			self.iconName = try? container.decodeIfPresent(IconName.self, forKey: .iconName)
 			self.tintColor = try? container.decodeIfPresent(ItemColor.self, forKey: .tintColor)
-		default:
-			throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "Unsupported document version: \(version)"))
 		}
 	}
 	
