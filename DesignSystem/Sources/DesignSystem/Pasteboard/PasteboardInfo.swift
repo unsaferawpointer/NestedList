@@ -43,16 +43,11 @@ public extension PasteboardInfo {
 	}
 }
 
-#if os(macOS)
-import Cocoa
-
 public extension PasteboardInfo.Item {
 
+	static let stringType = "public.utf8-plain-text"
+
 	init(string: String) {
-		self.data = [NSPasteboard.PasteboardType.string.rawValue: string.data(using: .utf8) ?? Data()]
+		self.data = [Self.stringType: string.data(using: .utf8) ?? Data()]
 	}
 }
-
-#endif
-
-

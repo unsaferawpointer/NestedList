@@ -23,10 +23,14 @@ protocol ContentUnitInteractorProtocol {
 	func set(_ text: String, note: String?, for id: UUID)
 	func item(for id: UUID) -> Item
 
+	func nodes(for ids: [UUID]) -> [any TreeNode<Item>]
 	func data(of id: UUID) -> Data?
 	func string(for ids: [UUID]) -> String
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>)
 	func insertNodes(_ nodes: [any TreeNode<Item>], to destination: Destination<UUID>)
+	func insertItems(_ data: [Data], to destination: Destination<UUID>)
+	func insertStrings(_ data: [Data], to destination: Destination<UUID>)
+
 
 	func move(ids: [UUID], to destination: Destination<UUID>)
 	func move(ids: [UUID], to target: UUID?)
@@ -124,6 +128,10 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 		base.string(for: ids)
 	}
 
+	func nodes(for ids: [UUID]) -> [any TreeNode<Item>] {
+		base.nodes(for: ids)
+	}
+
 	func data(of id: UUID) -> Data? {
 		base.data(of: id)
 	}
@@ -134,6 +142,17 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 
 	func insertNodes(_ nodes: [any TreeNode<Item>], to destination: Destination<UUID>) {
 		base.insertNodes(nodes, to: destination.relative(to: root))
+	}
+
+	func insertStrings(_ data: [Data], to destination: Hierarchy.Destination<UUID>) {
+		let strings = data.compactMap {
+			String(data: $0, encoding: .utf8)
+		}
+		base.insertStrings(strings, to: destination.relative(to: root))
+	}
+
+	func insertItems(_ data: [Data], to destination: Hierarchy.Destination<UUID>) {
+		base.insertItems(data, to: destination.relative(to: root))
 	}
 
 	func move(ids: [UUID], to destination: Destination<UUID>) {

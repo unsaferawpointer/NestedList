@@ -59,6 +59,11 @@ extension ContentUnitInteractorMock: ContentUnitInteractorProtocol {
 		return stubs.item
 	}
 
+	func nodes(for ids: [UUID]) -> [any TreeNode<Item>] {
+		invocations.append(.nodes(ids))
+		return stubs.nodes
+	}
+
 	func data(of id: UUID) -> Data? {
 		invocations.append(.data(id))
 		return stubs.data
@@ -75,6 +80,14 @@ extension ContentUnitInteractorMock: ContentUnitInteractorProtocol {
 
 	func insertNodes(_ nodes: [any TreeNode<Item>], to destination: Destination<UUID>) {
 		invocations.append(.insertNodes(destination: destination))
+	}
+
+	func insertItems(_ data: [Data], to destination: Destination<UUID>) {
+		invocations.append(.insertItems(data, destination: destination))
+	}
+
+	func insertStrings(_ data: [Data], to destination: Destination<UUID>) {
+		invocations.append(.insertStringData(data, destination: destination))
 	}
 
 	func move(ids: [UUID], to destination: Destination<UUID>) {
@@ -104,10 +117,13 @@ extension ContentUnitInteractorMock {
 		case setIcon(IconName?, ids: [UUID])
 		case setText(text: String, note: String?, id: UUID)
 		case item(UUID)
+		case nodes([UUID])
 		case data(UUID)
 		case string([UUID])
 		case insertStrings([String], destination: Destination<UUID>)
 		case insertNodes(destination: Destination<UUID>)
+		case insertItems([Data], destination: Destination<UUID>)
+		case insertStringData([Data], destination: Destination<UUID>)
 		case move([UUID], destination: Destination<UUID>)
 		case moveToTarget([UUID], target: UUID?)
 		case validateMovement([UUID], destination: Destination<UUID>)
@@ -118,6 +134,7 @@ extension ContentUnitInteractorMock {
 		var snapshot = Snapshot<Item>()
 		var newItem = UUID()
 		var item = Item(text: "")
+		var nodes: [any TreeNode<Item>] = []
 		var data: Data?
 		var string = ""
 		var validateMovement = false

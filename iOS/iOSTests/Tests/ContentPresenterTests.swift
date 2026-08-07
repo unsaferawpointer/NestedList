@@ -7,6 +7,8 @@
 
 import Testing
 import Foundation
+import UIKit
+import UniformTypeIdentifiers
 import CoreModule
 import CorePresentation
 import DesignSystem
@@ -56,8 +58,20 @@ final class ContentPresenterTests {
 // MARK: - Helpers
 private extension ContentPresenterTests {
 
+	var itemType: String {
+		"dev.zeroindex.ListAdapter.item"
+	}
+
+	var stringType: String {
+		UTType.plainText.identifier
+	}
+
 	func waitForAnalyticsInvocation() async -> ContentAnalyticsMock.Action? {
 		await analytics.waitForInvocation()
+	}
+
+	func clearPasteboard() {
+		UIPasteboard.general.items = []
 	}
 }
 
@@ -172,6 +186,108 @@ extension ContentPresenterTests {
 		#expect(ids == [expectedId])
 		#expect(moveToEnd == false)
 		#expect(sound == .unmark)
+	}
+
+	@Test func test_userDidTapMenuCopyItems_writesItemAndTextDataToPasteboard() {
+		// Arrange
+		clearPasteboard()
+		let expectedId = UUID()
+		let expectedData = Data([1, 2, 3])
+		let child = Item(text: "Child")
+		let item = Item(uuid: expectedId, text: "Parent")
+		interactor.stubs.nodes = [
+			Node(value: item, children: [Node(value: child)])
+		]
+		interactor.stubs.data = expectedData
+
+		// Act
+		sut.userDidTapMenu(with: .copyItems, selection: [expectedId])
+
+		// Assert
+		let info = Pasteboard().getInfo()
+		let data = info?.items.first?.data
+
+		#expect(data?[itemType] == expectedData)
+		#expect(String(data: data?[stringType] ?? Data(), encoding: .utf8) == "- Parent :\n\t- Child")
+	}
+
+	@Test func test_userDidTapMenuCutItems_deletesItemsAfterWritingPasteboard() {
+		// Arrange
+		clearPasteboard()
+		let expectedId = UUID()
+		let expectedData = Data([4, 5, 6])
+		let item = Item(uuid: expectedId, text: "Cut item")
+		interactor.stubs.nodes = [Node(value: item)]
+		interactor.stubs.data = expectedData
+
+		// Act
+		sut.userDidTapMenu(with: .cutItems, selection: [expectedId])
+
+		// Assert
+		guard case let .deleteItems(ids) = interactor.invocations.last else {
+			Issue.record("Expect delete items invocation")
+			return
+		}
+
+		let info = Pasteboard().getInfo()
+
+		#expect(ids == [expectedId])
+		#expect(info?.items.first?.data[itemType] == expectedData)
+	}
+
+	@Test func test_userDidTapMenuPaste_withItemData_insertsItemsToSelectedDestination() {
+		// Arrange
+		clearPasteboard()
+		let expectedId = UUID()
+		let expectedData = Data([7, 8, 9])
+		let info = PasteboardInfo(
+			items: [
+				PasteboardInfo.Item(
+					data: [
+						itemType: expectedData,
+						stringType: Data()
+					]
+				)
+			]
+		)
+		Pasteboard().setInfo(info, clearContents: true)
+
+		// Act
+		sut.userDidTapMenu(with: .paste, selection: [expectedId])
+
+		// Assert
+		guard case let .insertItems(data, destination) = interactor.invocations.first else {
+			Issue.record("Expect insert items invocation")
+			return
+		}
+
+		#expect(data == [expectedData])
+		#expect(destination == .onItem(with: expectedId))
+	}
+
+	@Test func test_userDidTapMenuPaste_withTextData_insertsStringsToRoot() {
+		// Arrange
+		clearPasteboard()
+		let expectedText = "Pasted text"
+		UIPasteboard.general.items = [
+			[
+				stringType: expectedText
+			]
+		]
+
+		// Act
+		sut.userDidTapMenu(with: .paste, selection: [])
+
+		// Assert
+		guard case let .insertStringData(data, destination) = interactor.invocations.first else {
+			Issue.record("Expect insert string data invocation")
+			return
+		}
+
+		let strings = data.compactMap { String(data: $0, encoding: .utf8) }
+
+		#expect(strings == [expectedText])
+		#expect(destination == .toRoot)
 	}
 }
 

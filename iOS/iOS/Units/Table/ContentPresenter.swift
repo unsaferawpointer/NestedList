@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import UniformTypeIdentifiers
 
 import Hierarchy
 import CoreModule
@@ -48,6 +49,12 @@ final class ContentPresenter {
 			view?.setEditing(editingMode)
 		}
 	}
+
+	// MARK: - Constants
+
+	private let stringType = UTType.plainText.identifier
+
+	private let itemType = "dev.zeroindex.ListAdapter.item"
 
 	// MARK: - Cache
 
@@ -146,10 +153,31 @@ private extension ContentPresenter {
 
 	func paste(selection: [UUID]) {
 		editingMode = nil
-		guard let string = UIPasteboard.general.string, let target = selection.first else {
+
+		let pasteboard = Pasteboard()
+		guard
+			let info = pasteboard.getInfo()
+		else {
 			return
 		}
-		interactor?.insertStrings([string], to: .onItem(with: target))
+
+		let destination: Destination<UUID> = if let first = selection.first {
+			.onItem(with: first)
+		} else {
+			.toRoot
+		}
+
+		if info.containsInfo(of: itemType) {
+			let data = info.items.compactMap { item in
+				item.data[itemType]
+			}
+			interactor?.insertItems(data, to: destination)
+		} else {
+			let data = info.items.compactMap { item in
+				item.data[stringType]
+			}
+			interactor?.insertStrings(data, to: destination)
+		}
 	}
 
 	func newItem(selection: [UUID]) {
@@ -159,21 +187,30 @@ private extension ContentPresenter {
 
 	func cut(selection: [UUID]) {
 		editingMode = nil
-		guard let interactor else {
+		guard
+			let interactor, !selection.isEmpty,
+			let info = pasteboardInfo(for: selection)
+		else {
 			return
 		}
-		let string = interactor.string(for: selection)
-		UIPasteboard.general.string = string
+
+		let pasteboard = Pasteboard()
+		pasteboard.setInfo(info, clearContents: true)
 		interactor.deleteItems(selection)
 	}
 
 	func copy(selection: [UUID]) {
 		editingMode = nil
-		guard let interactor else {
+		guard !selection.isEmpty else {
 			return
 		}
-		let string = interactor.string(for: selection)
-		UIPasteboard.general.string = string
+
+		guard let info = pasteboardInfo(for: selection) else {
+			return
+		}
+
+		let pasteboard = Pasteboard(pasteboard: .general)
+		pasteboard.setInfo(info, clearContents: true)
 	}
 
 	func delete(selection: [UUID]) {
@@ -418,7 +455,27 @@ extension ContentPresenter: DropDelegate {
 // MARK: - Helpers
 private extension ContentPresenter {
 
-	@MainActor func createNew(target: UUID?) {
+	func pasteboardInfo(for ids: [UUID]) -> PasteboardInfo? {
+		guard let nodes = interactor?.nodes(for: ids) else {
+			return nil
+		}
+
+		let parser = Parser()
+
+		let items = nodes.map {
+			PasteboardInfo.Item(
+				data:
+					[
+						itemType : interactor?.data(of: $0.id) ?? Data(),
+						stringType: parser.format($0).data(using: .utf8) ?? Data()
+					]
+			)
+		}
+
+		return PasteboardInfo(items: items)
+	}
+
+	func createNew(target: UUID?) {
 		let model = ItemDetailsView.Model(navigationTitle: localization.newItemNavigationTitle, properties: .init(text: ""))
 		router.showDetails(with: model, animateBottomBarItem: ContentToolbarIdentifier.newItem.rawValue) { [weak self] saved, success in
 			self?.router.dismiss()
