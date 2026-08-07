@@ -15,6 +15,11 @@ import CoreModule
 /// analytics backend and should only change as part of an explicit analytics schema migration.
 public enum DocumentAnalyticsEvent {
 
+	/// Document was read successfully.
+	///
+	/// - Parameter type: Stable document type identifier.
+	case read(type: String)
+
 	/// Document reading failed while loading its contents.
 	///
 	/// - Parameter error: Reason the document could not be read.
@@ -30,6 +35,8 @@ extension DocumentAnalyticsEvent: AnalyticsEvent {
 	/// Stable analytics backend event name.
 	public var name: AnalyticsEventName {
 		switch self {
+		case .read:
+			.documentRead
 		case .readError:
 			.documentReadError
 		}
@@ -38,6 +45,10 @@ extension DocumentAnalyticsEvent: AnalyticsEvent {
 	/// Typed analytics parameters sent with the event.
 	public var parameters: [String: AnalyticsValue] {
 		switch self {
+		case let .read(type):
+			[
+				"type": .string(type)
+			]
 		case let .readError(error):
 			[
 				"reason": .string(reason(for: error))

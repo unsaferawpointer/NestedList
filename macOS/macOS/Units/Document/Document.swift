@@ -63,6 +63,7 @@ class Document: NSDocument {
 	override func read(from data: Data, ofType typeName: String) throws {
 		do {
 			try storage.read(from: data, ofType: typeName)
+			Task { await analytics.track(.read(type: typeName)) }
 		} catch let error as DocumentError {
 			Task { await analytics.track(.readError(error)) }
 			throw ErrorMapper.map(error: error)

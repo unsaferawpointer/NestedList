@@ -41,13 +41,21 @@ class Document: UIDocument {
 
 		guard Thread.current.isMainThread else {
 			Task { @MainActor in
-				try storage.read(from: data, ofType: typeName)
+				do {
+					try storage.read(from: data, ofType: typeName)
+					await analytics.track(.read(type: typeName))
+				} catch let error as DocumentError {
+					await analytics.track(.readError(error))
+				} catch {
+					return
+				}
 			}
 			return
 		}
 
 		do {
 			try storage.read(from: data, ofType: typeName)
+			Task { await analytics.track(.read(type: typeName)) }
 		} catch let error as DocumentError {
 			Task { await analytics.track(.readError(error)) }
 			throw ErrorMapper.map(error: error)
