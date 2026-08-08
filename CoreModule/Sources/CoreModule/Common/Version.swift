@@ -32,7 +32,6 @@ extension Version: RawRepresentable {
 	}
 
 	public init?(rawValue: String) {
-
 		let modificated = rawValue.trimmingPrefix("v")
 
 		let components = modificated.split(separator: ".")

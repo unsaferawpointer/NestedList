@@ -77,5 +77,29 @@
 		"id": "settings_feedback",
 		"description": "Теперь можно написать разработчику или оценить приложение прямо из настроек.",
 		"minVersion": "2.2.0"
+	},
+	{
+		"icon": "asterisk",
+		"iconColor": 12,
+		"title": "Новые иконки-маркеры",
+		"id": "marker_icons",
+		"description": "Используйте новые маркеры: звездочку, ромб, звезду и знак стоп, чтобы пункты было проще различать.",
+		"minVersion": "2.3.0"
+	},
+	{
+		"icon": "speaker.wave.2.fill",
+		"iconColor": 9,
+		"title": "Звуковые эффекты",
+		"id": "sound_effects",
+		"description": "Действия теперь сопровождаются звуком, а эффекты можно отключить в настройках.",
+		"minVersion": "2.3.0"
+	},
+	{
+		"icon": "chart.line.uptrend.xyaxis",
+		"iconColor": 10,
+		"title": "Аналитика и данные",
+		"id": "analytics_data_policy",
+		"description": "Добавлена аналитика для улучшения приложения и обновлена политика использования данных.",
+		"minVersion": "2.3.0"
 	}
 ]

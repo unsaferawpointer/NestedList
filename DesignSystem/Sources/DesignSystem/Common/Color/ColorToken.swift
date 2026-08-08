@@ -41,6 +41,17 @@ public enum ColorToken: Int {
 // MARK: - Codable
 extension ColorToken: Codable { }
 
+// MARK: - ColorToken Decoding
+public extension KeyedDecodingContainer {
+
+	func decodeIfPresent(_ type: ColorToken.Type, forKey key: Key) throws -> ColorToken? {
+		guard let rawValue = try decodeIfPresent(Int.self, forKey: key) else {
+			return nil
+		}
+		return ColorToken(rawValue: rawValue)
+	}
+}
+
 // MARK: - Hashable
 extension ColorToken: Hashable { }
 

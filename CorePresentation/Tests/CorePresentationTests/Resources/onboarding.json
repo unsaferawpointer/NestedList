@@ -41,5 +41,29 @@
 		"description": "Now you can set both color and icon for each item individually.",
 		"minVersion": "2.0.0",
 		"maxVersion": "2.0.0"
+	},
+	{
+		"icon": "asterisk",
+		"iconColor": 12,
+		"title": "New marker icons",
+		"id": "marker_icons",
+		"description": "Use new asterisk, diamond, star, and stop markers to make items easier to scan.",
+		"minVersion": "2.3.0"
+	},
+	{
+		"icon": "speaker.wave.2.fill",
+		"iconColor": 9,
+		"title": "Sound effects",
+		"id": "sound_effects",
+		"description": "Actions now have sound feedback, with an option to turn effects off in Settings.",
+		"minVersion": "2.3.0"
+	},
+	{
+		"icon": "chart.line.uptrend.xyaxis",
+		"iconColor": 10,
+		"title": "Analytics and data use",
+		"id": "analytics_data_policy",
+		"description": "Analytics were added to help improve the app, and the data use policy has been updated.",
+		"minVersion": "2.3.0"
 	}
 ]
