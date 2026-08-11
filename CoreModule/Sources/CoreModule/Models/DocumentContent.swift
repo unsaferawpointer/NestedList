@@ -151,6 +151,6 @@ public extension DocumentContent {
 
 	enum ContentView: Int, Codable {
 		case list = 0
-		case board
+		case columns = 1
 	}
 }

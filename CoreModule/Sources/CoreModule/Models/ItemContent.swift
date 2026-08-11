@@ -18,6 +18,8 @@ public struct ItemContent {
 
 	public var options: ItemOptions
 
+	public var view: View
+
 	// MARK: - Appearance
 
 	public var iconName: IconName?
@@ -31,6 +33,7 @@ public struct ItemContent {
 		text: String,
 		note: String? = nil,
 		options: ItemOptions = [],
+		view: View = .list,
 		iconName: IconName? = nil,
 		tintColor: ItemColor? = nil
 	) {
@@ -38,6 +41,7 @@ public struct ItemContent {
 		self.text = text
 		self.note = note
 		self.options = options
+		self.view = view
 		self.iconName = iconName
 		self.tintColor = tintColor
 	}
@@ -47,6 +51,7 @@ public struct ItemContent {
 		self.text = properties.text
 		self.note = properties.note
 		self.options = properties.options
+		self.view = .list
 		self.iconName = properties.iconName
 		self.tintColor = properties.tintColor
 	}
@@ -73,6 +78,7 @@ public extension ItemContent {
 			text: text,
 			note: note,
 			options: options,
+			view: view,
 			iconName: iconName,
 			tintColor: tintColor
 		)
@@ -120,6 +126,7 @@ extension ItemContent: Codable {
 		case text
 		case note
 		case options
+		case view
 		case iconName
 		case tintColor
 		case style
@@ -132,6 +139,7 @@ extension ItemContent: Codable {
 		self.text = try container.decode(String.self, forKey: .text)
 		self.note = try container.decodeIfPresent(String.self, forKey: .note)
 		self.options = try container.decode(ItemOptions.self, forKey: .options)
+		self.view = try container.decodeIfPresent(View.self, forKey: .view) ?? .list
 
 		let version: Version? = if let key = CodingUserInfoKey.documentVersion {
 			decoder.userInfo[key] as? Version
@@ -160,6 +168,7 @@ extension ItemContent: Codable {
 		try container.encode(text, forKey: .text)
 		try container.encodeIfPresent(note, forKey: .note)
 		try container.encode(options, forKey: .options)
+		try container.encode(view, forKey: .view)
 		try container.encodeIfPresent(iconName, forKey: .iconName)
 		try container.encodeIfPresent(tintColor, forKey: .tintColor)
 	}
@@ -167,6 +176,11 @@ extension ItemContent: Codable {
 
 // MARK: - Nested data structs
 public extension ItemContent {
+
+	enum View: Int, Codable {
+		case list = 0
+		case columns = 1
+	}
 
 	enum Style: Int, Codable {
 		case item

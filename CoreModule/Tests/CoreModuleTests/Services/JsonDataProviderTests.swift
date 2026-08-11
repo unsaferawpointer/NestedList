@@ -85,7 +85,7 @@ extension JsonDataProviderTests {
 						)
 					),
 				],
-			view: .board
+			view: .columns
 		)
 
 		let version = "1-0-0"
@@ -201,7 +201,7 @@ extension JsonDataProviderTests {
 						)
 					),
 				],
-			view: .board
+			view: .columns
 		)
 
 		let version = "2-0-0"
