@@ -1,0 +1,80 @@
+schema: spec-driven
+
+context: |
+  Project: NestedList: Outliner
+
+  Product:
+  - Document-based outliner for creating and editing hierarchical nested lists.
+  - Available on iOS, iPadOS, and macOS.
+  - Documents are the primary unit of user data.
+  - The application should remain focused on outlining and hierarchical information.
+
+  Platforms:
+  - iOS
+  - iPadOS
+  - macOS
+
+  Tech stack:
+  - Swift
+  - UIKit on iOS/iPadOS
+  - AppKit on macOS
+  - SwiftUI where appropriate
+  - Swift Package Manager for modularization
+
+  Architecture:
+  - The project is split into modules.
+  - Shared domain and document logic should remain platform-independent where practical.
+  - Platform-specific UI behavior may differ between UIKit and AppKit.
+  - Preserve the existing hierarchical node data model unless a change explicitly requires modifying it.
+
+  Document model:
+  - NestedList is a Document Based App.
+  - Documents use the .nlist format.
+  - The document contains hierarchical items represented as a tree.
+  - Changes to the persisted document format must consider backward compatibility and migration.
+  - Existing documents must remain readable whenever reasonably possible.
+
+  Product principles:
+  - Prefer simple, focused interactions over feature-heavy UI.
+  - Preserve the outliner-first experience.
+  - Features should work naturally with hierarchical data.
+  - Avoid introducing concepts that unnecessarily complicate the document model.
+  - Consider behavior on iPhone, iPad, and Mac when designing user-facing features.
+
+rules:
+  proposal:
+    - Clearly state the user problem and expected user-facing behavior.
+    - Identify affected platforms.
+    - Identify whether the change affects the document format or persisted data.
+    - Keep the proposal focused on scope and behavior rather than implementation details.
+
+  specs:
+    - Describe observable behavior rather than implementation details.
+    - Cover relevant behavior for iOS, iPadOS, and macOS when it differs.
+    - Explicitly specify behavior for hierarchical operations when applicable.
+    - Include edge cases involving parent-child relationships when relevant.
+    - State compatibility requirements when persisted document data is affected.
+
+  design:
+    - Prefer existing project abstractions and patterns before introducing new ones.
+    - Separate shared domain logic from platform-specific UI implementation where practical.
+    - Describe document migration when persisted data changes.
+    - Consider undo, drag-and-drop, copy/paste, and multiple-window behavior when affected by the feature.
+    - Avoid changing the core node structure unless required by the specification.
+
+  tasks:
+    - Split implementation work into small, verifiable tasks.
+    - Separate shared logic from iOS/iPadOS and macOS implementation tasks where appropriate.
+    - Include tests for domain logic and document migrations when applicable.
+
+operations:
+  apply:
+    guidance:
+      - Implement the smallest change that satisfies the specification.
+      - Reuse existing project patterns before introducing new abstractions.
+      - Run focused tests for affected modules.
+
+  archive:
+    guidance:
+      - Keep the completion summary concise.
+      - Mention any document format or compatibility changes.
