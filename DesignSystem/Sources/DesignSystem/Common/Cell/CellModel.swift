@@ -20,8 +20,6 @@ public protocol CellModel: Identifiable {
 
 	var value: Value { get }
 
-	var action: ((Value) -> Void)? { get }
-
 	var isGroup: Bool { get }
 
 	var height: CGFloat? { get }
@@ -39,16 +37,17 @@ extension CellModel where Value: Identifiable {
 #elseif os(iOS)
 
 import UIKit
+import Hierarchy
 
-public protocol CellModel: Identifiable, Hashable {
+public protocol CellModel: MutableIdentifiable, Hashable {
 
 	associatedtype Cell: ListCell where Cell.Model == Self
 
-	var configuration: UIListContentConfiguration { get }
+	associatedtype Configuration: UIContentConfiguration & Equatable
 
-	var selectionConfiguration: UIListContentConfiguration { get }
+	var configuration: Configuration { get }
 
-	var showsTrailingDisclosure: Bool { get }
+	var selectionConfiguration: Configuration { get }
 
 	func contentIsEquals(to other: Self) -> Bool
 }

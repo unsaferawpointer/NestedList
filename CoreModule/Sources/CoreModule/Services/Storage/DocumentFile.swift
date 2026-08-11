@@ -7,9 +7,9 @@
 
 import Foundation
 
-struct DocumentFile<Content: Codable>: Versioned, Codable {
+struct DocumentFile<State: Codable>: Versioned, Codable {
 
 	let version: Version
 
-	var content: Content
+	var content: State
 }

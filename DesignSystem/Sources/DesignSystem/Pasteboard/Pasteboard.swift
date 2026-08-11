@@ -7,15 +7,16 @@
 
 import Foundation
 
-#if os(macOS)
-import AppKit
-
 public protocol PasteboardProtocol {
 
 	func contains(_ types: Set<String>) -> Bool
 	func setInfo(_ info: PasteboardInfo, clearContents: Bool)
 	func getInfo() -> PasteboardInfo?
 }
+
+
+#if os(macOS)
+import AppKit
 
 public final class Pasteboard {
 
@@ -75,6 +76,78 @@ extension Pasteboard: PasteboardProtocol {
 			return item
 		}
 		pasteboard.writeObjects(items)
+	}
+}
+#elseif os(iOS)
+import UIKit
+
+public final class Pasteboard {
+
+	let pasteboard: UIPasteboard
+
+	// MARK: - Initialization
+
+	public init(pasteboard: UIPasteboard = .general) {
+		self.pasteboard = pasteboard
+	}
+}
+
+// MARK: - PasteboardProtocol
+extension Pasteboard: PasteboardProtocol {
+
+	public func getInfo() -> PasteboardInfo? {
+		let items = pasteboard.items.map { item in
+			let tuples = item.compactMap { key, value -> (String, Data)? in
+				if let data = value as? Data {
+					return (key, data)
+				}
+
+				if let string = value as? String, let data = string.data(using: .utf8) {
+					return (key, data)
+				}
+
+				return nil
+			}
+			let data = Dictionary(uniqueKeysWithValues: tuples)
+			print("___TEST key \(data)")
+			return PasteboardInfo.Item(data: data)
+		}
+
+		guard !items.isEmpty else {
+			return nil
+		}
+
+		return PasteboardInfo(items: items)
+	}
+
+	public func contains(_ types: Set<String>) -> Bool {
+		return pasteboard.items.contains { item in
+			!types.isDisjoint(with: item.keys)
+		}
+	}
+
+	public func setInfo(_ info: PasteboardInfo, clearContents: Bool) {
+		let items = info.items.map { item in
+			let tuples = item.data.map { key, data -> (String, Any) in
+				guard key == PasteboardInfo.Item.stringType else {
+					return (key, data)
+				}
+
+				if let string = String(data: data, encoding: .utf8) {
+					return (key, string)
+				}
+
+				return (key, data)
+			}
+			return Dictionary(uniqueKeysWithValues: tuples)
+		}
+
+		if clearContents {
+			pasteboard.items = items
+			return
+		}
+
+		pasteboard.items.append(contentsOf: items)
 	}
 }
 #endif

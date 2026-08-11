@@ -1,0 +1,72 @@
+//
+//  AnalyticsPayload.swift
+//  Analytics
+//
+
+import Foundation
+
+/// A queued analytics event prepared for delivery by `AnalyticsService`.
+///
+/// Payloads add service-level metadata, such as user and session identifiers, to typed
+/// `AnalyticsEvent` values while preserving the original event object for transport-specific
+/// encoding by an `AnalyticsEngine`.
+public struct AnalyticsPayload: Sendable, Identifiable {
+
+	/// Unique identifier of the queued payload.
+	public let id: UUID
+
+	/// Original typed analytics event.
+	public let event: any AnalyticsEvent
+
+	/// Identifier of the user associated with the event.
+	public let userIdentifier: UUID
+
+	/// Identifier of the application session associated with the event.
+	public let sessionIdentifier: UUID
+
+	/// Date when the application session associated with the event started.
+	public let sessionStartedAt: Date
+
+	/// Date when the payload was created and placed into the service queue.
+	public let createdAt: Date
+
+	/// Environment metadata associated with the event.
+	public let metadata: AnalyticsPayloadMetadata
+
+	public init(
+		id: UUID = UUID(),
+		event: any AnalyticsEvent,
+		userIdentifier: UUID,
+		sessionIdentifier: UUID,
+		sessionStartedAt: Date,
+		createdAt: Date = Date(),
+		metadata: AnalyticsPayloadMetadata = .empty
+	) {
+		self.id = id
+		self.event = event
+		self.userIdentifier = userIdentifier
+		self.sessionIdentifier = sessionIdentifier
+		self.sessionStartedAt = sessionStartedAt
+		self.createdAt = createdAt
+		self.metadata = metadata
+	}
+}
+
+// MARK: - Calculated Properties
+extension AnalyticsPayload {
+
+	/// Stable event area forwarded from the wrapped event.
+	public var area: String {
+		return event.area
+	}
+
+	/// Stable event name forwarded from the wrapped event.
+	public var name: AnalyticsEventName {
+		return event.name
+	}
+
+	/// Event parameters forwarded from the wrapped event.
+	public var parameters: [String: AnalyticsValue] {
+		return event.parameters
+	}
+}

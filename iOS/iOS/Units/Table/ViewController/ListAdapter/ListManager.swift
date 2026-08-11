@@ -9,12 +9,6 @@ import UIKit
 import DesignSystem
 import Hierarchy
 
-struct RowConfiguration: Equatable {
-	var level: Int
-	var isExpanded: Bool
-	var isLeaf: Bool
-}
-
 protocol CacheDelegate<Model>: AnyObject {
 
 	associatedtype Model
@@ -26,7 +20,7 @@ protocol CacheDelegate<Model>: AnyObject {
 }
 
 @MainActor
-final class ListManager<Model: CellModel & IdentifiableValue> {
+final class ListManager<Model: CellModel> where Model.ID: RandomizableIdentifier {
 
 	unowned var tableView: UITableView
 
@@ -59,7 +53,7 @@ final class ListManager<Model: CellModel & IdentifiableValue> {
 	init(tableView: UITableView, delegate: (any ContentViewDelegate<Model.ID>)?) {
 		self.tableView = tableView
 
-		self.tableView.register(ItemCell.self, forCellReuseIdentifier: "cell")
+		self.tableView.register(ItemCell<Model>.self, forCellReuseIdentifier: "cell")
 		self.storage.delegate = self
 		self.delegate = delegate
 	}
@@ -142,9 +136,9 @@ extension ListManager {
 			return
 		}
 		tableView.deselectRow(at: indexPath, animated: true)
-		let model = storage.model(with: indexPath.row)
-		guard !model.showsTrailingDisclosure else {
-			delegate?.listDidTapDisclosure(id: model.id)
+		let id = storage.identifier(for: indexPath.row)
+		guard !storage.rowConfiguration(for: indexPath.row).isLeaf else {
+			delegate?.listDidTap(id: id)
 			return
 		}
 		storage.toggle(indexPath: indexPath)
@@ -385,10 +379,13 @@ extension ListManager {
 			fatalError("Delegate is nil")
 		}
 		return UIContextMenuConfiguration(actionProvider:  { _ in
-			return DesignSystem.MenuBuilder.build(
-				from: delegate.menu(for: [model.id]),
-				with: [model.id],
-				delegate: delegate
+			return UIMenu(
+				children: ContentMenuBuilder()
+					.build(
+						with: [model.id],
+						configuration: delegate.menuConfiguration(for: [model.id]),
+						delegate: delegate
+					)
 			)
 		})
 	}

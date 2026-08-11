@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "E15825F0-3413-417F-8054-3155DC3D0A34",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testInteropMode" : "complete",
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "HierarchyTests",
+        "name" : "HierarchyTests"
+      }
+    }
+  ],
+  "version" : 1
+}

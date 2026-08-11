@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import UniformTypeIdentifiers
 
 import Hierarchy
 import CoreModule
@@ -15,9 +16,8 @@ import CorePresentation
 
 @MainActor
 protocol ContentPresenterProtocol: AnyObject {
-	func present(_ content: Content)
-	func present(_ nodes: [Node<Item>])
-	func presentRoot(node: Node<Item>)
+	func present(snapshot: Snapshot<Item>)
+	func presentRoot(item: Item)
 }
 
 @MainActor
@@ -33,34 +33,28 @@ final class ContentPresenter {
 
 	private(set) var factory: ItemsFactoryProtocol = ItemsFactory()
 
-	private(set) var menuFactory = MenuFactory()
-
 	var settingsProvider: any StateProviderProtocol<Settings>
-
-	var toolbarFactory = ToolbarFactory()
 
 	var router: ContentRouterProtocol
 
 	var localization: UnitLocalizationProtocol = UnitLocalization()
 
+	private(set) var soundPlayer: any SoundPlayerProtocol
+
+	private(set) var analytics: any ConcreteAnalyticsServiceProtocol<ContentAnalyticsEvent>
+
 	var editingMode: EditingMode? {
 		didSet {
-			let selection = view?.selection ?? []
-			let model = toolbarFactory.build(
-				editingMode: editingMode,
-				selectedCount: selection.count,
-				isCompleted: cache.validate(.isStrikethrough, other: selection)
-			)
-			view?.display(model)
+			displayToolbar()
 			view?.setEditing(editingMode)
 		}
 	}
 
 	// MARK: - Constants
 
-	private let itemType = "dev.zeroindex.ListAdapter.item"
-
 	private let stringType = UTType.plainText.identifier
+
+	private let itemType = "dev.zeroindex.ListAdapter.item"
 
 	// MARK: - Cache
 
@@ -70,13 +64,24 @@ final class ContentPresenter {
 
 	init(
 		router: ContentRouterProtocol,
-		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared
+		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared,
+		analytics: any ConcreteAnalyticsServiceProtocol<ContentAnalyticsEvent>,
+		soundPlayer: any SoundPlayerProtocol
 	) {
 		self.router = router
 		self.settingsProvider = settingsProvider
+		self.analytics = analytics
+		self.soundPlayer = soundPlayer
 
 		settingsProvider.addObservation(for: self) { [weak self] settings in
-			self?.interactor?.fetchData()
+			guard let interactor = self?.interactor else {
+				return
+			}
+			let (item, snapshot) = interactor.fetchData()
+			self?.present(snapshot: snapshot)
+			if let item {
+				self?.presentRoot(item: item)
+			}
 		}
 	}
 }
@@ -84,38 +89,28 @@ final class ContentPresenter {
 // MARK: - ContentPresenterProtocol
 extension ContentPresenter: ContentPresenterProtocol {
 
-	func present(_ content: Content) {
-		let nodes = content.root.nodes
-		present(nodes)
-	}
-
-	func present(_ nodes: [Node<Item>]) {
-
-		let withoutChildren = nodes.map {
-			$0.withoutChildren { item in
-				item.isSubitemsHidden
-			}
+	func present(snapshot: Snapshot<Item>) {
+		var pruned = snapshot.pruned { item in
+			item.isSubitemsHidden
 		}
+		pruned.validate(keyPath: \.isStrikethrough)
 
-		var snapshot = Snapshot(withoutChildren)
-		snapshot.validate(keyPath: \.isStrikethrough)
+		cache.store(.isStrikethrough, keyPath: \.isStrikethrough, equalsTo: true, from: pruned)
+		cache.store(.isSubitemsHidden, keyPath: \.isSubitemsHidden, equalsTo: true, from: pruned)
 
-		cache.store(.isStrikethrough, keyPath: \.isStrikethrough, equalsTo: true, from: snapshot)
-		cache.store(.isSubitemsHidden, keyPath: \.isSubitemsHidden, equalsTo: true, from: snapshot)
-
-		let converted = snapshot
+		let converted = pruned
 			.map { info in
-					return factory.makeItem(
-						item: info.model,
-						isLeaf: info.isLeaf,
-						iconColor: settingsProvider.state.iconColor
-					)
-				}
+				return factory.makeItem(
+					item: info.model,
+					isLeaf: info.isLeaf,
+					iconColor: settingsProvider.state.iconColor
+				)
+			}
 		view?.display(converted)
 	}
 
-	func presentRoot(node: Node<Item>) {
-		view?.display(title: node.value.text)
+	func presentRoot(item: Item) {
+		view?.display(title: item.text)
 	}
 }
 
@@ -123,11 +118,28 @@ extension ContentPresenter: ContentPresenterProtocol {
 extension ContentPresenter: ViewDelegate {
 
 	func viewDidChange(state: ViewState) {
+		guard let interactor else {
+			return
+		}
 		switch state {
 		case .didLoad:
-			interactor?.fetchData()
+			let (item, snapshot) = interactor.fetchData()
+			present(snapshot: snapshot)
+			if let item {
+				presentRoot(item: item)
+			}
 			view?.expandAll()
 			displayToolbar()
+
+			// MARK: - Analytics
+			Task {
+				let event: ContentAnalyticsEvent = .documentShow(
+					depth: snapshot.depth,
+					totalCount: snapshot.count,
+					isRoot: item == nil
+				)
+				await analytics.track(event)
+			}
 		case .willAppear:
 			displayToolbar()
 		default:
@@ -136,124 +148,229 @@ extension ContentPresenter: ViewDelegate {
 	}
 }
 
-// MARK: - InteractionDelegate
-extension ContentPresenter: InteractionDelegate {
+// MARK: - Helpers
+private extension ContentPresenter {
 
-	func userDidSelect(item: String, with selection: [UUID]?) {
-		guard let menuIdentifier = ElementIdentifier(rawValue: item) else {
+	func paste(selection: [UUID]) {
+		editingMode = nil
+
+		let pasteboard = Pasteboard()
+		guard
+			let info = pasteboard.getInfo()
+		else {
 			return
 		}
 
-		let currentSelection = selection ?? view?.selection
+		let destination: Destination<UUID> = if let first = selection.first {
+			.onItem(with: first)
+		} else {
+			.toRoot
+		}
 
-		switch menuIdentifier {
-		case .edit:
-			editingMode = nil
-			guard let id = currentSelection?.first, let item = interactor?.item(for: id) else {
+		if info.containsInfo(of: itemType) {
+			let data = info.items.compactMap { item in
+				item.data[itemType]
+			}
+			interactor?.insertItems(data, to: destination)
+		} else {
+			let data = info.items.compactMap { item in
+				item.data[stringType]
+			}
+			interactor?.insertStrings(data, to: destination)
+		}
+	}
+
+	func newItem(selection: [UUID]) {
+		editingMode = nil
+		createNew(target: selection.first)
+	}
+
+	func cut(selection: [UUID]) {
+		editingMode = nil
+		guard
+			let interactor, !selection.isEmpty,
+			let info = pasteboardInfo(for: selection)
+		else {
+			return
+		}
+
+		let pasteboard = Pasteboard()
+		pasteboard.setInfo(info, clearContents: true)
+		interactor.deleteItems(selection)
+	}
+
+	func copy(selection: [UUID]) {
+		editingMode = nil
+		guard !selection.isEmpty else {
+			return
+		}
+
+		guard let info = pasteboardInfo(for: selection) else {
+			return
+		}
+
+		let pasteboard = Pasteboard(pasteboard: .general)
+		pasteboard.setInfo(info, clearContents: true)
+	}
+
+	func delete(selection: [UUID]) {
+		editingMode = nil
+		playSound(.erase)
+		interactor?.deleteItems(selection)
+	}
+
+	func edit(selection: [UUID]) {
+		editingMode = nil
+		guard let id = selection.first, let item = interactor?.item(for: id) else {
+			return
+		}
+		let model = ItemDetailsView.Model(
+			navigationTitle: localization.editItemNavigationTitle,
+			properties: item.details
+		)
+		router.showDetails(with: model, animateBottomBarItem: ContentToolbarIdentifier.newItem.rawValue) { [weak self] saved, success in
+			self?.router.dismiss()
+			if success {
+				let note = saved.description.isEmpty ? nil : saved.description
+				self?.interactor?.set(
+					saved.text,
+					note: note,
+					for: id
+				)
+			}
+		}
+	}
+
+	func move(selection: [UUID]) {
+		router.showTargetsScreen(for: Set(selection)) { [weak self] target, isSuccess in
+			self?.router.dismiss()
+			guard isSuccess else {
 				return
 			}
-			let model = CorePresentation.ItemDetailsView.Model(
-				navigationTitle: localization.editItemNavigationTitle,
-				properties: item.details
-			)
-			router.showDetails(with: model, animateBottomBarItem: ElementIdentifier.new.rawValue) { [weak self] saved, success in
-					self?.router.dismiss()
-					if success {
-						let note = saved.description.isEmpty ? nil : saved.description
-						self?.interactor?.set(
-							saved.text,
-							note: note,
-							for: id
-						)
-					}
-				}
-		case .new:
-			editingMode = nil
-			createNew(target: currentSelection?.first)
-		case .cut:
-			editingMode = nil
-			guard let interactor else {
-				return
-			}
-			let string = interactor.string(for: currentSelection ?? [])
-			UIPasteboard.general.string = string
-			interactor.deleteItems(currentSelection ?? [])
-		case .copy:
-			editingMode = nil
-			guard let interactor else {
-				return
-			}
-			let string = interactor.string(for: currentSelection ?? [])
-			UIPasteboard.general.string = string
-		case .paste:
-			editingMode = nil
-			guard let string = UIPasteboard.general.string, let target = currentSelection?.first else {
-				return
-			}
-			interactor?.insertStrings([string], to: .onItem(with: target))
-		case .delete:
-			editingMode = nil
-			interactor?.deleteItems(currentSelection ?? [])
-		case .strikethrough:
-			editingMode = nil
-			let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
-			let newValue = !(cache.validate(.isStrikethrough, other: currentSelection ?? []) ?? false)
-			interactor?.setStatus(newValue, for: currentSelection ?? [], moveToEnd: moveToEnd)
-		case .hideSubitems:
-			editingMode = nil
-			let newValue = !(cache.validate(.isSubitemsHidden, other: currentSelection ?? []) ?? false)
-			interactor?.setSubitemsHidden(newValue, for: currentSelection ?? [])
-		case .select:
-			editingMode = .selection
-		case .selectAll:
-			view?.selectAll()
-		case .reorder:
-			editingMode = .reordering
-		case .settings:
-			router.showSettings()
-		case .done:
-			editingMode = nil
-		case .expandAll:
-			view?.expandAll()
-		case .collapseAll:
-			view?.collapseAll()
-		case .move:
-			router.showTargetsScreen(for: Set(currentSelection ?? [])) { [weak self] target, isSuccess in
-				self?.router.dismiss()
-				guard isSuccess else {
-					return
-				}
-				self?.editingMode = nil
-				let destination: Destination<UUID> = if let target {
-					.onItem(with: target)
-				} else {
-					.toRoot
-				}
-				self?.interactor?.move(ids: currentSelection ?? [], to: destination)
-			}
-		case .specialReorder:
-			guard let first = selection?.first else {
-				return
-			}
-			router.showReorderScreen(for: first) { [weak self] in
-				self?.router.dismiss()
-			}
-		case .icon:
-			router.showIconPicker(title: localization.iconPickerNavigationTitle) { [weak self] icon in
-				self?.editingMode = nil
-				self?.interactor?.setIcon(icon, for: currentSelection ?? [])
-			}
-		case .color:
-			router.showColorPicker(title: localization.colorPickerNavigationTitle) { [weak self] color in
-				self?.editingMode = nil
-				self?.interactor?.setColor(color, for: currentSelection ?? [])
-			}
+			self?.editingMode = nil
+			self?.playSound(.place)
+			self?.interactor?.move(ids: selection, to: target)
+		}
+	}
+
+	func showIconPicker(selection: [UUID]) {
+		router.showIconPicker(title: localization.iconPickerNavigationTitle) { [weak self] icon in
+			self?.editingMode = nil
+			self?.interactor?.setIcon(icon, for: selection)
+		}
+	}
+
+	func showColorPicker(selection: [UUID]) {
+		router.showColorPicker(title: localization.colorPickerNavigationTitle) { [weak self] color in
+			self?.editingMode = nil
+			self?.interactor?.setColor(color, for: selection)
+		}
+	}
+
+	func showReorderScreen(selection: [UUID]) {
+		guard let first = selection.first else {
+			return
+		}
+		router.showReorderScreen(for: first) { [weak self] in
+			self?.router.dismiss()
+		}
+	}
+
+	func toggleHideSubitemsFlag(selection: [UUID]) {
+		editingMode = nil
+		let newValue = !(cache.validate(.isSubitemsHidden, other: selection) ?? false)
+		interactor?.setSubitemsHidden(newValue, for: selection)
+	}
+
+	func toggleStrikethroughFlag(selection: [UUID]) {
+		editingMode = nil
+		let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
+		let newValue = !(cache.validate(.isStrikethrough, other: selection) ?? false)
+		playSound(newValue ? .mark : .unmark)
+		interactor?.setStatus(newValue, for: selection, moveToEnd: moveToEnd)
+	}
+
+	func playSound(_ sound: Sound) {
+		guard settingsProvider.state.soundEffects == .enabled else {
+			return
+		}
+		soundPlayer.play(sound: sound)
+	}
+}
+
+// MARK: - ContentMenuDelegate
+extension ContentPresenter: ContentMenuDelegate {
+
+	func userDidTapMenu(with id: ContentMenuIdentifier, selection: [UUID]?) {
+		let currentSelection = selection ?? view?.selection ?? []
+
+		// MARK: - Analytics
+		let event: ContentAnalyticsEvent = .menuClick(id: id.rawValue, source: .context)
+		Task { await analytics.track(event) }
+
+		switch id {
+		case .cutItems:						cut(selection: currentSelection)
+		case .copyItems:					copy(selection: currentSelection)
+		case .paste:						paste(selection: currentSelection)
+		case .editItem:						edit(selection: currentSelection)
+		case .newItem:						newItem(selection: currentSelection)
+		case .toggleStrikethrough:			toggleStrikethroughFlag(selection: currentSelection)
+		case .toggleSubitemsVisibility:		toggleHideSubitemsFlag(selection: currentSelection)
+		case .changeIcon:					showIconPicker(selection: currentSelection)
+		case .changeColor:					showColorPicker(selection: currentSelection)
+		case .moveItems:					move(selection: currentSelection)
+		case .reorderItems:					showReorderScreen(selection: currentSelection)
+		case .deleteItems:					delete(selection: currentSelection)
+		}
+	}
+}
+
+// MARK: - ContentToolbarDelegate
+extension ContentPresenter: ContentToolbarDelegate {
+
+	func userDidTapToolbar(with id: ContentToolbarIdentifier, selection: [UUID]?) {
+		let currentSelection = selection ?? view?.selection ?? []
+
+		// MARK: - Analytics
+		let event: ContentAnalyticsEvent = .buttonClick(id: id.rawValue, source: "toolbar")
+		Task { await analytics.track(event) }
+
+		switch id {
+		case .cutItems:						cut(selection: currentSelection)
+		case .copyItems:					copy(selection: currentSelection)
+		case .newItem:						newItem(selection: currentSelection)
+		case .toggleStrikethrough:			toggleStrikethroughFlag(selection: currentSelection)
+		case .toggleSubitemsVisibility:		toggleHideSubitemsFlag(selection: currentSelection)
+		case .changeIcon:					showIconPicker(selection: currentSelection)
+		case .changeColor:					showColorPicker(selection: currentSelection)
+		case .moveItems:					move(selection: currentSelection)
+		case .deleteItems:					delete(selection: currentSelection)
+		case .done:							editingMode = nil
+		case .settings:						router.showSettings()
+		case .reorderingMode:				editingMode = .reordering
+		case .selectionMode:				editingMode = .selection
+		case .selectAll:					view?.selectAll()
+		case .collapseAll:					view?.collapseAll()
+		case .expandAll:					view?.expandAll()
+		case .more:							break
 		}
 	}
 }
 
 // MARK: - ContentViewDelegate
-extension ContentPresenter: ContentViewDelegate { }
+extension ContentPresenter: ContentViewDelegate {
+
+	func menuConfiguration(for ids: [UUID]) -> ContentMenuConfiguration {
+		var state: [String: Bool] = [:]
+		if let result = cache.validate(.isStrikethrough, other: ids) {
+			state[ContentMenuIdentifier.toggleStrikethrough.rawValue] = result
+		}
+		if let result = cache.validate(.isSubitemsHidden, other: ids) {
+			state[ContentMenuIdentifier.toggleSubitemsVisibility.rawValue] = result
+		}
+		return ContentMenuConfiguration(state: state)
+	}
+}
 
 // MARK: - ListDelegate
 extension ContentPresenter: ListDelegate {
@@ -263,27 +380,22 @@ extension ContentPresenter: ListDelegate {
 	}
 
 	func listDidChangeSelection(ids: [UUID]) {
-		let toolbar = toolbarFactory.build(
-			editingMode: editingMode,
-			selectedCount: ids.count,
-			isCompleted: cache.validate(.isStrikethrough, other: ids)
-		)
-		view?.display(toolbar)
+		displayToolbar(selection: ids)
 	}
 
-	func menu(for ids: [UUID]) -> [MenuElement] {
-		menuFactory.build(
-			isCompleted: cache.validate(.isStrikethrough, other: ids),
-			isSubitemsHidden: cache.validate(.isSubitemsHidden, other: ids)
-		)
-	}
+	func listDidTap(id: UUID) {
+		guard let item = interactor?.item(for: id), item.isSubitemsHidden else {
+			return
+		}
+		// MARK: - Analytics
+		Task {
+			let event: ContentAnalyticsEvent = .subitemsShow
+			await analytics.track(event)
+		}
 
-	func listDidTapDisclosure(id: UUID) {
 		router.showDocument(for: id)
 	}
 }
-
-import UniformTypeIdentifiers
 
 // MARK: - DropDelegate
 extension ContentPresenter: DropDelegate {
@@ -291,6 +403,11 @@ extension ContentPresenter: DropDelegate {
 	typealias ID = UUID
 
 	func move(_ ids: [UUID], to destination: Destination<UUID>) {
+		// MARK: - Analytics
+		let event: ContentAnalyticsEvent = .dragDropMove(itemsCount: ids.count)
+		Task { await analytics.track(event) }
+
+		playSound(.place)
 		interactor?.move(ids: ids, to: destination)
 		if let target = destination.id {
 			view?.expand(target)
@@ -302,12 +419,16 @@ extension ContentPresenter: DropDelegate {
 	}
 
 	func availableTypes() -> [String] {
-		return [itemType, stringType]
+		return contentLoader.availableTypes()
 	}
 
 	func dropItems(providers: [NSItemProvider], to destination: Destination<UUID>) {
 
 		let canLoad = contentLoader.loadItems(providers: providers) { [weak self] nodes in
+			// MARK: - Analytics
+			let event: ContentAnalyticsEvent = .dragDropInsert(itemsCount: nodes.count, contentType: "item")
+			Task { await self?.analytics.track(event) }
+
 			self?.interactor?.insertNodes(nodes, to: destination)
 		}
 
@@ -316,46 +437,51 @@ extension ContentPresenter: DropDelegate {
 		}
 
 		_ = contentLoader.loadStrings(providers: providers) { [weak self] strings in
+			// MARK: - Analytics
+			let event: ContentAnalyticsEvent = .dragDropInsert(itemsCount: strings.count, contentType: "string")
+			Task { await self?.analytics.track(event) }
+
 			self?.interactor?.insertStrings(strings, to: destination)
 		}
 	}
 
 	func provider(for id: UUID) -> NSItemProvider? {
-
-		let provider = NSItemProvider()
-
-		if let text = interactor?.string(for: [id]) {
-			provider.registerObject(text as NSString, visibility: .all)
-		}
-
-		provider.registerDataRepresentation(forTypeIdentifier: itemType, visibility: .ownProcess) { [weak self] handler in
-			guard let data = self?.interactor?.data(of: id) else {
-				handler(nil, nil)
-				return nil
-			}
-			handler(data, nil)
-			return nil
-		}
-
-		return provider
+		let text = interactor?.string(for: [id])
+		let data = interactor?.data(of: id)
+		return contentLoader.itemProvider(text: text, data: data)
 	}
 }
 
 // MARK: - Helpers
 private extension ContentPresenter {
 
-	@MainActor func createNew(target: UUID?) {
+	func pasteboardInfo(for ids: [UUID]) -> PasteboardInfo? {
+		guard let nodes = interactor?.nodes(for: ids) else {
+			return nil
+		}
+
+		let parser = Parser()
+
+		let items = nodes.map {
+			PasteboardInfo.Item(
+				data:
+					[
+						itemType : interactor?.data(of: $0.id) ?? Data(),
+						stringType: parser.format($0).data(using: .utf8) ?? Data()
+					]
+			)
+		}
+
+		return PasteboardInfo(items: items)
+	}
+
+	func createNew(target: UUID?) {
 		let model = ItemDetailsView.Model(navigationTitle: localization.newItemNavigationTitle, properties: .init(text: ""))
-		router.showDetails(with: model, animateBottomBarItem: ElementIdentifier.new.rawValue) { [weak self] saved, success in
+		router.showDetails(with: model, animateBottomBarItem: ContentToolbarIdentifier.newItem.rawValue) { [weak self] saved, success in
 			self?.router.dismiss()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
-
-				guard let id = self?.interactor?.newItem(
-					saved.text,
-					note: note,
-					target: target
-				) else {
+				guard let id = self?.interactor?.newItem(with: .init(text: saved.text, note: note), target: target) else {
 					return
 				}
 				if let target {
@@ -366,14 +492,15 @@ private extension ContentPresenter {
 		}
 	}
 
-	func displayToolbar() {
-		let selection = view?.selection ?? []
-		let toolbar = toolbarFactory.build(
+	func displayToolbar(selection: [UUID]? = nil) {
+		let selection = selection ?? view?.selection ?? []
+		let configuration = ContentToolbarConfiguration(
 			editingMode: editingMode,
-			selectedCount: selection.count,
-			isCompleted: cache.validate(.isStrikethrough, other: selection)
+			selection: selection,
+			isCompleted: cache.validate(.isStrikethrough, other: selection),
+			isSubitemsHidden: cache.validate(.isSubitemsHidden, other: selection)
 		)
-		view?.display(toolbar)
+		view?.apply(configuration)
 	}
 }
 

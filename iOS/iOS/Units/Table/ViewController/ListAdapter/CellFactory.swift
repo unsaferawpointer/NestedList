@@ -19,7 +19,7 @@ extension CellFactory {
 		for model: C.Model,
 		row: RowConfiguration
 	) -> C {
-		let identifier = C.reuseIdentifier
+		let identifier = "cell"
 		guard let cell = table.dequeueReusableCell(withIdentifier: identifier, for: indexPath) as? C else {
 			fatalError("Invalid cell type")
 		}
@@ -27,8 +27,7 @@ extension CellFactory {
 		cell.contentConfiguration = ItemContentConfiguration(
 			id: model.id,
 			row: row,
-			content: model.configuration,
-			showsTrailingDisclosure: model.showsTrailingDisclosure
+			content: model.configuration
 		)
 		return cell
 	}
@@ -48,8 +47,7 @@ extension CellFactory {
 		cell.contentConfiguration = ItemContentConfiguration(
 			id: model.id,
 			row: row,
-			content: content,
-			showsTrailingDisclosure: model.showsTrailingDisclosure
+			content: content
 		)
 	}
 }

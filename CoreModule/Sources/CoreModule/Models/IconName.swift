@@ -68,6 +68,14 @@ public enum IconName {
 	case star
 	case heart
 	case bolt
+
+	// MARK: - v3.0.0
+
+	case asteriskPoint
+	case diamondPoint
+	case starPoint
+	case stopPoint
+
 	case unknown(Int)
 }
 
@@ -128,6 +136,10 @@ extension IconName: RawRepresentable {
 		case 100: self = .star
 		case 101: self = .heart
 		case 102: self = .bolt
+		case 200: self = .asteriskPoint
+		case 201: self = .diamondPoint
+		case 202: self = .starPoint
+		case 203: self = .stopPoint
 		default: self = .unknown(rawValue)
 		}
 	}
@@ -186,6 +198,10 @@ extension IconName: RawRepresentable {
 		case .star:						100
 		case .heart:					101
 		case .bolt:						102
+		case .asteriskPoint:			200
+		case .diamondPoint:				201
+		case .starPoint:				202
+		case .stopPoint:				203
 		case let .unknown(rawValue):	rawValue
 		}
 	}
@@ -253,7 +269,11 @@ extension IconName: CaseIterable {
 			.gearshape,
 			.pc,
 			.trash,
-			.key
+			.key,
+			.asteriskPoint,
+			.diamondPoint,
+			.starPoint,
+			.stopPoint
 		]
 	}
 }

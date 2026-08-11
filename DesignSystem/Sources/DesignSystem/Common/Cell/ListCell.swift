@@ -23,6 +23,8 @@ public protocol ListCell: NSView {
 	var delegate: (any CellDelegate<Model>)? { get set }
 
 	func focus(on field: String)
+
+	func animate()
 }
 #endif
 
@@ -33,6 +35,10 @@ public protocol ListCell: UITableViewCell {
 
 	associatedtype Model: CellModel
 
-	static var reuseIdentifier: String { get }
 }
 #endif
+
+extension ListCell {
+
+	func animate() { }
+}

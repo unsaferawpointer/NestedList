@@ -31,11 +31,11 @@ final class ContentRouter {
 
 	unowned var root: UIViewController
 
-	unowned var storage: DocumentStorage<Content>
+	unowned var storage: DocumentStorage<DocumentContent>
 
 	// MARK: - Initialization
 
-	init(root: UIViewController, storage: DocumentStorage<Content>) {
+	init(root: UIViewController, storage: DocumentStorage<DocumentContent>) {
 		self.root = root
 		self.storage = storage
 	}
@@ -54,7 +54,7 @@ extension ContentRouter: ContentRouterProtocol {
 		controller.modalPresentationStyle = .formSheet
 
 		if #available(iOS 26.0, *) {
-			if let barItem, let toolbarItem = root.toolbarItems?.first(where: { $0.identifier == barItem} ) {
+			if let barItem, let toolbarItem = root.parent?.toolbarItems?.first(where: { $0.identifier == barItem }) {
 				controller.preferredTransition = .zoom { context in
 					return toolbarItem
 				}

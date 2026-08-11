@@ -79,7 +79,7 @@ private extension ParserTests {
 		return text
 	}
 
-	func check(_ result: [Node<Item>]) {
+	func check(_ result: [any TreeNode<Item>]) {
 		#expect(result.count == 2)
 
 		// project 0

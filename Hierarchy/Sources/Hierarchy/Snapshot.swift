@@ -55,10 +55,106 @@ public extension Snapshot {
 		let id = cache.flattened[row]
 		return storage[unsafe: id].model
 	}
+
+	subscript(safe row: Int) -> Model? {
+		guard let id = cache.flattened[optional: row] else {
+			return nil
+		}
+		return storage[id]?.model
+	}
+}
+
+// MARK: - Transforming
+public extension Snapshot {
+
+	/// Returns a snapshot scoped to the children of the specified parent.
+	///
+	/// When `parent` is `nil`, the original snapshot is returned unchanged. When a parent identifier is
+	/// provided, that parent's children become the root nodes of the returned snapshot, and all hierarchy
+	/// metadata is rebuilt relative to the new root. If the parent is not found or has no children, an empty
+	/// snapshot is returned.
+	///
+	/// - Parameter parent: The identifier of the node whose children should become the new root, or `nil` to keep the current root.
+	/// - Returns: A snapshot rooted at the selected parent's children.
+	func withRoot(parent: Model.ID?) -> Snapshot<Model> {
+		guard let parent else {
+			return self
+		}
+		guard let children = hierarchy[parent] else {
+			return Snapshot([])
+		}
+
+		let base = children.compactMap {
+			node(for: $0)
+		}
+		return Snapshot(base)
+	}
+
+	/// Returns a copy of this snapshot, removing descendants from nodes whose models satisfy the given predicate.
+	///
+	/// Root nodes and matching nodes are preserved. When `shouldRemoveChildren` returns `true` for a model,
+	/// that model remains in the result but its children are omitted from the returned snapshot.
+	///
+	/// - Parameter shouldRemoveChildren: A predicate that determines where pruning should stop.
+	/// - Returns: A pruned snapshot with hierarchy, storage, and cache rebuilt from the remaining nodes.
+	func pruned(removingChildrenOf shouldRemoveChildren: (Model) -> Bool) -> Snapshot {
+		let pruned = getNodes().map {
+			$0.pruned(removingChildrenOf: shouldRemoveChildren)
+		}
+		return Snapshot(pruned)
+	}
+
+	/// Returns a copy of this snapshot without nodes that match the specified identifiers.
+	///
+	/// Removing a node also removes its descendants. Unknown identifiers are ignored, and the returned
+	/// snapshot has its hierarchy, storage, and cache rebuilt from the remaining nodes.
+	///
+	/// - Parameter ids: The identifiers of nodes to remove from the snapshot.
+	/// - Returns: A snapshot containing all nodes except the removed nodes and their descendants.
+	func removed(ids: [ID]) -> Snapshot {
+		let ids = Set(ids)
+		let nodes = getNodes().filter {
+			!ids.contains($0.id)
+		}
+		nodes.forEach {
+			$0.deleteDescendants(with: ids)
+		}
+		return Snapshot(nodes)
+	}
+
+}
+
+// MARK: - IdentifiableValue Transforming
+public extension Snapshot where Model.ID: RandomizableIdentifier, Model: MutableIdentifiable & Hashable {
+
+	/// Returns a copy of this snapshot with models inserted at the specified destination.
+	///
+	/// The returned snapshot has its hierarchy, storage, and cache rebuilt after insertion. When the
+	/// destination is invalid, the current snapshot is returned unchanged.
+	///
+	/// - Parameters:
+	///   - models: The models to insert into the snapshot.
+	///   - destination: The destination where the models should be inserted.
+	/// - Returns: A snapshot containing the inserted models.
+	func inserted(models: [Model], to destination: Destination<ID>) -> Snapshot {
+		let store = NodeStore<Model>(hierarchy: getNodes())
+		store.insertItems(with: models, to: destination)
+		return store.snapshot()
+	}
 }
 
 // MARK: - Public interface
 public extension Snapshot {
+
+	/// The total number of nodes contained in the snapshot.
+	var count: Int {
+		cache.identifiers.count
+	}
+
+	/// The number of hierarchy levels contained in the snapshot.
+	var depth: Int {
+		count == 0 ? 0 : cache.maxLevel + 1
+	}
 
 	var identifiers: Set<ID> {
 		cache.identifiers
@@ -66,12 +162,6 @@ public extension Snapshot {
 
 	var nodeIdentifiers: Set<ID> {
 		return cache.nodeIdentifiers
-	}
-
-	func getNodes() -> [Node<Model>] {
-		return root.map {
-			node(for: $0)
-		}
 	}
 
 	func contains(in parent: ID?, maxIndex: Int, condition: (Model) -> Bool) -> Int {
@@ -238,8 +328,15 @@ public extension Snapshot {
 		return children.count
 	}
 
-	func children(of parent: ID) -> [ID] {
-		return hierarchy[unsafe: parent]
+	func children(of parent: ID?) -> [Model] {
+		guard let parent else {
+			return root.compactMap {
+				storage[$0]?.model
+			}
+		}
+		return hierarchy[parent]?.compactMap {
+			storage[$0]?.model
+		} ?? []
 	}
 
 	func childOfItem(_ id: ID, at index: Int) -> Model {
@@ -251,6 +348,16 @@ public extension Snapshot {
 
 	func model(with id: ID) -> Model {
 		return storage[unsafe: id].model
+	}
+
+	func map<T: Identifiable>(_ transform: (Model) -> T) -> Snapshot<T> {
+		let nodes = getNodes()
+		let transformed = nodes.map {
+			$0.map { model in
+				transform(model)
+			}
+		}
+		return .init(transformed)
 	}
 
 	func map<T: Identifiable>(_ transform: (NodeInfo<Model>) -> T) -> Snapshot<T> where T.ID == ID {
@@ -319,6 +426,12 @@ private extension Snapshot {
 
 // MARK: - Helpers
 private extension Snapshot {
+
+	func getNodes() -> [Node<Model>] {
+		return root.map {
+			node(for: $0)
+		}
+	}
 
 	mutating func normalize(base: Node<Model>, parent: ID?, index: Int, level: Int = 0) {
 

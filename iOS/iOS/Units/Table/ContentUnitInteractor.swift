@@ -11,10 +11,10 @@ import CoreModule
 
 @MainActor
 protocol ContentUnitInteractorProtocol {
-	func fetchData()
+	func fetchData() -> (Item?, Snapshot<Item>)
 
 	@discardableResult
-	func newItem(_ text: String, note: String?, target: UUID?) -> UUID
+	func newItem(with properties: ItemProperties, target: UUID?) -> UUID
 	func deleteItems(_ ids: [UUID])
 	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool)
 	func setSubitemsHidden(_ hidden: Bool, for ids: [UUID])
@@ -23,18 +23,23 @@ protocol ContentUnitInteractorProtocol {
 	func set(_ text: String, note: String?, for id: UUID)
 	func item(for id: UUID) -> Item
 
+	func nodes(for ids: [UUID]) -> [any TreeNode<Item>]
 	func data(of id: UUID) -> Data?
 	func string(for ids: [UUID]) -> String
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>)
 	func insertNodes(_ nodes: [any TreeNode<Item>], to destination: Destination<UUID>)
+	func insertItems(_ data: [Data], to destination: Destination<UUID>)
+	func insertStrings(_ data: [Data], to destination: Destination<UUID>)
+
 
 	func move(ids: [UUID], to destination: Destination<UUID>)
+	func move(ids: [UUID], to target: UUID?)
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool
 }
 
 final class ContentUnitInteractor {
 
-	private let storage: DocumentStorage<Content>
+	private let storage: DocumentStorage<DocumentContent>
 
 	var presenter: ContentPresenterProtocol?
 
@@ -46,7 +51,7 @@ final class ContentUnitInteractor {
 
 	// MARK: - Initialization
 
-	init(root: UUID?, storage: DocumentStorage<Content>) {
+	init(root: UUID?, storage: DocumentStorage<DocumentContent>) {
 		self.storage = storage
 		self.base = CommonInteractor(storage: storage)
 		self.root = root
@@ -54,11 +59,12 @@ final class ContentUnitInteractor {
 			guard let self else {
 				return
 			}
-			let nodes = content.root.children(of: self.root)
 			Task { @MainActor [weak self] in
-				self?.presenter?.present(nodes)
-				if let root, let node = content.root.node(with: root) {
-					self?.presenter?.presentRoot(node: node)
+				let snapshot = content.snapshot()
+					.withRoot(parent: root)
+				self?.presenter?.present(snapshot: snapshot)
+				if let root, let item = content[root] {
+					self?.presenter?.presentRoot(item: item)
 				}
 			}
 		}
@@ -72,30 +78,26 @@ final class ContentUnitInteractor {
 // MARK: - ContentInteractorProtocol
 extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 
-	func fetchData() {
-		presenter?.present(storage.state.root.children(of: root))
-		if let root, let node = storage.state.root.node(with: root) {
-			presenter?.presentRoot(node: node)
+	func fetchData() -> (Item?, Snapshot<Item>) {
+		let snapshot = storage.state
+			.snapshot()
+			.withRoot(parent: root)
+		guard let id = root, let item = storage.state[id] else {
+			return (nil, snapshot)
 		}
+		return (item, snapshot)
 	}
 
-	func newItem(_ text: String, note: String?, target: UUID?) -> UUID {
+	func newItem(with properties: ItemProperties, target: UUID?) -> UUID {
 		let destination = Destination(target: target)
-		return base.newItem(
-			text,
-			isStrikethrough: nil,
-			note: note,
-			iconName: nil,
-			tintColor: nil,
-			target: destination.relative(to: root).id
-		)
+		return base.newItem(with: properties, target: destination.relative(to: root).id)
 	}
 
 	func item(for id: UUID) -> Item {
-		guard let node = storage.state.root.node(with: id) else {
+		guard let item = storage.state[id] else {
 			fatalError()
 		}
-		return node.value
+		return item
 	}
 
 	func deleteItems(_ ids: [UUID]) {
@@ -103,68 +105,35 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 	}
 
 	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool) {
-		storage.modificate { content in
-			content.root.setProperty(\.isStrikethrough, to: isStrikethrough, for: ids, downstream: true)
-			if moveToEnd && isStrikethrough {
-				content.root.moveToEnd(ids)
-			}
-		}
+		base.setStatus(isStrikethrough, for: ids, moveToEnd: moveToEnd)
 	}
 
 	func setSubitemsHidden(_ hidden: Bool, for ids: [UUID]) {
-		storage.modificate { content in
-			content.root.setProperty(\.isSubitemsHidden, to: hidden, for: ids)
-		}
+		base.setProperty(\.isSubitemsHidden, to: hidden, for: ids, downstream: false)
 	}
 
 	func setIcon(_ name: IconName?, for ids: [UUID]) {
-		storage.modificate { content in
-			for node in content.root.nodes(with: ids) {
-				node.value.iconName = name
-			}
-		}
+		base.setProperty(\.iconName, to: name, for: ids, downstream: false)
 	}
 
 	func setColor(_ color: ItemColor?, for ids: [UUID]) {
-		storage.modificate { content in
-			for node in content.root.nodes(with: ids) {
-				node.value.tintColor = color
-			}
-		}
+		base.setProperty(\.tintColor, to: color, for: ids, downstream: false)
 	}
 
 	func set(_ text: String, note: String?, for id: UUID) {
-		storage.modificate { content in
-			content.root.setProperty(\.text, to: text, for: [id])
-			content.root.setProperty(\.note, to: note, for: [id])
-		}
+		base.set(text: text, note: note, for: id)
 	}
 
 	func string(for ids: [UUID]) -> String {
+		base.string(for: ids)
+	}
 
-		let cache = Set(ids)
-
-		let nodes = storage.state.root.nodes(with: ids)
-		let copied = nodes.map { node in
-			node.map { $0 }
-		}
-
-		copied.forEach { node in
-			node.deleteDescendants(with: cache)
-		}
-
-		let parser = Parser()
-
-		return copied.map { node in
-			parser.format(node)
-		}.joined(separator: "\n")
+	func nodes(for ids: [UUID]) -> [any TreeNode<Item>] {
+		base.nodes(for: ids)
 	}
 
 	func data(of id: UUID) -> Data? {
-		guard let node = storage.state.root.node(with: id) else {
-			return nil
-		}
-		return try? JSONEncoder().encode(node)
+		base.data(of: id)
 	}
 
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>) {
@@ -172,13 +141,27 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 	}
 
 	func insertNodes(_ nodes: [any TreeNode<Item>], to destination: Destination<UUID>) {
-		storage.modificate { content in
-			content.root.insertItems(from: nodes, to: destination.relative(to: root))
+		base.insertNodes(nodes, to: destination.relative(to: root))
+	}
+
+	func insertStrings(_ data: [Data], to destination: Hierarchy.Destination<UUID>) {
+		let strings = data.compactMap {
+			String(data: $0, encoding: .utf8)
 		}
+		base.insertStrings(strings, to: destination.relative(to: root))
+	}
+
+	func insertItems(_ data: [Data], to destination: Hierarchy.Destination<UUID>) {
+		base.insertItems(data, to: destination.relative(to: root))
 	}
 
 	func move(ids: [UUID], to destination: Destination<UUID>) {
 		base.move(ids, to: destination.relative(to: root))
+	}
+
+	func move(ids: [UUID], to target: UUID?) {
+		let destination = Destination(target: target)
+		base.move(ids, to: destination)
 	}
 
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {

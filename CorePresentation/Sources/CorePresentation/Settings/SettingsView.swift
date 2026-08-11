@@ -28,8 +28,12 @@ public struct SettingsView {
 
 	let infoProvider: InfoProvider
 
-	public init(provider: SettingsProvider, infoProvider: InfoProvider = AppInfo()) {
-		self.model = SettingsViewModel(provider: provider)
+	public init(
+		provider: SettingsProvider,
+		infoProvider: InfoProvider = AppInfo(),
+		analytics: any ConcreteAnalyticsServiceProtocol<SettingsAnalyticsEvent> = ConcreteAnalyticsService<SettingsAnalyticsEvent>()
+	) {
+		self.model = SettingsViewModel(provider: provider, analytics: analytics)
 		self.infoProvider = infoProvider
 	}
 }
@@ -41,18 +45,30 @@ extension SettingsView: View {
 		Form {
 			Section(localization.behaviorsSectionTitle) {
 				Toggle(isOn: .init(get: {
+					model.settings.soundEffects == .enabled
+				}, set: { newValue in
+					model.setSoundEffects(isEnabled: newValue)
+				})) {
+					Text(localization.soundEffectsText)
+					Text(localization.soundEffectsDescription)
+				}
+				Toggle(isOn: .init(get: {
 					model.settings.completionBehaviour == .moveToEnd
 				}, set: { newValue in
-					model.settings.completionBehaviour = newValue ? .moveToEnd : .regular
+					model.setCompletionBehaviour(isMoveToEnd: newValue)
 				})) {
 					Text(localization.strikethroughBehaviourText)
 					Text(localization.strikethroughBehaviourDescription)
 				}
 			}
 			Section(localization.styleSectionTitle) {
-				Picker(selection: $model.settings.iconColor) {
-					Text(localization.neutralSectionIconColorName)
-						.tag(IconColor.neutral)
+					Picker(selection: .init(get: {
+						model.settings.iconColor
+					}, set: { newValue in
+						model.setIconColor(newValue)
+					})) {
+						Text(localization.neutralSectionIconColorName)
+							.tag(IconColor.neutral)
 					Text(localization.accentSectionIconsColorDescription)
 						.tag(IconColor.accent)
 					Text(localization.primarySectionIconsColorDescription)
@@ -64,7 +80,7 @@ extension SettingsView: View {
 				}
 			}
 			Section(localization.supportSectionTitle) {
-				Button(action: requestReview.callAsFunction) {
+				Button(action: requestReviewAction) {
 					disclosureRow(
 						title: localization.ratingButtonTitle,
 						systemImage: "star"
@@ -89,6 +105,9 @@ extension SettingsView: View {
 		} message: {
 			Text(localization.emailErrorMessage)
 		}
+		.onAppear {
+			model.show()
+		}
 	}
 }
 
@@ -110,7 +129,13 @@ private extension SettingsView {
 		.contentShape(Rectangle())
 	}
 
+	func requestReviewAction() {
+		model.click(.rateApp)
+		requestReview()
+	}
+
 	func openEmail() {
+		model.click(.contactDeveloper)
 		guard let email = infoProvider.supportEmail,
 			  let url = URL(string: "mailto:\(email)") else {
 			isEmailErrorPresented = true

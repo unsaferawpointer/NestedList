@@ -1,0 +1,535 @@
+//
+//  NodeStore.swift
+//  Hierarchy
+//
+//  Created by Anton Cherkasov on 17.11.2024.
+//
+
+import Foundation
+
+public final class NodeStore<Value: MutableIdentifiable & Hashable> where Value.ID: RandomizableIdentifier {
+
+	public typealias ID = Value.ID
+
+	public private(set) var nodes: [Node<Value>] = []
+
+	// MARK: - Cache
+
+	private(set) var cache: [ID: Node<Value>] = [:]
+
+	// MARK: - Initialization
+
+	public init(hierarchy: [any TreeNode<Value>]) {
+		self.nodes = hierarchy.map {
+			makeNode(from: $0)
+		}
+		updateCache(inserted: nodes)
+	}
+}
+
+// MARK: - Subscripts
+public extension NodeStore {
+
+	subscript(_ id: ID) -> Value? {
+		get {
+			cache[id]?.value
+		}
+	}
+}
+
+// MARK: - Snapshot Support
+public extension NodeStore {
+
+	func snapshot() -> Snapshot<Value> {
+		Snapshot(nodes)
+	}
+}
+
+public extension NodeStore {
+
+	/// Returns `true` when every leaf node in the subtree of the node with the given identifier has a value equal to the given value at the specified key path.
+	/// Returns `false` when the node is not found.
+	func allMatch<T: Equatable>(id: Value.ID, keyPath: KeyPath<Value, T>, equalsTo value: T) -> Bool {
+		guard let node = cache[id] else {
+			return false
+		}
+		return allMatch(in: [node], keyPath: keyPath, equalsTo: value)
+	}
+
+	/// Returns `true` when every leaf node in the store has a value equal to the given value at the specified key path.
+	func allMatch<T: Equatable>(_ keyPath: KeyPath<Value, T>, equalsTo value: T) -> Bool {
+		return allMatch(in: nodes, keyPath: keyPath, equalsTo: value)
+	}
+
+	/// Returns the parent value for the node with the specified identifier.
+	///
+	/// Returns `nil` when the identifier is `nil`, the node is not found, or the node is a root node.
+	///
+	/// - Parameter id: The identifier of the node whose parent should be returned.
+	/// - Returns: The parent node's value, or `nil` when no parent is available.
+	func parent(for id: ID?) -> Value? {
+		guard let id else {
+			return nil
+		}
+		return cache[id]?.parent?.value
+	}
+
+	/// Copies the selected nodes with their descendants and inserts them at the destination.
+	///
+	/// Inserted copies keep their original identifiers unless the store already contains matching identifiers.
+	/// Existing identifier conflicts are resolved while updating the cache.
+	///
+	/// - Parameters:
+	///   - ids: The identifiers of the nodes to copy.
+	///   - destination: The destination for the copied nodes.
+	func copy(ids: [ID], to destination: Destination<ID>) {
+		let copied = nodes(with: ids).map { node in
+			copy(node)
+		}
+		insertItems(from: copied, to: destination)
+	}
+
+	/// Returns copied subtrees for the requested identifiers without nested duplicates.
+	///
+	/// If both a parent and one of its descendants are requested, the descendant is returned as
+	/// a separate copied subtree and removed from the parent's copied subtree.
+	func copiedDisjointSubtrees(with ids: [ID]) -> [any TreeNode<Value>] {
+		let cache = Set(ids)
+		let copied = nodes(with: ids).map { node in
+			copy(node)
+		}
+
+		copied.forEach { node in
+			deleteDescendants(in: node, with: cache)
+		}
+		return copied
+	}
+
+	private func nodes(with ids: [ID]) -> [Node<Value>] {
+		return ids.compactMap {
+			cache[$0]
+		}
+	}
+
+	func setProperty<T>(_ keyPath: WritableKeyPath<Value, T>, to value: T, for ids: [ID], downstream: Bool = false) {
+		for id in ids {
+			guard let node = cache[id] else {
+				continue
+			}
+			guard downstream else {
+				node.value[keyPath: keyPath] = value
+				continue
+			}
+			enumerate([node]) { node in
+				node.value[keyPath: keyPath] = value
+			}
+		}
+	}
+
+	var count: Int {
+		var result = 0
+		enumerate(nodes) { node in
+			guard node.children.isEmpty else {
+				return
+			}
+			result += 1
+		}
+		return result
+	}
+
+	func count<T: Equatable>(where keyPath: KeyPath<Value, T>, equalsTo value: T) -> Int {
+		var result = 0
+		enumerate(nodes) { node in
+			guard node.children.isEmpty else {
+				return
+			}
+			if node.value[keyPath: keyPath] == value {
+				result += 1
+			}
+		}
+		return result
+	}
+}
+
+// MARK: - Codable Support
+public extension NodeStore where Value: Codable {
+
+	func encode(id: ID) -> Data? {
+		guard let node = cache[id] else {
+			return nil
+		}
+
+		let encoder = JSONEncoder()
+		return try? encoder.encode(node)
+	}
+
+	func insertItems(from data: [Data], to destination: Destination<Value.ID>) {
+		let decoder = JSONDecoder()
+		let newNodes = data.compactMap {
+			try? decoder.decode(Node<Value>.self, from: $0)
+		}
+		insertNodes(newNodes, to: destination)
+	}
+}
+
+// MARK: - Helpers
+private extension NodeStore {
+
+	func makeNode(from other: any TreeNode<Value>) -> Node<Value> {
+		let root = Node<Value>(value: other.value)
+		var stack: [(source: any TreeNode<Value>, destination: Node<Value>)] = [(other, root)]
+		while let item = stack.popLast() {
+			for child in item.source.children {
+				let childNode = Node<Value>(value: child.value)
+				childNode.parent = item.destination
+				item.destination.children.append(childNode)
+				stack.append((source: child, destination: childNode))
+			}
+		}
+		return root
+	}
+
+	func copy(_ node: Node<Value>) -> Node<Value> {
+		let copied = Node(value: node.value)
+		var stack = [(source: node, destination: copied)]
+		while let item = stack.popLast() {
+			for child in item.source.children {
+				let childCopy = Node(value: child.value)
+				childCopy.parent = item.destination
+				item.destination.children.append(childCopy)
+				stack.append((source: child, destination: childCopy))
+			}
+		}
+		return copied
+	}
+
+	func deleteDescendants(in node: Node<Value>, with ids: Set<ID>) {
+		var stack = [node]
+		while let item = stack.popLast() {
+			item.children.removeAll {
+				ids.contains($0.id)
+			}
+			stack.append(contentsOf: item.children)
+		}
+	}
+
+	func allMatch<T: Equatable>(in nodes: [Node<Value>], keyPath: KeyPath<Value, T>, equalsTo value: T) -> Bool {
+		var result = true
+		enumerate(nodes) { node in
+			guard result, node.children.isEmpty else {
+				return
+			}
+			result = node.value[keyPath: keyPath] == value
+		}
+		return result
+	}
+
+	func updateCache(inserted nodes: [Node<Value>]) {
+		enumerate(nodes) { node in
+			if cache[node.id] != nil {
+				node.value.id = Value.ID.random()
+			}
+			cache[node.id] = node
+		}
+	}
+
+	func updateCache(removed nodes: [Node<Value>]) {
+		enumerate(nodes) { node in
+			cache[node.id] = nil
+		}
+	}
+
+	func enumerate(_ nodes: [Node<Value>], _ block: (Node<Value>) -> Void) {
+		var stack = Array(nodes.reversed())
+		while let node = stack.popLast() {
+			block(node)
+			stack.append(contentsOf: node.children.reversed())
+		}
+	}
+}
+
+// MARK: - Insertion
+extension NodeStore {
+
+	public func insertItems(with contents: [Value], to destination: Destination<ID>) {
+		let newNodes = contents.map { Node(value: $0) }
+		insertNodes(newNodes, to: destination)
+	}
+
+	public func insertItems(from data: [any TreeNode<Value>], to destination: Destination<Value.ID>) {
+		let newNodes = data.map { node in
+			makeNode(from: node)
+		}
+		insertNodes(newNodes, to: destination)
+	}
+
+	func insertNodes(_ newNodes: [Node<Value>], to destination: Destination<Value.ID>) {
+		switch destination {
+		case .toRoot:
+			nodes.append(contentsOf: newNodes)
+		case let .inRoot(index):
+			nodes.insert(contentsOf: newNodes, at: index)
+		case let .onItem(id):
+			guard let item = cache[id] else {
+				return
+			}
+			item.appendItems(with: newNodes)
+		case let .inItem(id, index):
+			guard let item = cache[id] else {
+				return
+			}
+			item.insertItems(with: newNodes, to: index)
+		}
+		updateCache(inserted: newNodes)
+	}
+
+}
+
+// MARK: - Deletion
+public extension NodeStore {
+
+	func deleteItems(_ ids: [ID]) {
+		for id in ids {
+			deleteItem(id)
+		}
+	}
+
+	func deleteItem(_ id: ID) {
+		guard let item = cache[id] else {
+			return
+		}
+
+		updateCache(removed: [item])
+
+		guard let parent = item.parent else {
+			if let index = nodes.firstIndex(where: \.id, equalsTo: id) {
+				nodes.remove(at: index)
+			}
+			return
+		}
+		parent.deleteChild(id)
+	}
+}
+
+// MARK: - Support moving
+public extension NodeStore {
+
+	func invalidTargets(movingItems ids: Set<ID>) -> Set<ID> {
+		var result = Set<ID>()
+
+		for id in ids {
+			guard let node = cache[id] else {
+				continue
+			}
+			enumerate([node]) { node in
+				result.insert(node.id)
+			}
+		}
+
+		return result
+	}
+
+	func validateMoving(_ ids: [ID], to destination: Destination<ID>) -> Bool {
+		guard let targetId = destination.id, let item = cache[targetId] else {
+			return true
+		}
+
+		var chain = Set<ID>()
+		var current: Node<Value>? = item
+		while let node = current {
+			chain.insert(node.id)
+			current = node.parent
+		}
+
+		let intersection = chain.intersection(ids)
+
+		return intersection.isEmpty
+	}
+
+	func moveItems(with ids: [ID], to destination: Destination<ID>) {
+		let moved = ids.compactMap {
+			cache[$0]
+		}
+
+		switch destination {
+		case .toRoot:
+			move(moved, to: nil)
+		case let .inRoot(index):
+			moveToRoot(moved, at: index)
+		case let .onItem(id):
+			guard let target = cache[id] else {
+				return
+			}
+			move(moved, to: target)
+		case let .inItem(id, index):
+			guard let target = cache[id] else {
+				return
+			}
+			move(moved, toOther: target, at: index)
+		}
+	}
+
+	func moveToEnd(_ ids: [ID]) {
+		let moved = ids.compactMap {
+			cache[$0]
+		}
+
+		let grouped = Dictionary<Node<Value>?, [Node<Value>]>(grouping: moved) { item in
+			return item.parent
+		}
+
+		for (container, items) in grouped {
+			guard let container else {
+				moveItems(with: items.map(\.id), to: .toRoot)
+				continue
+			}
+			moveItems(with: items.map(\.id), to: .onItem(with: container.id))
+		}
+	}
+
+	func moveToTop(_ ids: [ID]) {
+		let moved = ids.compactMap {
+			cache[$0]
+		}
+
+		let grouped = Dictionary<Node<Value>?, [Node<Value>]>(grouping: moved) { item in
+			return item.parent
+		}
+
+		for (container, items) in grouped {
+			guard let container else {
+				moveItems(with: items.map(\.id), to: .inRoot(atIndex: 0))
+				continue
+			}
+			moveItems(with: items.map(\.id), to: .inItem(with: container.id, atIndex: 0))
+		}
+	}
+
+}
+
+// MARK: - Equatable
+extension NodeStore: Equatable {
+
+	public static func == (lhs: NodeStore<Value>, rhs: NodeStore<Value>) -> Bool {
+		return lhs.nodes == rhs.nodes
+	}
+}
+
+// MARK: - Support moving
+private extension NodeStore {
+
+	func moveToRoot(_ moved: [Node<Value>], at index: Int) {
+
+		let grouped = Dictionary<Node<Value>?, [Node<Value>]>(grouping: moved) { item in
+			return item.parent
+		}
+
+		var offset = 0
+
+		for (container, items) in grouped {
+
+			let cache = Set(items.map(\.id))
+
+			guard let container else {
+
+				offset = self.offset(
+					moved: cache,
+					in: nodes,
+					to: index
+				)
+
+				nodes.removeAll { item in
+					cache.contains(item.id)
+				}
+				continue
+			}
+
+			container.children.removeAll { item in
+				cache.contains(item.id)
+			}
+
+		}
+
+		nodes.insert(contentsOf: moved, at: index + offset)
+		moved.forEach { item in
+			item.parent = nil
+		}
+	}
+
+	func move(_ moved: [Node<Value>], toOther target: Node<Value>, at index: Int) {
+
+		let grouped = Dictionary<Node<Value>?, [Node<Value>]>(grouping: moved) { item in
+			return item.parent
+		}
+
+		var offset = 0
+
+		for (container, items) in grouped {
+			let cache = Set(items.map(\.id))
+
+			guard let container else {
+				nodes.removeAll { item in
+					cache.contains(item.id)
+				}
+				continue
+			}
+
+			if container.id == target.id {
+				offset = self.offset(
+					moved: cache,
+					in: container.children,
+					to: index
+				)
+			}
+			container.children.removeAll { item in
+				cache.contains(item.id)
+			}
+		}
+
+		target.insertItems(with: moved, to: index + offset)
+	}
+
+	func move(_ moved: [Node<Value>], to target: Node<Value>?) {
+
+		let grouped = Dictionary<Node<Value>?, [Node<Value>]>(grouping: moved) { item in
+			return item.parent
+		}
+
+		for (container, items) in grouped {
+
+			let cache = Set(items.map(\.id))
+
+			guard let container else {
+				nodes.removeAll { item in
+					cache.contains(item.id)
+				}
+				continue
+			}
+
+			container.children.removeAll { item in
+				cache.contains(item.id)
+			}
+		}
+
+		guard let target else {
+			nodes.append(contentsOf: moved)
+			moved.forEach { item in
+				item.parent = nil
+			}
+			return
+		}
+
+		target.appendItems(with: moved)
+	}
+
+	func offset(moved: Set<ID>, in items: [Node<Value>], to index: Int) -> Int {
+		var indexes = [Int]()
+		for id in moved {
+			guard let firstIndex = items.firstIndex(where: \.id, equalsTo: id) else {
+				continue
+			}
+			indexes.append(firstIndex)
+		}
+		return -indexes.filter { $0 < index }.count
+	}
+}

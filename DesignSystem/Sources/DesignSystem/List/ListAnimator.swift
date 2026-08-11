@@ -9,8 +9,8 @@ import Foundation
 import Hierarchy
 
 enum ListAnimation<ID> {
-	case remove(offset: Int, parent: ID?)
-	case insert(offset: Int, parent: ID?)
+	case remove(id: ID, offset: Int, parent: ID?)
+	case insert(id: ID, offset: Int, parent: ID?, isMoving: Bool)
 	case reload(id: ID?)
 }
 
@@ -47,7 +47,7 @@ final class ListAnimator<Model: Identifiable> {
 		var oldState = next(parent).old
 		let newState = next(parent).new
 
-		let difference = newState.difference(from: oldState)
+		let difference = newState.difference(from: oldState).inferringMoves()
 
 		if !difference.isEmpty {
 			animate(.reload(id: parent))
@@ -58,10 +58,10 @@ final class ListAnimator<Model: Identifiable> {
 		for change in difference {
 			switch change {
 			case let .remove(oldOffset, id, _):
-				animate(.remove(offset: oldOffset, parent: parent))
+				animate(.remove(id: id, offset: oldOffset, parent: parent))
 				removed.insert(id)
-			case let .insert(newOffset, id, _):
-				animate(.insert(offset: newOffset, parent: parent))
+			case let .insert(newOffset, id, oldOffset):
+				animate(.insert(id: id, offset: newOffset, parent: parent, isMoving: oldOffset != nil))
 				removed.remove(id)
 			}
 		}

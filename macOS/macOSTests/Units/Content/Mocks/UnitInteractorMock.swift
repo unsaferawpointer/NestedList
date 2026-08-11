@@ -23,8 +23,9 @@ final class UnitInteractorMock {
 // MARK: - ContentInteractorProtocol
 extension UnitInteractorMock: ContentInteractorProtocol {
 
-	func fetchData() {
+	func fetchData() -> (Item?, Snapshot<Item>) {
 		invocations.append(.fetchData)
+		return (stubs.fetchedItem, stubs.snapshot)
 	}
 
 	func configure(for root: UUID?) {
@@ -44,17 +45,8 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 		invocations.append(.copy(ids, destination: destination))
 	}
 
-	func newItem(_ text: String, isStrikethrough: Bool, note: String?, iconName: IconName?, tintColor: ItemColor?, target: UUID?) -> UUID {
-		invocations.append(
-			.newItem(
-				text,
-				isStrikethrough: isStrikethrough,
-				note: note,
-				iconName: iconName,
-				tintColor: tintColor,
-				target: target
-			)
-		)
+	func newItem(with properties: ItemProperties, target: UUID?) -> UUID {
+		invocations.append(.newItem(properties, target: target))
 		return stubs.newItem
 	}
 
@@ -94,16 +86,11 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 		invocations.append(.deleteItems(ids))
 	}
 	
-	func strings(for ids: [UUID]) -> [String] {
-		invocations.append(.strings(ids))
-		return stubs.strings
-	}
-	
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>) {
 		invocations.append(.insertStrings(strings, destination: destination))
 	}
 
-	func nodes(for ids: [UUID]) -> [Node<Item>] {
+	func nodes(for ids: [UUID]) -> [any TreeNode<Item>] {
 		invocations.append(.nodes(ids: ids))
 		return stubs.nodes
 	}
@@ -114,6 +101,11 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 
 	func insertItems(_ data: [Data], to destination: Destination<UUID>) {
 		invocations.append(.insertItems(data: data, destination: destination))
+	}
+
+	func data(for id: UUID) -> Data? {
+		invocations.append(.dataForId(id: id))
+		return stubs.data[id]
 	}
 
 }
@@ -127,7 +119,7 @@ extension UnitInteractorMock {
 		case move(_ ids: [UUID], destination: Destination<UUID>)
 		case validateMovement(_ ids: [UUID], destination: Destination<UUID>)
 		case copy(_ ids: [UUID], destination: Destination<UUID>)
-		case newItem(_ text: String, isStrikethrough: Bool, note: String?, iconName: IconName?, tintColor: ItemColor?, target: UUID?)
+		case newItem(_ properties: ItemProperties, target: UUID?)
 		case setStatus(_ status: Bool, ids: [UUID], moveToEnd: Bool)
 		case setSubitemsHidden(_ hidden: Bool, ids: [UUID])
 		case toggleSubitemsHidden(id: UUID)
@@ -137,17 +129,19 @@ extension UnitInteractorMock {
 		case setText(text: String, note: String?, id: UUID)
 		case setNote(note: String?, ids: [UUID])
 		case deleteItems(_ ids: [UUID])
-		case strings(_ ids: [UUID])
 		case insertStrings(_ strings: [String], destination: Destination<UUID>)
 		case nodes(ids: [UUID])
 		case insertStringsFromData(data: [Data], destination: Destination<UUID>)
 		case insertItems(data: [Data], destination: Destination<UUID>)
+		case dataForId(id: UUID)
 	}
 
 	struct Stubs {
 		var validateMovement: Bool = false
 		var newItem: UUID = .random
-		var strings: [String] = []
-		var nodes: [Node<Item>] = []
+		var fetchedItem: Item?
+		var snapshot = Snapshot<Item>([])
+		var nodes: [any TreeNode<Item>] = []
+		var data: [UUID: Data] = [:]
 	}
 }

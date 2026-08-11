@@ -1,3 +1,5 @@
 xcuserdata/
 **/xcuserdata/
 .DS_Store
+
+CorePresentation/Sources/CorePresentation/Analytics/AmplitudeAPIKey.swift

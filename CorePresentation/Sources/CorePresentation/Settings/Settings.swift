@@ -14,6 +14,8 @@ public struct Settings {
 
 	public var iconColor: IconColor = .neutral
 
+	public var soundEffects: SoundEffects = .enabled
+
 	public var lastOnboardingVersion: OnboardingVersion?
 
 	// MARK: - Initialization
@@ -21,10 +23,12 @@ public struct Settings {
 	public init(
 		completionBehaviour: CompletionBehavior = .regular,
 		iconColor: IconColor = .neutral,
+		soundEffects: SoundEffects = .enabled,
 		lastOnboardingVersion: OnboardingVersion? = nil
 	) {
 		self.completionBehaviour = completionBehaviour
 		self.iconColor = iconColor
+		self.soundEffects = soundEffects
 		self.lastOnboardingVersion = lastOnboardingVersion
 	}
 }

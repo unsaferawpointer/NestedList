@@ -42,6 +42,26 @@ struct OnboardingFactoryTests {
 		#expect(result?.first?.id == "document_format_update")
 	}
 
+	@Test func buildForV2_3_0() throws {
+		guard let version = Version(rawValue: "2.3.0") else {
+			Issue.record("Cant init version")
+			return
+		}
+		guard let lastVersion = Version(rawValue: "2.2.0") else {
+			Issue.record("Cant init version")
+			return
+		}
+
+		let result = try OnboardingFactory.build(for: version, lastVersion: lastVersion, in: .module)
+
+		#expect(result?.count == 3)
+		#expect(result?.map(\.id) == [
+			"marker_icons",
+			"sound_effects",
+			"analytics_data_policy"
+		])
+	}
+
 	@Test func buildForFirstLaunch() throws {
 		guard let version = Version(rawValue: "2.0.0") else {
 			Issue.record("Cant init version")

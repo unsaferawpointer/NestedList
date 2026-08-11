@@ -190,10 +190,15 @@ extension ListAdapterProxy {
 			return false
 		}
 
+		let shouldAnimate = shouldAnimateDrop(info: info, to: destination)
+
 		let result = dropManager.acceptDrop(info: info, to: destination)
 
 		if let id = destination.id, let targetItem = cache[.item(id: id)] {
 			tableView?.expandItem(targetItem, expandChildren: false)
+			if result, let row = tableView?.row(forItem: targetItem), row != -1, shouldAnimate {
+				CellFactory.animateCell(type: Model.Cell.self, at: row, in: tableView)
+			}
 		}
 
 		outlineView.window?.makeKeyAndOrderFront(nil)
@@ -267,17 +272,13 @@ public extension ListAdapterProxy {
 
 	func apply(_ new: Snapshot<Model>) {
 
-		let nodes = new.getNodes()
-
-		let transformed = nodes.map {
-			$0.map { model in
-				ListModel<Model>.model(model)
-			}
+		let transformed = new.map { model in
+			ListModel<Model>.model(model)
 		}
 
-		let first = transformed.first?.id
+		let first = transformed[safe: 0]?.id
 
-		let converted = Snapshot(transformed).insert { model, level -> ListModel<Model>? in
+		let converted = transformed.insert { model, level -> ListModel<Model>? in
 			guard model.isGroup, case let .model(value) = model, model.id != first else {
 				return nil
 			}
@@ -404,15 +405,13 @@ private extension ListAdapterProxy {
 		self.snapshot = new
 		tableView?.noteHeightOfRows(withIndexesChanged: updateHeight)
 
-		// MARK: - Animate
-
 		tableView?.beginUpdates()
 		animator.calculate(old: old, new: new) { [weak self] animation in
 			guard let self else {
 				return
 			}
 			switch animation {
-			case .remove(let offset, let parent):
+			case .remove(_, let offset, let parent):
 				let item = cache[optional: parent]
 				let rows = IndexSet(integer: offset)
 				tableView?.removeItems(
@@ -420,7 +419,7 @@ private extension ListAdapterProxy {
 					inParent: item,
 					withAnimation: [.effectFade, .effectGap]
 				)
-			case .insert(let offset, let parent):
+			case let .insert(_, offset, parent, _):
 				let destination = cache[optional: parent]
 				let rows = IndexSet(integer: offset)
 				tableView?.insertItems(
@@ -435,9 +434,23 @@ private extension ListAdapterProxy {
 				tableView?.reloadItem(item)
 			}
 		}
-
 		tableView?.endUpdates()
+
 		validateSelection()
+	}
+
+	/// Animate the drop target only when the drop actually changes the hierarchy,
+	/// i.e. at least one moved item isn't already a direct child of the target.
+	func shouldAnimateDrop(info: NSDraggingInfo, to destination: Destination<ID>) -> Bool {
+		guard let id = destination.id, let targetItem = cache[.item(id: id)] else {
+			return false
+		}
+		guard let moving = dropManager.moving(info: info) else {
+			return true
+		}
+		return moving.contains {
+			snapshot.parent(for: .item(id: $0))?.id != targetItem.id
+		}
 	}
 
 	func normalize(destination: Destination<InternalModel.ID>) -> Destination<ID>? {

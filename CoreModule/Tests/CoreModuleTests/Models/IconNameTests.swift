@@ -99,7 +99,11 @@ private extension IconNameTests {
 			(.insetTriangle, 66),
 			(.star, 100),
 			(.heart, 101),
-			(.bolt, 102)
+			(.bolt, 102),
+			(.asteriskPoint, 200),
+			(.diamondPoint, 201),
+			(.starPoint, 202),
+			(.stopPoint, 203)
 		]
 	}
 }

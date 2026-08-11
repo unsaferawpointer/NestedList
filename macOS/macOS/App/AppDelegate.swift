@@ -43,14 +43,18 @@ private extension AppDelegate {
 			let item = NSMenuItem()
 			item.title = "Editor"
 			item.submenu = MenuBuilder.build(
-				for: [.newItem,
-					  .separator,
-				   .completed,
-				   .separator,
-				   .icon, .color,
-				   .separator,
-				   .delete],
-				target: nil
+				for: [
+					.newItem,
+					.separator,
+					.toggleStrikethrough,
+					.separator,
+					.changeIcon,
+					.changeColor,
+					.separator,
+					.deleteItems
+				],
+				target: nil,
+				source: .main
 			)
 
 			menu.insertItem(item, at: 3)

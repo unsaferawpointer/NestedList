@@ -23,79 +23,33 @@ struct ItemModel {
 	var showsTrailingDisclosure: Bool
 }
 
+// MARK: - MutableIdentifiable
+extension ItemModel: MutableIdentifiable {
+
+	var id: UUID {
+		get { uuid }
+		set { uuid = newValue }
+	}
+}
+
 // MARK: - CellModel
 extension ItemModel: CellModel {
 
-	var selectionConfiguration: UIListContentConfiguration { configuration }
+	var selectionConfiguration: ItemConfiguration { configuration }
 
-	var configuration: UIListContentConfiguration {
-		let configuration = {
-			var configuration = UIListContentConfiguration.cell()
-			let image: UIImage? = {
-				if let iconConfiguration = icon {
-					let symbolConfiguration = iconConfiguration.appearence.configuration
-					return iconConfiguration.name?.uiImage
-						.applyingSymbolConfiguration(symbolConfiguration)?
-						.applyingSymbolConfiguration(.init(textStyle: title.style))?
-						.applyingSymbolConfiguration(.init(scale: .medium))
-				} else {
-					return nil
-				}
-			}()
-			configuration.image = image
-			configuration.imageToTextPadding = 8
-			configuration.directionalLayoutMargins.leading = 12
-
-			if let iconConfiguration = icon {
-				configuration.imageProperties.tintColor = iconConfiguration.appearence.tint
-			}
-
-			configuration.attributedText = .init(
-				string: title.text,
-				textColor: title.colorToken.value,
-				strikethrough: title.strikethrough
-			)
-
-			configuration.textProperties.font = .preferredFont(forTextStyle: title.style)
-
-			if let subtitleConfiguration = subtitle {
-				configuration.secondaryTextProperties.font = .preferredFont(forTextStyle: subtitleConfiguration.style)
-				configuration.secondaryTextProperties.color = subtitleConfiguration.colorToken.value
-				configuration.secondaryText = subtitleConfiguration.text
-			} else {
-				configuration.secondaryText = nil
-				configuration.secondaryText = nil
-			}
-
-			configuration.secondaryText = subtitle?.text
-
-			return configuration
-		}()
-
-		return configuration
+	var configuration: ItemConfiguration {
+		ItemConfiguration(
+			icon: icon,
+			title: title,
+			subtitle: subtitle,
+			showsTrailingDisclosure: showsTrailingDisclosure
+		)
 	}
 
-	typealias Cell = ItemCell
+	typealias Cell = ItemCell<ItemModel>
 
 	func contentIsEquals(to other: ItemModel) -> Bool {
 		return other.configuration == configuration
-		&& other.showsTrailingDisclosure == showsTrailingDisclosure
-	}
-}
-
-// MARK: - Identifiable
-extension ItemModel: Identifiable {
-
-	var id: UUID {
-		uuid
-	}
-}
-
-// MARK: - IdentifiableValue
-extension ItemModel: IdentifiableValue {
-
-	mutating func generateId() {
-		uuid = UUID()
 	}
 }
 
@@ -104,7 +58,7 @@ extension ItemModel: Hashable { }
 
 struct TextConfiguration: Hashable {
 	var text: String
-	var style: UIFont.TextStyle
+	var style: TextStyle
 	var colorToken: ColorToken
 	var strikethrough: Bool
 }

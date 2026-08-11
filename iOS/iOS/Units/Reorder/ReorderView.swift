@@ -8,8 +8,9 @@
 import SwiftUI
 
 import CoreModule
+import CorePresentation
 
-struct ReorderView: View {
+struct ReorderView {
 
 	@Bindable var model: ReorderViewModel
 
@@ -17,10 +18,23 @@ struct ReorderView: View {
 
 	// MARK: - Initialization
 
-	init(item: UUID, storage: DocumentStorage<Content>, completionHandler: (() -> Void)?) {
-		self.model = ReorderViewModel.init(item: item, storage: storage)
+	init(
+		item: UUID,
+		storage: DocumentStorage<DocumentContent>,
+		analytics: any ConcreteAnalyticsServiceProtocol<ReorderAnalyticsEvent> = ConcreteAnalyticsService<ReorderAnalyticsEvent>(),
+		completionHandler: (() -> Void)?
+	) {
+		self.model = ReorderViewModel.init(
+			item: item,
+			storage: storage,
+			analytics: analytics
+		)
 		self.completionHandler = completionHandler
 	}
+}
+
+// MARK: - View
+extension ReorderView: View {
 
 	var body: some View {
 		NavigationStack {
@@ -40,11 +54,15 @@ struct ReorderView: View {
 			.toolbar {
 				ToolbarItem(placement: .cancellationAction) {
 					Button {
+						model.close()
 						completionHandler?()
 					} label: {
 						Image(systemName: "xmark")
 					}
 				}
+			}
+			.onAppear {
+				model.show()
 			}
 		}
 	}

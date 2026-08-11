@@ -6,9 +6,10 @@
 //
 
 import SwiftUI
+import CorePresentation
 import CoreModule
 
-struct TargetDestionationView: View {
+struct TargetDestionationView {
 
 	@Bindable var model: TargetDestinationViewModel
 
@@ -16,10 +17,23 @@ struct TargetDestionationView: View {
 
 	// MARK: - Initialization
 
-	init(storage: DocumentStorage<Content>, movingItems: Set<UUID>, completionHandler: ((UUID?, Bool) -> Void)?) {
-		self.model = TargetDestinationViewModel(storage: storage, movingItems: movingItems)
+	init(
+		storage: DocumentStorage<DocumentContent>,
+		movingItems: Set<UUID>,
+		analytics: any ConcreteAnalyticsServiceProtocol<TargetDestinationAnalyticsEvent> = ConcreteAnalyticsService<TargetDestinationAnalyticsEvent>(),
+		completionHandler: ((UUID?, Bool) -> Void)?
+	) {
+		self.model = TargetDestinationViewModel(
+			storage: storage,
+			movingItems: movingItems,
+			analytics: analytics
+		)
 		self.completionHandler = completionHandler
 	}
+}
+
+// MARK: - View
+extension TargetDestionationView: View {
 
 	var body: some View {
 		NavigationStack {
@@ -29,6 +43,7 @@ struct TargetDestionationView: View {
 						.frame(maxWidth: .infinity, alignment: .leading)
 						.contentShape(Rectangle())
 						.onTapGesture {
+							model.selectRoot()
 							completionHandler?(nil, true)
 						}
 				}
@@ -38,6 +53,7 @@ struct TargetDestionationView: View {
 							.frame(maxWidth: .infinity, alignment: .leading)
 							.contentShape(Rectangle())
 							.onTapGesture {
+								model.selectItem()
 								completionHandler?(item.id, true)
 							}
 					}
@@ -63,11 +79,15 @@ struct TargetDestionationView: View {
 			.toolbar {
 				ToolbarItem(placement: .cancellationAction) {
 					Button {
+						model.close()
 						completionHandler?(nil, false)
 					} label: {
 						Image(systemName: "xmark")
 					}
 				}
+			}
+			.onAppear {
+				model.show()
 			}
 		}
 	}

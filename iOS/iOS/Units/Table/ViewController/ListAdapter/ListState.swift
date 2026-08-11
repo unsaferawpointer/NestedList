@@ -9,7 +9,7 @@ import Foundation
 import Hierarchy
 import DesignSystem
 
-struct ListState<Model: CellModel & IdentifiableValue> {
+struct ListState<Model: CellModel> where Model.ID: RandomizableIdentifier {
 
 	var expanded: Set<Model.ID> = []
 
@@ -118,23 +118,12 @@ extension ListState {
 	}
 
 	func deleted(id: Model.ID) -> ListState {
-		let nodes = snapshot.getNodes()
-		let root = Root<Model>(hierarchy: nodes)
-		root.deleteItem(id)
 		let newExpanded = expanded.subtracting([id])
-		return ListState(
-			expanded: newExpanded,
-			snapshot: Snapshot(root.nodes)
-		)
+		return ListState(expanded: newExpanded, snapshot: snapshot.removed(ids: [id]))
 	}
 
 	func inserted(model: Model, to destination: Destination<Model.ID>) -> ListState {
-		let root = Root<Model>(hierarchy: snapshot.getNodes())
-		root.insertItems(with: [model], to: destination)
-
-		return ListState(
-			expanded: expanded,
-			snapshot: Snapshot(root.nodes)
-		)
+		let newSnapshot = snapshot.inserted(models: [model], to: destination)
+		return ListState(expanded: expanded, snapshot: newSnapshot)
 	}
 }

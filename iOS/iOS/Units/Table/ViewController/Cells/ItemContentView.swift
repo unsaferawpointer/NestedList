@@ -22,20 +22,9 @@ final class ItemContentView<ID: Hashable>: UIView {
 		return view
 	}()
 
-	lazy var listContentView: UIListContentView = {
-		let view = UIListContentView(configuration: _configuration.content)
+	lazy var listContentView: any UIContentView & UIView = {
+		let view = _configuration.content.makeContentView()
 		view.backgroundColor = .clear
-		return view
-	}()
-
-	lazy var trailingArrow: UIImageView = {
-		let view = UIImageView()
-		view.image = UIImage(systemName: "chevron.right")?
-			.withConfiguration(UIImage.SymbolConfiguration(scale: .small))
-		view.contentMode = .center
-		view.tintColor = .secondaryLabel
-		view.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-		view.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
 		return view
 	}()
 
@@ -91,7 +80,7 @@ private extension ItemContentView {
 	}
 
 	func configureConstraints() {
-		[listContentView, disclosureArrow, trailingArrow].forEach {
+		[listContentView, disclosureArrow].forEach {
 			$0.translatesAutoresizingMaskIntoConstraints = false
 			addSubview($0)
 		}
@@ -105,11 +94,8 @@ private extension ItemContentView {
 			disclosureArrow.centerYAnchor.constraint(equalTo: centerYAnchor),
 
 			listContentView.topAnchor.constraint(equalTo: topAnchor),
-			listContentView.trailingAnchor.constraint(equalTo: trailingArrow.leadingAnchor, constant: -4),
-			listContentView.bottomAnchor.constraint(equalTo: bottomAnchor),
-
-			trailingArrow.centerYAnchor.constraint(equalTo: centerYAnchor),
-			trailingArrow.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16)
+			listContentView.trailingAnchor.constraint(equalTo: trailingAnchor),
+			listContentView.bottomAnchor.constraint(equalTo: bottomAnchor)
 		])
 	}
 
@@ -137,7 +123,6 @@ private extension ItemContentView {
 
 	func updateArrowVisibility() {
 		disclosureArrow.isHidden = _configuration.row.isLeaf
-		trailingArrow.isHidden = !_configuration.showsTrailingDisclosure
 	}
 
 	func updateArrowTransform(animated: Bool) {

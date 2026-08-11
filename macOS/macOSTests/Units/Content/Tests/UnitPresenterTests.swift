@@ -12,6 +12,7 @@ import Hierarchy
 import CoreModule
 import DesignSystem
 import CorePresentation
+import Analytics
 @testable import Nested_List
 
 @MainActor
@@ -25,13 +26,22 @@ final class UnitPresenterTests {
 	var interactor: UnitInteractorMock!
 	var router: UnitRouterMock!
 	var settingsProvider: StateProviderMock<Settings>!
+	var analytics: ContentAnalyticsMock!
+	var soundPlayer: SoundPlayerMock!
 
 	init() {
 		view = UnitViewMock()
 		interactor = UnitInteractorMock()
 		router = UnitRouterMock()
 		settingsProvider = StateProviderMock<Settings>()
-		sut = ContentPresenter(router: router, settingsProvider: settingsProvider)
+		analytics = ContentAnalyticsMock()
+		soundPlayer = SoundPlayerMock()
+		sut = ContentPresenter(
+			router: router,
+			settingsProvider: settingsProvider,
+			analytics: analytics,
+			soundPlayer: soundPlayer
+		)
 		sut.view = view
 		sut.interactor = interactor
 	}
@@ -42,6 +52,8 @@ final class UnitPresenterTests {
 		interactor = nil
 		router = nil
 		settingsProvider = nil
+		analytics = nil
+		soundPlayer = nil
 	}
 }
 
@@ -50,11 +62,11 @@ extension UnitPresenterTests {
 
 	@Test func testPresent() {
 		// Arrange
-		let content = makeContent()
+		let snapshot = makeSnapshot()
 		settingsProvider.stubs.state = .standart
 
 		// Act
-		sut.present(content)
+		sut.present(snapshot)
 
 		// Assert
 		guard case let .display(state) = view.invocations.first else {
@@ -72,10 +84,10 @@ extension UnitPresenterTests {
 
 	@Test func testPresentRoot_updatesTitle() {
 		// Arrange
-		let root = Node<Item>(value: .init(uuid: .random, text: "Root"))
+		let item: Item = .init(uuid: .random, text: "Root")
 
 		// Act
-		sut.presentRoot(root)
+		sut.presentRoot(item: item)
 
 		// Assert
 		guard case let .updateTitle(title) = view.invocations.first else {
@@ -100,27 +112,44 @@ extension UnitPresenterTests {
 // MARK: - ListDelegate test-cases
 extension UnitPresenterTests {
 
-	@Test func test_handleDoubleClick() {
+	@Test func test_handleDoubleClick() async {
 		// Arrange
 		let expectedId: UUID = .random
 		settingsProvider.stubs.state = .standart
 
 		// Act
 		sut.handleDoubleClick(on: expectedId)
+		let invocation = await waitForAnalyticsInvocation()
 
 		guard case let .toggleStatus(id, moveToEnd) = interactor.invocations.first else {
 			Issue.record("Expect toggleStatus invocation")
 			return
 		}
 
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		guard case let .play(sound) = soundPlayer.invocations.first else {
+			Issue.record("Expect play sound invocation")
+			return
+		}
+
 		#expect(id == expectedId)
 		#expect(moveToEnd == false)
+		#expect(sound == .mark)
+		#expect(event.name == .buttonClick)
 	}
 
 	@Test func test_handleDoubleClick_whenCompletionBehaviourIsMoveToEnd() {
 		// Arrange
 		let expectedId: UUID = .random
+		let item = Item(uuid: expectedId, text: .random, options: .strikethrough)
+		let snapshot = Snapshot([Node(value: item)])
 		settingsProvider.stubs.state = Settings(completionBehaviour: .moveToEnd)
+		sut.present(snapshot)
+		view.clear()
 
 		// Act
 		sut.handleDoubleClick(on: expectedId)
@@ -130,16 +159,35 @@ extension UnitPresenterTests {
 			return
 		}
 
+		guard case let .play(sound) = soundPlayer.invocations.first else {
+			Issue.record("Expect play sound invocation")
+			return
+		}
+
 		#expect(id == expectedId)
 		#expect(moveToEnd == true)
+		#expect(sound == .unmark)
 	}
 
-	@Test func test_cellDidTapDisclosure_showsDocument() {
+	@Test func test_handleDoubleClick_whenSoundEffectsDisabled_doesNotPlaySound() {
+		// Arrange
+		let expectedId: UUID = .random
+		settingsProvider.stubs.state = Settings(soundEffects: .disabled)
+
+		// Act
+		sut.handleDoubleClick(on: expectedId)
+
+		// Assert
+		#expect(soundPlayer.invocations.isEmpty)
+	}
+
+	@Test func test_cellDidTapDisclosure_showsDocumentAndTracksAnalytics() async {
 		// Arrange
 		let id: UUID = .random
 
 		// Act
 		sut.cellDidTapDisclosure(id: id)
+		let invocation = await waitForAnalyticsInvocation()
 
 		// Assert
 		guard case let .showDocument(openedId) = router.invocations.first else {
@@ -147,6 +195,14 @@ extension UnitPresenterTests {
 			return
 		}
 		#expect(openedId == id)
+
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == .buttonClick)
+		#expect(event.parameters["id"] == .string("show_subitems"))
 	}
 }
 
@@ -154,22 +210,135 @@ extension UnitPresenterTests {
 extension UnitPresenterTests {
 
 	@Test func test_viewDidLoad() {
+		// Arrange
+		interactor.stubs.snapshot = makeSnapshot()
+		settingsProvider.stubs.state = .standart
+
 		// Act
 		sut.viewDidChange(state: .didLoad)
 
 		// Assert
-
 		guard case .fetchData = interactor.invocations.first else {
 			Issue.record("Expect fetchData invocation")
 			return
 		}
 
-		guard case let .expand(ids) = view.invocations.first else {
+		guard case let .display(state) = view.invocations.first else {
 			Issue.record("Expect display invocation")
 			return
 		}
 
+		guard case let .list(snapshot) = state else {
+			Issue.record("Expect list state")
+			return
+		}
+		#expect(snapshot.identifiers.count == 2)
+
+		guard case let .expand(ids) = view.invocations.dropFirst().first else {
+			Issue.record("Expect expand invocation")
+			return
+		}
 		#expect(ids == nil)
+	}
+
+	@Test func test_viewDidLoad_whenRootDocument_tracksAnalytics() async {
+		// Arrange
+		let snapshot = makeSnapshot()
+		interactor.stubs.snapshot = snapshot
+		interactor.stubs.fetchedItem = nil
+		settingsProvider.stubs.state = .standart
+
+		// Act
+		sut.viewDidChange(state: .didLoad)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == .screenShow)
+		#expect(event.parameters["is_root"] == .bool(true))
+	}
+
+	@Test func test_viewDidLoad_whenNestedDocument_tracksAnalytics() async {
+		// Arrange
+		let snapshot = makeSnapshot()
+		interactor.stubs.snapshot = snapshot
+		interactor.stubs.fetchedItem = .random
+		settingsProvider.stubs.state = .standart
+
+		// Act
+		sut.viewDidChange(state: .didLoad)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == .screenShow)
+		#expect(event.parameters["is_root"] == .bool(false))
+	}
+
+	@Test func test_toolbarButtonClicked_tracksAnalytics() async {
+		// Arrange
+		view.stubs.selection = [.random]
+		interactor.stubs.newItem = .random
+
+		// Act
+		sut.toolbarButtonClicked(id: .init(rawValue: "new-item-toolbar-item"))
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == .buttonClick)
+		#expect(event.parameters["id"] == .string("new-item"))
+		#expect(event.parameters["source"] == .string("toolbar"))
+	}
+
+	@Test func test_menuItemClicked_tracksAnalytics() async {
+		// Arrange
+		view.stubs.selection = [.random]
+
+		// Act
+		sut.menuItemClicked(.deleteItems)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == .menuItemClick)
+		#expect(event.parameters["id"] == .string("delete"))
+		#expect(event.parameters["source"] == .string("context-menu"))
+	}
+
+	@Test func test_menuItemClickedFromMainMenu_tracksAnalytics() async {
+		// Arrange
+		view.stubs.selection = [.random]
+
+		// Act
+		sut.menuItemClicked(.deleteItems, source: .main)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == .menuItemClick)
+		#expect(event.parameters["id"] == .string("delete"))
+		#expect(event.parameters["source"] == .string("main-menu"))
 	}
 
 	@Test func test_userCreateNewItem() {
@@ -181,15 +350,15 @@ extension UnitPresenterTests {
 		sut.menuItemClicked(.newItem)
 
 		// Assert
-		guard case let .newItem(text, isStrikethrough, note, iconName, tintColor, target) = interactor.invocations[0] else {
+		guard case let .newItem(properties, target) = interactor.invocations[0] else {
 			Issue.record("Expect newItem invocation")
 			return
 		}
-		#expect(!text.isEmpty)
-		#expect(isStrikethrough == false)
-		#expect(note == nil)
-		#expect(iconName == nil)
-		#expect(tintColor == nil)
+		#expect(!properties.text.isEmpty)
+		#expect(properties.options == [])
+		#expect(properties.note == nil)
+		#expect(properties.iconName == nil)
+		#expect(properties.tintColor == nil)
 		#expect(target == view.selection.first)
 
 		guard case let .expand(id) = view.invocations[0] else {
@@ -217,7 +386,7 @@ extension UnitPresenterTests {
 		view.stubs.selection = [.random, .random]
 
 		// Act
-		sut.menuItemClicked(.delete)
+		sut.menuItemClicked(.deleteItems)
 
 		// Assert
 		guard case let .deleteItems(ids) = interactor.invocations[0] else {
@@ -238,13 +407,13 @@ extension UnitPresenterTests {
 		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random))
 		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
 
-		sut.present(.init(uuid: nil, nodes: [firstNode, secondNode]))
+		sut.present(Snapshot([firstNode, secondNode]))
 
 		interactor.clear()
 		view?.clear()
 
 		// Act
-		sut.menuItemClicked(.completed)
+		sut.menuItemClicked(.toggleStrikethrough)
 
 		// Assert
 		guard case let .setStatus(status, ids, moveToEnd) = interactor.invocations[0] else {
@@ -268,13 +437,13 @@ extension UnitPresenterTests {
 		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random))
 		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
 
-		sut.present(.init(uuid: nil, nodes: [firstNode, secondNode]))
+		sut.present(Snapshot([firstNode, secondNode]))
 
 		interactor.clear()
 		view?.clear()
 
 		// Act
-		sut.menuItemClicked(.completed)
+		sut.menuItemClicked(.toggleStrikethrough)
 
 		// Assert
 		guard case let .setStatus(status, ids, moveToEnd) = interactor.invocations[0] else {
@@ -293,7 +462,7 @@ extension UnitPresenterTests {
 		view.stubs.selection = [.random, .random]
 
 		// Act
-		sut.menuItemClicked(.color)
+		sut.menuItemClicked(.changeColor)
 
 		// Assert
 		guard case .showColorPicker = router.invocations[0] else {
@@ -316,7 +485,7 @@ extension UnitPresenterTests {
 		// Arrange
 		view.stubs.selection = [.random, .random]
 		// Act
-		sut.menuItemClicked(.icon)
+		sut.menuItemClicked(.changeIcon)
 
 		// Assert
 		guard case .showIconPicker = router.invocations[0] else {
@@ -346,13 +515,13 @@ extension UnitPresenterTests {
 		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random))
 		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random))
 
-		sut.present(.init(uuid: nil, nodes: [firstNode, secondNode]))
+		sut.present(Snapshot([firstNode, secondNode]))
 
 		interactor.clear()
 		view?.clear()
 
 		// Act
-		sut.menuItemClicked(.note)
+		sut.menuItemClicked(.toggleNote)
 
 		// Assert
 		guard case let .setNote(note, ids) = interactor.invocations[0] else {
@@ -385,13 +554,13 @@ extension UnitPresenterTests {
 		let firstNode: Node<Item> = .init(value: .init(uuid: firstId, text: .random, note: .random))
 		let secondNode: Node<Item> = .init(value: .init(uuid: secondId, text: .random, note: .random))
 
-		sut.present(.init(uuid: nil, nodes: [firstNode, secondNode]))
+		sut.present(Snapshot([firstNode, secondNode]))
 
 		interactor.clear()
 		view?.clear()
 
 		// Act
-		sut.menuItemClicked(.note)
+		sut.menuItemClicked(.toggleNote)
 
 		// Assert
 		guard case let .setNote(note, ids) = interactor.invocations[0] else {
@@ -420,8 +589,27 @@ extension UnitPresenterTests {
 			Issue.record("Expect move invocation")
 			return
 		}
+		guard case let .play(sound) = soundPlayer.invocations.first else {
+			Issue.record("Expect play sound invocation")
+			return
+		}
+
 		#expect(ids == expectedIds)
 		#expect(destination == expectedDestination)
+		#expect(sound == .place)
+	}
+
+	@Test func test_moveItems_whenSoundEffectsDisabled_doesNotPlaySound() {
+		// Arrange
+		let expectedIds: [UUID] = [.random, .random]
+		let expectedDestination: Destination<UUID> = .toRoot
+		settingsProvider.stubs.state = Settings(soundEffects: .disabled)
+
+		// Act
+		sut.move(expectedIds, to: expectedDestination)
+
+		// Assert
+		#expect(soundPlayer.invocations.isEmpty)
 	}
 
 	@Test func test_copyItems() {
@@ -439,6 +627,44 @@ extension UnitPresenterTests {
 		}
 		#expect(ids == expectedIds)
 		#expect(destination == expectedDestination)
+	}
+
+	@Test func test_moveItems_tracksAnalytics() async {
+		// Arrange
+		let expectedIds: [UUID] = [.random, .random]
+		let expectedDestination: Destination<UUID> = .toRoot
+
+		// Act
+		sut.move(expectedIds, to: expectedDestination)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == .dragDropMove)
+		#expect(event.parameters["items_count"] == .int(expectedIds.count))
+	}
+
+	@Test func test_copyItems_tracksAnalytics() async {
+		// Arrange
+		let expectedIds: [UUID] = [.random]
+		let expectedDestination: Destination<UUID> = .onItem(with: .random)
+
+		// Act
+		sut.copy(expectedIds, to: expectedDestination)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == .dragDropCopy)
+		#expect(event.parameters["items_count"] == .int(expectedIds.count))
 	}
 
 	@Test func test_validateMovement() {
@@ -531,6 +757,62 @@ extension UnitPresenterTests {
 		#expect(actualDestination == destination)
 	}
 
+	@Test func test_dropItemsFromPasteboard_tracksAnalytics() async {
+		// Arrange
+		let destination: Destination<UUID> = .toRoot
+		let itemType = "dev.zeroindex.ListAdapter.item"
+		let first = Data([0x01])
+		let second = Data([0x02])
+		let info = PasteboardInfo(
+			items: [
+				.init(data: [itemType: first]),
+				.init(data: [itemType: second])
+			]
+		)
+
+		// Act
+		sut.drop(info, to: destination)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == .dragDropInsert)
+		#expect(event.parameters["items_count"] == .int(2))
+		#expect(event.parameters["content_type"] == .string("item"))
+	}
+
+	@Test func test_dropStringsFromPasteboard_tracksAnalytics() async {
+		// Arrange
+		let destination: Destination<UUID> = .toRoot
+		let stringType = NSPasteboard.PasteboardType.string.rawValue
+		let first = Data("one".utf8)
+		let second = Data("two".utf8)
+		let info = PasteboardInfo(
+			items: [
+				.init(data: [stringType: first]),
+				.init(data: [stringType: second])
+			]
+		)
+
+		// Act
+		sut.drop(info, to: destination)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == .dragDropInsert)
+		#expect(event.parameters["items_count"] == .int(2))
+		#expect(event.parameters["content_type"] == .string("string"))
+	}
+
 	@Test func test_availableTypes() {
 		// Act
 		let result = sut.availableTypes()
@@ -575,8 +857,18 @@ extension UnitPresenterTests {
 // MARK: - Helpers
 private extension UnitPresenterTests {
 
-	func makeContent() -> Content {
-		.init(uuid: nil, nodes: [.init(value: .random), .init(value: .random)])
+	func makeSnapshot() -> Snapshot<Item> {
+		Snapshot([.init(value: .random), .init(value: .random)])
+	}
+
+	func waitForAnalyticsInvocation() async -> ContentAnalyticsMock.Action? {
+		for _ in 0..<10 {
+			if let invocation = await analytics.invocations.first {
+				return invocation
+			}
+			await Task.yield()
+		}
+		return nil
 	}
 }
 

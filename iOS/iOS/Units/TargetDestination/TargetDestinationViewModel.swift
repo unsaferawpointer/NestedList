@@ -38,17 +38,27 @@ final class TargetDestinationViewModel {
 	var items: [ItemViewModel] = []
 
 	@ObservationIgnored
-	var storage: DocumentStorage<Content>
+	var storage: DocumentStorage<DocumentContent>
+
+	@ObservationIgnored
+	private let analytics: any ConcreteAnalyticsServiceProtocol<TargetDestinationAnalyticsEvent>
+
+	private var didTrackShow = false
 
 	// MARK: - Initialization
 
-	init(storage: DocumentStorage<Content>, movingItems: Set<UUID>) {
+	init(
+		storage: DocumentStorage<DocumentContent>,
+		movingItems: Set<UUID>,
+		analytics: any ConcreteAnalyticsServiceProtocol<TargetDestinationAnalyticsEvent>
+	) {
 		self.storage = storage
-		self.excludedIds = storage.state.root.invalidTargets(movingItems: movingItems)
+		self.analytics = analytics
+		self.excludedIds = storage.state.invalidTargets(movingItems: movingItems)
 
-		self.present(root: storage.state.root)
+		self.present(content: storage.state)
 		storage.addObservation(for: self) { [weak self] content in
-			self?.present(root: content.root)
+			self?.present(content: content)
 		}
 	}
 
@@ -59,11 +69,41 @@ final class TargetDestinationViewModel {
 	}
 }
 
-// MARK: - Helpers
+// MARK: - Public Interface
+extension TargetDestinationViewModel {
+
+	func show() {
+		guard !didTrackShow else {
+			return
+		}
+		didTrackShow = true
+		track(
+			.targetDestinationShow(
+				availableItemsCount: filteredItems.count,
+				unavailableItemsCount: unavailableItems.count
+			)
+		)
+	}
+
+	func selectRoot() {
+		track(.rootDestinationClick)
+	}
+
+	func selectItem() {
+		track(.itemDestinationClick)
+	}
+
+	func close() {
+		track(.closeButtonClick)
+	}
+}
+
+// MARK: - Private methods
 private extension TargetDestinationViewModel {
 
-	func present(root: Root<Item>) {
-		self.items = storage.state.root
+	func present(content: DocumentContent) {
+		self.items = storage.state
+			.snapshot()
 			.flattened { _ in true }.map {
 				ItemViewModel(
 					id: $0.id,
@@ -73,5 +113,12 @@ private extension TargetDestinationViewModel {
 					isDisabled: self.excludedIds.contains($0.id)
 				)
 			}
+	}
+
+	func track(_ event: TargetDestinationAnalyticsEvent) {
+		let analytics = analytics
+		Task {
+			await analytics.track(event)
+		}
 	}
 }

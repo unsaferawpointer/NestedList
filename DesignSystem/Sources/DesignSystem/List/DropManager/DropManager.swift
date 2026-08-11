@@ -75,6 +75,19 @@ extension DropManager {
 		delegate.drop(info, to: destination)
 		return true
 	}
+
+	func moving(info: NSDraggingInfo) -> [ID]? {
+		if isLocal(from: info) {
+			let ids: [ID] = info.objects(objectType: ID.self, with: .identifier)
+			if info.draggingSourceOperationMask == .copy {
+				return nil
+			} else {
+				return ids
+			}
+		} else {
+			return nil
+		}
+	}
 }
 
 // MARK: - Helpers
@@ -92,11 +105,26 @@ private extension DropManager {
 	}
 
 	func areRelated(window lhs: NSWindow, to rhs: NSWindow) -> Bool {
-		let isSame = lhs === rhs
-		let hasSameParent = lhs.parent === rhs.parent
-		let isChild = lhs.parent == rhs || rhs.parent == lhs
+		let lhsHierarchy = windowHierarchy(from: lhs)
+		let rhsHierarchy = windowHierarchy(from: rhs)
 
-		return isSame || hasSameParent || isChild
+		return lhsHierarchy.contains { lhsWindow in
+			rhsHierarchy.contains { rhsWindow in
+				lhsWindow === rhsWindow
+			}
+		}
+	}
+
+	func windowHierarchy(from window: NSWindow) -> [NSWindow] {
+		var hierarchy = [window]
+		var current = window
+
+		while let parent = current.parent {
+			hierarchy.append(parent)
+			current = parent
+		}
+
+		return hierarchy
 	}
 
 	func register() {

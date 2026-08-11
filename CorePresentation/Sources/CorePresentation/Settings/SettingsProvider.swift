@@ -49,6 +49,7 @@ public final class SettingsProvider {
 				[
 					CompletionBehavior.key: state.completionBehaviour.rawValue,
 					IconColor.key: state.iconColor.rawValue,
+					SoundEffects.key: state.soundEffects.rawValue,
 					OnboardingVersion.key: state.lastOnboardingVersion?.rawValue
 				]
 			)
@@ -69,19 +70,22 @@ public final class SettingsProvider {
 
 		let completionBehaviour = defaults.getProperty(as: CompletionBehavior.self) ?? CompletionBehavior.defaultValue
 		let iconColor = defaults.getProperty(as: IconColor.self) ?? IconColor.defaultValue
+		let soundEffects = defaults.getProperty(as: SoundEffects.self) ?? SoundEffects.defaultValue
 		let lastOnboardingVersion = defaults.getProperty(as: OnboardingVersion.self)
 
 		self.state = Settings(
 			completionBehaviour: completionBehaviour ?? .regular,
 			iconColor: iconColor ?? .accent,
+			soundEffects: soundEffects ?? .enabled,
 			lastOnboardingVersion: lastOnboardingVersion
 		)
 
 		defaults.register(
 			defaults:
 				[
-					CompletionBehavior.key: CompletionBehavior.defaultValue?.rawValue,
-					IconColor.key: IconColor.defaultValue?.rawValue
+					CompletionBehavior.key: CompletionBehavior.defaultValue?.rawValue ?? CompletionBehavior.regular.rawValue,
+					IconColor.key: IconColor.defaultValue?.rawValue ?? IconColor.accent.rawValue,
+					SoundEffects.key: SoundEffects.defaultValue?.rawValue ?? SoundEffects.enabled.rawValue
 				]
 		)
 
@@ -101,11 +105,13 @@ extension SettingsProvider {
 		// Реакция на изменение настроек
 		let completionBehaviour = defaults.getProperty(as: CompletionBehavior.self)
 		let iconColor = defaults.getProperty(as: IconColor.self) ?? IconColor.defaultValue
+		let soundEffects = defaults.getProperty(as: SoundEffects.self) ?? SoundEffects.defaultValue
 		let lastOnboardingVersion = defaults.getProperty(as: OnboardingVersion.self)
 
 		let current = Settings(
 			completionBehaviour: completionBehaviour ?? .regular,
 			iconColor: iconColor ?? .accent,
+			soundEffects: soundEffects ?? .enabled,
 			lastOnboardingVersion: lastOnboardingVersion
 		)
 

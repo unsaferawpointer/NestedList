@@ -7,10 +7,23 @@
 
 import Foundation
 import CoreModule
+import CorePresentation
 
 final class StateProviderMock<State> {
 	private(set) var invocations: [Action] = []
 	var stubs = Stubs()
+
+	init(state: State? = nil) {
+		self.stubs.state = state
+	}
+}
+
+// MARK: - Initialization
+extension StateProviderMock where State == Settings {
+
+	convenience init() {
+		self.init(state: Settings())
+	}
 }
 
 // MARK: - StateProviderProtocol

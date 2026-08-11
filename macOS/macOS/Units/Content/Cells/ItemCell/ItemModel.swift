@@ -18,8 +18,6 @@ struct ItemModel: CellModel {
 
 	var configuration: Configuration
 
-	var action: ((Value) -> Void)?
-
 	var isGroup: Bool
 
 	var height: CGFloat?
@@ -46,7 +44,7 @@ extension ItemModel {
 }
 
 struct TextConfiguration: Equatable {
-	var style: NSFont.TextStyle
+	var style: TextStyle
 	var colorToken: ColorToken
 	var strikethrough: Bool
 }

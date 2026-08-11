@@ -11,24 +11,6 @@ public enum ControlState {
 	case mixed
 }
 
-#if canImport(UIKit)
-
-import UIKit
-
-// MARK: - Computed properties
-public extension ControlState {
-
-	var value: UIMenuElement.State {
-		switch self {
-		case .off:		.off
-		case .on:		.on
-		case .mixed:	.mixed
-		}
-	}
-}
-
-#endif
-
 #if canImport(AppKit)
 
 import AppKit

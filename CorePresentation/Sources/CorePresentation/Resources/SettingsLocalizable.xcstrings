@@ -324,6 +324,40 @@
         }
       }
     },
+    "sound-effects-description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play short sounds for completion changes and item moves."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Воспроизводить короткие звуки при изменении статуса и перемещении элементов."
+          }
+        }
+      }
+    },
+    "sound-effects-text" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sound effects"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Звуковые эффекты"
+          }
+        }
+      }
+    },
     "strikethrough-behavior-description" : {
       "extractionState" : "manual",
       "localizations" : {

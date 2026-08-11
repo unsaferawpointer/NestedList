@@ -6,9 +6,12 @@
 //
 
 import Foundation
+import OSLog
 
 /// Data provider of board document
 public final class JsonDataProvider {
+
+	private let logger = Logger(subsystem: "NestedList", category: "JsonDataProvider")
 
 	public init() { }
 }
@@ -16,8 +19,11 @@ public final class JsonDataProvider {
 // MARK: - ContentProvider
 extension JsonDataProvider: ContentProvider {
 
-	public func data(ofType typeName: String, content: Content) throws -> Data {
+	public func data(ofType typeName: String, content: DocumentContent) throws -> Data {
+		log("Encoding data of type '\(typeName)'…")
+
 		guard let type = DocumentType(rawValue: typeName.lowercased()) else {
+			logError("Unexpected document type '\(typeName)'")
 			throw DocumentError.unexpectedFormat
 		}
 
@@ -27,15 +33,20 @@ extension JsonDataProvider: ContentProvider {
 			let encoder = JSONEncoder()
 			encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
 			encoder.dateEncodingStrategy = .secondsSince1970
-			return try encoder.encode(file)
+			let data = try encoder.encode(file)
+			log("Encoded \(data.count) bytes for version \(type.lastVersion.rawValue)")
+			return data
 		default:
+			logError("Unsupported document type '\(type.rawValue)' for encoding")
 			throw DocumentError.unexpectedFormat
 		}
 	}
 
-	public func read(from data: Data, ofType typeName: String) throws -> Content {
+	public func read(from data: Data, ofType typeName: String) throws -> DocumentContent {
+		log("Decoding \(data.count) bytes of type '\(typeName)'…")
 
 		guard let type = DocumentType(rawValue: typeName.lowercased()) else {
+			logError("Unexpected document type '\(typeName)'")
 			throw DocumentError.unexpectedFormat
 		}
 
@@ -43,6 +54,7 @@ extension JsonDataProvider: ContentProvider {
 		case .nlist:
 			return try migrate(data, type: type)
 		default:
+			logError("Unsupported document type '\(type.rawValue)' for decoding")
 			throw DocumentError.unexpectedFormat
 		}
 	}
@@ -51,23 +63,44 @@ extension JsonDataProvider: ContentProvider {
 // MARK: - Helpers
 private extension JsonDataProvider {
 
-	func migrate(_ data: Data, type: DocumentType) throws -> Content {
+	func migrate(_ data: Data, type: DocumentType) throws -> DocumentContent {
 
 		let decoder = JSONDecoder()
 		decoder.dateDecodingStrategy = .secondsSince1970
 
 		guard let versionedFile = try? decoder.decode(VersionedFile.self, from: data) else {
+			logError("Failed to decode document version")
 			throw DocumentError.unexpectedFormat
 		}
 
 		guard versionedFile.version.isBackwardCompatible(other: type.lastVersion) else {
+			logError("Incompatible version \(versionedFile.version.rawValue), expected \(type.lastVersion.rawValue)")
 			throw DocumentError.unknownVersion
 		}
 
-		guard let file = try? decoder.decode(DocumentFile<Content>.self, from: data) else {
+		if let key = CodingUserInfoKey.documentVersion {
+			decoder.userInfo[key] = versionedFile.version
+		}
+
+		guard let file = try? decoder.decode(DocumentFile<DocumentContent>.self, from: data) else {
+			logError("Failed to decode document content")
 			throw DocumentError.unexpectedFormat
 		}
 
+		log("Decoded content of version \(versionedFile.version.rawValue)")
 		return file.content
 	}
+
+	func log(_ message: String) {
+		logger.debug("📄 \(message, privacy: .public)")
+	}
+
+	func logError(_ message: String) {
+		logger.error("📄 \(message, privacy: .public)")
+	}
+}
+
+extension CodingUserInfoKey {
+
+	static let documentVersion = CodingUserInfoKey(rawValue: "documentVersion")
 }

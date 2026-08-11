@@ -5,4 +5,4 @@
 //  Created by Anton Cherkasov on 14.03.2026.
 //
 
-public typealias Item = ItemV2
+public typealias Item = ItemContent

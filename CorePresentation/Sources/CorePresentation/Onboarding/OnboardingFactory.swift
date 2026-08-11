@@ -7,7 +7,6 @@
 
 import Foundation
 import CoreModule
-import DesignSystem
 
 public final class OnboardingFactory { }
 

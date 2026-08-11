@@ -44,6 +44,10 @@ final class ItemCell: NSView, ListCell {
 		}
 	}
 
+	func animate() {
+		iconView.addSymbolEffect(.bounce, options: .repeat(1))
+	}
+
 	// MARK: - UI-Properties
 
 	lazy var titleTextfield: NSTextField = {
@@ -108,7 +112,7 @@ final class ItemCell: NSView, ListCell {
 		view.isBordered = true
 		view.bezelStyle = .automatic
 		view.imagePosition = .imageOnly
-		view.image = NSImage(systemSymbolName: "arrow.forward", accessibilityDescription: nil)
+		view.image = NSImage(systemSymbolName: "chevron.forward", accessibilityDescription: nil)
 		view.controlSize = .small
 		view.showsBorderOnlyWhileMouseInside = true
 		view.target = self
@@ -151,7 +155,7 @@ private extension ItemCell {
 			textColor: configuration.text.colorToken.value,
 			strikethrough: configuration.text.strikethrough
 		)
-		titleTextfield.font = NSFont.preferredFont(forTextStyle: configuration.text.style)
+		titleTextfield.font = NSFont.preferredFont(forTextStyle: configuration.text.style.value)
 
 		setIcon(configuration: model.configuration.icon, animateIcon: animateIcon)
 
@@ -193,7 +197,7 @@ private extension ItemCell {
 			.withSymbolConfiguration(
 				configuration.appearence.configuration
 					.applying(
-						.init(textStyle: model.configuration.text.style)
+						.init(textStyle: model.configuration.text.style.value)
 					)
 			)
 

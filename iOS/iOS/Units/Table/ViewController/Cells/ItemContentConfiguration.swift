@@ -11,8 +11,7 @@ import DesignSystem
 struct ItemContentConfiguration<ID: Hashable> {
 	var id: ID
 	var row: RowConfiguration
-	var content: UIListContentConfiguration
-	var showsTrailingDisclosure: Bool
+	var content: UIContentConfiguration
 }
 
 // MARK: - UIContentConfiguration

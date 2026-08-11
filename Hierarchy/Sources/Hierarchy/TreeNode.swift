@@ -68,15 +68,13 @@ public extension TreeNode {
 		}
 	}
 
-	func allSatisfy<T: Equatable>(_ keyPath: KeyPath<Value, T>, equalsTo value: T) -> Bool {
+	/// Returns `true` when every leaf node in this subtree has a value equal to the given value at the specified key path.
+	func allMatch<T: Equatable>(_ keyPath: KeyPath<Value, T>, equalsTo value: T) -> Bool {
 		guard !children.isEmpty else {
 			return self.value[keyPath: keyPath] == value
 		}
 		return children.allSatisfy {
-			$0.allSatisfy(keyPath, equalsTo: value)
+			$0.allMatch(keyPath, equalsTo: value)
 		}
 	}
-
-
 }
-

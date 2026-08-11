@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
 	name: "CorePresentation",
-	platforms: [.macOS(.v14), .iOS(.v16)],
+	platforms: [.macOS(.v14), .iOS(.v17)],
 	products: [
 		// Products define the executables and libraries a package produces, making them visible to other packages.
 		.library(
@@ -14,6 +14,7 @@ let package = Package(
 		),
 	],
 	dependencies: [
+		.package(path: "../Analytics"),
 		.package(path: "../CoreModule"),
 		.package(path: "../DesignSystem")
 	],
@@ -23,6 +24,7 @@ let package = Package(
 		.target(
 			name: "CorePresentation",
 			dependencies: [
+				.product(name: "Analytics", package: "Analytics"),
 				.product(name: "CoreModule", package: "CoreModule"),
 				.product(name: "DesignSystem", package: "DesignSystem"),
 			],

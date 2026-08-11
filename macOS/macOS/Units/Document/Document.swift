@@ -13,13 +13,16 @@ class Document: NSDocument {
 
 	// MARK: - DI
 
-	lazy var storage: DocumentStorage<Content> = {
-		return DocumentStorage<Content>(
-			stateProvider: StateProvider<Content>(initialState: .empty),
+	lazy var storage: DocumentStorage<DocumentContent> = {
+		return DocumentStorage<DocumentContent>(
+			stateProvider: StateProvider<DocumentContent>(initialState: .empty),
 			contentProvider: DataProvider(),
 			undoManager: undoManager
 		)
 	}()
+
+	lazy var analytics: any ConcreteAnalyticsServiceProtocol<DocumentAnalyticsEvent> =
+		ConcreteAnalyticsService<DocumentAnalyticsEvent>()
 
 	override func printOperation(
 		withSettings printSettings: [NSPrintInfo.AttributeKey : Any]
@@ -60,7 +63,9 @@ class Document: NSDocument {
 	override func read(from data: Data, ofType typeName: String) throws {
 		do {
 			try storage.read(from: data, ofType: typeName)
+			Task { await analytics.track(.read(type: typeName)) }
 		} catch let error as DocumentError {
+			Task { await analytics.track(.readError(error)) }
 			throw ErrorMapper.map(error: error)
 		}
 	}
@@ -78,6 +83,7 @@ private extension Document {
 			backing: .buffered,
 			defer: false
 		)
+		window.minSize = NSSize(width: 360, height: 240)
 		window.contentViewController = contentViewController
 		window.isReleasedWhenClosed = false
 		window.animationBehavior = .default

@@ -30,7 +30,7 @@ extension JsonDataProviderTests {
 	func test_readFromDataOfType_whenV1_0_0() throws {
 		// Arrange
 
-		let expectedContent = Content(
+		let expectedContent = DocumentContent(
 			uuid: nil,
 			nodes:
 				[
@@ -146,7 +146,7 @@ extension JsonDataProviderTests {
 	func test_readFromDataOfType_whenV2_0_0() throws {
 		// Arrange
 
-		let expectedContent = Content(
+		let expectedContent = DocumentContent(
 			uuid: nil,
 			nodes:
 				[

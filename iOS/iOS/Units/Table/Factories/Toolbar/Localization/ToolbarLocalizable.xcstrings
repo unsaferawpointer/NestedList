@@ -241,10 +241,10 @@
         }
       }
     },
-    "settings_toolbar_item_title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
+	"settings_toolbar_item_title" : {
+	  "localizations" : {
+		"en" : {
+		  "stringUnit" : {
             "state" : "translated",
             "value" : "Settings…"
           }
@@ -254,12 +254,28 @@
             "state" : "translated",
             "value" : "Настройки…"
           }
-        }
-      }
-    },
-    "strikethrough_menu_item_title" : {
-      "localizations" : {
-        "en" : {
+		}
+	  }
+	},
+	"hide_subitems_menu_item_title" : {
+	  "localizations" : {
+		"en" : {
+		  "stringUnit" : {
+			"state" : "translated",
+			"value" : "Hide subitems"
+		  }
+		},
+		"ru" : {
+		  "stringUnit" : {
+			"state" : "translated",
+			"value" : "Скрыть подпункты"
+		  }
+		}
+	  }
+	},
+	"strikethrough_menu_item_title" : {
+	  "localizations" : {
+		"en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Strikethrough"

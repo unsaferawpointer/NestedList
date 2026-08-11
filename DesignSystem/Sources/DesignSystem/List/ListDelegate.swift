@@ -27,8 +27,6 @@ public protocol ListDelegate<ID>: AnyObject {
 
 	func listDidChangeSelection(ids: [ID])
 
-	func listDidTapDisclosure(id: ID)
-
-	func menu(for ids: [ID]) -> [MenuElement]
+	func listDidTap(id: ID)
 }
 #endif

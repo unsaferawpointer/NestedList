@@ -19,17 +19,27 @@ final class ReorderViewModel {
 	var items: [ItemViewModel] = []
 
 	@ObservationIgnored
-	var storage: DocumentStorage<Content>
+	var storage: DocumentStorage<DocumentContent>
+
+	@ObservationIgnored
+	private let analytics: any ConcreteAnalyticsServiceProtocol<ReorderAnalyticsEvent>
+
+	private var didTrackShow = false
 
 	// MARK: - Initialization
 
-	init(item: UUID, storage: DocumentStorage<Content>) {
-		self.parent = storage.state.root.node(with: item)?.parent?.id
+	init(
+		item: UUID,
+		storage: DocumentStorage<DocumentContent>,
+		analytics: any ConcreteAnalyticsServiceProtocol<ReorderAnalyticsEvent>
+	) {
+		self.parent = storage.state.parent(for: item)?.id
 		self.storage = storage
+		self.analytics = analytics
 
-		self.present(root: storage.state.root)
+		self.present(root: parent)
 		storage.addObservation(for: self) { [weak self] content in
-			self?.present(root: content.root)
+			self?.present(root: self?.parent)
 		}
 	}
 
@@ -43,22 +53,35 @@ final class ReorderViewModel {
 // MARK: - Public Interface
 extension ReorderViewModel {
 
+	func show() {
+		guard !didTrackShow else {
+			return
+		}
+		didTrackShow = true
+		track(.show(itemsCount: items.count))
+	}
+
+	func close() {
+		track(.closeButtonClick)
+	}
+
 	func move(fromOffsets source: IndexSet, toOffset destination: Int) {
 		let ids = source.map { items[$0].id }
 		storage.modificate { content in
-			content.root.moveItems(with: ids, to: .init(target: parent, index: destination))
+			content.moveItems(with: ids, to: .init(target: parent, index: destination))
 		}
+		track(.dragDropMove(itemsCount: ids.count))
 	}
 }
 
-// MARK: - Helpers
+// MARK: - Private methods
 private extension ReorderViewModel {
 
-	func present(root: Root<Item>) {
-		self.items = storage.state.root.children(of: parent)
+	func present(root: UUID?) {
+		self.items = storage.state
+			.snapshot()
+			.children(of: root)
 			.map {
-				$0.value
-			}.map {
 				ItemViewModel(
 					id: $0.id,
 					title: $0.text,
@@ -66,5 +89,12 @@ private extension ReorderViewModel {
 					icon: IconMapper.map(icon: $0.iconName, filled: true)
 				)
 			}
+	}
+
+	func track(_ event: ReorderAnalyticsEvent) {
+		let analytics = analytics
+		Task {
+			await analytics.track(event)
+		}
 	}
 }

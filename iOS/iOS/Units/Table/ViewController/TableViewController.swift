@@ -24,7 +24,7 @@ class TableViewController: UIViewController {
 
 	// MARK: - Data
 
-	var toolbarBuilder: ToolbarBuilder<UUID> = ToolbarBuilder<UUID>()
+	private var toolbarBuilder = ContentToolbarBuilder<UUID>()
 
 	private var displaysToolbarAnimated = true
 
@@ -36,7 +36,7 @@ class TableViewController: UIViewController {
 
 	// MARK: - Initialization
 
-	init(id: UUID?, configure: (TableViewController) -> Void) {
+	init(id: UUID?, configure: @MainActor (TableViewController) -> Void) {
 		self.id = id
 		super.init(nibName: nil, bundle: nil)
 		configure(self)
@@ -97,25 +97,12 @@ extension TableViewController: ContentView {
 		nestedList.setEditing(editingMode)
 	}
 
-	func display(_ toolbar: ToolbarModel) {
-
-		let topItems = ToolbarBuilder.build(from: toolbar.top, delegate: delegate) ?? []
-		let bottomItems = ToolbarBuilder.build(from: toolbar.bottom, delegate: delegate) ?? []
-
-		guard let root = parent as? DocumentViewController else {
-			navigationItem.setRightBarButtonItems(topItems, animated: true)
-			toolbarItems = documentViewController?.makeBottomToolbarItems(
-				bottom: bottomItems,
-				showUndoGroup: toolbar.showUndoGroup
-			) ?? bottomItems
-			return
-		}
-
-		root.displayToolbar(
-			top: topItems,
-			bottom: bottomItems,
-			showUndoGroup: toolbar.showUndoGroup,
-			animated: displaysToolbarAnimated
+	func apply(_ configuration: ContentToolbarConfiguration<UUID>) {
+		let toolbar = toolbarBuilder.build(configuration: configuration, delegate: delegate)
+		display(
+			top: toolbar.top,
+			bottom: toolbar.bottom,
+			showUndoGroup: toolbar.showUndoGroup
 		)
 	}
 
@@ -161,6 +148,24 @@ private extension TableViewController {
 		navigationController?.viewControllers
 			.compactMap { $0 as? DocumentViewController }
 			.first
+	}
+
+	func display(top: [UIBarButtonItem], bottom: [UIBarButtonItem], showUndoGroup: Bool) {
+		guard let root = parent as? DocumentViewController else {
+			navigationItem.setRightBarButtonItems(top, animated: true)
+			toolbarItems = documentViewController?.makeBottomToolbarItems(
+				bottom: bottom,
+				showUndoGroup: showUndoGroup
+			) ?? bottom
+			return
+		}
+
+		root.displayToolbar(
+			top: top,
+			bottom: bottom,
+			showUndoGroup: showUndoGroup,
+			animated: displaysToolbarAnimated
+		)
 	}
 
 	func configureLayout() {

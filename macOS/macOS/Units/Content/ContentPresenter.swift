@@ -15,9 +15,8 @@ import CorePresentation
 
 @MainActor
 protocol ContentPresenterProtocol: AnyObject {
-	func present(_ content: Content)
-	func presentRoot(_ root: Node<Item>)
-	func present(_ nodes: [Node<Item>])
+	func present(_ snapshot: Snapshot<Item>)
+	func presentRoot(item: Item)
 	func close()
 }
 
@@ -40,6 +39,10 @@ final class ContentPresenter {
 
 	private(set) var settingsProvider: any StateProviderProtocol<Settings>
 
+	private(set) var analytics: any ConcreteAnalyticsServiceProtocol<ContentAnalyticsEvent>
+
+	private(set) var soundPlayer: any SoundPlayerProtocol
+
 	// MARK: - Constants
 
 	private let stringType = NSPasteboard.PasteboardType.string.rawValue
@@ -53,14 +56,25 @@ final class ContentPresenter {
 	init(
 		router: any ContentRouterProtocol,
 		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared,
-		localization: ContentLocalizationProtocol = ContentLocalization()
+		localization: ContentLocalizationProtocol = ContentLocalization(),
+		analytics: any ConcreteAnalyticsServiceProtocol<ContentAnalyticsEvent> = ConcreteAnalyticsService<ContentAnalyticsEvent>(),
+		soundPlayer: any SoundPlayerProtocol
 	) {
 		self.router = router
 		self.settingsProvider = settingsProvider
 		self.localization = localization
+		self.analytics = analytics
+		self.soundPlayer = soundPlayer
 
 		settingsProvider.addObservation(for: self) { [weak self] settings in
-			self?.interactor?.fetchData()
+			guard let interactor = self?.interactor else {
+				return
+			}
+			let (item, snapshot) = interactor.fetchData()
+			self?.present(snapshot)
+			if let item {
+				self?.presentRoot(item: item)
+			}
 		}
 	}
 
@@ -72,23 +86,10 @@ final class ContentPresenter {
 // MARK: - ContentPresenterProtocol
 extension ContentPresenter: ContentPresenterProtocol {
 
-	func present(_ content: Content) {
-		let nodes = content.root.nodes
-		present(nodes)
-	}
-
-	func presentRoot(_ root: Node<Item>) {
-		view?.updateTitle(root.value.text)
-	}
-
-	func present(_ nodes: [Node<Item>]) {
-
-		let withoutChildren = nodes.map {
-			$0.withoutChildren { item in
-				item.isSubitemsHidden
-			}
+	func present(_ originalSnapshot: Snapshot<Item>) {
+		var snapshot = originalSnapshot.pruned {
+			$0.isSubitemsHidden
 		}
-		var snapshot = Snapshot(withoutChildren)
 		snapshot.validate(keyPath: \.isStrikethrough)
 
 		// MARK: - Cache
@@ -117,6 +118,10 @@ extension ContentPresenter: ContentPresenterProtocol {
 		view?.display(.list(snapshot: converted))
 	}
 
+	func presentRoot(item: Item) {
+		view?.updateTitle(item.text)
+	}
+
 	func close() {
 		view?.close()
 	}
@@ -126,8 +131,19 @@ extension ContentPresenter: ContentPresenterProtocol {
 extension ContentPresenter: ListDelegate {
 
 	func handleDoubleClick(on item: UUID) {
+		// MARK: - Analytics
+		let event: ContentAnalyticsEvent = .itemDoubleClick
+		Task { await analytics.track(event) }
+
+		let isValid = cache.validate(.isStrikethrough, other: [item])
+		if isValid == true {
+			playSound(.unmark)
+		} else {
+			playSound(.mark)
+		}
 		let completionBehaviour = settingsProvider.state.completionBehaviour
 		let moveToEnd = completionBehaviour == .moveToEnd
+
 		interactor?.toggleStrikethrough(for: item, moveToEnd: moveToEnd)
 	}
 }
@@ -136,60 +152,100 @@ extension ContentPresenter: ListDelegate {
 extension ContentPresenter: ViewDelegate {
 
 	func viewDidChange(state: ViewState) {
-		guard case .didLoad = state else {
+		guard case .didLoad = state, let interactor else {
 			return
 		}
-		interactor?.fetchData()
+		let (item, snapshot) = interactor.fetchData()
+		present(snapshot)
+		if let item {
+			presentRoot(item: item)
+		}
 		view?.expand(nil)
+
+		// MARK: - Analytics
+		Task {
+			let event: ContentAnalyticsEvent = .documentShow(
+				depth: snapshot.depth,
+				totalCount: snapshot.count,
+				isRoot: item == nil
+			)
+			await analytics.track(event)
+		}
 	}
 }
 
 // MARK: - UnitViewOutput
 extension ContentPresenter: UnitViewOutput {
 
-	func configure(for root: UUID?) {
-		interactor?.configure(for: root)
-	}
-
-	func menuItems() -> [ElementIdentifier] {
+	func menuItems() -> [ContentMenuIdentifier] {
 		return [.newItem,
 				.separator,
-				.edit,
+				.editItem,
 				.separator,
-				.completed,
-				.hideSubitems,
+				.toggleStrikethrough,
+				.toggleSubitemsVisibility,
 				.separator,
-				.note,
+				.toggleNote,
 				.separator,
 				.appearanceHeader,
-				.icon, .color,
+				.changeIcon, .changeColor,
 				.separator,
-				.delete]
+				.deleteItems]
 	}
 
-	func menuItemClicked(_ item: ElementIdentifier) {
+	func toolbarButtonClicked(id: ElementIdentifier) {
+		guard id.rawValue == "new-item-toolbar-item" else {
+			return
+		}
 		guard let selection = view?.selection else {
 			return
 		}
 
+		// MARK: - Analytics
+		let event: ContentAnalyticsEvent = .buttonClick(id: "new-item", source: "toolbar")
+		Task { await analytics.track(event) }
+
+		newItem(in: selection)
+	}
+
+	func menuItemClicked(_ item: ContentMenuIdentifier, source: MenuSource = .context) {
+		guard let selection = view?.selection else {
+			return
+		}
+
+		// MARK: - Analytics
+		let event: ContentAnalyticsEvent = .menuClick(id: item.rawValue, source: source)
+		Task { await analytics.track(event) }
+
 		switch item {
-		case .newItem:		newItem(in: selection)
-		case .completed:	toggleStrikethrough(for: selection)
-		case .hideSubitems:	toggleSubitemsHidden(for: selection)
-		case .note:			toggleNote(for: selection)
-		case .edit:			editItem(with: selection)
-		case .delete:		delete(ids: selection)
-		case .cut:			cut(ids: selection)
-		case .copy:			copy(ids: selection)
-		case .paste:		paste(ids: selection)
-		case .color:		showColorPicker(for: selection)
-		case .icon:			showIconPicker(for: selection)
-		default:
+		case .newItem:
+			newItem(in: selection)
+		case .toggleStrikethrough:
+			toggleStrikethrough(for: selection)
+		case .toggleSubitemsVisibility:
+			toggleSubitemsHidden(for: selection)
+		case .toggleNote:
+			toggleNote(for: selection)
+		case .editItem:
+			editItem(with: selection)
+		case .deleteItems:
+			delete(ids: selection)
+		case .cutItems:
+			cut(ids: selection)
+		case .copyItems:
+			copy(ids: selection)
+		case .paste:
+			paste(ids: selection)
+		case .changeColor:
+			showColorPicker(for: selection)
+		case .changeIcon:
+			showIconPicker(for: selection)
+		case .appearanceHeader, .separator:
 			assertionFailure("Unexpected menu item identifier")
 		}
 	}
 	
-	func validateMenuItem(_ item: ElementIdentifier) -> Bool {
+	func validateMenuItem(_ item: ContentMenuIdentifier) -> Bool {
 		switch item {
 		case .newItem:
 			return true
@@ -197,37 +253,23 @@ extension ContentPresenter: UnitViewOutput {
 			let types = Set([stringType, itemType])
 			let pasteboard = Pasteboard(pasteboard: NSPasteboard.general)
 			return pasteboard.contains(types)
+		case .appearanceHeader, .separator:
+			return false
 		default:
-
-			let components = item.rawValue.split(separator: "-")
-			guard
-				components.count == 2, let last = components.last, Int(last) != nil, let key = components.first
-			else {
-				return view?.selection.isEmpty == false
-			}
-
-			switch key {
-			case "color":
-				guard let selection = view?.selection else {
-					return false
-				}
-				return true
-			default:
-				return view?.selection.isEmpty != false
-			}
+			return view?.selection.isEmpty == false
 		}
 	}
 	
-	func stateForMenuItem(_ item: ElementIdentifier) -> ControlState {
+	func stateForMenuItem(_ item: ContentMenuIdentifier) -> ControlState {
 		guard let selection = view?.selection else {
 			return .off
 		}
 		return switch item {
-		case .completed:
+		case .toggleStrikethrough:
 			cache.validate(.isStrikethrough, other: selection).state
-		case .hideSubitems:
+		case .toggleSubitemsVisibility:
 			cache.validate(.isSubitemsHidden, other: selection).state
-		case .note:
+		case .toggleNote:
 			cache.validate(.hasNote, other: selection).state
 		default:
 			.off
@@ -241,15 +283,9 @@ private extension ContentPresenter {
 	func newItem(in selection: [UUID]) {
 
 		let target = selection.first
+		let properties = ItemProperties(text: localization.newItemText)
 
-		guard let id = interactor?.newItem(
-			localization.newItemText,
-			isStrikethrough: false,
-			note: nil,
-			iconName: nil,
-			tintColor: nil,
-			target: target
-		) else {
+		guard let id = interactor?.newItem(with: properties, target: target) else {
 			return
 		}
 
@@ -307,7 +343,15 @@ private extension ContentPresenter {
 	}
 
 	func delete(ids: [UUID]) {
+		playSound(.erase)
 		interactor?.deleteItems(ids)
+	}
+
+	func playSound(_ sound: Sound) {
+		guard settingsProvider.state.soundEffects == .enabled else {
+			return
+		}
+		soundPlayer.play(sound: sound)
 	}
 }
 
@@ -375,10 +419,19 @@ extension ContentPresenter: DropDelegate {
 	typealias ID = UUID
 	
 	func move(_ ids: [UUID], to destination: Destination<UUID>) {
+		// MARK: - Analytics
+		let event: ContentAnalyticsEvent = .dragDropMove(itemsCount: ids.count)
+		Task { await analytics.track(event) }
+
+		playSound(.place)
 		interactor?.move(ids, to: destination)
 	}
 	
 	func copy(_ ids: [UUID], to destination: Destination<UUID>) {
+		// MARK: - Analytics
+		let event: ContentAnalyticsEvent = .dragDropCopy(itemsCount: ids.count)
+		Task { await analytics.track(event) }
+
 		interactor?.copy(ids, to: destination)
 	}
 	
@@ -395,11 +448,21 @@ extension ContentPresenter: DropDelegate {
 			let data = info.items.compactMap { item in
 				item.data[itemType]
 			}
+
+			// MARK: - Analytics
+			let event: ContentAnalyticsEvent = .dragDropInsert(itemsCount: data.count, contentType: "item")
+			Task { await analytics.track(event) }
+
 			interactor?.insertItems(data, to: destination)
 		} else {
 			let data = info.items.compactMap { item in
 				item.data[stringType]
 			}
+
+			// MARK: - Analytics
+			let event: ContentAnalyticsEvent = .dragDropInsert(itemsCount: data.count, contentType: "string")
+			Task { await analytics.track(event) }
+
 			interactor?.insertStrings(data, to: destination)
 		}
 	}
@@ -441,6 +504,11 @@ extension ContentPresenter: CellDelegate {
 	}
 
 	func cellDidTapDisclosure(id: UUID) {
+		// MARK: - Analytics
+		Task {
+			let event: ContentAnalyticsEvent = .subitemsShow
+			await analytics.track(event)
+		}
 		router.showDocument(for: id)
 	}
 }
@@ -453,14 +521,13 @@ private extension ContentPresenter {
 			return nil
 		}
 
-		let encoder = JSONEncoder()
 		let parser = Parser()
 
 		let items = nodes.map {
 			PasteboardInfo.Item(
 				data:
 					[
-						itemType : (try? encoder.encode($0)) ?? Data(),
+						itemType : interactor?.data(for: $0.id) ?? Data(),
 						stringType: parser.format($0).data(using: .utf8) ?? Data()
 					]
 			)

@@ -8,7 +8,6 @@
 import AppKit
 import SwiftUI
 import CoreModule
-import DesignSystem
 import CorePresentation
 
 final class OnboardingAssembly {
