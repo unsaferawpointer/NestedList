@@ -64,6 +64,22 @@ public extension DocumentContent {
 		root.moveItems(with: ids, to: destination)
 	}
 
+	func validateMovingForward(id: UUID) -> Bool {
+		root.validateMovingForward(id)
+	}
+
+	func validateMovingBackward(id: UUID) -> Bool {
+		root.validateMovingBackward(id)
+	}
+
+	func moveForward(id: UUID) {
+		root.moveForward(id)
+	}
+
+	func moveBackward(id: UUID) {
+		root.moveBackward(id)
+	}
+
 	func moveToEnd(_ ids: [UUID]) {
 		root.moveToEnd(ids)
 	}

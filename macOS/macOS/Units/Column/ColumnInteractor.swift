@@ -11,16 +11,8 @@ import CoreModule
 protocol ColumnInteractorProtocol: AnyObject {
 	func fetchData()
 	func configure(for root: UUID)
-	func rootItem() -> Node<Item>?
 	@discardableResult
-	func newItem(
-		_ text: String,
-		isStrikethrough: Bool,
-		note: String?,
-		iconName: IconName?,
-		tintColor: ItemColor?,
-		target: UUID?
-	) -> UUID
+	func newItem(with: ItemProperties, target: UUID?) -> UUID
 	func set(_ text: String, note: String?)
 	func moveForward()
 	func validateMovingForward() -> Bool
@@ -77,56 +69,31 @@ extension ColumnInteractor: ColumnInteractorProtocol {
 		fetchData()
 	}
 
-	func rootItem() -> Node<Item>? {
-		return nil
-//		guard let node = storage.state[root] else {
-//			return nil
-//		}
-//		return node.map { $0 }
-	}
-
-	func newItem(
-		_ text: String,
-		isStrikethrough: Bool,
-		note: String?,
-		iconName: IconName?,
-		tintColor: ItemColor?,
-		target: UUID?
-	) -> UUID {
-//		return base.newItem(
-//			text,
-//			isStrikethrough: isStrikethrough,
-//			note: note,
-//			iconName: iconName,
-//			tintColor: tintColor,
-//			target: target ?? root
-//		)
-		return UUID()
+	func newItem(with properties: ItemProperties, target: UUID?) -> UUID {
+		return base.newItem(with: properties, target: target ?? root)
 	}
 
 	func set(_ text: String, note: String?) {
-//		storage.modificate { content in
-//			content.root.setProperty(\.text, to: text, for: [root])
-//			content.root.setProperty(\.note, to: note, for: [root])
-//		}
+		storage.modificate { content in
+			content.setProperty(\.text, to: text, for: [root])
+			content.setProperty(\.note, to: note, for: [root])
+		}
 	}
 
 	func moveForward() {
-//		base.moveForward(root)
+		base.moveForward(id: root)
 	}
 
 	func validateMovingForward() -> Bool {
-//		base.validateMovingForward(root)
-		return true
+		base.validateMovingForward(id: root)
 	}
 
 	func moveBackward() {
-//		base.moveBackward(root)
+		base.moveBackward(id: root)
 	}
 
 	func validateMovingBackward() -> Bool {
-//		base.validateMovingBackward(root)
-		return true
+		base.validateMovingBackward(id: root)
 	}
 
 	func deleteColumn() {

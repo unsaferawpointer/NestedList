@@ -14,6 +14,10 @@ public protocol CommonInteractorProtocol {
 
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool
 	func move(_ ids: [UUID], to destination: Destination<UUID>)
+	func moveForward(id: UUID)
+	func moveBackward(id: UUID)
+	func validateMovingForward(id: UUID) -> Bool
+	func validateMovingBackward(id: UUID) -> Bool
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>)
 	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool)
 	func set(text: String, note: String?, for id: UUID)
@@ -62,6 +66,26 @@ extension CommonInteractor: CommonInteractorProtocol {
 		storage.modificate { content in
 			content.moveItems(with: ids, to: destination)
 		}
+	}
+
+	public func moveForward(id: UUID) {
+		storage.modificate { content in
+			content.moveForward(id: id)
+		}
+	}
+
+	public func moveBackward(id: UUID) {
+		storage.modificate { content in
+			content.moveBackward(id: id)
+		}
+	}
+
+	public func validateMovingForward(id: UUID) -> Bool {
+		storage.state.validateMovingForward(id: id)
+	}
+
+	public func validateMovingBackward(id: UUID) -> Bool {
+		storage.state.validateMovingBackward(id: id)
 	}
 
 	public func deleteItems(_ ids: [UUID]) {

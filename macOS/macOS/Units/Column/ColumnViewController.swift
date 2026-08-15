@@ -30,7 +30,7 @@ class ColumnViewController: NSCollectionViewItem {
 	lazy var headerView: ColumnHeaderView = {
 		let view = ColumnHeaderView(menu: nil)
 		view.leadingAction = { [weak self] in
-			// TODO: - Implement
+			self?.output?.plusButtonClicked()
 		}
 		return view
 	}()

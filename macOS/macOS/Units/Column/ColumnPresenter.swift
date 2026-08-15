@@ -16,6 +16,7 @@ protocol ColumnPresenterProtocol: AnyObject {
 /// The Column view output interface.
 protocol ColumnViewOutput: ViewDelegate, MenuDelegate<ColumnMenuIdentifier> {
 	func configure(for id: UUID)
+	func plusButtonClicked()
 }
 
 final class ColumnPresenter {
@@ -70,6 +71,12 @@ extension ColumnPresenter: ColumnViewOutput {
 		}
 		interactor?.fetchData()
 	}
+
+	func plusButtonClicked() {
+		let properties = ItemProperties(text: localization.newItemText)
+		let target = view?.selection.first
+		interactor?.newItem(with: properties, target: target)
+	}
 }
 
 // MARK: - MenuDelegate
@@ -78,7 +85,9 @@ extension ColumnPresenter: MenuDelegate {
 	func menuItemClicked(_ item: ColumnMenuIdentifier, source: MenuSource) {
 		switch item {
 		case .columnNew:
-			fatalError()
+			let properties = ItemProperties(text: localization.newItemText)
+			let target = view?.selection.first
+			interactor?.newItem(with: properties, target: target)
 		case .columnEdit:
 			fatalError()
 		case .columnDelete:
