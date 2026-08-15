@@ -97,22 +97,6 @@
         }
       }
     },
-    "icon-item-title" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Icon…"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Иконка…"
-          }
-        }
-      }
-    },
     "hide-subitems-item-title" : {
       "localizations" : {
         "en" : {
@@ -129,8 +113,23 @@
         }
       }
     },
+    "icon-item-title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icon…"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Иконка…"
+          }
+        }
+      }
+    },
     "move-backward-item-title" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -147,7 +146,6 @@
       }
     },
     "move-forward-item-title" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

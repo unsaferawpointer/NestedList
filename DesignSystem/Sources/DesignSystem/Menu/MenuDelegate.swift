@@ -6,10 +6,13 @@
 //
 
 #if os(macOS)
-@MainActor public protocol MenuDelegate: AnyObject {
-	func menuItemClicked(_ item: ElementIdentifier)
-	func validateMenuItem(_ item: ElementIdentifier) -> Bool
-	func stateForMenuItem(_ item: ElementIdentifier) -> ControlState
-	func menuItems() -> [ElementIdentifier]
+@MainActor public protocol MenuDelegate<ID>: AnyObject {
+
+	associatedtype ID: Hashable
+
+	func menuItemClicked(_ item: ID, source: MenuSource)
+	func validateMenuItem(_ item: ID) -> Bool
+	func stateForMenuItem(_ item: ID) -> ControlState
+	func menuItems() -> [ID]
 }
 #endif

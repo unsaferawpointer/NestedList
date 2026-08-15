@@ -7,6 +7,7 @@ import AppKit
 import SwiftUI
 import CoreModule
 import DesignSystem
+import CorePresentation
 
 /// The Column view interface.
 protocol ColumnUnitView: AnyObject, ListSupportable {
@@ -112,6 +113,13 @@ extension ColumnViewController {
 
 			ColumnUnitAssembly.configure(column: self, root: id, storage: storage)
 
+			let menu = MenuBuilder.build(
+				for: output?.menuItems() ?? [],
+				target: self,
+				source: .context
+			)
+			headerView.buttonMenu = menu
+
 			configureUserInterface()
 			output?.configure(for: id)
 		}
@@ -123,6 +131,41 @@ extension ColumnViewController: ColumnUnitView {
 
 	func display(_ model: ColumnModel) {
 		headerView.model = model
+	}
+}
+
+// MARK: - Interaction Delegate
+extension ColumnViewController {
+
+	@objc
+	func menuItemClicked(_ sender: NSMenuItem) {
+		guard
+			let rawValue = sender.identifier?.rawValue,
+			let id = ColumnMenuIdentifier(rawValue: rawValue),
+			let sourceRawValue = sender.representedObject as? String,
+			let source = MenuSource(rawValue: sourceRawValue)
+		else {
+			return
+		}
+		output?.menuItemClicked(id, source: source)
+	}
+}
+
+// MARK: - NSMenuItemValidation
+extension ColumnViewController: NSMenuItemValidation {
+
+	func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+
+		guard
+			let rawValue = menuItem.identifier?.rawValue,
+			let id = ColumnMenuIdentifier(rawValue: rawValue),
+			let output
+		else {
+			return false
+		}
+
+		menuItem.state = output.stateForMenuItem(id).value
+		return output.validateMenuItem(id)
 	}
 }
 

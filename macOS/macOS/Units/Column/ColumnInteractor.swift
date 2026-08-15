@@ -130,6 +130,6 @@ extension ColumnInteractor: ColumnInteractorProtocol {
 	}
 
 	func deleteColumn() {
-//		base.deleteItems([root])
+		base.deleteItems([root])
 	}
 }

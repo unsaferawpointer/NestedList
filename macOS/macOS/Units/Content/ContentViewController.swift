@@ -133,7 +133,9 @@ extension ContentViewController: UnitView {
 	}
 
 	func close() {
-		view.window?.close()
+		if view.window?.contentViewController === self {
+			view.window?.close()
+		}
 	}
 }
 
@@ -168,7 +170,7 @@ private extension ContentViewController {
 
 		table.frame = scrollview.bounds
 		table.headerView = nil
-		scrollview.additionalSafeAreaInsets = .horizontal(0)
+		scrollview.additionalSafeAreaInsets = .horizontal(16)
 		scrollview.drawsBackground = true
 
 		let column = NSTableColumn(identifier: .init("main"))

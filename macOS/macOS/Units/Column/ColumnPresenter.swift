@@ -14,7 +14,7 @@ protocol ColumnPresenterProtocol: AnyObject {
 }
 
 /// The Column view output interface.
-protocol ColumnViewOutput: ViewDelegate {
+protocol ColumnViewOutput: ViewDelegate, MenuDelegate<ColumnMenuIdentifier> {
 	func configure(for id: UUID)
 }
 
@@ -69,6 +69,50 @@ extension ColumnPresenter: ColumnViewOutput {
 			return
 		}
 		interactor?.fetchData()
+	}
+}
+
+// MARK: - MenuDelegate
+extension ColumnPresenter: MenuDelegate {
+
+	func menuItemClicked(_ item: ColumnMenuIdentifier, source: MenuSource) {
+		switch item {
+		case .columnNew:
+			fatalError()
+		case .columnEdit:
+			fatalError()
+		case .columnDelete:
+			interactor?.deleteColumn()
+		case .moveForward:
+			interactor?.moveForward()
+		case .moveBackward:
+			interactor?.moveBackward()
+		default:
+			fatalError()
+		}
+	}
+
+	func validateMenuItem(_ item: ColumnMenuIdentifier) -> Bool {
+		switch item {
+		case .moveForward:
+			interactor?.validateMovingForward() ?? false
+		case .moveBackward:
+			interactor?.validateMovingBackward() ?? false
+		default:
+			true
+		}
+	}
+
+	func isHidden(_ item: ColumnMenuIdentifier) -> Bool {
+		return false
+	}
+
+	func stateForMenuItem(_ item: ColumnMenuIdentifier) -> ControlState {
+		return .off
+	}
+
+	func menuItems() -> [ColumnMenuIdentifier] {
+		return [.columnEdit, .separator, .moveForward, .moveBackward, .separator, .columnDelete]
 	}
 }
 

@@ -214,7 +214,7 @@ extension ContentPresenter: UnitViewOutput {
 		}
 
 		// MARK: - Analytics
-		let event: ContentAnalyticsEvent = .menuClick(id: item.rawValue, source: source)
+		let event: ContentAnalyticsEvent = .menuClick(id: item.rawValue, source: source.rawValue)
 		Task { await analytics.track(event) }
 
 		switch item {

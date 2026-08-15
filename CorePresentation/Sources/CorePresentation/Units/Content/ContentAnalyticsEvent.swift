@@ -19,7 +19,7 @@ public enum ContentAnalyticsEvent {
 	/// - Parameters:
 	///   - id: Stable menu item identifier, usually `ContentMenuIdentifier.rawValue`.
 	///   - source: Menu surface where the click originated.
-	case menuClick(id: String, source: MenuSource)
+	case menuClick(id: String, source: String)
 
 	/// Content document became visible to the user.
 	///
@@ -97,7 +97,7 @@ extension ContentAnalyticsEvent: AnalyticsEvent {
 		case let .menuClick(id, source):
 			[
 				"id": .string(id),
-				"source": .string(source.rawValue)
+				"source": .string(source)
 			]
 		case let .documentShow(depth, totalCount, isRoot):
 			[
