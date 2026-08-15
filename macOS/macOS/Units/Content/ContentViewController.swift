@@ -168,17 +168,18 @@ private extension ContentViewController {
 
 		table.frame = scrollview.bounds
 		table.headerView = nil
-		scrollview.additionalSafeAreaInsets = .horizontal(16)
+		scrollview.additionalSafeAreaInsets = .horizontal(0)
 		scrollview.drawsBackground = true
 
 		let column = NSTableColumn(identifier: .init("main"))
 		table.addTableColumn(column)
 
 		scrollview.documentView = table
+		scrollview.drawsBackground = false
 	}
 
 	func configureToolbarIfNeeded() {
-		guard let window = view.window else {
+		guard let window = view.window, window.toolbar == nil else {
 			return
 		}
 		window.toolbar = toolbar

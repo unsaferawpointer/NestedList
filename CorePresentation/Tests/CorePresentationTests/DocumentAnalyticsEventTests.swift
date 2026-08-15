@@ -23,4 +23,12 @@ extension DocumentAnalyticsEventTests {
 		#expect(sut.name == .documentReadError)
 		#expect(sut.parameters["reason"] == .string("unexpected_format"))
 	}
+
+	@Test func buttonClick_hasExpectedSchema() {
+		let sut = DocumentAnalyticsEvent.buttonClick(id: "document-view-columns")
+
+		#expect(sut.area == "document")
+		#expect(sut.name == .buttonClick)
+		#expect(sut.parameters["id"] == .string("document-view-columns"))
+	}
 }

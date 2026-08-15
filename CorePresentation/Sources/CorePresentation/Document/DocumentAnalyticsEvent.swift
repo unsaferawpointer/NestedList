@@ -24,6 +24,11 @@ public enum DocumentAnalyticsEvent {
 	///
 	/// - Parameter error: Reason the document could not be read.
 	case readError(DocumentError)
+
+	/// User clicked a document toolbar button.
+	///
+	/// - Parameter id: Stable button identifier.
+	case buttonClick(id: String)
 }
 
 // MARK: - AnalyticsEvent
@@ -39,6 +44,8 @@ extension DocumentAnalyticsEvent: AnalyticsEvent {
 			.documentRead
 		case .readError:
 			.documentReadError
+		case .buttonClick:
+			.buttonClick
 		}
 	}
 
@@ -52,6 +59,10 @@ extension DocumentAnalyticsEvent: AnalyticsEvent {
 		case let .readError(error):
 			[
 				"reason": .string(reason(for: error))
+			]
+		case let .buttonClick(id):
+			[
+				"id": .string(id)
 			]
 		}
 	}

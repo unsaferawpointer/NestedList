@@ -12,6 +12,11 @@ final class DocumentAssembly {
 
 	@MainActor
 	static func build(storage: DocumentStorage<DocumentContent>) -> NSViewController {
-		ContentUnitAssembly.build(storage: storage)
+		switch storage.state.view {
+		case .list:
+			ContentUnitAssembly.build(storage: storage)
+		case .columns:
+			ColumnsUnitAssembly.build(storage: storage)
+		}
 	}
 }
