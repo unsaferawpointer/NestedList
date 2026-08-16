@@ -129,7 +129,7 @@ extension ColumnPresenter: MenuDelegate {
 extension ColumnPresenter: ColumnPresenterProtocol {
 
 	func present(_ item: Item) {
-		let itemModel = factory.makeItem(item: item, isLeaf: true, iconColor: settingsProvider.state.iconColor)
+		let itemModel = factory.makeItem(item: item, isLeaf: false, iconColor: settingsProvider.state.iconColor)
 		let model = ColumnModel(title: item.text, configuration: itemModel.configuration)
 		view?.display(model)
 	}
