@@ -199,6 +199,24 @@ extension CommonInteractorMock: CommonInteractorProtocol {
 		invocations.append(.move(ids, destination))
 	}
 
+	func moveForward(id: UUID) {
+		invocations.append(.moveForward(id))
+	}
+
+	func moveBackward(id: UUID) {
+		invocations.append(.moveBackward(id))
+	}
+
+	func validateMovingForward(id: UUID) -> Bool {
+		invocations.append(.validateMovingForward(id))
+		return stubs.validateMovingForward
+	}
+
+	func validateMovingBackward(id: UUID) -> Bool {
+		invocations.append(.validateMovingBackward(id))
+		return stubs.validateMovingBackward
+	}
+
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>) {
 		invocations.append(.insertStrings(strings, destination))
 	}
@@ -264,6 +282,10 @@ extension CommonInteractorMock {
 		case deleteItems(_ ids: [UUID])
 		case validateMovement(_ ids: [UUID], _ destination: Destination<UUID>)
 		case move(_ ids: [UUID], _ destination: Destination<UUID>)
+		case moveForward(_ id: UUID)
+		case moveBackward(_ id: UUID)
+		case validateMovingForward(_ id: UUID)
+		case validateMovingBackward(_ id: UUID)
 		case insertStrings(_ strings: [String], _ destination: Destination<UUID>)
 		case setStatus(_ isStrikethrough: Bool, _ ids: [UUID], _ moveToEnd: Bool)
 		case setText(_ text: String, _ note: String?, _ id: UUID)
@@ -314,6 +336,8 @@ extension CommonInteractorMock {
 	struct Stubs {
 		var newItem = UUID()
 		var validateMovement = false
+		var validateMovingForward = false
+		var validateMovingBackward = false
 		var nodes: [any TreeNode<Item>] = []
 		var data: [UUID: Data] = [:]
 		var string = ""
