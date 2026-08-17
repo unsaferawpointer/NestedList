@@ -293,7 +293,7 @@ public extension Snapshot {
 	}
 
 	func parent(for id: ID) -> Model? {
-		guard let parent = storage[unsafe: id].parent else {
+		guard let parent = storage[id]?.parent else {
 			return nil
 		}
 		return storage[unsafe: parent].model
