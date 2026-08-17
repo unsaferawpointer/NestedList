@@ -11,6 +11,7 @@ import CoreModule
 protocol ColumnInteractorProtocol: AnyObject {
 	func fetchData()
 	func configure(for root: UUID)
+	func rootItem() -> Item?
 	@discardableResult
 	func newItem(with: ItemProperties, target: UUID?) -> UUID
 	func set(_ text: String, note: String?)
@@ -67,6 +68,10 @@ extension ColumnInteractor: ColumnInteractorProtocol {
 	func configure(for root: UUID) {
 		self.root = root
 		fetchData()
+	}
+
+	func rootItem() -> Item? {
+		storage.state[root]
 	}
 
 	func newItem(with properties: ItemProperties, target: UUID?) -> UUID {

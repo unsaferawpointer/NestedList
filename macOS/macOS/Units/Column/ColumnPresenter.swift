@@ -89,7 +89,17 @@ extension ColumnPresenter: MenuDelegate {
 			let target = view?.selection.first
 			interactor?.newItem(with: properties, target: target)
 		case .columnEdit:
-			fatalError()
+			guard let item = interactor?.rootItem() else {
+				return
+			}
+			let model = ItemDetailsView.Model(
+				navigationTitle: localization.editItemDetailsTitle,
+				properties: item.details
+			)
+			router.showDetails(with: model) { [weak self] saved in
+				let note = saved.description.isEmpty ? nil : saved.description
+				self?.interactor?.set(saved.text, note: note)
+			}
 		case .columnDelete:
 			interactor?.deleteColumn()
 		case .moveForward:
@@ -132,5 +142,12 @@ extension ColumnPresenter: ColumnPresenterProtocol {
 		let itemModel = factory.makeItem(item: item, isLeaf: false, iconColor: settingsProvider.state.iconColor)
 		let model = ColumnModel(title: item.text, configuration: itemModel.configuration)
 		view?.display(model)
+	}
+}
+
+private extension Item {
+
+	var details: ItemDetailsView.Properties {
+		return .init(text: text, description: note ?? "")
 	}
 }
