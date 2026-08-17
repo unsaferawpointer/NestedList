@@ -222,14 +222,15 @@ private extension ColumnsViewController {
 		let layout = NSCollectionViewGridLayout()
 		layout.maximumNumberOfRows = 1
 		layout.minimumInteritemSpacing = 24
-		layout.minimumLineSpacing = 0
-		layout.minimumItemSize = .init(width: 360, height: 480)
+		layout.minimumLineSpacing = 8
+		layout.minimumItemSize = .init(width: 320, height: 480)
+		layout.margins = .init(top: 8, left: 8, bottom: 8, right: 8)
 
 		collectionView.collectionViewLayout = layout
 	}
 
 	func configureConstraints() {
-		scrollView.pin(edges: .all, to: view)
+		scrollView.pin(edges: .all, to: view, with: 0)
 	}
 
 	func configureToolbarIfNeeded() {

@@ -180,8 +180,7 @@ private extension ColumnViewController {
 
 		addChild(content)
 
-		backgroundView.pin(edges: [.leading, .trailing], to: view, with: 8)
-		backgroundView.pin(edges: [.top, .bottom], to: view, with: 8)
+		backgroundView.pin(edges: [.leading, .trailing, .top, .bottom], to: view, with: 0)
 		content.view.pin(edges: [.leading, .bottom, .trailing], to: backgroundView, with: 0)
 		headerView.pin(edges: [.leading, .top, .trailing], to: backgroundView)
 
