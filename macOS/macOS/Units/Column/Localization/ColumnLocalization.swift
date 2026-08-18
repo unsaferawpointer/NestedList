@@ -11,6 +11,8 @@ protocol ColumnLocalizationProtocol {
 	var newItemDetailsTitle: String { get }
 	var editItemDetailsTitle: String { get }
 	var newItemText: String { get }
+	var iconPickerNavigationTitle: String { get }
+	var colorPickerNavigationTitle: String { get }
 }
 
 // MARK: - ColumnLocalizationProtocol
@@ -27,5 +29,12 @@ final class ColumnLocalization: ColumnLocalizationProtocol {
 	var editItemDetailsTitle: String {
 		return String(localized: "edit-item-details-title", table: "ColumnLocalizable")
 	}
-}
 
+	var iconPickerNavigationTitle: String {
+		return String(localized: "icon-picker-navigation-title", table: "ColumnLocalizable")
+	}
+
+	var colorPickerNavigationTitle: String {
+		return String(localized: "color-picker-navigation-title", table: "ColumnLocalizable")
+	}
+}

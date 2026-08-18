@@ -110,6 +110,16 @@ private extension MenuBuilder {
 			item.identifier = .init(id.rawValue)
 			item.title = MenuLocalization.newItemTitle
 			item.image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)
+		case .toggleStrikethrough:
+			item.identifier = .init(id.rawValue)
+			item.title = MenuLocalization.strikethroughItemTitle
+			item.keyEquivalent = "\r"
+		case .appearanceHeader:
+			return NSMenuItem.sectionHeader(title: MenuLocalization.appearanceHeaderItemTitle)
+		case .changeIcon:
+			configureIconItem(item, id: id)
+		case .changeColor:
+			configureColorItem(item, id: id)
 		case .columnEdit:
 			item.identifier = .init(id.rawValue)
 			item.title = MenuLocalization.editItemTitle
@@ -137,16 +147,15 @@ private extension MenuBuilder {
 		return item
 	}
 
-	static func configureColorItem(_ item: NSMenuItem, id: ContentMenuIdentifier) {
+	static func configureColorItem<T: RawRepresentable>(_ item: NSMenuItem, id: T) where T.RawValue == String {
 		item.title = MenuLocalization.colorItemTitle
 		item.identifier = .init(id.rawValue)
 		item.image = NSImage(systemSymbolName: "paintpalette", accessibilityDescription: nil)
 	}
 
-	static func configureIconItem(_ item: NSMenuItem, id: ContentMenuIdentifier) {
+	static func configureIconItem<T: RawRepresentable>(_ item: NSMenuItem, id: T) where T.RawValue == String {
 		item.identifier = .init(id.rawValue)
 		item.title = MenuLocalization.iconItemTitle
 		item.image = NSImage(systemSymbolName: "photo", accessibilityDescription: nil)
 	}
 }
-

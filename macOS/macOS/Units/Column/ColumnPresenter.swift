@@ -35,18 +35,22 @@ final class ColumnPresenter {
 
 	private let factory: ItemsFactoryProtocol
 
+	private let analytics: any ConcreteAnalyticsServiceProtocol<ColumnAnalyticsEvent>
+
 	// MARK: - Initialization
 
 	init(
 		router: ContentRouterProtocol,
 		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared,
 		localization: ColumnLocalizationProtocol = ColumnLocalization(),
-		factory: ItemsFactoryProtocol = ItemsFactory()
+		factory: ItemsFactoryProtocol = ItemsFactory(),
+		analytics: any ConcreteAnalyticsServiceProtocol<ColumnAnalyticsEvent> = ConcreteAnalyticsService<ColumnAnalyticsEvent>()
 	) {
 		self.router = router
 		self.settingsProvider = settingsProvider
 		self.localization = localization
 		self.factory = factory
+		self.analytics = analytics
 
 		settingsProvider.addObservation(for: self) { [weak self] settings in
 			self?.interactor?.fetchData()
@@ -83,6 +87,8 @@ extension ColumnPresenter: ColumnViewOutput {
 extension ColumnPresenter: MenuDelegate {
 
 	func menuItemClicked(_ item: ColumnMenuIdentifier, source: MenuSource) {
+		trackMenuItemClick(item)
+
 		switch item {
 		case .columnNew:
 			let properties = ItemProperties(text: localization.newItemText)
@@ -102,11 +108,22 @@ extension ColumnPresenter: MenuDelegate {
 			}
 		case .columnDelete:
 			interactor?.deleteColumn()
+		case .toggleStrikethrough:
+			let moveToEnd = settingsProvider.state.completionBehaviour == .moveToEnd
+			interactor?.toggleStrikethrough(moveToEnd: moveToEnd)
+		case .changeIcon:
+			router.showIconPicker(navigationTitle: localization.iconPickerNavigationTitle) { [weak self] iconName in
+				self?.interactor?.setIcon(iconName)
+			}
+		case .changeColor:
+			router.showColorPicker(navigationTitle: localization.colorPickerNavigationTitle) { [weak self] color in
+				self?.interactor?.setColor(color)
+			}
 		case .moveForward:
 			interactor?.moveForward()
 		case .moveBackward:
 			interactor?.moveBackward()
-		default:
+		case .appearanceHeader, .separator:
 			fatalError()
 		}
 	}
@@ -117,6 +134,8 @@ extension ColumnPresenter: MenuDelegate {
 			interactor?.validateMovingForward() ?? false
 		case .moveBackward:
 			interactor?.validateMovingBackward() ?? false
+		case .appearanceHeader, .separator:
+			false
 		default:
 			true
 		}
@@ -127,11 +146,29 @@ extension ColumnPresenter: MenuDelegate {
 	}
 
 	func stateForMenuItem(_ item: ColumnMenuIdentifier) -> ControlState {
-		return .off
+		switch item {
+		case .toggleStrikethrough:
+			interactor?.isStrikethrough() == true ? .on : .off
+		default:
+			.off
+		}
 	}
 
 	func menuItems() -> [ColumnMenuIdentifier] {
-		return [.columnEdit, .separator, .moveForward, .moveBackward, .separator, .columnDelete]
+		return [
+			.columnEdit,
+			.separator,
+			.toggleStrikethrough,
+			.separator,
+			.appearanceHeader,
+			.changeIcon,
+			.changeColor,
+			.separator,
+			.moveForward,
+			.moveBackward,
+			.separator,
+			.columnDelete
+		]
 	}
 }
 
@@ -142,6 +179,18 @@ extension ColumnPresenter: ColumnPresenterProtocol {
 		let itemModel = factory.makeItem(item: item, isLeaf: false, iconColor: settingsProvider.state.iconColor)
 		let model = ColumnModel(title: item.text, configuration: itemModel.configuration)
 		view?.display(model)
+	}
+}
+
+private extension ColumnPresenter {
+
+	func trackMenuItemClick(_ item: ColumnMenuIdentifier) {
+		switch item {
+		case .toggleStrikethrough, .changeIcon, .changeColor:
+			Task { await analytics.track(.menuItemClick(id: item.rawValue)) }
+		default:
+			break
+		}
 	}
 }
 

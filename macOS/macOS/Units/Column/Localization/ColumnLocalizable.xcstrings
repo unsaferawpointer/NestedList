@@ -1,12 +1,32 @@
 {
 	"sourceLanguage" : "en",
 	"strings" : {
+		"color-picker-navigation-title" : {
+			"localizations" : {
+				"en" : {
+					"stringUnit" : {
+						"state" : "translated",
+						"value" : "Color"
+					}
+				}
+			}
+		},
 		"edit-item-details-title" : {
 			"localizations" : {
 				"en" : {
 					"stringUnit" : {
 						"state" : "translated",
 						"value" : "Edit Item"
+					}
+				}
+			}
+		},
+		"icon-picker-navigation-title" : {
+			"localizations" : {
+				"en" : {
+					"stringUnit" : {
+						"state" : "translated",
+						"value" : "Icon"
 					}
 				}
 			}

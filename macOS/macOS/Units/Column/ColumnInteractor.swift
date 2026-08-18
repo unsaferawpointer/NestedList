@@ -15,6 +15,10 @@ protocol ColumnInteractorProtocol: AnyObject {
 	@discardableResult
 	func newItem(with: ItemProperties, target: UUID?) -> UUID
 	func set(_ text: String, note: String?)
+	func setIcon(_ name: IconName?)
+	func setColor(_ color: ItemColor?)
+	func toggleStrikethrough(moveToEnd: Bool)
+	func isStrikethrough() -> Bool
 	func moveForward()
 	func validateMovingForward() -> Bool
 	func moveBackward()
@@ -83,6 +87,22 @@ extension ColumnInteractor: ColumnInteractorProtocol {
 			content.setProperty(\.text, to: text, for: [root])
 			content.setProperty(\.note, to: note, for: [root])
 		}
+	}
+
+	func setIcon(_ name: IconName?) {
+		base.setProperty(\.iconName, to: name, for: [root], downstream: false)
+	}
+
+	func setColor(_ color: ItemColor?) {
+		base.setProperty(\.tintColor, to: color, for: [root], downstream: false)
+	}
+
+	func toggleStrikethrough(moveToEnd: Bool) {
+		base.toggleStrikethrough(for: root, moveToEnd: moveToEnd)
+	}
+
+	func isStrikethrough() -> Bool {
+		storage.state[root]?.isStrikethrough ?? false
 	}
 
 	func moveForward() {
