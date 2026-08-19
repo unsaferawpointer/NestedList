@@ -222,9 +222,9 @@ private extension ColumnsViewController {
 		let layout = NSCollectionViewGridLayout()
 		layout.maximumNumberOfRows = 1
 		layout.minimumInteritemSpacing = 24
-		layout.minimumLineSpacing = 8
+		layout.minimumLineSpacing = 12
 		layout.minimumItemSize = .init(width: 320, height: 480)
-		layout.margins = .init(top: 8, left: 8, bottom: 8, right: 8)
+		layout.margins = .init(top: 8, left: 12, bottom: 8, right: 12)
 
 		collectionView.collectionViewLayout = layout
 	}
