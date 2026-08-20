@@ -37,9 +37,9 @@ struct ColumnPresenterTests {
 		router.stubs.showIconPickerCompletionHandler?(.bolt)
 
 		#expect(interactor.invocations.contains(.setIcon(.bolt)))
-		let event = await analytics.events.first
-		#expect(event?.name == .menuItemClick)
-		#expect(event?.parameters["id"] == .string(ColumnMenuIdentifier.changeIcon.rawValue))
+		let event = await analytics.waitForEvent()
+		#expect(event.name == .menuItemClick)
+		#expect(event.parameters["id"] == .string(ColumnMenuIdentifier.changeIcon.rawValue))
 	}
 
 	@Test func changeColor_confirmsSelection() async {
@@ -134,10 +134,22 @@ private extension ColumnInteractorMock {
 
 private actor ColumnAnalyticsMock: ConcreteAnalyticsServiceProtocol {
 
-	private(set) var events: [ColumnAnalyticsEvent] = []
+	private var events: [ColumnAnalyticsEvent] = []
+	private var eventContinuation: CheckedContinuation<ColumnAnalyticsEvent, Never>?
+
+	func waitForEvent() async -> ColumnAnalyticsEvent {
+		if let event = events.first {
+			return event
+		}
+		return await withCheckedContinuation { continuation in
+			eventContinuation = continuation
+		}
+	}
 
 	func track(_ event: ColumnAnalyticsEvent) {
 		events.append(event)
+		eventContinuation?.resume(returning: event)
+		eventContinuation = nil
 	}
 
 	func flush() { }
