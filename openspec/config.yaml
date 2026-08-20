@@ -27,6 +27,15 @@ context: |
   - Platform-specific UI behavior may differ between UIKit and AppKit.
   - Preserve the existing hierarchical node data model unless a change explicitly requires modifying it.
 
+  Module map:
+  - Analytics: Shared analytics event models and reporting infrastructure; has no local package dependencies.
+  - Hierarchy: Platform-independent hierarchical tree data structures and operations; has no local package dependencies.
+  - CoreModule: Shared domain models, document persistence, versioning, and text parsing; depends on Hierarchy.
+  - DesignSystem: Shared UI components, resources, and interaction utilities; depends on Hierarchy.
+  - CorePresentation: Shared presentation, document, onboarding, settings, picker, and analytics-facing logic; depends on Analytics, CoreModule, and DesignSystem.
+  - iOS: UIKit application target with iOS and iPadOS-specific document lifecycle and UI; consumes all shared modules.
+  - macOS: AppKit application target with macOS-specific document lifecycle and UI; consumes all shared modules.
+
   Document model:
   - NestedList is a Document Based App.
   - Documents use the .nlist format.
