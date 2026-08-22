@@ -188,7 +188,20 @@ private extension ContentViewController {
 	}
 
 	func configureConstraints() {
-		scrollview.pin(edges: .all, to: view)
+		scrollview.translatesAutoresizingMaskIntoConstraints = false
+
+		if !view.subviews.contains(where: { $0 == scrollview }) {
+			view.addSubview(scrollview)
+		}
+
+		NSLayoutConstraint.activate(
+			[
+				scrollview.topAnchor.constraint(equalTo: view.topAnchor),
+				scrollview.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+				scrollview.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+				scrollview.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+			]
+		)
 	}
 }
 

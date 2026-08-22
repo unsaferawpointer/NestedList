@@ -45,10 +45,11 @@ class ColumnsViewController: NSViewController {
 	lazy var scrollView: NSScrollView = {
 		let view = NSScrollView()
 		view.borderType = .noBorder
-		view.hasHorizontalScroller = false
+		view.hasHorizontalScroller = true
 		view.autohidesScrollers = true
 		view.hasVerticalScroller = false
-		view.automaticallyAdjustsContentInsets = true
+		view.automaticallyAdjustsContentInsets = false
+		view.contentInsets = .init()
 		return view
 	}()
 
@@ -214,23 +215,29 @@ extension ColumnsViewController: NSCollectionViewDelegate { }
 private extension ColumnsViewController {
 
 	func configureUserInterface() {
-		collectionView.frame = scrollView.bounds
+		collectionView.frame = scrollView.contentView.bounds
 		scrollView.documentView = collectionView
 	}
 
 	func configureLayout() {
-		let layout = NSCollectionViewGridLayout()
-		layout.maximumNumberOfRows = 1
-		layout.minimumInteritemSpacing = 24
-		layout.minimumLineSpacing = 12
-		layout.minimumItemSize = .init(width: 320, height: 480)
-		layout.margins = .init(top: 8, left: 12, bottom: 8, right: 12)
-
-		collectionView.collectionViewLayout = layout
+		collectionView.collectionViewLayout = ColumnsLayout()
 	}
 
 	func configureConstraints() {
-		scrollView.pin(edges: .all, to: view, with: 0)
+		scrollView.translatesAutoresizingMaskIntoConstraints = false
+
+		if !view.subviews.contains(where: { $0 == scrollView }) {
+			view.addSubview(scrollView)
+		}
+
+		NSLayoutConstraint.activate(
+			[
+				scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+				scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+				scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+				scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+			]
+		)
 	}
 
 	func configureToolbarIfNeeded() {
