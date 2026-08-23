@@ -107,7 +107,7 @@ extension ColumnViewController {
 	func configure(for id: UUID, with storage: DocumentStorage<DocumentContent>) {
 		if let content {
 			output?.configure(for: id)
-//			content.configure(for: id)
+			content.configure(root: id)
 		} else {
 			self.content = ContentUnitAssembly.build(for: id, storage: storage)
 

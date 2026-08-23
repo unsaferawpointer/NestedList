@@ -28,8 +28,9 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 		return (stubs.fetchedItem, stubs.snapshot)
 	}
 
-	func configure(for root: UUID?) {
+	func fetchData(with root: UUID?) -> (Item?, Snapshot<Item>) {
 		invocations.append(.configure(root: root))
+		return (stubs.fetchedItem, stubs.snapshot)
 	}
 	
 	func move(_ ids: [UUID], to destination: Destination<UUID>) {

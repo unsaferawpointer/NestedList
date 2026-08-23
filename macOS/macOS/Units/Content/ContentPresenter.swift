@@ -177,6 +177,18 @@ extension ContentPresenter: ViewDelegate {
 // MARK: - UnitViewOutput
 extension ContentPresenter: UnitViewOutput {
 
+	func configure(root: UUID?) {
+		guard let interactor else {
+			return
+		}
+		let (item, snapshot) = interactor.fetchData(with: root)
+		present(snapshot)
+		if let item {
+			presentRoot(item: item)
+		}
+		view?.expand(nil)
+	}
+
 	func menuItems() -> [ContentMenuIdentifier] {
 		return [.newItem,
 				.separator,

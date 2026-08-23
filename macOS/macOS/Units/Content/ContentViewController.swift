@@ -19,6 +19,8 @@ import SwiftUI
 	func menuItemClicked(_ item: ContentMenuIdentifier, source: MenuSource)
 	func validateMenuItem(_ item: ContentMenuIdentifier) -> Bool
 	func stateForMenuItem(_ item: ContentMenuIdentifier) -> ControlState
+
+	func configure(root: UUID?)
 }
 
 @MainActor protocol UnitView: AnyObject, ListSupportable {
@@ -107,6 +109,14 @@ class ContentViewController: NSViewController {
 		configureToolbarIfNeeded()
 	}
 
+}
+
+// MARK: - Public Interface
+extension ContentViewController {
+
+	func configure(root: UUID?) {
+		output?.configure(root: root)
+	}
 }
 
 // MARK: - ContentView

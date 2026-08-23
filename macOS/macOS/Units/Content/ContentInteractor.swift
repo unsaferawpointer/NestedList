@@ -12,6 +12,7 @@ import CoreModule
 protocol ContentInteractorProtocol {
 
 	func fetchData() -> (Item?, Snapshot<Item>)
+	func fetchData(with root: UUID?) -> (Item?, Snapshot<Item>)
 
 	func move(_ ids: [UUID], to destination: Destination<UUID>)
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool
@@ -91,6 +92,11 @@ extension ContentInteractor: ContentInteractorProtocol {
 			return (nil, snapshot)
 		}
 		return (item, snapshot)
+	}
+
+	func fetchData(with root: UUID?) -> (Item?, Snapshot<Item>) {
+		self.root = root
+		return fetchData()
 	}
 
 	func move(_ ids: [UUID], to destination: Destination<UUID>) {
