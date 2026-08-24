@@ -185,11 +185,8 @@ extension ColumnPresenter: ColumnPresenterProtocol {
 private extension ColumnPresenter {
 
 	func trackMenuItemClick(_ item: ColumnMenuIdentifier) {
-		switch item {
-		case .toggleStrikethrough, .changeIcon, .changeColor:
-			Task { await analytics.track(.menuItemClick(id: item.rawValue)) }
-		default:
-			break
+		Task {
+			await analytics.track(.menuItemClick(id: item.rawValue))
 		}
 	}
 }
