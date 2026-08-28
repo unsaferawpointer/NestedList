@@ -47,7 +47,7 @@ final class ColumnInteractor {
 			guard let self else {
 				return
 			}
-			guard let item = storage.state[root] else {
+			guard let item = storage.state[self.root] else {
 				return
 			}
 			self.presenter?.present(item)
