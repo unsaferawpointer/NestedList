@@ -11,7 +11,7 @@ public final class NodeStore<Value: MutableIdentifiable & Hashable> where Value.
 
 	public typealias ID = Value.ID
 
-	public private(set) var nodes: [Node<Value>] = []
+	private var nodes: [Node<Value>] = []
 
 	// MARK: - Cache
 
@@ -25,6 +25,8 @@ public final class NodeStore<Value: MutableIdentifiable & Hashable> where Value.
 		}
 		updateCache(inserted: nodes)
 	}
+
+	public init() { }
 }
 
 // MARK: - Subscripts
@@ -46,6 +48,10 @@ public extension NodeStore {
 }
 
 public extension NodeStore {
+
+	func nodes<T: TreeNode>(type: T.Type) -> [T] where T.Value == Value {
+		return nodes.map { makeNode(from: $0) }
+	}
 
 	/// Returns `true` when every leaf node in the subtree of the node with the given identifier has a value equal to the given value at the specified key path.
 	/// Returns `false` when the node is not found.
@@ -175,18 +181,13 @@ public extension NodeStore where Value: Codable {
 // MARK: - Helpers
 private extension NodeStore {
 
-	func makeNode(from other: any TreeNode<Value>) -> Node<Value> {
-		let root = Node<Value>(value: other.value)
-		var stack: [(source: any TreeNode<Value>, destination: Node<Value>)] = [(other, root)]
-		while let item = stack.popLast() {
-			for child in item.source.children {
-				let childNode = Node<Value>(value: child.value)
-				childNode.parent = item.destination
-				item.destination.children.append(childNode)
-				stack.append((source: child, destination: childNode))
+	func makeNode<T: TreeNode, P: TreeNode>(from other: P) -> T where T.Value == P.Value {
+		return T.init(
+			value: other.value,
+			children: other.children.map {
+				makeNode(from: $0)
 			}
-		}
-		return root
+		)
 	}
 
 	func copy(_ node: Node<Value>) -> Node<Value> {
@@ -260,7 +261,7 @@ extension NodeStore {
 		from data: [any TreeNode<Value>],
 		to destination: Destination<Value.ID>
 	) throws(NodeStoreError) {
-		let newNodes = data.map { node in
+		let newNodes: [Node<Value>] = data.map { node in
 			makeNode(from: node)
 		}
 		try insertNodes(newNodes, to: destination)

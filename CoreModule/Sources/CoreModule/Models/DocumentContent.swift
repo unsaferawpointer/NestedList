@@ -110,7 +110,7 @@ public extension DocumentContent {
 	}
 
 	func tree() -> [any TreeNode<Item>] {
-		root.nodes
+		root.nodes(type: Node<Item>.self)
 	}
 
 	func copy(ids: [UUID], to destination: Destination<UUID>) throws {
@@ -156,7 +156,7 @@ extension DocumentContent: Codable {
 
 	public func encode(to encoder: Encoder) throws {
 		var container = encoder.container(keyedBy: CodingKeys.self)
-		try container.encode(root.nodes, forKey: .items)
+		try container.encode(root.nodes(type: Node<Item>.self), forKey: .items)
 		try container.encode(view, forKey: .view)
 		try container.encode(uuid ?? UUID(), forKey: .uuid)
 	}

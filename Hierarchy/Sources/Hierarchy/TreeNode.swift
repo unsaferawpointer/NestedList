@@ -14,6 +14,8 @@ public protocol TreeNode<Value> {
 	var value: Value { get set }
 
 	var children: [Self] { get }
+
+	init(value: Value, children: [Self])
 }
 
 public extension TreeNode {
