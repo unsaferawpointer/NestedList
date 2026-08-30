@@ -297,15 +297,19 @@ private extension ContentPresenter {
 		let target = selection.first
 		let properties = ItemProperties(text: localization.newItemText)
 
-		guard let id = interactor?.newItem(with: properties, target: target) else {
-			return
-		}
+		do {
+			guard let id = try interactor?.newItem(with: properties, target: target) else {
+				return
+			}
 
-		if let target {
-			view?.expand([target])
+			if let target {
+				view?.expand([target])
+			}
+			view?.scroll(to: id)
+			view?.focus(on: id, key: "title")
+		} catch {
+			// TODO: - Implement error handling
 		}
-		view?.scroll(to: id)
-		view?.focus(on: id, key: "title")
 	}
 
 	func editItem(with selection: [UUID]) {

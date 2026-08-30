@@ -22,6 +22,8 @@ extension StateProviderMock: StateProviderProtocol {
 
 	func modificate(_ block: (inout State) -> Void) { }
 
+	func modificate(_ block: (inout State) throws -> Void) throws { }
+
 	func addObservation<O: AnyObject>(for object: O, handler: @escaping (State) -> Void) { }
 
 	func removeObserver(_ object: AnyObject) { }

@@ -14,7 +14,7 @@ import Hierarchy
 @MainActor
 struct ContentInteractorTests {
 
-	@Test func newItem_proxiesToCommonInteractorWithRelativeRootTarget() {
+	@Test func newItem_proxiesToCommonInteractorWithRelativeRootTarget() throws {
 		// Arrange
 		let root = UUID()
 		let base = CommonInteractorMock()
@@ -28,7 +28,7 @@ struct ContentInteractorTests {
 			iconName: .bolt,
 			tintColor: .cyan
 		)
-		let result = sut.newItem(with: properties, target: nil)
+		let result = try sut.newItem(with: properties, target: nil)
 
 		// Assert
 		#expect(result == base.stubs.newItem)

@@ -79,7 +79,11 @@ extension ColumnPresenter: ColumnViewOutput {
 	func plusButtonClicked() {
 		let properties = ItemProperties(text: localization.newItemText)
 		let target = view?.selection.first
-		interactor?.newItem(with: properties, target: target)
+		do {
+			try interactor?.newItem(with: properties, target: target)
+		} catch {
+			// TODO: - Implement error handling
+		}
 	}
 }
 
@@ -93,7 +97,11 @@ extension ColumnPresenter: MenuDelegate {
 		case .columnNew:
 			let properties = ItemProperties(text: localization.newItemText)
 			let target = view?.selection.first
-			interactor?.newItem(with: properties, target: target)
+			do {
+				try interactor?.newItem(with: properties, target: target)
+			} catch {
+				// TODO: - Implement error handling
+			}
 		case .columnEdit:
 			guard let item = interactor?.rootItem() else {
 				return

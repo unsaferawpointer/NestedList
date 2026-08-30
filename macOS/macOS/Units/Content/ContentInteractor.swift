@@ -20,7 +20,7 @@ protocol ContentInteractorProtocol {
 	func copy(_ ids: [UUID], to destination: Destination<UUID>)
 
 	@discardableResult
-	func newItem(with properties: ItemProperties, target: UUID?) -> UUID
+	func newItem(with properties: ItemProperties, target: UUID?) throws -> UUID
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool)
 	func toggleStrikethrough(for id: UUID, moveToEnd: Bool)
 	func setSubitemsHidden(_ hidden: Bool, for ids: [UUID])
@@ -100,7 +100,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 	}
 
 	func move(_ ids: [UUID], to destination: Destination<UUID>) {
-		base.move(ids, to: destination.relative(to: root))
+		try? base.move(ids, to: destination.relative(to: root))
 	}
 
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
@@ -108,20 +108,20 @@ extension ContentInteractor: ContentInteractorProtocol {
 	}
 
 	func copy(_ ids: [UUID], to destination: Destination<UUID>) {
-		base.copy(ids, to: destination.relative(to: root))
+		try? base.copy(ids, to: destination.relative(to: root))
 	}
 
-	func newItem(with properties: ItemProperties, target: UUID?) -> UUID {
+	func newItem(with properties: ItemProperties, target: UUID?) throws -> UUID {
 		let destination = Destination(target: target)
-		return base.newItem(with: properties, target: destination.relative(to: root).id)
+		return try base.newItem(with: properties, target: destination.relative(to: root).id)
 	}
 
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool) {
-		base.setStatus(status, for: ids, moveToEnd: moveToEnd)
+		try? base.setStatus(status, for: ids, moveToEnd: moveToEnd)
 	}
 
 	func toggleStrikethrough(for id: UUID, moveToEnd: Bool) {
-		base.toggleStrikethrough(for: id, moveToEnd: moveToEnd)
+		try? base.toggleStrikethrough(for: id, moveToEnd: moveToEnd)
 	}
 
 	func setSubitemsHidden(_ hidden: Bool, for ids: [UUID]) {
@@ -145,7 +145,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 	}
 
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>) {
-		base.insertStrings(strings, to: destination.relative(to: root))
+		try? base.insertStrings(strings, to: destination.relative(to: root))
 	}
 
 	func set(note: String?, for ids: [UUID]) {
@@ -156,11 +156,11 @@ extension ContentInteractor: ContentInteractorProtocol {
 		let strings = data.compactMap {
 			String(data: $0, encoding: .utf8)
 		}
-		base.insertStrings(strings, to: destination.relative(to: root))
+		try? base.insertStrings(strings, to: destination.relative(to: root))
 	}
 
 	func insertItems(_ data: [Data], to destination: Destination<UUID>) {
-		base.insertItems(data, to: destination.relative(to: root))
+		try? base.insertItems(data, to: destination.relative(to: root))
 	}
 
 	func nodes(for ids: [UUID]) -> [any TreeNode<Item>] {

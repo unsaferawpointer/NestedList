@@ -14,7 +14,7 @@ protocol ContentUnitInteractorProtocol {
 	func fetchData() -> (Item?, Snapshot<Item>)
 
 	@discardableResult
-	func newItem(with properties: ItemProperties, target: UUID?) -> UUID
+	func newItem(with properties: ItemProperties, target: UUID?) throws -> UUID
 	func deleteItems(_ ids: [UUID])
 	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool)
 	func setSubitemsHidden(_ hidden: Bool, for ids: [UUID])
@@ -88,9 +88,9 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 		return (item, snapshot)
 	}
 
-	func newItem(with properties: ItemProperties, target: UUID?) -> UUID {
+	func newItem(with properties: ItemProperties, target: UUID?) throws -> UUID {
 		let destination = Destination(target: target)
-		return base.newItem(with: properties, target: destination.relative(to: root).id)
+		return try base.newItem(with: properties, target: destination.relative(to: root).id)
 	}
 
 	func item(for id: UUID) -> Item {
@@ -105,7 +105,7 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 	}
 
 	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool) {
-		base.setStatus(isStrikethrough, for: ids, moveToEnd: moveToEnd)
+		try? base.setStatus(isStrikethrough, for: ids, moveToEnd: moveToEnd)
 	}
 
 	func setSubitemsHidden(_ hidden: Bool, for ids: [UUID]) {
@@ -137,31 +137,31 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 	}
 
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>) {
-		base.insertStrings(strings, to: destination.relative(to: root))
+		try? base.insertStrings(strings, to: destination.relative(to: root))
 	}
 
 	func insertNodes(_ nodes: [any TreeNode<Item>], to destination: Destination<UUID>) {
-		base.insertNodes(nodes, to: destination.relative(to: root))
+		try? base.insertNodes(nodes, to: destination.relative(to: root))
 	}
 
 	func insertStrings(_ data: [Data], to destination: Hierarchy.Destination<UUID>) {
 		let strings = data.compactMap {
 			String(data: $0, encoding: .utf8)
 		}
-		base.insertStrings(strings, to: destination.relative(to: root))
+		try? base.insertStrings(strings, to: destination.relative(to: root))
 	}
 
 	func insertItems(_ data: [Data], to destination: Hierarchy.Destination<UUID>) {
-		base.insertItems(data, to: destination.relative(to: root))
+		try? base.insertItems(data, to: destination.relative(to: root))
 	}
 
 	func move(ids: [UUID], to destination: Destination<UUID>) {
-		base.move(ids, to: destination.relative(to: root))
+		try? base.move(ids, to: destination.relative(to: root))
 	}
 
 	func move(ids: [UUID], to target: UUID?) {
 		let destination = Destination(target: target)
-		base.move(ids, to: destination)
+		try? base.move(ids, to: destination)
 	}
 
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {

@@ -47,8 +47,12 @@ extension DocumentStorage: StateProviderProtocol {
 		}
 	}
 
+	public func modificate(_ block: (inout State) throws -> Void) throws {
+		try performOperation(block)
+	}
+
 	public func modificate(_ block: (inout State) -> Void) {
-		performOperation(block)
+		try? performOperation(block)
 	}
 
 	public func addObservation<O: AnyObject>(
@@ -117,12 +121,12 @@ private extension DocumentStorage {
 		}
 	}
 
-	func performOperation(_ block: (inout State) -> Void) {
+	func performOperation(_ block: (inout State) throws -> Void) throws {
 
 		let encoder = JSONEncoder()
 
 		let oldData = try? encoder.encode(stateProvider.state)
-		block(&stateProvider.state)
+		try block(&stateProvider.state)
 		let newData = try? encoder.encode(stateProvider.state)
 		guard let oldData, let newData else {
 			return

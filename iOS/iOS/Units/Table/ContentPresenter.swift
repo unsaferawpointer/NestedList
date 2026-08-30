@@ -481,13 +481,17 @@ private extension ContentPresenter {
 			self?.router.dismiss()
 			if success {
 				let note = saved.description.isEmpty ? nil : saved.description
-				guard let id = self?.interactor?.newItem(with: .init(text: saved.text, note: note), target: target) else {
-					return
+				do {
+					guard let id = try self?.interactor?.newItem(with: .init(text: saved.text, note: note), target: target) else {
+						return
+					}
+					if let target {
+						self?.view?.expand(target)
+					}
+					self?.view?.scroll(to: id)
+				} catch {
+					// TODO: - Implement error handling
 				}
-				if let target {
-					self?.view?.expand(target)
-				}
-				self?.view?.scroll(to: id)
 			}
 		}
 	}

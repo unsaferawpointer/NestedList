@@ -13,6 +13,8 @@ public protocol StateProviderProtocol<State>: AnyObject {
 
 	var state: State { get set }
 
+	func modificate(_ block: (inout State) throws -> Void) throws
+
 	func modificate(_ block: (inout State) -> Void)
 
 	func addObservation<O: AnyObject>(
@@ -45,10 +47,14 @@ public final class StateProvider<State> {
 // MARK: - StateProviderProtocol
 extension StateProvider: StateProviderProtocol {
 
+	public func modificate(_ block: (inout State) throws -> Void) throws {
+		try block(&state)
+	}
+
 	public func modificate(_ block: (inout State) -> Void) {
 		block(&state)
 	}
-	
+
 	public func addObservation<O: AnyObject>(
 		for object: O,
 		handler: @escaping (State) -> Void

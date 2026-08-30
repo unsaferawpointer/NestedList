@@ -13,7 +13,7 @@ protocol ColumnInteractorProtocol: AnyObject {
 	func configure(for root: UUID)
 	func rootItem() -> Item?
 	@discardableResult
-	func newItem(with: ItemProperties, target: UUID?) -> UUID
+	func newItem(with: ItemProperties, target: UUID?) throws -> UUID
 	func set(_ text: String, note: String?)
 	func setIcon(_ name: IconName?)
 	func setColor(_ color: ItemColor?)
@@ -78,8 +78,8 @@ extension ColumnInteractor: ColumnInteractorProtocol {
 		storage.state[root]
 	}
 
-	func newItem(with properties: ItemProperties, target: UUID?) -> UUID {
-		return base.newItem(with: properties, target: target ?? root)
+	func newItem(with properties: ItemProperties, target: UUID?) throws -> UUID {
+		return try base.newItem(with: properties, target: target ?? root)
 	}
 
 	func set(_ text: String, note: String?) {
@@ -98,7 +98,7 @@ extension ColumnInteractor: ColumnInteractorProtocol {
 	}
 
 	func toggleStrikethrough(moveToEnd: Bool) {
-		base.toggleStrikethrough(for: root, moveToEnd: moveToEnd)
+		try? base.toggleStrikethrough(for: root, moveToEnd: moveToEnd)
 	}
 
 	func isStrikethrough() -> Bool {
@@ -106,7 +106,7 @@ extension ColumnInteractor: ColumnInteractorProtocol {
 	}
 
 	func moveForward() {
-		base.moveForward(id: root)
+		try? base.moveForward(id: root)
 	}
 
 	func validateMovingForward() -> Bool {
@@ -114,7 +114,7 @@ extension ColumnInteractor: ColumnInteractorProtocol {
 	}
 
 	func moveBackward() {
-		base.moveBackward(id: root)
+		try? base.moveBackward(id: root)
 	}
 
 	func validateMovingBackward() -> Bool {

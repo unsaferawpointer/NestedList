@@ -67,10 +67,14 @@ extension ReorderViewModel {
 
 	func move(fromOffsets source: IndexSet, toOffset destination: Int) {
 		let ids = source.map { items[$0].id }
-		storage.modificate { content in
-			content.moveItems(with: ids, to: .init(target: parent, index: destination))
+		do {
+			try storage.modificate { content in
+				try content.moveItems(with: ids, to: .init(target: parent, index: destination))
+			}
+			track(.dragDropMove(itemsCount: ids.count))
+		} catch {
+			// TODO: - Implement error handling
 		}
-		track(.dragDropMove(itemsCount: ids.count))
 	}
 }
 

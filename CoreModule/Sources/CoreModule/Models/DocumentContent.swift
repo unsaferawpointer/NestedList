@@ -44,24 +44,24 @@ public extension DocumentContent {
 		root.snapshot()
 	}
 
-	func insertItems(with contents: [Item], to destination: Destination<UUID>) {
-		root.insertItems(with: contents, to: destination)
+	func insertItems(with contents: [Item], to destination: Destination<UUID>) throws {
+		try root.insertItems(with: contents, to: destination)
 	}
 
-	func insertItems(from data: [any TreeNode<Item>], to destination: Destination<UUID>) {
-		root.insertItems(from: data, to: destination)
+	func insertItems(from data: [any TreeNode<Item>], to destination: Destination<UUID>) throws {
+		try root.insertItems(from: data, to: destination)
 	}
 
-	func insertItems(from data: [Data], to destination: Destination<UUID>) {
-		root.insertItems(from: data, to: destination)
+	func insertItems(from data: [Data], to destination: Destination<UUID>) throws {
+		try root.insertItems(from: data, to: destination)
 	}
 
 	func validateMoving(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
 		root.validateMoving(ids, to: destination)
 	}
 
-	func moveItems(with ids: [UUID], to destination: Destination<UUID>) {
-		root.moveItems(with: ids, to: destination)
+	func moveItems(with ids: [UUID], to destination: Destination<UUID>) throws {
+		try root.moveItems(with: ids, to: destination)
 	}
 
 	func validateMovingForward(id: UUID) -> Bool {
@@ -72,16 +72,16 @@ public extension DocumentContent {
 		root.validateMovingBackward(id)
 	}
 
-	func moveForward(id: UUID) {
-		root.moveForward(id)
+	func moveForward(id: UUID) throws {
+		try root.moveForward(id)
 	}
 
-	func moveBackward(id: UUID) {
-		root.moveBackward(id)
+	func moveBackward(id: UUID) throws {
+		try root.moveBackward(id)
 	}
 
-	func moveToEnd(_ ids: [UUID]) {
-		root.moveToEnd(ids)
+	func moveToEnd(_ ids: [UUID]) throws {
+		try root.moveToEnd(ids)
 	}
 
 	func invalidTargets(movingItems ids: Set<UUID>) -> Set<UUID> {
@@ -113,8 +113,8 @@ public extension DocumentContent {
 		root.nodes
 	}
 
-	func copy(ids: [UUID], to destination: Destination<UUID>) {
-		root.copy(ids: ids, to: destination)
+	func copy(ids: [UUID], to destination: Destination<UUID>) throws {
+		try root.copy(ids: ids, to: destination)
 	}
 
 	func allMatch<T: Equatable>(id: UUID, keyPath: KeyPath<Item, T>, equalsTo value: T) -> Bool {

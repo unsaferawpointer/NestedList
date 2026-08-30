@@ -9,7 +9,7 @@ import CoreModule
 @MainActor
 protocol ColumnsInteractorProtocol: AnyObject {
 	func fetchData()
-	func createNewItem(with text: String) -> UUID
+	func createNewItem(with text: String) throws -> UUID
 }
 
 /// The Columns interactor.
@@ -44,8 +44,8 @@ extension ColumnsInteractor: ColumnsInteractorProtocol {
 		presenter?.present(storage.state.snapshot().root)
 	}
 
-	func createNewItem(with text: String) -> UUID {
+	func createNewItem(with text: String) throws -> UUID {
 		let properties = ItemProperties(text: text)
-		return base.newItem(with: properties, target: nil)
+		return try base.newItem(with: properties, target: nil)
 	}
 }

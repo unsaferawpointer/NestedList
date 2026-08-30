@@ -153,7 +153,8 @@ public extension Node {
 	}
 
 	func insertItems(with items: [Node], to index: Int) {
-		self.children.insert(contentsOf: items, at: index)
+		let safeIndex = min(max(index, 0), children.count)
+		self.children.insert(contentsOf: items, at: safeIndex)
 		items.forEach { item in
 			item.parent = self
 		}

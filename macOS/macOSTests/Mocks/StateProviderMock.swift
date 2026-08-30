@@ -40,11 +40,15 @@ extension StateProviderMock: StateProviderProtocol {
 			invocations.append(.setState(value: newValue))
 		}
 	}
-	
+
+	func modificate(_ block: (inout State) throws -> Void) throws {
+		invocations.append(.modificate)
+	}
+
 	func modificate(_ block: (inout State) -> Void) {
 		invocations.append(.modificate)
 	}
-	
+
 	func addObservation<O>(for object: O, handler: @escaping (State) -> Void) where O : AnyObject {
 		invocations.append(.addObservation)
 	}

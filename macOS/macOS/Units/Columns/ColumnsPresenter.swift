@@ -56,8 +56,12 @@ extension ColumnsPresenter: ColumnsViewOutput {
 
 	func handleNewColumnClick() {
 		Task { await analytics.track(.buttonClick(id: "new-column")) }
-		let id = interactor?.createNewItem(with: localization.newItemText)
-		scrollPosition = id
+		do {
+			let id = try interactor?.createNewItem(with: localization.newItemText)
+			scrollPosition = id
+		} catch {
+			// TODO: - Implement error handling
+		}
 	}
 }
 

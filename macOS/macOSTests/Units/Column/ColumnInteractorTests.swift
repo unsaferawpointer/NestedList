@@ -45,8 +45,8 @@ private extension ColumnInteractorTests {
 			undoManager: nil
 		)
 		storage.modificate { content in
-			content.insertItems(with: [root], to: .toRoot)
-			content.insertItems(with: [child], to: .onItem(with: root.id))
+			try! content.insertItems(with: [root], to: .toRoot)
+			try! content.insertItems(with: [child], to: .onItem(with: root.id))
 		}
 		return storage
 	}

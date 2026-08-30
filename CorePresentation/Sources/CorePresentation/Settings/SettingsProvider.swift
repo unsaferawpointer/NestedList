@@ -141,4 +141,8 @@ extension SettingsProvider: StateProviderProtocol {
 	public func modificate(_ block: (inout State) -> Void) {
 		block(&state)
 	}
+
+	public func modificate(_ block: (inout Settings) throws -> Void) throws {
+		try block(&state)
+	}
 }
