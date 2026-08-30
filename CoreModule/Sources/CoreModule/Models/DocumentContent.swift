@@ -148,7 +148,7 @@ extension DocumentContent: Codable {
 
 	public init(from decoder: Decoder) throws {
 		let container = try decoder.container(keyedBy: CodingKeys.self)
-		let nodes = try container.decode([Node<Item>].self, forKey: .items)
+		let nodes = try container.decode([DocumentNode].self, forKey: .items)
 		let view = try container.decodeIfPresent(ContentView.self, forKey: .view) ?? .list
 		let uuid = try? container.decodeIfPresent(UUID.self, forKey: .uuid)
 		self.init(uuid: uuid, nodes: nodes, view: view)
@@ -156,7 +156,7 @@ extension DocumentContent: Codable {
 
 	public func encode(to encoder: Encoder) throws {
 		var container = encoder.container(keyedBy: CodingKeys.self)
-		try container.encode(root.nodes(type: Node<Item>.self), forKey: .items)
+		try container.encode(root.nodes(type: DocumentNode.self), forKey: .items)
 		try container.encode(view, forKey: .view)
 		try container.encode(uuid ?? UUID(), forKey: .uuid)
 	}
