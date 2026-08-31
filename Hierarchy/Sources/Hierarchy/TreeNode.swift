@@ -27,6 +27,15 @@ public extension TreeNode {
 
 public extension TreeNode {
 
+	func map<T: TreeNode>(type: T.Type) -> T where T.Value == Value {
+		return T.init(
+			value: value,
+			children:children.map {
+				$0.map(type: type)
+			}
+		)
+	}
+
 	func enumerate(_ block: (Self) -> Void) {
 		block(self)
 		for node in children {

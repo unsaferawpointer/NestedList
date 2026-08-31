@@ -20,7 +20,7 @@ public struct DocumentContent {
 
 	public init(
 		uuid: UUID?,
-		nodes: [any TreeNode<Item>] = [],
+		nodes: [DocumentNode] = [],
 		view: ContentView = .list
 	) {
 		self.uuid = uuid

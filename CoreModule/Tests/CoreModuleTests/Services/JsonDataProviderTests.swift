@@ -6,7 +6,6 @@
 //
 
 import XCTest
-import Hierarchy
 @testable import CoreModule
 
 final class JsonDataProviderTests: XCTestCase {
@@ -34,7 +33,7 @@ extension JsonDataProviderTests {
 			uuid: nil,
 			nodes:
 				[
-					Node<Item>(
+					DocumentNode(
 						value: .init(
 							uuid: .uuid0,
 							text: "item 0",
@@ -45,7 +44,7 @@ extension JsonDataProviderTests {
 						),
 						children:
 							[
-								Node<Item>(
+								DocumentNode(
 									value: .init(
 										uuid: .uuid00,
 										text: "item 0 0",
@@ -56,33 +55,36 @@ extension JsonDataProviderTests {
 									),
 									children:
 										[
-											Node<Item>(
+											DocumentNode(
 												value: .init(
 													uuid: .uuid000,
 													text: "item 0 0 0",
 													note: "note 0 0 0",
 													options: []
-												)
+												),
+												children: []
 											)
 										]
 								)
 							]
 					),
-					Node<Item>(
+					DocumentNode(
 						value: .init(
 							uuid: .uuid1,
 							text: "item 1",
 							note: nil,
 							options: [.strikethrough]
-						)
+						),
+						children: []
 					),
-					Node<Item>(
+					DocumentNode(
 						value: .init(
 							uuid: .uuid2,
 							text: "item 2",
 							note: nil,
 							options: [.strikethrough, .marked]
-						)
+						),
+						children: []
 					),
 				],
 			view: .columns
@@ -150,7 +152,7 @@ extension JsonDataProviderTests {
 			uuid: nil,
 			nodes:
 				[
-					Node<Item>(
+					DocumentNode(
 						value: .init(
 							uuid: .uuid0,
 							text: "item 0",
@@ -161,7 +163,7 @@ extension JsonDataProviderTests {
 						),
 						children:
 							[
-								Node<Item>(
+								DocumentNode(
 									value: .init(
 										uuid: .uuid00,
 										text: "item 0 0",
@@ -172,33 +174,36 @@ extension JsonDataProviderTests {
 									),
 									children:
 										[
-											Node<Item>(
+											DocumentNode(
 												value: .init(
 													uuid: .uuid000,
 													text: "item 0 0 0",
 													note: "note 0 0 0",
 													options: []
-												)
+												),
+												children: []
 											)
 										]
 								)
 							]
 					),
-					Node<Item>(
+					DocumentNode(
 						value: .init(
 							uuid: .uuid1,
 							text: "item 1",
 							note: nil,
 							options: [.strikethrough]
-						)
+						),
+						children: []
 					),
-					Node<Item>(
+					DocumentNode(
 						value: .init(
 							uuid: .uuid2,
 							text: "item 2",
 							note: nil,
 							options: [.strikethrough, .marked]
-						)
+						),
+						children: []
 					),
 				],
 			view: .columns

@@ -19,9 +19,9 @@ public final class NodeStore<Value: MutableIdentifiable & Hashable> where Value.
 
 	// MARK: - Initialization
 
-	public init(hierarchy: [any TreeNode<Value>]) {
+	public init<T: TreeNode>(hierarchy: [T]) where T.Value == Value {
 		self.nodes = hierarchy.map {
-			makeNode(from: $0)
+			$0.map(type: Node<Value>.self)
 		}
 		updateCache(inserted: nodes)
 	}
@@ -51,14 +51,16 @@ public extension NodeStore {
 public extension NodeStore {
 
 	func nodes<T: TreeNode>(type: T.Type) -> [T] where T.Value == Value {
-		return nodes.map { makeNode(from: $0) }
+		return nodes.map {
+			$0.map(type: type)
+		}
 	}
 
 	func node<T: TreeNode>(with id: ID, type: T.Type) -> T? where T.Value == Value {
 		guard let node = cache[id] else {
 			return nil
 		}
-		return makeNode(from: node)
+		return node.map(type: type)
 	}
 
 	/// Returns `true` when every leaf node in the subtree of the node with the given identifier has a value equal to the given value at the specified key path.
@@ -162,15 +164,6 @@ public extension NodeStore {
 // MARK: - Helpers
 private extension NodeStore {
 
-	func makeNode<T: TreeNode, P: TreeNode>(from other: P) -> T where T.Value == P.Value {
-		return T.init(
-			value: other.value,
-			children: other.children.map {
-				makeNode(from: $0)
-			}
-		)
-	}
-
 	func nodes(with ids: [ID]) -> [Node<Value>] {
 		return ids.compactMap { cache[$0] }
 	}
@@ -247,7 +240,7 @@ extension NodeStore {
 		to destination: Destination<Value.ID>
 	) throws(NodeStoreError) {
 		let newNodes: [Node<Value>] = data.map { node in
-			makeNode(from: node)
+			node.map(type: Node<Value>.self)
 		}
 		try insertNodes(newNodes, to: destination)
 	}

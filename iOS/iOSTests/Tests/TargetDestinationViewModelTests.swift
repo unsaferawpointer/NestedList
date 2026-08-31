@@ -110,7 +110,7 @@ private extension TargetDestinationViewModelTests {
 		movingItems: Set<UUID>,
 		analytics: TargetDestinationAnalyticsMock
 	) -> TargetDestinationViewModel {
-		let nodes = items.map { Node(value: $0) }
+		let nodes = items.map { DocumentNode(value: $0, children: []) }
 		let content = DocumentContent(uuid: UUID(), nodes: nodes)
 		let storage = DocumentStorage(
 			stateProvider: StateProvider(initialState: content),
