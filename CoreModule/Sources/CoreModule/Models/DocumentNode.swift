@@ -13,12 +13,12 @@ import Hierarchy
 /// `DocumentNode` is primarily used while encoding and decoding document files. It bridges
 /// the stored `items` hierarchy in `DocumentContent` with the in-memory tree APIs by
 /// conforming to `TreeNode`, keeping persistence details out of the mutable document model.
-struct DocumentNode: TreeNode {
+public struct DocumentNode: TreeNode {
 
-	var value: Item
-	var children: [DocumentNode]
+	public var value: Item
+	public var children: [DocumentNode]
 
-	init(value: Item, children: [DocumentNode]) {
+	public init(value: Item, children: [DocumentNode]) {
 		self.value = value
 		self.children = children
 	}
@@ -36,7 +36,7 @@ extension DocumentNode {
 // MARK: - Decodable
 extension DocumentNode: Decodable {
 
-	init(from decoder: Decoder) throws {
+	public init(from decoder: Decoder) throws {
 		let container = try decoder.container(keyedBy: CodingKeys.self)
 
 		let value = try container.decode(Value.self, forKey: .value)
@@ -49,7 +49,7 @@ extension DocumentNode: Decodable {
 // MARK: - Encodable
 extension DocumentNode: Encodable {
 
-	func encode(to encoder: Encoder) throws {
+	public func encode(to encoder: Encoder) throws {
 		var container = encoder.container(keyedBy: CodingKeys.self)
 
 		try container.encode(value, forKey: .value)

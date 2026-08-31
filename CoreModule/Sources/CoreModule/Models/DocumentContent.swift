@@ -14,7 +14,7 @@ public struct DocumentContent {
 
 	public var view: ContentView
 
-	private var root: NodeStore<Item>
+	private var store: NodeStore<Item>
 
 	// MARK: - Initialization
 
@@ -24,7 +24,7 @@ public struct DocumentContent {
 		view: ContentView = .list
 	) {
 		self.uuid = uuid
-		self.root = NodeStore<Item>(hierarchy: nodes)
+		self.store = NodeStore<Item>(hierarchy: nodes)
 		self.view = view
 	}
 }
@@ -33,67 +33,67 @@ public struct DocumentContent {
 public extension DocumentContent {
 
 	subscript(id: UUID) -> Item? {
-		return root[id]
+		return store[id]
 	}
 }
 
 // MARK: - Public Interface
 public extension DocumentContent {
 
+	func node(with id: UUID) -> DocumentNode? {
+		store.node(with: id, type: DocumentNode.self)
+	}
+
 	func snapshot() -> Snapshot<Item> {
-		root.snapshot()
+		store.snapshot()
 	}
 
 	func insertItems(with contents: [Item], to destination: Destination<UUID>) throws {
-		try root.insertItems(with: contents, to: destination)
+		try store.insertItems(with: contents, to: destination)
 	}
 
 	func insertItems(from data: [any TreeNode<Item>], to destination: Destination<UUID>) throws {
-		try root.insertItems(from: data, to: destination)
-	}
-
-	func insertItems(from data: [Data], to destination: Destination<UUID>) throws {
-		try root.insertItems(from: data, to: destination)
+		try store.insertItems(from: data, to: destination)
 	}
 
 	func validateMoving(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
-		root.validateMoving(ids, to: destination)
+		store.validateMoving(ids, to: destination)
 	}
 
 	func moveItems(with ids: [UUID], to destination: Destination<UUID>) throws {
-		try root.moveItems(with: ids, to: destination)
+		try store.moveItems(with: ids, to: destination)
 	}
 
 	func validateMovingForward(id: UUID) -> Bool {
-		root.validateMovingForward(id)
+		store.validateMovingForward(id)
 	}
 
 	func validateMovingBackward(id: UUID) -> Bool {
-		root.validateMovingBackward(id)
+		store.validateMovingBackward(id)
 	}
 
 	func moveForward(id: UUID) throws {
-		try root.moveForward(id)
+		try store.moveForward(id)
 	}
 
 	func moveBackward(id: UUID) throws {
-		try root.moveBackward(id)
+		try store.moveBackward(id)
 	}
 
 	func moveToEnd(_ ids: [UUID]) throws {
-		try root.moveToEnd(ids)
+		try store.moveToEnd(ids)
 	}
 
 	func invalidTargets(movingItems ids: Set<UUID>) -> Set<UUID> {
-		root.invalidTargets(movingItems: ids)
+		store.invalidTargets(movingItems: ids)
 	}
 
 	func deleteItems(_ ids: [UUID]) {
-		root.deleteItems(ids)
+		store.deleteItems(ids)
 	}
 
 	func parent(for id: UUID?) -> Item? {
-		root.parent(for: id)
+		store.parent(for: id)
 	}
 
 	func setProperty<T>(
@@ -102,27 +102,23 @@ public extension DocumentContent {
 		for ids: [UUID],
 		downstream: Bool = false
 	) {
-		root.setProperty(keyPath, to: value, for: ids, downstream: downstream)
+		store.setProperty(keyPath, to: value, for: ids, downstream: downstream)
 	}
 
 	func copiedDisjointSubtrees(with ids: [UUID]) -> [any TreeNode<Item>] {
-		root.copiedDisjointSubtrees(with: ids)
+		store.copiedDisjointSubtrees(with: ids)
 	}
 
 	func tree() -> [any TreeNode<Item>] {
-		root.nodes(type: Node<Item>.self)
+		store.nodes(type: Node<Item>.self)
 	}
 
 	func copy(ids: [UUID], to destination: Destination<UUID>) throws {
-		try root.copy(ids: ids, to: destination)
+		try store.copy(ids: ids, to: destination)
 	}
 
 	func allMatch<T: Equatable>(id: UUID, keyPath: KeyPath<Item, T>, equalsTo value: T) -> Bool {
-		root.allMatch(id: id, keyPath: keyPath, equalsTo: value)
-	}
-
-	func encode(id: UUID) -> Data? {
-		root.encode(id: id)
+		store.allMatch(id: id, keyPath: keyPath, equalsTo: value)
 	}
 }
 
@@ -156,7 +152,7 @@ extension DocumentContent: Codable {
 
 	public func encode(to encoder: Encoder) throws {
 		var container = encoder.container(keyedBy: CodingKeys.self)
-		try container.encode(root.nodes(type: DocumentNode.self), forKey: .items)
+		try container.encode(store.nodes(type: DocumentNode.self), forKey: .items)
 		try container.encode(view, forKey: .view)
 		try container.encode(uuid ?? UUID(), forKey: .uuid)
 	}

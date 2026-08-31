@@ -137,8 +137,12 @@ extension CommonInteractor: CommonInteractorProtocol {
 	}
 
 	public func insertItems(_ data: [Data], to destination: Destination<UUID>) throws {
+		let decoder = JSONDecoder()
+		let nodes = data.compactMap {
+			try? decoder.decode(DocumentNode.self, from: $0)
+		}
 		try storage.modificate { content in
-			try content.insertItems(from: data, to: destination)
+			try content.insertItems(from: nodes, to: destination)
 		}
 	}
 
@@ -149,7 +153,10 @@ extension CommonInteractor: CommonInteractorProtocol {
 	}
 
 	public func data(of id: UUID) -> Data? {
-		storage.state.encode(id: id)
+		guard let node = storage.state.node(with: id) else {
+			return nil
+		}
+		return try? JSONEncoder().encode(node)
 	}
 
 	public func nodes(for ids: [UUID]) -> [any TreeNode<Item>] {

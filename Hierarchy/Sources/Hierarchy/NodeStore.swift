@@ -47,10 +47,18 @@ public extension NodeStore {
 	}
 }
 
+// MARK: - Public interface
 public extension NodeStore {
 
 	func nodes<T: TreeNode>(type: T.Type) -> [T] where T.Value == Value {
 		return nodes.map { makeNode(from: $0) }
+	}
+
+	func node<T: TreeNode>(with id: ID, type: T.Type) -> T? where T.Value == Value {
+		guard let node = cache[id] else {
+			return nil
+		}
+		return makeNode(from: node)
 	}
 
 	/// Returns `true` when every leaf node in the subtree of the node with the given identifier has a value equal to the given value at the specified key path.
@@ -111,12 +119,6 @@ public extension NodeStore {
 		return copied
 	}
 
-	private func nodes(with ids: [ID]) -> [Node<Value>] {
-		return ids.compactMap {
-			cache[$0]
-		}
-	}
-
 	func setProperty<T>(_ keyPath: WritableKeyPath<Value, T>, to value: T, for ids: [ID], downstream: Bool = false) {
 		for id in ids {
 			guard let node = cache[id] else {
@@ -157,27 +159,6 @@ public extension NodeStore {
 	}
 }
 
-// MARK: - Codable Support
-public extension NodeStore where Value: Codable {
-
-	func encode(id: ID) -> Data? {
-		guard let node = cache[id] else {
-			return nil
-		}
-
-		let encoder = JSONEncoder()
-		return try? encoder.encode(node)
-	}
-
-	func insertItems(from data: [Data], to destination: Destination<Value.ID>) throws(NodeStoreError) {
-		let decoder = JSONDecoder()
-		let newNodes = data.compactMap {
-			try? decoder.decode(Node<Value>.self, from: $0)
-		}
-		try insertNodes(newNodes, to: destination)
-	}
-}
-
 // MARK: - Helpers
 private extension NodeStore {
 
@@ -188,6 +169,10 @@ private extension NodeStore {
 				makeNode(from: $0)
 			}
 		)
+	}
+
+	func nodes(with ids: [ID]) -> [Node<Value>] {
+		return ids.compactMap { cache[$0] }
 	}
 
 	func copy(_ node: Node<Value>) -> Node<Value> {

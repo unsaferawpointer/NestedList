@@ -8,27 +8,25 @@ extension NodeStoreTests {
 
 	@Test func copyNode() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
-		let original = store.nodes[0]
+		let original = store.nodes(type: NodeStoreTestNode.self)[0]
 
 		try store.copy(ids: [original.id], to: .toRoot)
 
-		let copy = store.nodes[1]
+		let nodes = store.nodes(type: NodeStoreTestNode.self)
+		let copy = nodes[1]
 
-		#expect(store.nodes.count == 2)
-		#expect(copy !== original)
+		#expect(nodes.count == 2)
 		#expect(copy.value.title == original.value.title)
 		#expect(copy.id != original.id)
 		#expect(copy.parent == nil)
-		#expect(store.nodes[0] === original)
-		#expect(store.nodes[1] === copy)
+		#expect(nodes[0].id == original.id)
+		#expect(nodes[1].id == copy.id)
 
 		#expect(copy.children.count == original.children.count)
-		#expect(copy.children[0] !== original.children[0])
 		#expect(copy.children[0].value.title == original.children[0].value.title)
 		#expect(copy.children[0].id != original.children[0].id)
 		#expect(copy.children[0].parent === copy)
 
-		#expect(copy.children[0].children[0] !== original.children[0].children[0])
 		#expect(copy.children[0].children[0].value.title == original.children[0].children[0].value.title)
 		#expect(copy.children[0].children[0].id != original.children[0].children[0].id)
 		#expect(copy.children[0].children[0].parent === copy.children[0])
@@ -36,14 +34,15 @@ extension NodeStoreTests {
 
 	@Test func copyNodeThrowsMissingNodeForMissingDestination() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
-		let original = store.nodes[0]
+		let original = store.nodes(type: NodeStoreTestNode.self)[0]
 
 		do {
 			try store.copy(ids: [original.id], to: .onItem(with: 404))
 			Issue.record("Expected missing node error")
 		} catch NodeStoreError.missingNode {
-			#expect(store.nodes.count == 1)
-			#expect(store.nodes[0] === original)
+			let nodes = store.nodes(type: NodeStoreTestNode.self)
+			#expect(nodes.count == 1)
+			#expect(nodes[0].id == original.id)
 		} catch {
 			Issue.record("Expected missing node error")
 		}
@@ -51,7 +50,7 @@ extension NodeStoreTests {
 
 	@Test func copiedDisjointSubtreesRemovesNestedRequestedNodes() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
-		let root = store.nodes[0]
+		let root = store.nodes(type: NodeStoreTestNode.self)[0]
 		let child = root.children[0]
 
 		let copied = store.copiedDisjointSubtrees(with: [root.id, child.id])
@@ -70,7 +69,7 @@ extension NodeStoreTests {
 
 	@Test func allMatchChecksOnlyLeafNodes() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
-		let root = store.nodes[0]
+		let root = store.nodes(type: NodeStoreTestNode.self)[0]
 		let child = root.children[0]
 
 		#expect(store.allMatch(\.title, equalsTo: "grandchild"))
@@ -94,28 +93,28 @@ extension NodeStoreTests {
 
 	@Test func setPropertyUpdatesSelectedNodeOnly() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
-		let root = store.nodes[0]
+		let root = store.nodes(type: NodeStoreTestNode.self)[0]
 		let child = root.children[0]
 		let grandchild = child.children[0]
 
 		store.setProperty(\.title, to: "updated", for: [child.id])
 
-		#expect(root.value.title == "root")
-		#expect(child.value.title == "updated")
-		#expect(grandchild.value.title == "grandchild")
+		#expect(store[root.id]?.title == "root")
+		#expect(store[child.id]?.title == "updated")
+		#expect(store[grandchild.id]?.title == "grandchild")
 	}
 
 	@Test func setPropertyUpdatesSelectedNodeAndDescendants() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
-		let root = store.nodes[0]
+		let root = store.nodes(type: NodeStoreTestNode.self)[0]
 		let child = root.children[0]
 		let grandchild = child.children[0]
 
 		store.setProperty(\.title, to: "updated", for: [child.id], downstream: true)
 
-		#expect(root.value.title == "root")
-		#expect(child.value.title == "updated")
-		#expect(grandchild.value.title == "updated")
+		#expect(store[root.id]?.title == "root")
+		#expect(store[child.id]?.title == "updated")
+		#expect(store[grandchild.id]?.title == "updated")
 	}
 }
 
@@ -124,7 +123,7 @@ extension NodeStoreTests {
 
 	@Test func parentReturnsParentValueForNestedNode() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
-		let root = store.nodes[0]
+		let root = store.nodes(type: NodeStoreTestNode.self)[0]
 		let child = root.children[0]
 		let grandchild = child.children[0]
 
@@ -140,7 +139,7 @@ extension NodeStoreTests {
 
 	@Test func insertItemsAddsRootAndNestedItemsToCache() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
-		let root = store.nodes[0]
+		let root = store.nodes(type: NodeStoreTestNode.self)[0]
 
 		try store.insertItems(with: [
 			NodeStoreTestItem(id: 4, title: "inserted-root")
@@ -149,8 +148,9 @@ extension NodeStoreTests {
 			NodeStoreTestItem(id: 5, title: "inserted-child")
 		], to: .inItem(with: root.id, atIndex: 0))
 
-		#expect(store.nodes.map(\.id) == [1, 4])
-		#expect(root.children.map(\.id) == [5, 2])
+		let nodes = store.nodes(type: NodeStoreTestNode.self)
+		#expect(nodes.map(\.id) == [1, 4])
+		#expect(nodes[0].children.map(\.id) == [5, 2])
 		#expect(store[4]?.title == "inserted-root")
 		#expect(store[5]?.title == "inserted-child")
 		#expect(store.parent(for: 5)?.id == root.id)
@@ -164,7 +164,7 @@ extension NodeStoreTests {
 			try store.insertItems(with: [item], to: .onItem(with: 404))
 			Issue.record("Expected missing node error")
 		} catch NodeStoreError.missingNode {
-			#expect(store.nodes.map(\.id) == [1])
+			#expect(store.nodes(type: NodeStoreTestNode.self).map(\.id) == [1])
 			#expect(store[4] == nil)
 		} catch {
 			Issue.record("Expected missing node error")
@@ -179,7 +179,7 @@ extension NodeStoreTests {
 			try store.insertItems(with: [item], to: .inItem(with: 404, atIndex: 0))
 			Issue.record("Expected missing node error")
 		} catch NodeStoreError.missingNode {
-			#expect(store.nodes.map(\.id) == [1])
+			#expect(store.nodes(type: NodeStoreTestNode.self).map(\.id) == [1])
 			#expect(store[4] == nil)
 		} catch {
 			Issue.record("Expected missing node error")
@@ -192,13 +192,13 @@ extension NodeStoreTests {
 
 	@Test func deleteItemRemovesNodeAndDescendantsFromCache() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
-		let root = store.nodes[0]
+		let root = store.nodes(type: NodeStoreTestNode.self)[0]
 		let child = root.children[0]
 		let grandchild = child.children[0]
 
 		store.deleteItem(child.id)
 
-		#expect(root.children.isEmpty)
+		#expect(store.nodes(type: NodeStoreTestNode.self)[0].children.isEmpty)
 		#expect(store[child.id] == nil)
 		#expect(store[grandchild.id] == nil)
 		#expect(store[root.id]?.title == "root")
@@ -210,11 +210,11 @@ extension NodeStoreTests {
 
 	@Test func invalidTargetsIncludesMovedNodesAndDescendants() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
-		let root = store.nodes[0]
+		let root = store.nodes(type: NodeStoreTestNode.self)[0]
 		let child = root.children[0]
 		let grandchild = child.children[0]
 
-		let result = store.invalidTargets(movingItems: [child.id])
+		let result = store.invalidTargets(movingItems: Set([child.id]))
 
 		#expect(result == Set([child.id, grandchild.id]))
 		#expect(!result.contains(root.id))
@@ -222,7 +222,7 @@ extension NodeStoreTests {
 
 	@Test func validateMovingRejectsMovingNodeIntoDescendant() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
-		let root = store.nodes[0]
+		let root = store.nodes(type: NodeStoreTestNode.self)[0]
 		let child = root.children[0]
 		let grandchild = child.children[0]
 
@@ -233,36 +233,40 @@ extension NodeStoreTests {
 
 	@Test func moveItemsMovesNestedNodeToRoot() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
-		let root = store.nodes[0]
+		let root = store.nodes(type: NodeStoreTestNode.self)[0]
 		let child = root.children[0]
 		let grandchild = child.children[0]
 
 		try store.moveItems(with: [child.id], to: .toRoot)
 
-		#expect(store.nodes.map(\.id) == [root.id, child.id])
-		#expect(root.children.isEmpty)
-		#expect(child.parent == nil)
-		#expect(child.children[0] === grandchild)
+		let nodes = store.nodes(type: NodeStoreTestNode.self)
+		#expect(nodes.map(\.id) == [root.id, child.id])
+		#expect(nodes[0].children.isEmpty)
+		#expect(nodes[1].parent == nil)
+		#expect(nodes[1].children[0].id == grandchild.id)
 		#expect(store.parent(for: grandchild.id)?.id == child.id)
 	}
 
 	@Test func moveItemsThrowsMissingNodeForMissingDestination() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
-		let root = store.nodes[0]
+		let root = store.nodes(type: NodeStoreTestNode.self)[0]
 		let child = root.children[0]
 
 		do {
 			try store.moveItems(with: [child.id], to: .onItem(with: 404))
 			Issue.record("Expected missing node error")
 		} catch NodeStoreError.missingNode {
-			#expect(store.nodes.map(\.id) == [root.id])
-			#expect(root.children.map(\.id) == [child.id])
-			#expect(child.parent === root)
+			let nodes = store.nodes(type: NodeStoreTestNode.self)
+			#expect(nodes.map(\.id) == [root.id])
+			#expect(nodes[0].children.map(\.id) == [child.id])
+			#expect(store.parent(for: child.id)?.id == root.id)
 		} catch {
 			Issue.record("Expected missing node error")
 		}
 	}
 }
+
+private typealias NodeStoreTestNode = Node<NodeStoreTestItem>
 
 private struct NodeStoreTestItem: Hashable {
 	var id: Int
