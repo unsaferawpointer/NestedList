@@ -25,7 +25,7 @@ public struct Snapshot<Model: Identifiable> {
 
 	// MARK: - Initialization
 
-	public init(_ base: [Node<Model>]) {
+	public init<T: TreeNode>(_ base: [T]) where T.Value == Model {
 		self.root = base.map(\.value.id)
 		base.enumerated().forEach { (index, node) in
 			normalize(base: node, parent: nil, index: index)
@@ -81,7 +81,7 @@ public extension Snapshot {
 			return self
 		}
 		guard let children = hierarchy[parent] else {
-			return Snapshot([])
+			return Snapshot()
 		}
 
 		let base = children.compactMap {
@@ -184,47 +184,38 @@ public extension Snapshot {
 		return count
 	}
 
-	func node(for id: ID) -> Node<Model> {
-
-		let value = storage[unsafe: id].model
-		let children = hierarchy[unsafe: id]
-
-		return Node<Model>(
-			value: value,
-			children: children.map {
-				node(for: $0)
-			}
-		)
-	}
-
 	func insert(before condition: (Model, Int) -> Model?) -> Snapshot<Model> {
 		let nodes = getNodes()
 		let inserted = insert(in: nodes, before: condition, level: 0)
 		return Snapshot(inserted)
 	}
 
-	func insert(
-		in nodes: [Node<Model>],
+	func insert<T: TreeNode>(
+		in nodes: [T],
 		before condition: (Model, Int) -> Model?,
 		level: Int
-	) -> [Node<Model>] {
+	) -> [T] where T.Value == Model {
 
-		var result = [Node<Model>]()
+		var result = [T]()
 
 		for child in nodes {
 			guard let model = condition(child.value, level) else {
 				result.append(child)
 				continue
 			}
-			let new = Node(value: model)
+			let new = T(value: model, children: [])
 			result.append(new)
 			result.append(child)
 		}
 
 		return result.map {
-			Node(
+			T(
 				value: $0.value,
-				children: insert(in: $0.children, before: condition, level: level + 1)
+				children: insert(
+					in: $0.children,
+					before: condition,
+					level: level + 1
+				)
 			)
 		}
 	}
@@ -396,6 +387,19 @@ public extension Snapshot {
 // MARK: - Enumeration
 private extension Snapshot {
 
+	func node(for id: ID) -> Node<Model> {
+
+		let value = storage[unsafe: id].model
+		let children = hierarchy[unsafe: id]
+
+		return Node<Model>(
+			value: value,
+			children: children.map {
+				node(for: $0)
+			}
+		)
+	}
+
 	@discardableResult
 	mutating func validate(_ id: ID, keyPath: WritableKeyPath<Model, Bool>) -> Bool {
 
@@ -433,7 +437,12 @@ private extension Snapshot {
 		}
 	}
 
-	mutating func normalize(base: Node<Model>, parent: ID?, index: Int, level: Int = 0) {
+	mutating func normalize<T: TreeNode>(
+		base: T,
+		parent: ID?,
+		index: Int,
+		level: Int = 0
+	) where T.Value == Model {
 
 		hierarchy[base.id] = base.children.map(\.value.id)
 
