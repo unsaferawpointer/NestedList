@@ -56,9 +56,9 @@ extension Parser: ParserProtocol {
 
 		// Build tree structure
 
-		var result: [Node<Model>] = []
-		var cache: [Int: Node<Model>] = [:]
-		var previous: Node<Model>? = nil
+		var result: [TextNode] = []
+		var cache: [Int: TextNode] = [:]
+		var previous: TextNode? = nil
 
 		for line in lines {
 
@@ -88,7 +88,7 @@ extension Parser: ParserProtocol {
 				tintColor: nil
 			)
 
-			let node = Node<Model>(value: item)
+			let node = TextNode(value: item)
 			previous = node
 
 			if line.indent == 0 {
@@ -215,6 +215,29 @@ extension Parser {
 				annotations: annotations,
 				hasColon: hasColon
 			)
+		}
+	}
+
+	final class TextNode: TreeNode {
+
+		public typealias ID = Model.ID
+
+		public var value: Model
+
+		// MARK: - Relationships
+
+		weak var parent: TextNode?
+
+		var children: [TextNode]
+
+		// MARK: - Initialization
+
+		init(value: Value, children: [TextNode] = []) {
+			self.value = value
+			self.children = children
+			for node in children {
+				node.parent = self
+			}
 		}
 	}
 }
