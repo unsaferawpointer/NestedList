@@ -53,30 +53,6 @@ extension Node: Identifiable {
 // MARK: - Public interface
 extension Node {
 
-	/// Returns a copy of this subtree, removing descendants from nodes that satisfy the given predicate.
-	///
-	/// The current node is always preserved. When `shouldRemoveChildren` returns `true` for a node's value,
-	/// that node remains in the result but its children are omitted.
-	///
-	/// - Parameter shouldRemoveChildren: A predicate that determines where pruning should stop.
-	/// - Returns: A pruned copy of this node and its descendants.
-	func pruned(removingChildrenOf shouldRemoveChildren: (Value) -> Bool) -> Node {
-		pruned(in: self, removingChildrenOf: shouldRemoveChildren)
-	}
-
-	/// Returns a copy of this node and all of its descendants.
-	///
-	/// The copied tree contains newly created `Node` instances with the same values and child order.
-	/// Parent references are rebuilt so each copied child points to its copied parent.
-	///
-	/// - Returns: A copy of this node and its descendants.
-	func copy() -> Node {
-		return Node(
-			value: value,
-			children: children.map { $0.copy() }
-		)
-	}
-
 	func map<T>(_ transform: (Value) -> T) -> Node<T> {
 		let transformed = transform(value)
 		return .init(
@@ -90,35 +66,6 @@ extension Node {
 	func enumerateBackwards(_ block: (Node) -> Void) {
 		block(self)
 		parent?.enumerateBackwards(block)
-	}
-
-	func count<T: Equatable>(where keyPath: KeyPath<Value, T>, equalsTo value: T) -> Int {
-		guard !children.isEmpty else {
-			return self.value[keyPath: keyPath] == value ? 1 : 0
-		}
-		return children.reduce(0) { partialResult, node in
-			return partialResult + node.count(where: keyPath, equalsTo: value)
-		}
-	}
-
-	func childrenIds() -> [ID] {
-		var result = children.map(\.id)
-		for child in children {
-			result.append(contentsOf: child.childrenIds())
-		}
-		return result
-	}
-
-	func isAncestor(of other: ID) -> Bool {
-		guard children.contains(where: { $0.id == other }) else {
-			for child in children {
-				if child.isAncestor(of: other) {
-					return true
-				}
-			}
-			return false
-		}
-		return true
 	}
 
 	func setProperty<T>(_ keyPath: WritableKeyPath<Value, T>, to value: T, downstream: Bool) {
@@ -165,19 +112,6 @@ extension Node {
 		items.forEach { item in
 			item.parent = self
 		}
-	}
-}
-
-// MARK: - Helpers
-private extension Node {
-
-	func pruned(in node: Node<Value>, removingChildrenOf shouldRemoveChildren: (Value) -> Bool) -> Node<Value> {
-		return Node(
-			value: node.value,
-			children: shouldRemoveChildren(node.value)
-				? []
-				: node.children.map { pruned(in: $0, removingChildrenOf: shouldRemoveChildren) }
-		)
 	}
 }
 
