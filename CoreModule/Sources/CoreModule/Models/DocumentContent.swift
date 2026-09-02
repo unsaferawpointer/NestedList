@@ -110,7 +110,7 @@ public extension DocumentContent {
 	}
 
 	func tree() -> [any TreeNode<Item>] {
-		store.nodes(type: Node<Item>.self)
+		store.nodes(type: DocumentNode.self)
 	}
 
 	func copy(ids: [UUID], to destination: Destination<UUID>) throws {

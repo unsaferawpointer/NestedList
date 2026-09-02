@@ -141,7 +141,7 @@ extension UnitInteractorMock {
 		var validateMovement: Bool = false
 		var newItem: UUID = .random
 		var fetchedItem: Item?
-		var snapshot = Snapshot<Item>([])
+		var snapshot = Snapshot<Item>()
 		var nodes: [any TreeNode<Item>] = []
 		var data: [UUID: Data] = [:]
 	}

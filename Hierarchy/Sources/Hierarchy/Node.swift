@@ -7,21 +7,21 @@
 
 import Foundation
 
-public final class Node<Value: Identifiable>: TreeNode {
+final class Node<Value: Identifiable>: TreeNode {
 
-	public typealias ID = Value.ID
+	typealias ID = Value.ID
 
-	public var value: Value
+	var value: Value
 
 	// MARK: - Relationships
 
-	public weak var parent: Node?
+	weak var parent: Node?
 
-	public var children: [Node]
+	var children: [Node]
 
 	// MARK: - Initialization
 
-	public init(value: Value, children: [Node] = []) {
+	init(value: Value, children: [Node] = []) {
 		self.value = value
 		self.children = children
 		for node in children {
@@ -45,13 +45,13 @@ private extension Node {
 // MARK: - Identifiable
 extension Node: Identifiable {
 
-	public var id: Value.ID {
+	var id: Value.ID {
 		return value.id
 	}
 }
 
 // MARK: - Public interface
-public extension Node {
+extension Node {
 
 	/// Returns a copy of this subtree, removing descendants from nodes that satisfy the given predicate.
 	///
@@ -193,7 +193,7 @@ extension Node {
 // MARK: - Equatable
 extension Node: Equatable where Value: Equatable {
 
-	public static func == (lhs: Node<Value>, rhs: Node<Value>) -> Bool {
+	static func == (lhs: Node<Value>, rhs: Node<Value>) -> Bool {
 		return lhs.id == rhs.id
 				&& lhs.value == rhs.value
 				&& lhs.children == rhs.children
@@ -203,7 +203,7 @@ extension Node: Equatable where Value: Equatable {
 // MARK: - Hashable
 extension Node: Hashable where Value: Hashable {
 
-	public func hash(into hasher: inout Hasher) {
+	func hash(into hasher: inout Hasher) {
 		hasher.combine(id)
 		hasher.combine(value)
 		hasher.combine(children)
@@ -213,7 +213,7 @@ extension Node: Hashable where Value: Hashable {
 // MARK: - Decodable
 extension Node: Decodable where Value: Decodable {
 
-	convenience public init(from decoder: Decoder) throws {
+	convenience init(from decoder: Decoder) throws {
 		let container = try decoder.container(keyedBy: CodingKeys.self)
 
 		let value = try container.decode(Value.self, forKey: .value)
@@ -226,7 +226,7 @@ extension Node: Decodable where Value: Decodable {
 // MARK: - Encodable
 extension Node: Encodable where Value: Encodable {
 
-	public func encode(to encoder: Encoder) throws {
+	func encode(to encoder: Encoder) throws {
 		var container = encoder.container(keyedBy: CodingKeys.self)
 
 		try container.encode(value, forKey: .value)

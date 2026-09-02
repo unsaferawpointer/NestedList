@@ -11,7 +11,10 @@ import Hierarchy
 import CoreModule
 
 protocol ContentLoaderProtocol {
-	func loadItems(providers: [NSItemProvider], completionHandler: @escaping ([Node<Item>]) -> Void) -> Bool
+	func loadItems(
+		providers: [NSItemProvider],
+		completionHandler: @escaping ([DocumentNode]) -> Void
+	) -> Bool
 	func loadStrings(providers: [NSItemProvider], completionHandler: @escaping ([String]) -> Void) -> Bool
 	func itemProvider(text: String?, data: Data?) -> NSItemProvider
 	func availableTypes() -> [String]
@@ -27,7 +30,10 @@ final class ContentLoader {
 // MARK: - ContentLoaderProtocol
 extension ContentLoader: ContentLoaderProtocol {
 
-	func loadItems(providers: [NSItemProvider], completionHandler: @escaping ([Node<Item>]) -> Void) -> Bool {
+	func loadItems(
+		providers: [NSItemProvider],
+		completionHandler: @escaping ([DocumentNode]) -> Void
+	) -> Bool {
 
 		let filtered = providers.filter {
 			$0.hasItemConformingToTypeIdentifier(itemType)
@@ -37,7 +43,7 @@ extension ContentLoader: ContentLoaderProtocol {
 			return false
 		}
 
-		var cache: [Int: Node<Item>] = [:]
+		var cache: [Int: DocumentNode] = [:]
 
 		let group = DispatchGroup()
 		let lock = NSLock()
@@ -45,7 +51,7 @@ extension ContentLoader: ContentLoaderProtocol {
 		for (index, provider) in filtered.enumerated() {
 			group.enter()
 			_ = provider.loadDataRepresentation(forTypeIdentifier: itemType) { data, error in
-				if let data, let node = try? JSONDecoder().decode(Node<Item>.self, from: data) {
+				if let data, let node = try? JSONDecoder().decode(DocumentNode.self, from: data) {
 					lock.lock()
 					cache[index] = node
 					lock.unlock()

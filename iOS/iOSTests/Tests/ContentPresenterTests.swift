@@ -83,7 +83,9 @@ extension ContentPresenterTests {
 		let first = Item(text: "First")
 		let second = Item(text: "Second")
 		interactor.stubs.snapshot = Snapshot([
-			Node(value: first, children: [Node(value: second)])
+			DocumentNode(value: first, children: [
+				DocumentNode(value: second, children: [])
+			])
 		])
 
 		// Act
@@ -165,7 +167,9 @@ extension ContentPresenterTests {
 		// Arrange
 		let expectedId = UUID()
 		let item = Item(uuid: expectedId, text: .random, options: .strikethrough)
-		let snapshot = Snapshot([Node(value: item)])
+		let snapshot = Snapshot([
+			DocumentNode(value: item, children: [])
+		])
 		sut.present(snapshot: snapshot)
 
 		// Act
@@ -196,7 +200,9 @@ extension ContentPresenterTests {
 		let child = Item(text: "Child")
 		let item = Item(uuid: expectedId, text: "Parent")
 		interactor.stubs.nodes = [
-			Node(value: item, children: [Node(value: child)])
+			DocumentNode(value: item, children: [
+				DocumentNode(value: child, children: [])
+			])
 		]
 		interactor.stubs.data = expectedData
 
@@ -217,7 +223,9 @@ extension ContentPresenterTests {
 		let expectedId = UUID()
 		let expectedData = Data([4, 5, 6])
 		let item = Item(uuid: expectedId, text: "Cut item")
-		interactor.stubs.nodes = [Node(value: item)]
+		interactor.stubs.nodes = [
+			DocumentNode(value: item, children: [])
+		]
 		interactor.stubs.data = expectedData
 
 		// Act
