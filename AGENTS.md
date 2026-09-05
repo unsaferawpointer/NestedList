@@ -5,6 +5,12 @@
 - Private methods should be placed in a separate extension.
 - When defining a SwiftUI view, View protocol conformance should be implemented in a separate extension.
 
+## Tests
+
+- Tests must follow the Arrange-Act-Assert (AAA) pattern.
+- Test cases must be grouped by functionality or protocol in separate extensions.
+- Test actions and stubs must be placed in the same extension labeled with `// MARK: - Nested data structs`.
+
 ## Analytics
 
 ### User Actions
