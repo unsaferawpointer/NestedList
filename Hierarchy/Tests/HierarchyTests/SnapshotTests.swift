@@ -2,7 +2,7 @@ import Testing
 @testable import Hierarchy
 
 @Test func snapshotBuildsHierarchyAndIndexes() async throws {
-	let snapshot = Snapshot<TestItem>(TestFixtures.nodes)
+	let snapshot = Snapshot<TestItem<String>>(TestFixtures.nodes)
 
 	#expect(snapshot.root == ["root-a", "root-b"])
 	#expect(snapshot.count == 7)
@@ -49,7 +49,7 @@ import Testing
 }
 
 @Test func snapshotWithRootNilReturnsOriginalRoot() async throws {
-	let snapshot = Snapshot<TestItem>(TestFixtures.nodes)
+	let snapshot = Snapshot<TestItem<String>>(TestFixtures.nodes)
 	let result = snapshot.withRoot(parent: nil)
 
 	#expect(result.root == ["root-a", "root-b"])
@@ -60,7 +60,7 @@ import Testing
 }
 
 @Test func snapshotWithRootPromotesParentChildrenAndRenormalizesTree() async throws {
-	let snapshot = Snapshot<TestItem>(TestFixtures.nodes)
+	let snapshot = Snapshot<TestItem<String>>(TestFixtures.nodes)
 	let result = snapshot.withRoot(parent: "root-a")
 
 	#expect(result.root == ["child-a", "child-b"])
@@ -92,7 +92,7 @@ import Testing
 }
 
 @Test func snapshotWithRootForLeafReturnsEmptySnapshot() async throws {
-	let snapshot = Snapshot<TestItem>(TestFixtures.nodes)
+	let snapshot = Snapshot<TestItem<String>>(TestFixtures.nodes)
 	let result = snapshot.withRoot(parent: "child-b")
 
 	#expect(result.root.isEmpty)
@@ -104,7 +104,7 @@ import Testing
 }
 
 @Test func snapshotRemovedIdsRemovesRootNodeWithDescendants() async throws {
-	let snapshot = Snapshot<TestItem>(TestFixtures.nodes)
+	let snapshot = Snapshot<TestItem<String>>(TestFixtures.nodes)
 	let result = snapshot.removed(ids: ["root-a"])
 
 	#expect(result.root == ["root-b"])
@@ -118,7 +118,7 @@ import Testing
 }
 
 @Test func snapshotRemovedIdsRemovesNestedNodeWithDescendants() async throws {
-	let snapshot = Snapshot<TestItem>(TestFixtures.nodes)
+	let snapshot = Snapshot<TestItem<String>>(TestFixtures.nodes)
 	let result = snapshot.removed(ids: ["child-a"])
 
 	#expect(result.root == ["root-a", "root-b"])
@@ -134,7 +134,7 @@ import Testing
 }
 
 @Test func snapshotRemovedIdsIgnoresUnknownIds() async throws {
-	let snapshot = Snapshot<TestItem>(TestFixtures.nodes)
+	let snapshot = Snapshot<TestItem<String>>(TestFixtures.nodes)
 	let result = snapshot.removed(ids: ["missing"])
 
 	#expect(result.root == snapshot.root)
@@ -146,7 +146,7 @@ import Testing
 }
 
 @Test func snapshotInsertedModelsInsertsIntoRootAndRenormalizesTree() async throws {
-	let snapshot = Snapshot<TestItem>(TestFixtures.nodes)
+	let snapshot = Snapshot<TestItem<String>>(TestFixtures.nodes)
 	let result = snapshot.inserted(
 		models: [
 			TestItem(id: "root-c"),
@@ -169,7 +169,7 @@ import Testing
 }
 
 @Test func snapshotInsertedModelsInsertsIntoItemAndRenormalizesTree() async throws {
-	let snapshot = Snapshot<TestItem>(TestFixtures.nodes)
+	let snapshot = Snapshot<TestItem<String>>(TestFixtures.nodes)
 	let result = snapshot.inserted(
 		models: [
 			TestItem(id: "grandchild-c"),
@@ -191,18 +191,10 @@ import Testing
 	#expect(result.globalIndex(for: "grandchild-b") == 5)
 }
 
-
-private struct TestItem: Hashable {
-	var id: String
-}
-
-// MARK: - MutableIdentifiable
-extension TestItem: MutableIdentifiable { }
-
 // MARK: - Test fixtures
 private enum TestFixtures {
 
-	static let nodes: [Node<TestItem>] = [
+	static let nodes: [Node<TestItem<String>>] = [
 		Node(
 			value: TestItem(id: "root-a"),
 			children: [

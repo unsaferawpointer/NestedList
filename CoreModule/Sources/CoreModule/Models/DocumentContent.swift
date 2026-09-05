@@ -85,7 +85,7 @@ public extension DocumentContent {
 	}
 
 	func invalidTargets(movingItems ids: Set<UUID>) -> Set<UUID> {
-		store.invalidTargets(movingItems: ids)
+		store.descendantIds(including: ids)
 	}
 
 	func deleteItems(_ ids: [UUID]) {

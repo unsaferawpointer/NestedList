@@ -47,6 +47,42 @@ public extension NodeStore {
 	}
 }
 
+// MARK: - NodeStoring
+extension NodeStore: NodeStoring {
+
+	public func insert<S>(_ items: S, at destination: Destination<ID>) where S : Sequence, Value == S.Element {
+		fatalError()
+	}
+	
+	public func moveItems<S>(withIDs ids: S, to destination: Destination<ID>) where S : Sequence, S.Element == Value.ID {
+		fatalError()
+	}
+	
+	public func canMoveItems<S>(withIDs ids: S, to destination: Destination<ID>) -> Bool where S : Sequence, S.Element == Value.ID {
+		fatalError()
+	}
+	
+	public func deleteItems<S>(withIDs ids: S) where S : Sequence, S.Element == Value.ID {
+		fatalError()
+	}
+	
+	public func set<T>(_ keyPath: WritableKeyPath<Value, T>, to value: T, forItemsWithIDs ids: [ID], includingDescendants: Bool) {
+		fatalError()
+	}
+	
+	public var identifiers: Set<ID> {
+		fatalError()
+	}
+	
+	public func parent(of id: ID) -> Value? {
+		fatalError()
+	}
+	
+	public func descendantIDs(including ids: Set<ID>) -> Set<ID> {
+		fatalError()
+	}
+}
+
 // MARK: - Public interface
 public extension NodeStore {
 
@@ -276,6 +312,12 @@ public extension NodeStore {
 		}
 	}
 
+	func deleteItems(where block: (Value) -> Bool) {
+		for node in cache.values where block(node.value) {
+			deleteItem(node.id)
+		}
+	}
+
 	func deleteItem(_ id: ID) {
 		guard let item = cache[id] else {
 			return
@@ -296,7 +338,7 @@ public extension NodeStore {
 // MARK: - Support moving
 public extension NodeStore {
 
-	func invalidTargets(movingItems ids: Set<ID>) -> Set<ID> {
+	func descendantIds(including ids: Set<ID>) -> Set<ID> {
 		var result = Set<ID>()
 
 		for id in ids {

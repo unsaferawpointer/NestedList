@@ -208,13 +208,13 @@ extension NodeStoreTests {
 // MARK: - Moving
 extension NodeStoreTests {
 
-	@Test func invalidTargetsIncludesMovedNodesAndDescendants() async throws {
+	@Test func descendantIdsIncludesMovedNodesAndDescendants() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
 		let root = store.nodes(type: NodeStoreTestNode.self)[0]
 		let child = root.children[0]
 		let grandchild = child.children[0]
 
-		let result = store.invalidTargets(movingItems: Set([child.id]))
+		let result = store.descendantIds(including: Set([child.id]))
 
 		#expect(result == Set([child.id, grandchild.id]))
 		#expect(!result.contains(root.id))
