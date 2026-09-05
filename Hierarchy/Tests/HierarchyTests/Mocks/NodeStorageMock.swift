@@ -26,15 +26,24 @@ extension NodeStorageMock: NodeStoring {
 		return stubs.items[id]
 	}
 
-	func insert<S: Sequence>(_ items: S, at destination: Destination<Value.ID>) where S.Element == Value {
+	func insert<S: Sequence>(
+		_ items: S,
+		at destination: Destination<Value.ID>
+	) throws(NodeStoreError) where S.Element == Value {
 		invocations.append(.insert(items: Array(items), destination: destination))
+		if let insertError = stubs.insertError {
+			throw insertError
+		}
 	}
 
 	func moveItems<S: Sequence>(
 		withIDs ids: S,
 		to destination: Destination<Value.ID>
-	) where S.Element == Value.ID {
+	) throws(NodeStoreError) where S.Element == Value.ID {
 		invocations.append(.moveItems(ids: Array(ids), destination: destination))
+		if let moveItemsError = stubs.moveItemsError {
+			throw moveItemsError
+		}
 	}
 
 	func canMoveItems<S: Sequence>(
@@ -111,5 +120,7 @@ extension NodeStorageMock {
 		var parents: [Value.ID: Value.ID] = [:]
 		var descendants: [Value.ID: Set<Value.ID>] = [:]
 		var canMoveItems = true
+		var insertError: NodeStoreError?
+		var moveItemsError: NodeStoreError?
 	}
 }

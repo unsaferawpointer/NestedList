@@ -137,16 +137,16 @@ extension NodeStoreTests {
 // MARK: - Insertion
 extension NodeStoreTests {
 
-	@Test func insertItemsAddsRootAndNestedItemsToCache() async throws {
+	@Test func insertAddsRootAndNestedItemsToCache() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
 		let root = store.nodes(type: NodeStoreTestNode.self)[0]
 
-		try store.insertItems(with: [
+		try store.insert([
 			NodeStoreTestItem(id: 4, title: "inserted-root")
-		], to: .toRoot)
-		try store.insertItems(with: [
+		], at: .toRoot)
+		try store.insert([
 			NodeStoreTestItem(id: 5, title: "inserted-child")
-		], to: .inItem(with: root.id, atIndex: 0))
+		], at: .inItem(with: root.id, atIndex: 0))
 
 		let nodes = store.nodes(type: NodeStoreTestNode.self)
 		#expect(nodes.map(\.id) == [1, 4])
@@ -156,12 +156,12 @@ extension NodeStoreTests {
 		#expect(store.parent(for: 5)?.id == root.id)
 	}
 
-	@Test func insertItemsThrowsMissingNodeForMissingDestination() async throws {
+	@Test func insertThrowsMissingNodeForMissingDestination() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
 		let item = NodeStoreTestItem(id: 4, title: "inserted-root")
 
 		do {
-			try store.insertItems(with: [item], to: .onItem(with: 404))
+			try store.insert([item], at: .onItem(with: 404))
 			Issue.record("Expected missing node error")
 		} catch NodeStoreError.missingNode {
 			#expect(store.nodes(type: NodeStoreTestNode.self).map(\.id) == [1])
@@ -171,12 +171,12 @@ extension NodeStoreTests {
 		}
 	}
 
-	@Test func insertItemsThrowsMissingNodeForMissingIndexedDestination() async throws {
+	@Test func insertThrowsMissingNodeForMissingIndexedDestination() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
 		let item = NodeStoreTestItem(id: 4, title: "inserted-root")
 
 		do {
-			try store.insertItems(with: [item], to: .inItem(with: 404, atIndex: 0))
+			try store.insert([item], at: .inItem(with: 404, atIndex: 0))
 			Issue.record("Expected missing node error")
 		} catch NodeStoreError.missingNode {
 			#expect(store.nodes(type: NodeStoreTestNode.self).map(\.id) == [1])
@@ -190,13 +190,13 @@ extension NodeStoreTests {
 // MARK: - Deletion
 extension NodeStoreTests {
 
-	@Test func deleteItemRemovesNodeAndDescendantsFromCache() async throws {
+	@Test func deleteItemsRemovesNodeAndDescendantsFromCache() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
 		let root = store.nodes(type: NodeStoreTestNode.self)[0]
 		let child = root.children[0]
 		let grandchild = child.children[0]
 
-		store.deleteItem(child.id)
+		store.deleteItems(withIDs: [child.id])
 
 		#expect(store.nodes(type: NodeStoreTestNode.self)[0].children.isEmpty)
 		#expect(store[child.id] == nil)
@@ -237,7 +237,7 @@ extension NodeStoreTests {
 		let child = root.children[0]
 		let grandchild = child.children[0]
 
-		try store.moveItems(with: [child.id], to: .toRoot)
+		try store.moveItems(withIDs: [child.id], to: .toRoot)
 
 		let nodes = store.nodes(type: NodeStoreTestNode.self)
 		#expect(nodes.map(\.id) == [root.id, child.id])
@@ -253,7 +253,7 @@ extension NodeStoreTests {
 		let child = root.children[0]
 
 		do {
-			try store.moveItems(with: [child.id], to: .onItem(with: 404))
+			try store.moveItems(withIDs: [child.id], to: .onItem(with: 404))
 			Issue.record("Expected missing node error")
 		} catch NodeStoreError.missingNode {
 			let nodes = store.nodes(type: NodeStoreTestNode.self)

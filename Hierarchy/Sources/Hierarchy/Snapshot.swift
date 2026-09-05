@@ -138,7 +138,7 @@ public extension Snapshot where Model.ID: RandomizableIdentifier, Model: Mutable
 	/// - Returns: A snapshot containing the inserted models.
 	func inserted(models: [Model], to destination: Destination<ID>) -> Snapshot {
 		let store = NodeStore<Model>(hierarchy: getNodes())
-		try? store.insertItems(with: models, to: destination)
+		try? store.insert(models, at: destination)
 		return store.snapshot()
 	}
 }

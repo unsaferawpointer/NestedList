@@ -49,7 +49,7 @@ public extension DocumentContent {
 	}
 
 	func insertItems(with contents: [Item], to destination: Destination<UUID>) throws {
-		try store.insertItems(with: contents, to: destination)
+		try store.insert(contents, at: destination)
 	}
 
 	func insertItems(from data: [any TreeNode<Item>], to destination: Destination<UUID>) throws {
@@ -61,7 +61,7 @@ public extension DocumentContent {
 	}
 
 	func moveItems(with ids: [UUID], to destination: Destination<UUID>) throws {
-		try store.moveItems(with: ids, to: destination)
+		try store.moveItems(withIDs: ids, to: destination)
 	}
 
 	func validateMovingForward(id: UUID) -> Bool {
@@ -85,15 +85,18 @@ public extension DocumentContent {
 	}
 
 	func invalidTargets(movingItems ids: Set<UUID>) -> Set<UUID> {
-		store.descendantIds(including: ids)
+		store.descendantIDs(including: ids)
 	}
 
 	func deleteItems(_ ids: [UUID]) {
-		store.deleteItems(ids)
+		store.deleteItems(withIDs: ids)
 	}
 
 	func parent(for id: UUID?) -> Item? {
-		store.parent(for: id)
+		guard let id else {
+			return nil
+		}
+		return store.parent(of: id)
 	}
 
 	func setProperty<T>(

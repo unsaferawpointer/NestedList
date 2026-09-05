@@ -3,6 +3,183 @@ import Testing
 
 struct MirrorStoreTests { }
 
+// MARK: - Reading
+extension MirrorStoreTests {
+
+	@Test
+	func subscriptReturnsOriginalItem() {
+		// Arrange
+		let base = NodeStorageMock<Container<TestItem<String>>>()
+		base.stubs.items = [
+			"A": .item(value: TestItem(id: "A", title: "Original"))
+		]
+		let store = MirrorStore<TestItem<String>>(base: base)
+
+		// Act
+		let result = store["A"]
+
+		// Assert
+		#expect(result == TestItem(id: "A", title: "Original"))
+	}
+
+	@Test
+	func subscriptReturnsOriginalItemThroughMirror() {
+		// Arrange
+		let base = NodeStorageMock<Container<TestItem<String>>>()
+		base.stubs.items = [
+			"A": .item(value: TestItem(id: "A", title: "Original")),
+			"M(A)": .mirror(id: "M(A)", reference: "A")
+		]
+		let store = MirrorStore<TestItem<String>>(base: base)
+
+		// Act
+		let result = store["M(A)"]
+
+		// Assert
+		#expect(result == TestItem(id: "A", title: "Original"))
+	}
+
+	@Test
+	func subscriptReturnsNilForMissingItem() {
+		// Arrange
+		let base = NodeStorageMock<Container<TestItem<String>>>()
+		let store = MirrorStore<TestItem<String>>(base: base)
+
+		// Act
+		let result = store["missing"]
+
+		// Assert
+		#expect(result == nil)
+	}
+
+	@Test
+	func identifiersReturnsBaseIdentifiers() {
+		// Arrange
+		let base = NodeStorageMock<Container<TestItem<String>>>()
+		base.stubs.items = [
+			"A": .item(value: TestItem(id: "A")),
+			"M(A)": .mirror(id: "M(A)", reference: "A")
+		]
+		let store = MirrorStore<TestItem<String>>(base: base)
+
+		// Act
+		let result = store.identifiers
+
+		// Assert
+		#expect(result == Set(["A", "M(A)"]))
+		#expect(base.invocations == [.identifiers])
+	}
+
+	@Test
+	func descendantIDsReturnsBaseDescendantIDs() {
+		// Arrange
+		let base = NodeStorageMock<Container<TestItem<String>>>()
+		base.stubs.descendants = ["A": ["A", "B"]]
+		let store = MirrorStore<TestItem<String>>(base: base)
+
+		// Act
+		let result = store.descendantIDs(including: ["A"])
+
+		// Assert
+		#expect(result == Set(["A", "B"]))
+		#expect(base.invocations == [.descendantIDs(ids: ["A"])])
+	}
+}
+
+// MARK: - Insertion
+extension MirrorStoreTests {
+
+	@Test
+	func insertWrapsItemsAndDelegatesToBase() throws {
+		// Arrange
+		let base = NodeStorageMock<Container<TestItem<String>>>()
+		let store = MirrorStore<TestItem<String>>(base: base)
+		let items = [
+			TestItem(id: "A", title: "First"),
+			TestItem(id: "B", title: "Second")
+		]
+
+		// Act
+		try store.insert(items, at: .inRoot(atIndex: 1))
+
+		// Assert
+		#expect(base.invocations == [
+			.insert(
+				items: items.map { .item(value: $0) },
+				destination: .inRoot(atIndex: 1)
+			)
+		])
+	}
+
+	@Test
+	func insertPropagatesBaseError() {
+		// Arrange
+		let base = NodeStorageMock<Container<TestItem<String>>>()
+		base.stubs.insertError = .missingNode
+		let store = MirrorStore<TestItem<String>>(base: base)
+
+		// Act and Assert
+		do {
+			try store.insert([TestItem(id: "A")], at: .onItem(with: "missing"))
+			Issue.record("Expected missing node error")
+		} catch NodeStoreError.missingNode {
+			#expect(base.invocations == [
+				.insert(
+					items: [.item(value: TestItem(id: "A"))],
+					destination: .onItem(with: "missing")
+				)
+			])
+		} catch {
+			Issue.record("Expected missing node error")
+		}
+	}
+
+	@Test
+	func insertMirrorCreatesMirrorsAndReturnsTheirIdentifiers() throws {
+		// Arrange
+		let base = NodeStorageMock<Container<TestItem<String>>>()
+		let store = MirrorStore<TestItem<String>>(base: base)
+
+		// Act
+		let result = try store.insertMirror(
+			for: ["A", "B"],
+			to: .inItem(with: "C", atIndex: 2)
+		)
+
+		// Assert
+		guard case let .insert(items, destination) = base.invocations.first else {
+			Issue.record("Expected insert invocation")
+			return
+		}
+		#expect(destination == .inItem(with: "C", atIndex: 2))
+		#expect(items.map(\.id) == result)
+		#expect(items.map(\.reference) == ["A", "B"])
+	}
+
+	@Test
+	func insertMirrorPropagatesBaseError() {
+		// Arrange
+		let base = NodeStorageMock<Container<TestItem<String>>>()
+		base.stubs.insertError = .missingNode
+		let store = MirrorStore<TestItem<String>>(base: base)
+
+		// Act and Assert
+		do {
+			_ = try store.insertMirror(for: ["A"], to: .onItem(with: "missing"))
+			Issue.record("Expected missing node error")
+		} catch NodeStoreError.missingNode {
+			guard case let .insert(items, destination) = base.invocations.first else {
+				Issue.record("Expected insert invocation")
+				return
+			}
+			#expect(destination == .onItem(with: "missing"))
+			#expect(items.map(\.reference) == ["A"])
+		} catch {
+			Issue.record("Expected missing node error")
+		}
+	}
+}
+
 // MARK: - Moving
 extension MirrorStoreTests {
 
@@ -265,7 +442,7 @@ extension MirrorStoreTests {
 	/// move M1(A) → B
 	/// ```
 	@Test
-	func moveItemsMovesOnlySelectedMirror() {
+	func moveItemsMovesOnlySelectedMirror() throws {
 		// Arrange
 		let base = NodeStorageMock<Container<TestItem<String>>>()
 		base.stubs.items = [
@@ -278,7 +455,7 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		store.moveItems(withIDs: Set(["M1(A)"]), to: .onItem(with: "B"))
+		try store.moveItems(withIDs: Set(["M1(A)"]), to: .onItem(with: "B"))
 
 		// Assert
 		let moves = base.invocations.filter { action in
@@ -304,7 +481,7 @@ extension MirrorStoreTests {
 	/// move A → C
 	/// ```
 	@Test
-	func moveItemsMovesOriginalWithoutMovingExternalMirror() {
+	func moveItemsMovesOriginalWithoutMovingExternalMirror() throws {
 		// Arrange
 		let base = NodeStorageMock<Container<TestItem<String>>>()
 		base.stubs.items = [
@@ -318,7 +495,7 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		store.moveItems(withIDs: ["A"], to: .onItem(with: "C"))
+		try store.moveItems(withIDs: ["A"], to: .onItem(with: "C"))
 
 		// Assert
 		let moves = base.invocations.filter { action in
@@ -343,7 +520,7 @@ extension MirrorStoreTests {
 	/// move M(A) → B
 	/// ```
 	@Test
-	func moveItemsDoesNotDelegateInvalidMove() {
+	func moveItemsDoesNotDelegateInvalidMove() throws {
 		// Arrange
 		let base = NodeStorageMock<Container<TestItem<String>>>()
 		base.stubs.items = [
@@ -356,7 +533,7 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		store.moveItems(withIDs: ["M(A)"], to: .onItem(with: "B"))
+		try store.moveItems(withIDs: ["M(A)"], to: .onItem(with: "B"))
 
 		// Assert
 		let moves = base.invocations.filter { action in
@@ -377,7 +554,7 @@ extension MirrorStoreTests {
 	/// move A → B
 	/// ```
 	@Test
-	func moveItemsDoesNotDelegateWhenBaseRejectsMove() {
+	func moveItemsDoesNotDelegateWhenBaseRejectsMove() throws {
 		// Arrange
 		let base = NodeStorageMock<Container<TestItem<String>>>()
 		base.stubs.items = [
@@ -389,7 +566,7 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		store.moveItems(withIDs: ["A"], to: .onItem(with: "B"))
+		try store.moveItems(withIDs: ["A"], to: .onItem(with: "B"))
 
 		// Assert
 		let moves = base.invocations.filter { action in
@@ -413,7 +590,7 @@ extension MirrorStoreTests {
 	/// move M(A) → root
 	/// ```
 	@Test
-	func moveItemsDelegatesValidMoveToRoot() {
+	func moveItemsDelegatesValidMoveToRoot() throws {
 		// Arrange
 		let base = NodeStorageMock<Container<TestItem<String>>>()
 		base.stubs.items = [
@@ -424,7 +601,7 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		store.moveItems(withIDs: Set(["M(A)"]), to: .toRoot)
+		try store.moveItems(withIDs: Set(["M(A)"]), to: .toRoot)
 
 		// Assert
 		let moves = base.invocations.filter { action in
@@ -436,6 +613,31 @@ extension MirrorStoreTests {
 		#expect(moves == [
 			.moveItems(ids: ["M(A)"], destination: .toRoot)
 		])
+	}
+
+	@Test
+	func moveItemsPropagatesBaseError() {
+		// Arrange
+		let base = NodeStorageMock<Container<TestItem<String>>>()
+		base.stubs.items = [
+			"A": .item(value: TestItem(id: "A")),
+			"B": .item(value: TestItem(id: "B"))
+		]
+		base.stubs.descendants = ["A": ["A"]]
+		base.stubs.moveItemsError = .missingNode
+		let store = MirrorStore<TestItem<String>>(base: base)
+
+		// Act and Assert
+		do {
+			try store.moveItems(withIDs: ["A"], to: .onItem(with: "B"))
+			Issue.record("Expected missing node error")
+		} catch NodeStoreError.missingNode {
+			#expect(base.invocations.contains(
+				.moveItems(ids: ["A"], destination: .onItem(with: "B"))
+			))
+		} catch {
+			Issue.record("Expected missing node error")
+		}
 	}
 }
 

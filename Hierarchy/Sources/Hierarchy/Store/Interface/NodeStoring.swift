@@ -13,9 +13,15 @@ public protocol NodeStoring<Value> {
 
 	typealias ID = Value.ID
 
-	func insert<S: Sequence>(_ items: S, at destination: Destination<ID>) where S.Element == Value
+	func insert<S: Sequence>(
+		_ items: S,
+		at destination: Destination<ID>
+	) throws(NodeStoreError) where S.Element == Value
 
-	func moveItems<S: Sequence>(withIDs ids: S, to destination: Destination<ID>) where S.Element == ID
+	func moveItems<S: Sequence>(
+		withIDs ids: S,
+		to destination: Destination<ID>
+	) throws(NodeStoreError) where S.Element == ID
 
 	func canMoveItems<S: Sequence>(withIDs ids: S, to destination: Destination<ID>) -> Bool where S.Element == ID
 

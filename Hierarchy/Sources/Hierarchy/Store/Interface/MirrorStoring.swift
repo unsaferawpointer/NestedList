@@ -9,5 +9,8 @@ public protocol MirrorStoring<Value>: NodeStoring {
 
 	associatedtype Value
 
-	func insertMirror(for ids: [Value.ID], to destination: Destination<Value.ID>) -> [Value.ID]
+	func insertMirror(
+		for ids: [Value.ID],
+		to destination: Destination<Value.ID>
+	) throws(NodeStoreError) -> [Value.ID]
 }

@@ -50,12 +50,38 @@ public extension NodeStore {
 // MARK: - NodeStoring
 extension NodeStore: NodeStoring {
 
-	public func insert<S>(_ items: S, at destination: Destination<ID>) where S : Sequence, Value == S.Element {
-		fatalError()
+	public func insert<S>(
+		_ items: S,
+		at destination: Destination<ID>
+	) throws(NodeStoreError) where S : Sequence, Value == S.Element {
+		let newNodes = items.map { Node(value: $0) }
+		try insertNodes(newNodes, to: destination)
 	}
 	
-	public func moveItems<S>(withIDs ids: S, to destination: Destination<ID>) where S : Sequence, S.Element == Value.ID {
-		fatalError()
+	public func moveItems<S>(
+		withIDs ids: S,
+		to destination: Destination<ID>
+	) throws(NodeStoreError) where S : Sequence, S.Element == Value.ID {
+		let moved = ids.compactMap {
+			cache[$0]
+		}
+
+		switch destination {
+		case .toRoot:
+			move(moved, to: nil)
+		case let .inRoot(index):
+			moveToRoot(moved, at: index)
+		case let .onItem(id):
+			guard let target = cache[id] else {
+				throw .missingNode
+			}
+			move(moved, to: target)
+		case let .inItem(id, index):
+			guard let target = cache[id] else {
+				throw .missingNode
+			}
+			move(moved, toOther: target, at: index)
+		}
 	}
 	
 	public func canMoveItems<S>(withIDs ids: S, to destination: Destination<ID>) -> Bool where S : Sequence, S.Element == Value.ID {
@@ -63,7 +89,7 @@ extension NodeStore: NodeStoring {
 	}
 	
 	public func deleteItems<S>(withIDs ids: S) where S : Sequence, S.Element == Value.ID {
-		fatalError()
+		ids.forEach { deleteItem($0) }
 	}
 	
 	public func set<T>(_ keyPath: WritableKeyPath<Value, T>, to value: T, forItemsWithIDs ids: [ID], includingDescendants: Bool) {
@@ -71,15 +97,30 @@ extension NodeStore: NodeStoring {
 	}
 	
 	public var identifiers: Set<ID> {
-		fatalError()
+		return Set(cache.keys)
 	}
-	
+
+	/// Returns the parent value for the node with the specified identifier.
+	///
+	/// Returns `nil` when the identifier is `nil`, the node is not found, or the node is a root node.
+	///
+	/// - Parameter id: The identifier of the node whose parent should be returned.
+	/// - Returns: The parent node's value, or `nil` when no parent is available.
 	public func parent(of id: ID) -> Value? {
-		fatalError()
+		return cache[id]?.parent?.value
 	}
 	
 	public func descendantIDs(including ids: Set<ID>) -> Set<ID> {
-		fatalError()
+		var result = Set<ID>()
+		for id in ids {
+			guard let node = cache[id] else {
+				continue
+			}
+			enumerate([node]) { node in
+				result.insert(node.id)
+			}
+		}
+		return result
 	}
 }
 
@@ -111,19 +152,6 @@ public extension NodeStore {
 	/// Returns `true` when every leaf node in the store has a value equal to the given value at the specified key path.
 	func allMatch<T: Equatable>(_ keyPath: KeyPath<Value, T>, equalsTo value: T) -> Bool {
 		return allMatch(in: nodes, keyPath: keyPath, equalsTo: value)
-	}
-
-	/// Returns the parent value for the node with the specified identifier.
-	///
-	/// Returns `nil` when the identifier is `nil`, the node is not found, or the node is a root node.
-	///
-	/// - Parameter id: The identifier of the node whose parent should be returned.
-	/// - Returns: The parent node's value, or `nil` when no parent is available.
-	func parent(for id: ID?) -> Value? {
-		guard let id else {
-			return nil
-		}
-		return cache[id]?.parent?.value
 	}
 
 	/// Copies the selected nodes with their descendants and inserts them at the destination.
@@ -266,11 +294,6 @@ private extension NodeStore {
 // MARK: - Insertion
 extension NodeStore {
 
-	public func insertItems(with contents: [Value], to destination: Destination<ID>) throws(NodeStoreError) {
-		let newNodes = contents.map { Node(value: $0) }
-		try insertNodes(newNodes, to: destination)
-	}
-
 	public func insertItems(
 		from data: [any TreeNode<Value>],
 		to destination: Destination<Value.ID>
@@ -304,19 +327,7 @@ extension NodeStore {
 }
 
 // MARK: - Deletion
-public extension NodeStore {
-
-	func deleteItems(_ ids: [ID]) {
-		for id in ids {
-			deleteItem(id)
-		}
-	}
-
-	func deleteItems(where block: (Value) -> Bool) {
-		for node in cache.values where block(node.value) {
-			deleteItem(node.id)
-		}
-	}
+private extension NodeStore {
 
 	func deleteItem(_ id: ID) {
 		guard let item = cache[id] else {
@@ -338,21 +349,6 @@ public extension NodeStore {
 // MARK: - Support moving
 public extension NodeStore {
 
-	func descendantIds(including ids: Set<ID>) -> Set<ID> {
-		var result = Set<ID>()
-
-		for id in ids {
-			guard let node = cache[id] else {
-				continue
-			}
-			enumerate([node]) { node in
-				result.insert(node.id)
-			}
-		}
-
-		return result
-	}
-
 	func validateMoving(_ ids: [ID], to destination: Destination<ID>) -> Bool {
 		guard let targetId = destination.id, let item = cache[targetId] else {
 			return true
@@ -370,29 +366,6 @@ public extension NodeStore {
 		return intersection.isEmpty
 	}
 
-	func moveItems(with ids: [ID], to destination: Destination<ID>) throws(NodeStoreError) {
-		let moved = ids.compactMap {
-			cache[$0]
-		}
-
-		switch destination {
-		case .toRoot:
-			move(moved, to: nil)
-		case let .inRoot(index):
-			moveToRoot(moved, at: index)
-		case let .onItem(id):
-			guard let target = cache[id] else {
-				throw .missingNode
-			}
-			move(moved, to: target)
-		case let .inItem(id, index):
-			guard let target = cache[id] else {
-				throw .missingNode
-			}
-			move(moved, toOther: target, at: index)
-		}
-	}
-
 	func moveToEnd(_ ids: [ID]) throws(NodeStoreError) {
 		let moved = ids.compactMap {
 			cache[$0]
@@ -404,10 +377,10 @@ public extension NodeStore {
 
 		for (container, items) in grouped {
 			guard let container else {
-				try moveItems(with: items.map(\.id), to: .toRoot)
+				try moveItems(withIDs: items.map(\.id), to: .toRoot)
 				continue
 			}
-			try moveItems(with: items.map(\.id), to: .onItem(with: container.id))
+			try moveItems(withIDs: items.map(\.id), to: .onItem(with: container.id))
 		}
 	}
 
@@ -422,10 +395,10 @@ public extension NodeStore {
 
 		for (container, items) in grouped {
 			guard let container else {
-				try moveItems(with: items.map(\.id), to: .inRoot(atIndex: 0))
+				try moveItems(withIDs: items.map(\.id), to: .inRoot(atIndex: 0))
 				continue
 			}
-			try moveItems(with: items.map(\.id), to: .inItem(with: container.id, atIndex: 0))
+			try moveItems(withIDs: items.map(\.id), to: .inItem(with: container.id, atIndex: 0))
 		}
 	}
 
@@ -479,7 +452,7 @@ public extension NodeStore {
 		}
 
 		let destination = Destination(target: target, index: nextIndex)
-		try moveItems(with: [id], to: destination)
+		try moveItems(withIDs: [id], to: destination)
 	}
 
 	func validateMovingBackward(_ id: ID) -> Bool {
@@ -510,7 +483,7 @@ public extension NodeStore {
 		}
 
 		let destination = Destination<ID>(target: target, index: nextIndex)
-		try moveItems(with: [id], to: destination)
+		try moveItems(withIDs: [id], to: destination)
 	}
 }
 

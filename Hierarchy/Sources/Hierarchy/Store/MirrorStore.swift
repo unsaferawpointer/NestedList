@@ -41,8 +41,11 @@ extension MirrorStore: NodeStoring {
 		base.descendantIDs(including: ids)
 	}
 
-	public func insert<S: Sequence>(_ items: S, at destination: Destination<Value.ID>) where S.Element == Value {
-		base.insert(
+	public func insert<S: Sequence>(
+		_ items: S,
+		at destination: Destination<Value.ID>
+	) throws(NodeStoreError) where S.Element == Value {
+		try base.insert(
 			items.lazy.map {
 				.item(value: $0)
 			},
@@ -53,11 +56,11 @@ extension MirrorStore: NodeStoring {
 	public func moveItems<S: Sequence>(
 		withIDs ids: S,
 		to destination: Destination<Value.ID>
-	) where S.Element == Value.ID {
+	) throws(NodeStoreError) where S.Element == Value.ID {
 		guard canMoveItems(withIDs: ids, to: destination) else {
 			return
 		}
-		base.moveItems(withIDs: ids, to: destination)
+		try base.moveItems(withIDs: ids, to: destination)
 	}
 
 	public func canMoveItems<S: Sequence>(
@@ -152,11 +155,14 @@ extension MirrorStore: NodeStoring {
 // MARK: - MirrorStoring
 extension MirrorStore: MirrorStoring {
 
-	public func insertMirror(for ids: [Value.ID], to destination: Destination<Value.ID>) -> [Value.ID] {
+	public func insertMirror(
+		for ids: [Value.ID],
+		to destination: Destination<Value.ID>
+	) throws(NodeStoreError) -> [Value.ID] {
 		let inserted: [Container<Value>] = ids.compactMap {
 			.mirror(id: Value.ID.random(), reference: $0)
 		}
-		base.insert(inserted, at: destination)
+		try base.insert(inserted, at: destination)
 		return inserted.map(\.id)
 	}
 }
