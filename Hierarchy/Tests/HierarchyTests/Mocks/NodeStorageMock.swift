@@ -84,12 +84,9 @@ extension NodeStorageMock: NodeStoring {
 		}
 	}
 
-	func parent(of id: Value.ID) -> Value? {
+	func parent(of id: Value.ID) -> Value.ID? {
 		invocations.append(.parent(id: id))
-		guard let parentID = stubs.parents[id] else {
-			return nil
-		}
-		return stubs.items[parentID]
+		return stubs.parents[id]
 	}
 
 	func descendantIDs(including ids: Set<Value.ID>) -> Set<Value.ID> {
@@ -100,7 +97,7 @@ extension NodeStorageMock: NodeStoring {
 	}
 }
 
-// MARK: - Nested Data Structs
+// MARK: - Nested data structs
 extension NodeStorageMock {
 
 	enum Action: Equatable {

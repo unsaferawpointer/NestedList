@@ -100,14 +100,8 @@ extension NodeStore: NodeStoring {
 		return Set(cache.keys)
 	}
 
-	/// Returns the parent value for the node with the specified identifier.
-	///
-	/// Returns `nil` when the identifier is `nil`, the node is not found, or the node is a root node.
-	///
-	/// - Parameter id: The identifier of the node whose parent should be returned.
-	/// - Returns: The parent node's value, or `nil` when no parent is available.
-	public func parent(of id: ID) -> Value? {
-		return cache[id]?.parent?.value
+	public func parent(of id: ID) -> ID? {
+		return cache[id]?.parent?.id
 	}
 	
 	public func descendantIDs(including ids: Set<ID>) -> Set<ID> {

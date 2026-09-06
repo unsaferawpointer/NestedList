@@ -36,7 +36,13 @@ public protocol NodeStoring<Value> {
 
 	var identifiers: Set<ID> { get }
 
-	func parent(of id: ID) -> Value?
+	/// Returns the parent identifier for the node with the specified identifier.
+	///
+	/// Returns `nil` when the node is not found or the node is a root node.
+	///
+	/// - Parameter id: The identifier of the node whose parent should be returned.
+	/// - Returns: The parent node's identifier, or `nil` when no parent is available.
+	func parent(of id: ID) -> ID?
 
 	func descendantIDs(including ids: Set<ID>) -> Set<ID>
 

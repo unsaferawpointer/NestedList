@@ -84,6 +84,21 @@ extension MirrorStoreTests {
 		#expect(result == Set(["A", "B"]))
 		#expect(base.invocations == [.descendantIDs(ids: ["A"])])
 	}
+
+	@Test
+	func parentReturnsBaseParentIdentifier() {
+		// Arrange
+		let base = NodeStorageMock<Container<TestItem<String>>>()
+		base.stubs.parents = ["B": "A"]
+		let store = MirrorStore<TestItem<String>>(base: base)
+
+		// Act
+		let result = store.parent(of: "B")
+
+		// Assert
+		#expect(result == "A")
+		#expect(base.invocations == [.parent(id: "B")])
+	}
 }
 
 // MARK: - Insertion

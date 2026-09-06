@@ -33,8 +33,8 @@ extension MirrorStore: NodeStoring {
 		item(with: id)
 	}
 
-	public func parent(of id: Value.ID) -> Value? {
-		fatalError()
+	public func parent(of id: Value.ID) -> Value.ID? {
+		base.parent(of: id)
 	}
 
 	public func descendantIDs(including ids: Set<Value.ID>) -> Set<Value.ID> {
@@ -87,7 +87,7 @@ extension MirrorStore: NodeStoring {
 			guard ancestorIDs.insert(id).inserted else {
 				return false
 			}
-			currentID = base.parent(of: id)?.id
+			currentID = base.parent(of: id)
 		}
 
 		let movedIDs = base.descendantIDs(including: Set(identifiers))

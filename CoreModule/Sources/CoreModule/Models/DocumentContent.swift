@@ -92,7 +92,7 @@ public extension DocumentContent {
 		store.deleteItems(withIDs: ids)
 	}
 
-	func parent(for id: UUID?) -> Item? {
+	func parent(for id: UUID?) -> UUID? {
 		guard let id else {
 			return nil
 		}

@@ -33,7 +33,7 @@ final class ReorderViewModel {
 		storage: DocumentStorage<DocumentContent>,
 		analytics: any ConcreteAnalyticsServiceProtocol<ReorderAnalyticsEvent>
 	) {
-		self.parent = storage.state.parent(for: item)?.id
+		self.parent = storage.state.parent(for: item)
 		self.storage = storage
 		self.analytics = analytics
 
