@@ -7,11 +7,7 @@
 
 import Foundation
 
-public protocol NodeStoring<Value> {
-
-	associatedtype Value: Identifiable
-
-	typealias ID = Value.ID
+public protocol NodeStoring<Value>: NodeReading where Value: Identifiable {
 
 	func insert<S: Sequence>(
 		_ items: S,
@@ -33,20 +29,4 @@ public protocol NodeStoring<Value> {
 		forItemsWithIDs ids: [ID],
 		includingDescendants: Bool
 	)
-
-	var identifiers: Set<ID> { get }
-
-	/// Returns the parent identifier for the node with the specified identifier.
-	///
-	/// Returns `nil` when the node is not found or the node is a root node.
-	///
-	/// - Parameter id: The identifier of the node whose parent should be returned.
-	/// - Returns: The parent node's identifier, or `nil` when no parent is available.
-	func parent(of id: ID) -> ID?
-
-	func descendantIDs(including ids: Set<ID>) -> Set<ID>
-
-	// MARK: - Subscripts
-
-	subscript(id: Value.ID) -> Value? { get }
 }

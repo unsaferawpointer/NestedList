@@ -16,16 +16,6 @@ final class NodeStorageMock<Value: Identifiable & Equatable> where Value.ID: Has
 // MARK: - NodeStoring
 extension NodeStorageMock: NodeStoring {
 
-	var identifiers: Set<Value.ID> {
-		invocations.append(.identifiers)
-		return Set(stubs.items.keys)
-	}
-
-	subscript(id: Value.ID) -> Value? {
-		invocations.append(.item(id: id))
-		return stubs.items[id]
-	}
-
 	func insert<S: Sequence>(
 		_ items: S,
 		at destination: Destination<Value.ID>
@@ -84,6 +74,16 @@ extension NodeStorageMock: NodeStoring {
 		}
 	}
 
+}
+
+// MARK: - NodeReading
+extension NodeStorageMock: NodeReading {
+
+	var identifiers: Set<Value.ID> {
+		invocations.append(.identifiers)
+		return Set(stubs.items.keys)
+	}
+
 	func parent(of id: Value.ID) -> Value.ID? {
 		invocations.append(.parent(id: id))
 		return stubs.parents[id]
@@ -94,6 +94,11 @@ extension NodeStorageMock: NodeStoring {
 		return ids.reduce(into: Set<Value.ID>()) { result, id in
 			result.formUnion(stubs.descendants[id] ?? [id])
 		}
+	}
+
+	subscript(id: Value.ID) -> Value? {
+		invocations.append(.item(id: id))
+		return stubs.items[id]
 	}
 }
 

@@ -3,7 +3,7 @@ import Testing
 
 struct MirrorStoreTests { }
 
-// MARK: - Reading
+// MARK: - NodeReading
 extension MirrorStoreTests {
 
 	@Test

@@ -116,8 +116,32 @@ extension NodeStoreTests {
 	}
 }
 
-// MARK: - Parent lookup
+// MARK: - NodeReading
 extension NodeStoreTests {
+
+	@Test func identifiersReturnsAllNodeIdentifiers() async throws {
+		// Arrange
+		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
+
+		// Act
+		let result = store.identifiers
+
+		// Assert
+		#expect(result == Set([1, 2, 3]))
+	}
+
+	@Test func subscriptReturnsStoredValueOrNilForMissingNode() async throws {
+		// Arrange
+		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
+
+		// Act
+		let storedValue = store[2]
+		let missingValue = store[404]
+
+		// Assert
+		#expect(storedValue == NodeStoreTestItem(id: 2, title: "child"))
+		#expect(missingValue == nil)
+	}
 
 	@Test func parentReturnsParentIdentifierForNestedNode() async throws {
 		// Arrange
@@ -135,6 +159,21 @@ extension NodeStoreTests {
 		#expect(rootParent == nil)
 		#expect(childParent == root.id)
 		#expect(grandchildParent == child.id)
+	}
+
+	@Test func descendantIDsIncludesRequestedNodesAndDescendants() async throws {
+		// Arrange
+		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
+		let root = store.nodes(type: NodeStoreTestNode.self)[0]
+		let child = root.children[0]
+		let grandchild = child.children[0]
+
+		// Act
+		let result = store.descendantIDs(including: Set([child.id]))
+
+		// Assert
+		#expect(result == Set([child.id, grandchild.id]))
+		#expect(!result.contains(root.id))
 	}
 }
 
@@ -211,18 +250,6 @@ extension NodeStoreTests {
 
 // MARK: - Moving
 extension NodeStoreTests {
-
-	@Test func descendantIDsIncludesMovedNodesAndDescendants() async throws {
-		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
-		let root = store.nodes(type: NodeStoreTestNode.self)[0]
-		let child = root.children[0]
-		let grandchild = child.children[0]
-
-		let result = store.descendantIDs(including: Set([child.id]))
-
-		#expect(result == Set([child.id, grandchild.id]))
-		#expect(!result.contains(root.id))
-	}
 
 	@Test func validateMovingRejectsMovingNodeIntoDescendant() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])

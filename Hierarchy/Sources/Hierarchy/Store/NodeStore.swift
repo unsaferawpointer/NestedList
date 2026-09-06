@@ -29,16 +29,6 @@ public final class NodeStore<Value: MutableIdentifiable & Hashable> where Value.
 	public init() { }
 }
 
-// MARK: - Subscripts
-public extension NodeStore {
-
-	subscript(_ id: ID) -> Value? {
-		get {
-			cache[id]?.value
-		}
-	}
-}
-
 // MARK: - Snapshot Support
 public extension NodeStore {
 
@@ -95,7 +85,11 @@ extension NodeStore: NodeStoring {
 	public func set<T>(_ keyPath: WritableKeyPath<Value, T>, to value: T, forItemsWithIDs ids: [ID], includingDescendants: Bool) {
 		fatalError()
 	}
-	
+}
+
+// MARK: - NodeReading
+extension NodeStore: NodeReading {
+
 	public var identifiers: Set<ID> {
 		return Set(cache.keys)
 	}
@@ -103,7 +97,7 @@ extension NodeStore: NodeStoring {
 	public func parent(of id: ID) -> ID? {
 		return cache[id]?.parent?.id
 	}
-	
+
 	public func descendantIDs(including ids: Set<ID>) -> Set<ID> {
 		var result = Set<ID>()
 		for id in ids {
@@ -115,6 +109,12 @@ extension NodeStore: NodeStoring {
 			}
 		}
 		return result
+	}
+
+	public subscript(_ id: ID) -> Value? {
+		get {
+			cache[id]?.value
+		}
 	}
 }
 
