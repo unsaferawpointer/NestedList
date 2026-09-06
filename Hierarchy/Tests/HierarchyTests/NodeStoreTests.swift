@@ -180,6 +180,30 @@ extension NodeStoreTests {
 // MARK: - Insertion
 extension NodeStoreTests {
 
+	@Test func insertRegeneratesIdentifierUntilItIsUnique() async throws {
+		// Arrange
+		NodeStoreCollisionIdentifier.generatedIdentifiers = [
+			NodeStoreCollisionIdentifier(rawValue: 2),
+			NodeStoreCollisionIdentifier(rawValue: 3)
+		]
+		let store = NodeStore(hierarchy: [
+			Node(value: NodeStoreCollisionItem(id: .init(rawValue: 1))),
+			Node(value: NodeStoreCollisionItem(id: .init(rawValue: 2)))
+		])
+
+		// Act
+		try store.insert([
+			NodeStoreCollisionItem(id: .init(rawValue: 1))
+		], at: .toRoot)
+
+		// Assert
+		#expect(store.identifiers == Set([
+			NodeStoreCollisionIdentifier(rawValue: 1),
+			NodeStoreCollisionIdentifier(rawValue: 2),
+			NodeStoreCollisionIdentifier(rawValue: 3)
+		]))
+	}
+
 	@Test func insertAddsRootAndNestedItemsToCache() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
 		let root = store.nodes(type: NodeStoreTestNode.self)[0]
@@ -306,6 +330,28 @@ private struct NodeStoreTestItem: Hashable {
 
 // MARK: - MutableIdentifiable
 extension NodeStoreTestItem: MutableIdentifiable { }
+
+// MARK: - Nested data structs
+private struct NodeStoreCollisionItem: Hashable {
+	var id: NodeStoreCollisionIdentifier
+}
+
+private struct NodeStoreCollisionIdentifier: Hashable {
+	let rawValue: Int
+
+	static var generatedIdentifiers: [NodeStoreCollisionIdentifier] = []
+}
+
+// MARK: - MutableIdentifiable
+extension NodeStoreCollisionItem: MutableIdentifiable { }
+
+// MARK: - RandomizableIdentifier
+extension NodeStoreCollisionIdentifier: RandomizableIdentifier {
+
+	static func random() -> NodeStoreCollisionIdentifier {
+		return generatedIdentifiers.removeFirst()
+	}
+}
 
 // MARK: - Test fixtures
 private enum NodeStoreTestFixtures {

@@ -258,7 +258,7 @@ private extension NodeStore {
 
 	func updateCache(inserted nodes: [Node<Value>]) {
 		enumerate(nodes) { node in
-			if cache[node.id] != nil {
+			while cache[node.id] != nil {
 				node.value.id = Value.ID.random()
 			}
 			cache[node.id] = node
