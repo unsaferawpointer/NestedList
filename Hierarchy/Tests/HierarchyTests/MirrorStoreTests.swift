@@ -153,6 +153,11 @@ extension MirrorStoreTests {
 	func insertMirrorCreatesMirrorsAndReturnsTheirIdentifiers() throws {
 		// Arrange
 		let base = NodeStorageMock<Container<TestItem<String>>>()
+		base.stubs.items = [
+			"A": .item(value: TestItem(id: "A")),
+			"B": .item(value: TestItem(id: "B")),
+			"C": .item(value: TestItem(id: "C"))
+		]
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
@@ -162,7 +167,7 @@ extension MirrorStoreTests {
 		)
 
 		// Assert
-		guard case let .insert(items, destination) = base.invocations.first else {
+		guard case let .insert(items, destination) = base.invocations.last else {
 			Issue.record("Expected insert invocation")
 			return
 		}
@@ -175,6 +180,9 @@ extension MirrorStoreTests {
 	func insertMirrorPropagatesBaseError() {
 		// Arrange
 		let base = NodeStorageMock<Container<TestItem<String>>>()
+		base.stubs.items = [
+			"A": .item(value: TestItem(id: "A"))
+		]
 		base.stubs.insertError = .missingNode
 		let store = MirrorStore<TestItem<String>>(base: base)
 
@@ -183,7 +191,7 @@ extension MirrorStoreTests {
 			_ = try store.insertMirror(for: ["A"], to: .onItem(with: "missing"))
 			Issue.record("Expected missing node error")
 		} catch NodeStoreError.missingNode {
-			guard case let .insert(items, destination) = base.invocations.first else {
+			guard case let .insert(items, destination) = base.invocations.last else {
 				Issue.record("Expected insert invocation")
 				return
 			}
@@ -192,6 +200,110 @@ extension MirrorStoreTests {
 		} catch {
 			Issue.record("Expected missing node error")
 		}
+	}
+
+	@Test
+	func canInsertMirrorAllowsValidDestination() {
+		// Arrange
+		let base = NodeStorageMock<Container<TestItem<String>>>()
+		base.stubs.items = [
+			"A": .item(value: TestItem(id: "A")),
+			"B": .item(value: TestItem(id: "B"))
+		]
+		let store = MirrorStore<TestItem<String>>(base: base)
+
+		// Act
+		let result = store.canInsertMirror(for: ["A"], to: .onItem(with: "B"))
+
+		// Assert
+		#expect(result)
+	}
+
+	@Test
+	func canInsertMirrorRejectsMirrorAsDestination() {
+		// Arrange
+		let base = NodeStorageMock<Container<TestItem<String>>>()
+		base.stubs.items = [
+			"A": .item(value: TestItem(id: "A")),
+			"M(A)": .mirror(id: "M(A)", reference: "A"),
+			"B": .item(value: TestItem(id: "B"))
+		]
+		let store = MirrorStore<TestItem<String>>(base: base)
+
+		// Act
+		let result = store.canInsertMirror(for: ["B"], to: .onItem(with: "M(A)"))
+
+		// Assert
+		#expect(!result)
+	}
+
+	@Test
+	func canInsertMirrorRejectsOriginalAncestor() {
+		// Arrange
+		let base = NodeStorageMock<Container<TestItem<String>>>()
+		base.stubs.items = [
+			"A": .item(value: TestItem(id: "A")),
+			"B": .item(value: TestItem(id: "B")),
+			"C": .item(value: TestItem(id: "C"))
+		]
+		base.stubs.parents = ["B": "A", "C": "B"]
+		let store = MirrorStore<TestItem<String>>(base: base)
+
+		// Act
+		let insertIntoOriginal = store.canInsertMirror(for: ["A"], to: .onItem(with: "A"))
+		let insertIntoChild = store.canInsertMirror(for: ["A"], to: .onItem(with: "B"))
+		let insertIntoGrandchild = store.canInsertMirror(for: ["A"], to: .onItem(with: "C"))
+
+		// Assert
+		#expect(!insertIntoOriginal)
+		#expect(!insertIntoChild)
+		#expect(!insertIntoGrandchild)
+	}
+
+	@Test
+	func insertMirrorRejectsInvalidDestinationWithoutInsertion() throws {
+		// Arrange
+		let base = NodeStorageMock<Container<TestItem<String>>>()
+		base.stubs.items = [
+			"A": .item(value: TestItem(id: "A")),
+			"B": .item(value: TestItem(id: "B"))
+		]
+		base.stubs.parents = ["B": "A"]
+		let store = MirrorStore<TestItem<String>>(base: base)
+
+		// Act
+		let result = try store.insertMirror(for: ["A"], to: .onItem(with: "B"))
+
+		// Assert
+		#expect(result.isEmpty)
+		#expect(!base.invocations.contains { action in
+			guard case .insert = action else {
+				return false
+			}
+			return true
+		})
+	}
+
+	@Test
+	func insertMirrorDerivedFromMirrorReferencesOriginal() throws {
+		// Arrange
+		let base = NodeStorageMock<Container<TestItem<String>>>()
+		base.stubs.items = [
+			"A": .item(value: TestItem(id: "A")),
+			"M(A)": .mirror(id: "M(A)", reference: "A")
+		]
+		let store = MirrorStore<TestItem<String>>(base: base)
+
+		// Act
+		_ = try store.insertMirror(for: ["M(A)"], to: .toRoot)
+
+		// Assert
+		guard case let .insert(items, destination) = base.invocations.last else {
+			Issue.record("Expected insert invocation")
+			return
+		}
+		#expect(destination == .toRoot)
+		#expect(items.map(\.reference) == ["A"])
 	}
 }
 

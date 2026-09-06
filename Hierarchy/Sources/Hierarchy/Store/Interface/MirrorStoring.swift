@@ -13,4 +13,9 @@ public protocol MirrorStoring<Value>: NodeStoring {
 		for ids: [Value.ID],
 		to destination: Destination<Value.ID>
 	) throws(NodeStoreError) -> [Value.ID]
+
+	func canInsertMirror(
+		for ids: [Value.ID],
+		to destination: Destination<Value.ID>
+	) -> Bool
 }

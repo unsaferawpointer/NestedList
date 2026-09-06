@@ -80,14 +80,8 @@ extension MirrorStore: NodeStoring {
 			return false
 		}
 
-		var ancestorIDs = Set<ID>()
-		var currentID: ID? = destinationID
-
-		while let id = currentID {
-			guard ancestorIDs.insert(id).inserted else {
-				return false
-			}
-			currentID = base.parent(of: id)
+		guard let ancestorIDs = ancestorIDs(including: destinationID) else {
+			return false
 		}
 
 		let movedIDs = base.descendantIDs(including: Set(identifiers))
@@ -159,16 +153,65 @@ extension MirrorStore: MirrorStoring {
 		for ids: [Value.ID],
 		to destination: Destination<Value.ID>
 	) throws(NodeStoreError) -> [Value.ID] {
-		let inserted: [Container<Value>] = ids.compactMap {
+		guard let references = mirrorReferences(for: ids) else {
+			return []
+		}
+		if !isValidMirrorDestination(for: references, at: destination) {
+			guard let destinationID = destination.id, base[destinationID] == nil else {
+				return []
+			}
+		}
+		let inserted: [Container<Value>] = references.map {
 			.mirror(id: Value.ID.random(), reference: $0)
 		}
 		try base.insert(inserted, at: destination)
 		return inserted.map(\.id)
 	}
+
+	public func canInsertMirror(
+		for ids: [Value.ID],
+		to destination: Destination<Value.ID>
+	) -> Bool {
+		guard let references = mirrorReferences(for: ids) else {
+			return false
+		}
+		return isValidMirrorDestination(for: references, at: destination)
+	}
 }
 
 // MARK: - Helpers
 private extension MirrorStore {
+
+	func mirrorReferences(for ids: [ID]) -> [ID]? {
+		let references = ids.compactMap { (id: ID) -> ID? in
+			guard let container = base[id] else {
+				return nil
+			}
+			return container.reference ?? id
+		}
+		guard references.count == ids.count else {
+			return nil
+		}
+		return references
+	}
+
+	func isValidMirrorDestination(
+		for references: [ID],
+		at destination: Destination<ID>
+	) -> Bool {
+		guard let destinationID = destination.id else {
+			return true
+		}
+		guard case .item = base[destinationID] else {
+			return false
+		}
+
+		guard let ancestorIDs = ancestorIDs(including: destinationID) else {
+			return false
+		}
+
+		return ancestorIDs.isDisjoint(with: references)
+	}
 
 	func item(with id: Value.ID) -> Value? {
 		guard let container = base[id] else {
