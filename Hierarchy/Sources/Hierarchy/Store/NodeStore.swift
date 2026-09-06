@@ -149,11 +149,6 @@ public extension NodeStore {
 		return allMatch(in: [node], keyPath: keyPath, equalsTo: value)
 	}
 
-	/// Returns `true` when every leaf node in the store has a value equal to the given value at the specified key path.
-	func allMatch<T: Equatable>(_ keyPath: KeyPath<Value, T>, equalsTo value: T) -> Bool {
-		return allMatch(in: nodes, keyPath: keyPath, equalsTo: value)
-	}
-
 	/// Copies the selected nodes with their descendants and inserts them at the destination.
 	///
 	/// Inserted copies keep their original identifiers unless the store already contains matching identifiers.
@@ -381,24 +376,6 @@ public extension NodeStore {
 				continue
 			}
 			try moveItems(withIDs: items.map(\.id), to: .onItem(with: container.id))
-		}
-	}
-
-	func moveToTop(_ ids: [ID]) throws(NodeStoreError) {
-		let moved = ids.compactMap {
-			cache[$0]
-		}
-
-		let grouped = Dictionary<Node<Value>?, [Node<Value>]>(grouping: moved) { item in
-			return item.parent
-		}
-
-		for (container, items) in grouped {
-			guard let container else {
-				try moveItems(withIDs: items.map(\.id), to: .inRoot(atIndex: 0))
-				continue
-			}
-			try moveItems(withIDs: items.map(\.id), to: .inItem(with: container.id, atIndex: 0))
 		}
 	}
 
