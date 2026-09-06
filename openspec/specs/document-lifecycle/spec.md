@@ -22,7 +22,7 @@ The system SHALL load document data using the provided document type, replace th
 
 #### Scenario: Open a valid NestedList document
 - **WHEN** a user opens a valid `.nlist` document
-- **THEN** the system displays its decoded hierarchy and document view
+- **THEN** the system retains its decoded hierarchy and document view state and displays it using an interface supported by the current platform
 
 #### Scenario: Select a document on iOS or iPadOS
 - **WHEN** a user selects one or more documents in the document browser

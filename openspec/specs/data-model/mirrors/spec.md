@@ -1,10 +1,21 @@
-# mirror-data-structure Specification
+# mirrors Specification
 
 ## Purpose
 
-Defines a future-facing domain hierarchy that can represent original items and leaf mirror references while preserving the existing tree behavior. Mirror functionality is not currently available in NestedList; this capability establishes the data invariants and operation semantics for future use without introducing user-facing behavior or changing the current `.nlist` document format.
+Defines the mirror extension to the outline data model: original items, leaf mirror references, their invariants, and their structural operation semantics. Mirror functionality is not currently available in NestedList; this capability establishes future domain behavior without introducing user-facing behavior or changing the current `.nlist` document format.
 
 ## Requirements
+
+### Requirement: Mirror capability availability
+The mirror-capable behavior defined by this specification SHALL be treated as a future capability rather than implemented current behavior. The current product SHALL operate with original items only and SHALL NOT expose mirror creation, presentation, editing, movement, or deletion to users.
+
+#### Scenario: Use the current product
+- **WHEN** a user creates or edits an outline with the current product
+- **THEN** the available hierarchy behavior uses original items only and provides no Mirror functionality
+
+#### Scenario: Interpret the mirror requirements
+- **WHEN** a mirror-specific requirement in this specification is evaluated before Mirror functionality is introduced
+- **THEN** it defines the intended future domain contract rather than an available current-product capability
 
 ### Requirement: Future-facing hierarchy compatibility
 The system SHALL treat an existing hierarchy containing only original items as a valid subset of the mirror-capable hierarchy. Introducing the mirror-capable structure SHALL NOT require existing hierarchies to contain mirrors, SHALL NOT make Mirror functionality available in the current product, and SHALL NOT by itself change the current `.nlist` document format.

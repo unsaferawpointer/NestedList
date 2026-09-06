@@ -26,6 +26,21 @@ The application SHALL use the standard document-based application interface prov
 - **WHEN** a document is opened on macOS
 - **THEN** the application presents its content within a standard macOS document window
 
+### Requirement: Columns interface platform availability
+The application SHALL provide the columns document interface only on macOS. The iOS and iPadOS applications SHALL present outlines using the list interface even when the document retains `columns` view state, and SHALL preserve that stored state when reading or saving the document. Item-level view state SHALL NOT change presentation on any platform until item-specific view functionality is introduced separately.
+
+#### Scenario: Use columns on macOS
+- **WHEN** a macOS document selects the `columns` view
+- **THEN** the application presents the document using the columns interface
+
+#### Scenario: Open columns view state on iOS or iPadOS
+- **WHEN** an iOS or iPadOS application opens a document whose stored view is `columns`
+- **THEN** it presents the document using the list interface without replacing the stored document view state
+
+#### Scenario: Retain item view without presenting it
+- **WHEN** an item retains `columns` view state on any platform
+- **THEN** that item state does not change the currently presented interface
+
 ### Requirement: iOS primary screens
 The iOS and iPadOS applications SHALL provide the following primary screens. Task-specific interfaces such as item details, icon and color pickers, move destination, and reordering SHALL be presented as secondary flows rather than primary screens.
 

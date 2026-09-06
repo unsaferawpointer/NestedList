@@ -28,11 +28,11 @@ A `.nlist` file is a JSON object with this envelope.[^json-data]
 ```json
 {
 	"value": {
-		"uuid": "<item UUID>",
-		"text": "Item text",
-		"note": "Optional note",
-		"options": 0,
-		"view": 0
+			"uuid": "<item UUID>",
+			"text": "Item text",
+			"note": "Optional note",
+			"options": 0,
+			"view": 0
 	},
 	"children": [<node>, ...]
 }
@@ -94,7 +94,7 @@ Version 2 replaces `style` with optional `iconName` and `tintColor` integer fiel
 	- `version`: String selecting the format version. New saves use `major.minor.patch`; when reading, an optional leading `v` is accepted, a valid integer major component is required, and absent or non-integer minor and patch components are treated as `0`.
 	- `content`: Object containing the document data.
 	- `content.uuid`: Optional UUID string identifying the document. New v2 saves include it. An unreadable value is ignored when reading.
-	- `content.view` and `value.view`: Optional integer view mode (`0` for `list`, `1` for `columns`); an omitted value is `list`.
+	- `content.view` and `value.view`: Optional integer view state (`0` for `list`, `1` for `columns`); an omitted value is `list`.
 	- `content.items` and `children`: Ordered arrays of tree nodes. `children` is optional.
 	- `value`: Item object for a tree node.
 	- `value.uuid`: Required UUID string identifying the item.
@@ -132,8 +132,8 @@ The system SHALL store a `.nlist` document as a JSON object with a `version` str
 - **WHEN** a `.nlist` JSON document omits `version`, `content`, or `content.items`
 - **THEN** the system rejects the document as having an unexpected format
 
-### Requirement: Hierarchical item representation
-The system SHALL represent the outline in `content.items` as an ordered array of tree nodes. Each tree node SHALL contain a `value` item object and MAY contain a `children` array of tree nodes. The system SHALL preserve each node's parent-child relationship and sibling order when it reads or saves a document.
+### Requirement: Hierarchical item encoding
+The `.nlist` format SHALL encode the outline hierarchy in `content.items` as an ordered array of tree nodes. Each encoded tree node SHALL contain a `value` item object and MAY contain a `children` array of encoded tree nodes. Reading or saving the encoded hierarchy SHALL preserve each domain node's parent-child relationship and sibling order.
 
 #### Scenario: Read nested items
 - **WHEN** an item node contains descendant nodes in `children`
@@ -143,8 +143,8 @@ The system SHALL represent the outline in `content.items` as an ordered array of
 - **WHEN** a document contains root items and nested descendants
 - **THEN** the saved `items` tree retains every parent-child relationship and sibling order
 
-### Requirement: Common item properties
-Each item `value` object SHALL contain a UUID string in `uuid`, text in `text`, and an integer option bitset in `options`. It MAY contain `note`, `view`, `iconName`, and `tintColor`. When `note` is absent, the system SHALL restore no note; when `view` is absent, it SHALL restore the `list` view.
+### Requirement: Item field encoding
+The `.nlist` format SHALL encode each outline item's UUID as a string in `value.uuid`, text in `value.text`, and option state as an integer bitset in `value.options`. It MAY encode the item's note, view, icon, and tint color in `value.note`, `value.view`, `value.iconName`, and `value.tintColor`. When `note` is absent, the system SHALL restore no note; when `view` is absent, it SHALL restore the `list` item view.
 
 #### Scenario: Read an item with optional content
 - **WHEN** an item contains `note`, `view`, `iconName`, or `tintColor`
@@ -162,16 +162,20 @@ Each item `value` object SHALL contain a UUID string in `uuid`, text in `text`, 
 - **WHEN** `content.uuid` is absent or cannot be decoded as a UUID
 - **THEN** the system restores the document without a document UUID
 
-### Requirement: Document and item view values
-The system SHALL represent both document-level `content.view` and item-level `value.view` as integers: `0` for `list` and `1` for `columns`. When `content.view` is absent, the system SHALL restore the document with the `list` view.
+### Requirement: Document and item view encoding
+The `.nlist` format SHALL encode both document-level `content.view` and item-level `value.view` as integers: `0` for `list` and `1` for `columns`. When either field is absent, the system SHALL restore the corresponding document or item view as `list`. An item's stored view SHALL NOT override the document view.
 
-#### Scenario: Read columns views
-- **WHEN** a document or item stores `view` as `1`
-- **THEN** the system restores its view as `columns`
+#### Scenario: Read columns view state
+- **WHEN** a document or item stores its `view` as `1`
+- **THEN** the system restores the corresponding view state as `columns`
 
 #### Scenario: Read an omitted document view
 - **WHEN** a document omits `content.view`
 - **THEN** the system restores the document with the `list` view
+
+#### Scenario: Read an omitted item view
+- **WHEN** an item omits `value.view`
+- **THEN** the system restores the item with the `list` view
 
 ### Requirement: Backward-compatible document reading
 The system SHALL maintain backward compatibility with valid `.nlist` documents written in earlier supported formats on iOS, iPadOS, and macOS. It SHALL restore their hierarchy, common item data, and available appearance semantics, then save documents using the current format. The format differences that require migration are defined by the JSON examples and data reference.
