@@ -64,7 +64,7 @@ extension NodeStoreTests {
 	}
 }
 
-// MARK: - Matching and counting
+// MARK: - Matching
 extension NodeStoreTests {
 
 	@Test func allMatchChecksOnlyLeafNodes() async throws {
@@ -75,14 +75,6 @@ extension NodeStoreTests {
 		#expect(store.allMatch(id: root.id, keyPath: \.title, equalsTo: "grandchild"))
 		#expect(store.allMatch(id: child.id, keyPath: \.title, equalsTo: "grandchild"))
 		#expect(!store.allMatch(id: 404, keyPath: \.title, equalsTo: "grandchild"))
-	}
-
-	@Test func countReturnsLeafNodeCount() async throws {
-		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
-
-		#expect(store.count == 1)
-		#expect(store.count(where: \.title, equalsTo: "grandchild") == 1)
-		#expect(store.count(where: \.title, equalsTo: "child") == 0)
 	}
 }
 
@@ -275,15 +267,31 @@ extension NodeStoreTests {
 // MARK: - Moving
 extension NodeStoreTests {
 
-	@Test func validateMovingRejectsMovingNodeIntoDescendant() async throws {
+	@Test func canMoveItemsRejectsMovingNodeIntoDescendant() async throws {
+		// Arrange
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
 		let root = store.nodes(type: NodeStoreTestNode.self)[0]
 		let child = root.children[0]
 		let grandchild = child.children[0]
 
-		#expect(!store.validateMoving([root.id], to: .onItem(with: grandchild.id)))
-		#expect(!store.validateMoving([child.id], to: .inItem(with: grandchild.id, atIndex: 0)))
-		#expect(store.validateMoving([grandchild.id], to: .onItem(with: root.id)))
+		// Act
+		let canMoveRootToGrandchild = store.canMoveItems(
+			withIDs: [root.id],
+			to: .onItem(with: grandchild.id)
+		)
+		let canMoveChildToGrandchild = store.canMoveItems(
+			withIDs: [child.id],
+			to: .inItem(with: grandchild.id, atIndex: 0)
+		)
+		let canMoveGrandchildToRoot = store.canMoveItems(
+			withIDs: [grandchild.id],
+			to: .onItem(with: root.id)
+		)
+
+		// Assert
+		#expect(!canMoveRootToGrandchild)
+		#expect(!canMoveChildToGrandchild)
+		#expect(canMoveGrandchildToRoot)
 	}
 
 	@Test func moveItemsMovesNestedNodeToRoot() async throws {

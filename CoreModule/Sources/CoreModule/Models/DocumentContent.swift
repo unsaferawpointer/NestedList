@@ -57,7 +57,7 @@ public extension DocumentContent {
 	}
 
 	func validateMoving(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
-		store.validateMoving(ids, to: destination)
+		store.canMoveItems(withIDs: ids, to: destination)
 	}
 
 	func moveItems(with ids: [UUID], to destination: Destination<UUID>) throws {

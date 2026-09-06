@@ -74,8 +74,24 @@ extension NodeStore: NodeStoring {
 		}
 	}
 	
-	public func canMoveItems<S>(withIDs ids: S, to destination: Destination<ID>) -> Bool where S : Sequence, S.Element == Value.ID {
-		fatalError()
+	public func canMoveItems<S>(
+		withIDs ids: S,
+		to destination: Destination<ID>
+	) -> Bool where S : Sequence, S.Element == Value.ID {
+		guard let targetId = destination.id, let item = cache[targetId] else {
+			return true
+		}
+
+		var chain = Set<ID>()
+		var current: Node<Value>? = item
+		while let node = current {
+			chain.insert(node.id)
+			current = node.parent
+		}
+
+		let intersection = chain.intersection(ids)
+
+		return intersection.isEmpty
 	}
 	
 	public func deleteItems<S>(withIDs ids: S) where S : Sequence, S.Element == Value.ID {
@@ -189,29 +205,6 @@ public extension NodeStore {
 		}
 	}
 
-	var count: Int {
-		var result = 0
-		enumerate(nodes) { node in
-			guard node.children.isEmpty else {
-				return
-			}
-			result += 1
-		}
-		return result
-	}
-
-	func count<T: Equatable>(where keyPath: KeyPath<Value, T>, equalsTo value: T) -> Int {
-		var result = 0
-		enumerate(nodes) { node in
-			guard node.children.isEmpty else {
-				return
-			}
-			if node.value[keyPath: keyPath] == value {
-				result += 1
-			}
-		}
-		return result
-	}
 }
 
 // MARK: - Helpers
@@ -337,23 +330,6 @@ private extension NodeStore {
 
 // MARK: - Support moving
 public extension NodeStore {
-
-	func validateMoving(_ ids: [ID], to destination: Destination<ID>) -> Bool {
-		guard let targetId = destination.id, let item = cache[targetId] else {
-			return true
-		}
-
-		var chain = Set<ID>()
-		var current: Node<Value>? = item
-		while let node = current {
-			chain.insert(node.id)
-			current = node.parent
-		}
-
-		let intersection = chain.intersection(ids)
-
-		return intersection.isEmpty
-	}
 
 	func moveToEnd(_ ids: [ID]) throws(NodeStoreError) {
 		let moved = ids.compactMap {
