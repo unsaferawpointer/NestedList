@@ -117,7 +117,8 @@ public extension DocumentContent {
 	}
 
 	func copy(ids: [UUID], to destination: Destination<UUID>) throws {
-		try store.copy(ids: ids, to: destination)
+		let copied = store.copiedDisjointSubtrees(with: ids)
+		try store.insertItems(from: copied, to: destination)
 	}
 
 	func allMatch<T: Equatable>(id: UUID, keyPath: KeyPath<Item, T>, equalsTo value: T) -> Bool {

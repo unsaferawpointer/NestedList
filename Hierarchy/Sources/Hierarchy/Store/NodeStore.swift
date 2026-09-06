@@ -159,21 +159,6 @@ public extension NodeStore {
 		return allMatch(in: [node], keyPath: keyPath, equalsTo: value)
 	}
 
-	/// Copies the selected nodes with their descendants and inserts them at the destination.
-	///
-	/// Inserted copies keep their original identifiers unless the store already contains matching identifiers.
-	/// Existing identifier conflicts are resolved while updating the cache.
-	///
-	/// - Parameters:
-	///   - ids: The identifiers of the nodes to copy.
-	///   - destination: The destination for the copied nodes.
-	func copy(ids: [ID], to destination: Destination<ID>) throws(NodeStoreError) {
-		let copied = nodes(with: ids).map { node in
-			copy(node)
-		}
-		try insertItems(from: copied, to: destination)
-	}
-
 	/// Returns copied subtrees for the requested identifiers without nested duplicates.
 	///
 	/// If both a parent and one of its descendants are requested, the descendant is returned as
