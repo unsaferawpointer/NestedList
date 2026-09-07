@@ -105,7 +105,7 @@ public extension DocumentContent {
 		for ids: [UUID],
 		downstream: Bool = false
 	) {
-		store.setProperty(keyPath, to: value, for: ids, downstream: downstream)
+		store.set(keyPath, to: value, forItemsWithIDs: ids, includingDescendants: downstream)
 	}
 
 	func copiedDisjointSubtrees(with ids: [UUID]) -> [any TreeNode<Item>] {

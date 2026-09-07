@@ -98,8 +98,24 @@ extension NodeStore: NodeStoring {
 		ids.forEach { deleteItem($0) }
 	}
 	
-	public func set<T>(_ keyPath: WritableKeyPath<Value, T>, to value: T, forItemsWithIDs ids: [ID], includingDescendants: Bool) {
-		fatalError()
+	public func set<T>(
+		_ keyPath: WritableKeyPath<Value, T>,
+		to value: T,
+		forItemsWithIDs ids: [ID],
+		includingDescendants: Bool
+	) {
+		for id in ids {
+			guard let node = cache[id] else {
+				continue
+			}
+			guard includingDescendants else {
+				node.value[keyPath: keyPath] = value
+				continue
+			}
+			enumerate([node]) { node in
+				node.value[keyPath: keyPath] = value
+			}
+		}
 	}
 }
 
@@ -174,22 +190,6 @@ public extension NodeStore {
 		}
 		return copied
 	}
-
-	func setProperty<T>(_ keyPath: WritableKeyPath<Value, T>, to value: T, for ids: [ID], downstream: Bool = false) {
-		for id in ids {
-			guard let node = cache[id] else {
-				continue
-			}
-			guard downstream else {
-				node.value[keyPath: keyPath] = value
-				continue
-			}
-			enumerate([node]) { node in
-				node.value[keyPath: keyPath] = value
-			}
-		}
-	}
-
 }
 
 // MARK: - Helpers

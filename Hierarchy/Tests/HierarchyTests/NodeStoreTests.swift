@@ -6,46 +6,33 @@ struct NodeStoreTests { }
 // MARK: - Copying
 extension NodeStoreTests {
 
-	@Test func copyNode() async throws {
+	@Test func copiedDisjointSubtreesCopiesNodeAndDescendants() async throws {
+		// Arrange
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
 		let original = store.nodes(type: NodeStoreTestNode.self)[0]
 
-		try store.copy(ids: [original.id], to: .toRoot)
+		// Act
+		let copied = store.copiedDisjointSubtrees(with: [original.id])
+		let copy = try #require(copied.first as? NodeStoreTestNode)
 
-		let nodes = store.nodes(type: NodeStoreTestNode.self)
-		let copy = nodes[1]
-
-		#expect(nodes.count == 2)
+		// Assert
+		#expect(copied.count == 1)
+		#expect(copy !== original)
 		#expect(copy.value.title == original.value.title)
-		#expect(copy.id != original.id)
+		#expect(copy.id == original.id)
 		#expect(copy.parent == nil)
-		#expect(nodes[0].id == original.id)
-		#expect(nodes[1].id == copy.id)
 
 		#expect(copy.children.count == original.children.count)
+		#expect(copy.children[0] !== original.children[0])
 		#expect(copy.children[0].value.title == original.children[0].value.title)
-		#expect(copy.children[0].id != original.children[0].id)
+		#expect(copy.children[0].id == original.children[0].id)
 		#expect(copy.children[0].parent === copy)
 
+		#expect(copy.children[0].children[0] !== original.children[0].children[0])
 		#expect(copy.children[0].children[0].value.title == original.children[0].children[0].value.title)
-		#expect(copy.children[0].children[0].id != original.children[0].children[0].id)
+		#expect(copy.children[0].children[0].id == original.children[0].children[0].id)
 		#expect(copy.children[0].children[0].parent === copy.children[0])
-	}
-
-	@Test func copyNodeThrowsMissingNodeForMissingDestination() async throws {
-		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
-		let original = store.nodes(type: NodeStoreTestNode.self)[0]
-
-		do {
-			try store.copy(ids: [original.id], to: .onItem(with: 404))
-			Issue.record("Expected missing node error")
-		} catch NodeStoreError.missingNode {
-			let nodes = store.nodes(type: NodeStoreTestNode.self)
-			#expect(nodes.count == 1)
-			#expect(nodes[0].id == original.id)
-		} catch {
-			Issue.record("Expected missing node error")
-		}
+		#expect(store.nodes(type: NodeStoreTestNode.self).map(\.id) == [original.id])
 	}
 
 	@Test func copiedDisjointSubtreesRemovesNestedRequestedNodes() async throws {
@@ -78,30 +65,46 @@ extension NodeStoreTests {
 	}
 }
 
-// MARK: - Properties
+// MARK: - Setting properties
 extension NodeStoreTests {
 
-	@Test func setPropertyUpdatesSelectedNodeOnly() async throws {
+	@Test func setUpdatesSelectedNodeOnly() async throws {
+		// Arrange
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
 		let root = store.nodes(type: NodeStoreTestNode.self)[0]
 		let child = root.children[0]
 		let grandchild = child.children[0]
 
-		store.setProperty(\.title, to: "updated", for: [child.id])
+		// Act
+		store.set(
+			\.title,
+			to: "updated",
+			forItemsWithIDs: [child.id],
+			includingDescendants: false
+		)
 
+		// Assert
 		#expect(store[root.id]?.title == "root")
 		#expect(store[child.id]?.title == "updated")
 		#expect(store[grandchild.id]?.title == "grandchild")
 	}
 
-	@Test func setPropertyUpdatesSelectedNodeAndDescendants() async throws {
+	@Test func setUpdatesSelectedNodeAndDescendants() async throws {
+		// Arrange
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
 		let root = store.nodes(type: NodeStoreTestNode.self)[0]
 		let child = root.children[0]
 		let grandchild = child.children[0]
 
-		store.setProperty(\.title, to: "updated", for: [child.id], downstream: true)
+		// Act
+		store.set(
+			\.title,
+			to: "updated",
+			forItemsWithIDs: [child.id],
+			includingDescendants: true
+		)
 
+		// Assert
 		#expect(store[root.id]?.title == "root")
 		#expect(store[child.id]?.title == "updated")
 		#expect(store[grandchild.id]?.title == "updated")
