@@ -79,7 +79,7 @@ extension NodeStoreTests {
 		store.set(
 			\.title,
 			to: "updated",
-			forItemsWithIDs: [child.id],
+			for: [child.id],
 			includingDescendants: false
 		)
 
@@ -100,7 +100,7 @@ extension NodeStoreTests {
 		store.set(
 			\.title,
 			to: "updated",
-			forItemsWithIDs: [child.id],
+			for: [child.id],
 			includingDescendants: true
 		)
 
@@ -303,7 +303,7 @@ extension NodeStoreTests {
 		let child = root.children[0]
 		let grandchild = child.children[0]
 
-		store.deleteItems(withIDs: [child.id])
+		store.deleteItems([child.id])
 
 		#expect(store.nodes(type: NodeStoreTestNode.self)[0].children.isEmpty)
 		#expect(store[child.id] == nil)
@@ -324,15 +324,15 @@ extension NodeStoreTests {
 
 		// Act
 		let canMoveRootToGrandchild = store.canMoveItems(
-			withIDs: [root.id],
+			[root.id],
 			to: .onItem(with: grandchild.id)
 		)
 		let canMoveChildToGrandchild = store.canMoveItems(
-			withIDs: [child.id],
+			[child.id],
 			to: .inItem(with: grandchild.id, atIndex: 0)
 		)
 		let canMoveGrandchildToRoot = store.canMoveItems(
-			withIDs: [grandchild.id],
+			[grandchild.id],
 			to: .onItem(with: root.id)
 		)
 
@@ -348,7 +348,7 @@ extension NodeStoreTests {
 		let child = root.children[0]
 		let grandchild = child.children[0]
 
-		try store.moveItems(withIDs: [child.id], to: .toRoot)
+		try store.moveItems([child.id], to: .toRoot)
 
 		let nodes = store.nodes(type: NodeStoreTestNode.self)
 		#expect(nodes.map(\.id) == [root.id, child.id])
@@ -364,7 +364,7 @@ extension NodeStoreTests {
 		let child = root.children[0]
 
 		do {
-			try store.moveItems(withIDs: [child.id], to: .onItem(with: 404))
+			try store.moveItems([child.id], to: .onItem(with: 404))
 			Issue.record("Expected missing node error")
 		} catch NodeStoreError.missingNode {
 			let nodes = store.nodes(type: NodeStoreTestNode.self)

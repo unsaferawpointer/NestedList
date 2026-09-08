@@ -27,7 +27,7 @@ extension NodeStorageMock: NodeStoring {
 	}
 
 	func moveItems<S: Sequence>(
-		withIDs ids: S,
+		_ ids: S,
 		to destination: Destination<Value.ID>
 	) throws(NodeStoreError) where S.Element == Value.ID {
 		invocations.append(.moveItems(ids: Array(ids), destination: destination))
@@ -37,21 +37,21 @@ extension NodeStorageMock: NodeStoring {
 	}
 
 	func canMoveItems<S: Sequence>(
-		withIDs ids: S,
+		_ ids: S,
 		to destination: Destination<Value.ID>
 	) -> Bool where S.Element == Value.ID {
 		invocations.append(.canMoveItems(ids: Array(ids), destination: destination))
 		return stubs.canMoveItems
 	}
 
-	func deleteItems<S: Sequence>(withIDs ids: S) where S.Element == Value.ID {
+	func deleteItems<S: Sequence>(_ ids: S) where S.Element == Value.ID {
 		invocations.append(.deleteItems(ids: Array(ids)))
 	}
 
 	func set<T>(
 		_ keyPath: WritableKeyPath<Value, T>,
 		to value: T,
-		forItemsWithIDs ids: [Value.ID],
+		for ids: [Value.ID],
 		includingDescendants: Bool
 	) {
 		invocations.append(.set(ids: ids, includingDescendants: includingDescendants))

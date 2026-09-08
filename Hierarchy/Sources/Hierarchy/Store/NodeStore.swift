@@ -49,7 +49,7 @@ extension NodeStore: NodeStoring {
 	}
 	
 	public func moveItems<S>(
-		withIDs ids: S,
+		_ ids: S,
 		to destination: Destination<ID>
 	) throws(NodeStoreError) where S : Sequence, S.Element == Value.ID {
 		let moved = ids.compactMap {
@@ -75,7 +75,7 @@ extension NodeStore: NodeStoring {
 	}
 	
 	public func canMoveItems<S>(
-		withIDs ids: S,
+		_ ids: S,
 		to destination: Destination<ID>
 	) -> Bool where S : Sequence, S.Element == Value.ID {
 		guard let targetId = destination.id, let item = cache[targetId] else {
@@ -94,14 +94,14 @@ extension NodeStore: NodeStoring {
 		return intersection.isEmpty
 	}
 	
-	public func deleteItems<S>(withIDs ids: S) where S : Sequence, S.Element == Value.ID {
+	public func deleteItems<S>(_ ids: S) where S : Sequence, S.Element == Value.ID {
 		ids.forEach { deleteItem($0) }
 	}
 	
 	public func set<T>(
 		_ keyPath: WritableKeyPath<Value, T>,
 		to value: T,
-		forItemsWithIDs ids: [ID],
+		for ids: [ID],
 		includingDescendants: Bool
 	) {
 		for id in ids {
@@ -321,10 +321,10 @@ public extension NodeStore {
 
 		for (container, items) in grouped {
 			guard let container else {
-				try moveItems(withIDs: items.map(\.id), to: .toRoot)
+				try moveItems(items.map(\.id), to: .toRoot)
 				continue
 			}
-			try moveItems(withIDs: items.map(\.id), to: .onItem(with: container.id))
+			try moveItems(items.map(\.id), to: .onItem(with: container.id))
 		}
 	}
 
@@ -378,7 +378,7 @@ public extension NodeStore {
 		}
 
 		let destination = Destination(target: target, index: nextIndex)
-		try moveItems(withIDs: [id], to: destination)
+		try moveItems([id], to: destination)
 	}
 
 	func validateMovingBackward(_ id: ID) -> Bool {
@@ -409,7 +409,7 @@ public extension NodeStore {
 		}
 
 		let destination = Destination<ID>(target: target, index: nextIndex)
-		try moveItems(withIDs: [id], to: destination)
+		try moveItems([id], to: destination)
 	}
 }
 

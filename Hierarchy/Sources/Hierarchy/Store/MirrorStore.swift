@@ -54,21 +54,21 @@ extension MirrorStore: NodeStoring {
 	}
 
 	public func moveItems<S: Sequence>(
-		withIDs ids: S,
+		_ ids: S,
 		to destination: Destination<Value.ID>
 	) throws(NodeStoreError) where S.Element == Value.ID {
-		guard canMoveItems(withIDs: ids, to: destination) else {
+		guard canMoveItems(ids, to: destination) else {
 			return
 		}
-		try base.moveItems(withIDs: ids, to: destination)
+		try base.moveItems(ids, to: destination)
 	}
 
 	public func canMoveItems<S: Sequence>(
-		withIDs ids: S,
+		_ ids: S,
 		to destination: Destination<Value.ID>
 	) -> Bool where S.Element == Value.ID {
 		let identifiers = Array(ids)
-		guard base.canMoveItems(withIDs: identifiers, to: destination) else {
+		guard base.canMoveItems(identifiers, to: destination) else {
 			return false
 		}
 
@@ -94,7 +94,7 @@ extension MirrorStore: NodeStoring {
 		}
 	}
 
-	public func deleteItems<S: Sequence>(withIDs ids: S) where S.Element == Value.ID {
+	public func deleteItems<S: Sequence>(_ ids: S) where S.Element == Value.ID {
 		let identifiers = Array(ids)
 		let subtreeIDs = base.descendantIDs(including: Set(identifiers))
 		let originalIDs = subtreeIDs.reduce(into: Set<ID>()) { result, id in
@@ -105,7 +105,7 @@ extension MirrorStore: NodeStoring {
 		}
 
 		guard !originalIDs.isEmpty else {
-			base.deleteItems(withIDs: identifiers)
+			base.deleteItems(identifiers)
 			return
 		}
 
@@ -116,13 +116,13 @@ extension MirrorStore: NodeStoring {
 			return originalIDs.contains(reference)
 		}
 
-		base.deleteItems(withIDs: identifiers + Array(externalMirrorIDs))
+		base.deleteItems(identifiers + Array(externalMirrorIDs))
 	}
 
 	public func set<T>(
 		_ keyPath: WritableKeyPath<Value, T>,
 		to value: T,
-		forItemsWithIDs ids: [Value.ID],
+		for ids: [Value.ID],
 		includingDescendants: Bool
 	) {
 		let selectedIDs = Set(ids)
@@ -140,7 +140,7 @@ extension MirrorStore: NodeStoring {
 		base.set(
 			itemKeyPath,
 			to: value,
-			forItemsWithIDs: Array(originalIDs),
+			for: Array(originalIDs),
 			includingDescendants: false
 		)
 	}

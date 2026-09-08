@@ -57,11 +57,11 @@ public extension DocumentContent {
 	}
 
 	func validateMoving(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
-		store.canMoveItems(withIDs: ids, to: destination)
+		store.canMoveItems(ids, to: destination)
 	}
 
 	func moveItems(with ids: [UUID], to destination: Destination<UUID>) throws {
-		try store.moveItems(withIDs: ids, to: destination)
+		try store.moveItems(ids, to: destination)
 	}
 
 	func validateMovingForward(id: UUID) -> Bool {
@@ -89,7 +89,7 @@ public extension DocumentContent {
 	}
 
 	func deleteItems(_ ids: [UUID]) {
-		store.deleteItems(withIDs: ids)
+		store.deleteItems(ids)
 	}
 
 	func parent(for id: UUID?) -> UUID? {
@@ -105,7 +105,7 @@ public extension DocumentContent {
 		for ids: [UUID],
 		downstream: Bool = false
 	) {
-		store.set(keyPath, to: value, forItemsWithIDs: ids, includingDescendants: downstream)
+		store.set(keyPath, to: value, for: ids, includingDescendants: downstream)
 	}
 
 	func copiedDisjointSubtrees(with ids: [UUID]) -> [any TreeNode<Item>] {

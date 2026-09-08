@@ -359,9 +359,9 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		let moveRootToChild = store.canMoveItems(withIDs: ["A"], to: .onItem(with: "B"))
-		let moveRootToGrandchild = store.canMoveItems(withIDs: ["A"], to: .onItem(with: "C"))
-		let moveChildToGrandchild = store.canMoveItems(withIDs: ["B"], to: .onItem(with: "C"))
+		let moveRootToChild = store.canMoveItems(["A"], to: .onItem(with: "B"))
+		let moveRootToGrandchild = store.canMoveItems(["A"], to: .onItem(with: "C"))
+		let moveChildToGrandchild = store.canMoveItems(["B"], to: .onItem(with: "C"))
 
 		// Assert
 		#expect(!moveRootToChild)
@@ -393,7 +393,7 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		let result = store.canMoveItems(withIDs: Set(["M(A)"]), to: .toRoot)
+		let result = store.canMoveItems(Set(["M(A)"]), to: .toRoot)
 
 		// Assert
 		#expect(result)
@@ -420,7 +420,7 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		let result = store.canMoveItems(withIDs: ["B"], to: .onItem(with: "M(A)"))
+		let result = store.canMoveItems(["B"], to: .onItem(with: "M(A)"))
 
 		// Assert
 		#expect(!result)
@@ -463,9 +463,9 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		let moveToOriginal = store.canMoveItems(withIDs: ["M(A)"], to: .onItem(with: "A"))
-		let moveToChild = store.canMoveItems(withIDs: ["M(A)"], to: .onItem(with: "B"))
-		let moveToGrandchild = store.canMoveItems(withIDs: ["M(A)"], to: .onItem(with: "C"))
+		let moveToOriginal = store.canMoveItems(["M(A)"], to: .onItem(with: "A"))
+		let moveToChild = store.canMoveItems(["M(A)"], to: .onItem(with: "B"))
+		let moveToGrandchild = store.canMoveItems(["M(A)"], to: .onItem(with: "C"))
 
 		// Assert
 		#expect(!moveToOriginal)
@@ -515,9 +515,9 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		let moveToOriginal = store.canMoveItems(withIDs: ["B"], to: .onItem(with: "A"))
-		let moveToChild = store.canMoveItems(withIDs: ["B"], to: .onItem(with: "X"))
-		let moveToGrandchild = store.canMoveItems(withIDs: ["B"], to: .onItem(with: "Y"))
+		let moveToOriginal = store.canMoveItems(["B"], to: .onItem(with: "A"))
+		let moveToChild = store.canMoveItems(["B"], to: .onItem(with: "X"))
+		let moveToGrandchild = store.canMoveItems(["B"], to: .onItem(with: "Y"))
 
 		// Assert
 		#expect(!moveToOriginal)
@@ -551,7 +551,7 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		let result = store.canMoveItems(withIDs: ["M(A)"], to: .onItem(with: "C"))
+		let result = store.canMoveItems(["M(A)"], to: .onItem(with: "C"))
 
 		// Assert
 		#expect(result)
@@ -580,7 +580,7 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		try store.moveItems(withIDs: Set(["M1(A)"]), to: .onItem(with: "B"))
+		try store.moveItems(Set(["M1(A)"]), to: .onItem(with: "B"))
 
 		// Assert
 		let moves = base.invocations.filter { action in
@@ -620,7 +620,7 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		try store.moveItems(withIDs: ["A"], to: .onItem(with: "C"))
+		try store.moveItems(["A"], to: .onItem(with: "C"))
 
 		// Assert
 		let moves = base.invocations.filter { action in
@@ -657,7 +657,7 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		try store.moveItems(withIDs: ["M(A)"], to: .onItem(with: "B"))
+		try store.moveItems(["M(A)"], to: .onItem(with: "B"))
 
 		// Assert
 		let moves = base.invocations.filter { action in
@@ -689,7 +689,7 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		try store.moveItems(withIDs: ["A"], to: .onItem(with: "B"))
+		try store.moveItems(["A"], to: .onItem(with: "B"))
 
 		// Assert
 		let moves = base.invocations.filter { action in
@@ -723,7 +723,7 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		try store.moveItems(withIDs: Set(["M(A)"]), to: .toRoot)
+		try store.moveItems(Set(["M(A)"]), to: .toRoot)
 
 		// Assert
 		let moves = base.invocations.filter { action in
@@ -750,7 +750,7 @@ extension MirrorStoreTests {
 
 		// Act and Assert
 		do {
-			try store.moveItems(withIDs: ["A"], to: .onItem(with: "B"))
+			try store.moveItems(["A"], to: .onItem(with: "B"))
 			Issue.record("Expected missing node error")
 		} catch NodeStoreError.missingNode {
 			#expect(base.invocations.contains(
@@ -791,7 +791,7 @@ extension MirrorStoreTests {
 		store.set(
 			\.title,
 			to: "updated",
-			forItemsWithIDs: ["M(A)"],
+			for: ["M(A)"],
 			includingDescendants: true
 		)
 
@@ -833,7 +833,7 @@ extension MirrorStoreTests {
 		store.set(
 			\.title,
 			to: "updated",
-			forItemsWithIDs: ["A"],
+			for: ["A"],
 			includingDescendants: true
 		)
 
@@ -867,7 +867,7 @@ extension MirrorStoreTests {
 		store.set(
 			\.title,
 			to: "updated",
-			forItemsWithIDs: ["A"],
+			for: ["A"],
 			includingDescendants: false
 		)
 
@@ -900,7 +900,7 @@ extension MirrorStoreTests {
 		store.set(
 			\.title,
 			to: "updated",
-			forItemsWithIDs: ["A", "M1(A)", "M2(A)"],
+			for: ["A", "M1(A)", "M2(A)"],
 			includingDescendants: false
 		)
 
@@ -942,7 +942,7 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		store.deleteItems(withIDs: Set(["M1(A)"]))
+		store.deleteItems(Set(["M1(A)"]))
 
 		// Assert
 		let deletions = base.invocations.compactMap { action -> Set<String>? in
@@ -977,7 +977,7 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		store.deleteItems(withIDs: ["A"])
+		store.deleteItems(["A"])
 
 		// Assert
 		let deletions = base.invocations.compactMap { action -> Set<String>? in
@@ -1013,7 +1013,7 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		store.deleteItems(withIDs: ["B"])
+		store.deleteItems(["B"])
 
 		// Assert
 		let deletions = base.invocations.compactMap { action -> Set<String>? in
@@ -1049,7 +1049,7 @@ extension MirrorStoreTests {
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
-		store.deleteItems(withIDs: ["A"])
+		store.deleteItems(["A"])
 
 		// Assert
 		let deletions = base.invocations.compactMap { action -> Set<String>? in
