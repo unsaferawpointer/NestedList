@@ -31,7 +31,7 @@ final class ItemConfigurationView: UIView {
 
 	private lazy var titleLabel: UILabel = {
 		let label = UILabel()
-		label.numberOfLines = 1
+		label.numberOfLines = 0
 		label.adjustsFontForContentSizeCategory = true
 		return label
 	}()
