@@ -200,6 +200,21 @@ extension NodeStoreTests {
 		#expect(result == Set([child.id, grandchild.id]))
 		#expect(!result.contains(root.id))
 	}
+
+	@Test func enumerateVisitsValuesInDepthFirstStorageOrder() async throws {
+		// Arrange
+		let secondRoot = Node(value: NodeStoreTestItem(id: 4, title: "second-root"))
+		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode(), secondRoot])
+		var result: [NodeStoreTestItem] = []
+
+		// Act
+		store.enumerate { value in
+			result.append(value)
+		}
+
+		// Assert
+		#expect(result.map(\.id) == [1, 2, 3, 4])
+	}
 }
 
 // MARK: - Insertion

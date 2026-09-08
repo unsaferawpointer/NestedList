@@ -48,6 +48,28 @@ public protocol NodeReading<Value> {
 	subscript(id: Value.ID) -> Value? { get }
 }
 
+// MARK: - Enumeration
+public extension NodeReading {
+
+	/// Visits every stored value in depth-first storage order.
+	///
+	/// Each identifier is visited at most once. Identifiers without a corresponding stored value are skipped.
+	///
+	/// - Parameter block: A closure called for each value in the hierarchy.
+	func enumerate(_ block: (Value) -> Void) {
+		var visited = Set<ID>()
+		var pending = Array(children(of: nil).reversed())
+
+		while let id = pending.popLast() {
+			guard visited.insert(id).inserted, let value = self[id] else {
+				continue
+			}
+			block(value)
+			pending.append(contentsOf: children(of: id).reversed())
+		}
+	}
+}
+
 // MARK: - Descendants
 public extension NodeReading {
 
