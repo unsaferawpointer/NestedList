@@ -38,8 +38,8 @@
 
 ## Workflow
 
-- Each conversation must end with a proposed Git commit message.
-- Use one of the following commit types: feature, fix, refactor, perf, docs, test, build, ci, style, chore, or revert.
+- Each conversation must end with a proposed Git commit message that summarizes the results of the entire session, not only the most recent request.
+- Use one of the following commit types: feature, fix, refactoring, perf, docs, test, build, ci, style, chore, or revert.
 - If all changes are limited to a single module, use the module name as the commit scope: [<type>](<module-name>): <message>.
 - If changes affect multiple modules or the entire project, omit the module scope: [<type>]: <message>.
 - Write the message in the imperative mood, start it with a capital letter, and do not end it with a period.
