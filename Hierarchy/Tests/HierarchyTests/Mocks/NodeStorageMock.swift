@@ -58,9 +58,7 @@ extension NodeStorageMock: NodeStoring {
 
 		let targetIDs: Set<Value.ID>
 		if includingDescendants {
-			targetIDs = ids.reduce(into: Set<Value.ID>()) { result, id in
-				result.formUnion(stubs.descendants[id] ?? [id])
-			}
+			targetIDs = descendantIDs(including: Set(ids))
 		} else {
 			targetIDs = Set(ids)
 		}
@@ -89,11 +87,12 @@ extension NodeStorageMock: NodeReading {
 		return stubs.parents[id]
 	}
 
-	func descendantIDs(including ids: Set<Value.ID>) -> Set<Value.ID> {
-		invocations.append(.descendantIDs(ids: ids))
-		return ids.reduce(into: Set<Value.ID>()) { result, id in
-			result.formUnion(stubs.descendants[id] ?? [id])
+	func children(of parent: Value.ID?) -> [Value.ID] {
+		invocations.append(.children(parent: parent))
+		guard let parent else {
+			return stubs.rootIDs
 		}
+		return stubs.children[parent] ?? []
 	}
 
 	subscript(id: Value.ID) -> Value? {
@@ -114,13 +113,14 @@ extension NodeStorageMock {
 		case deleteItems(ids: [Value.ID])
 		case set(ids: [Value.ID], includingDescendants: Bool)
 		case parent(id: Value.ID)
-		case descendantIDs(ids: Set<Value.ID>)
+		case children(parent: Value.ID?)
 	}
 
 	struct Stubs {
 		var items: [Value.ID: Value] = [:]
 		var parents: [Value.ID: Value.ID] = [:]
-		var descendants: [Value.ID: Set<Value.ID>] = [:]
+		var rootIDs: [Value.ID] = []
+		var children: [Value.ID: [Value.ID]] = [:]
 		var canMoveItems = true
 		var insertError: NodeStoreError?
 		var moveItemsError: NodeStoreError?

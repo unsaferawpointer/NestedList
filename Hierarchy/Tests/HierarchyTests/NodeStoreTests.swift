@@ -156,7 +156,37 @@ extension NodeStoreTests {
 		#expect(grandchildParent == child.id)
 	}
 
-	@Test func descendantIDsIncludesRequestedNodesAndDescendants() async throws {
+	@Test func ancestorIDsIncludesNodeAndPhysicalAncestors() async throws {
+		// Arrange
+		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
+		let grandchild = store.nodes(type: NodeStoreTestNode.self)[0].children[0].children[0]
+
+		// Act
+		let result = store.ancestorIDs(including: grandchild.id)
+
+		// Assert
+		#expect(result == Set([1, 2, 3]))
+	}
+
+	@Test func childrenReturnsOrderedRootAndNestedIdentifiers() async throws {
+		// Arrange
+		let secondRoot = Node(value: NodeStoreTestItem(id: 4, title: "second-root"))
+		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode(), secondRoot])
+
+		// Act
+		let rootIDs = store.children(of: nil)
+		let childIDs = store.children(of: 1)
+		let leafChildIDs = store.children(of: 3)
+		let missingChildIDs = store.children(of: 404)
+
+		// Assert
+		#expect(rootIDs == [1, 4])
+		#expect(childIDs == [2])
+		#expect(leafChildIDs.isEmpty)
+		#expect(missingChildIDs.isEmpty)
+	}
+
+	@Test func descendantIDsIncludesDescendantsAndOmitsMissingNodes() async throws {
 		// Arrange
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
 		let root = store.nodes(type: NodeStoreTestNode.self)[0]
@@ -164,7 +194,7 @@ extension NodeStoreTests {
 		let grandchild = child.children[0]
 
 		// Act
-		let result = store.descendantIDs(including: Set([child.id]))
+		let result = store.descendantIDs(including: Set([child.id, 404]))
 
 		// Assert
 		#expect(result == Set([child.id, grandchild.id]))

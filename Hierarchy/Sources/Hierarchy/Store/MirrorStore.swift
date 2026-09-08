@@ -37,8 +37,8 @@ extension MirrorStore: NodeStoring {
 		base.parent(of: id)
 	}
 
-	public func descendantIDs(including ids: Set<Value.ID>) -> Set<Value.ID> {
-		base.descendantIDs(including: ids)
+	public func children(of parent: Value.ID?) -> [Value.ID] {
+		base.children(of: parent)
 	}
 
 	public func insert<S: Sequence>(

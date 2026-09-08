@@ -30,18 +30,14 @@ public protocol NodeReading<Value> {
 	/// - Returns: The parent node's identifier, or `nil` when no parent is available.
 	func parent(of id: ID) -> ID?
 
-	/// Returns the identifiers in the physical ancestor chain of a node, including the node itself.
+	/// Returns the ordered identifiers of the direct children of the specified parent.
 	///
-	/// Mirror references are not traversed. Returns `nil` when the physical parent chain contains a cycle.
-	func ancestorIDs(including id: ID) -> Set<ID>?
-
-	/// Returns the identifiers of the specified nodes and all of their descendants.
+	/// Pass `nil` to retrieve the root identifiers. Returns an empty array when the parent is not found
+	/// or has no children.
 	///
-	/// Identifiers that do not correspond to stored nodes are omitted from the result.
-	///
-	/// - Parameter ids: The identifiers of the subtree roots to traverse.
-	/// - Returns: The identifiers of the existing subtree roots and their descendants.
-	func descendantIDs(including ids: Set<ID>) -> Set<ID>
+	/// - Parameter parent: The parent identifier, or `nil` for the root container.
+	/// - Returns: The direct child identifiers in storage order.
+	func children(of parent: ID?) -> [ID]
 
 	// MARK: - Subscripts
 
@@ -52,9 +48,36 @@ public protocol NodeReading<Value> {
 	subscript(id: Value.ID) -> Value? { get }
 }
 
+// MARK: - Descendants
+public extension NodeReading {
+
+	/// Returns the identifiers of the specified nodes and all of their descendants.
+	///
+	/// Identifiers that do not correspond to stored nodes are omitted from the result.
+	///
+	/// - Parameter ids: The identifiers of the subtree roots to traverse.
+	/// - Returns: The identifiers of the existing subtree roots and their descendants.
+	func descendantIDs(including ids: Set<ID>) -> Set<ID> {
+		var result = Set<ID>()
+		var pending = Array(ids)
+
+		while let id = pending.popLast() {
+			guard self[id] != nil, result.insert(id).inserted else {
+				continue
+			}
+			pending.append(contentsOf: children(of: id))
+		}
+
+		return result
+	}
+}
+
 // MARK: - Physical ancestry
 public extension NodeReading {
 
+	/// Returns the identifiers in the physical ancestor chain of a node, including the node itself.
+	///
+	/// Mirror references are not traversed. Returns `nil` when the physical parent chain contains a cycle.
 	func ancestorIDs(including id: ID) -> Set<ID>? {
 		var result = Set<ID>()
 		var current: ID? = id

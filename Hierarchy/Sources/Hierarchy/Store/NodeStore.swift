@@ -130,17 +130,11 @@ extension NodeStore: NodeReading {
 		return cache[id]?.parent?.id
 	}
 
-	public func descendantIDs(including ids: Set<ID>) -> Set<ID> {
-		var result = Set<ID>()
-		for id in ids {
-			guard let node = cache[id] else {
-				continue
-			}
-			enumerate([node]) { node in
-				result.insert(node.id)
-			}
+	public func children(of parent: ID?) -> [ID] {
+		guard let parent else {
+			return nodes.map(\.id)
 		}
-		return result
+		return cache[parent]?.children.map(\.id) ?? []
 	}
 
 	public subscript(_ id: ID) -> Value? {

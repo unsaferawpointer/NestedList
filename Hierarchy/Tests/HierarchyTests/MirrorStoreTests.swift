@@ -71,10 +71,14 @@ extension MirrorStoreTests {
 	}
 
 	@Test
-	func descendantIDsReturnsBaseDescendantIDs() {
+	func descendantIDsTraversesBaseChildren() {
 		// Arrange
 		let base = NodeStorageMock<Container<TestItem<String>>>()
-		base.stubs.descendants = ["A": ["A", "B"]]
+		base.stubs.items = [
+			"A": .item(value: TestItem(id: "A")),
+			"B": .item(value: TestItem(id: "B"))
+		]
+		base.stubs.children = ["A": ["B"]]
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
@@ -82,7 +86,12 @@ extension MirrorStoreTests {
 
 		// Assert
 		#expect(result == Set(["A", "B"]))
-		#expect(base.invocations == [.descendantIDs(ids: ["A"])])
+		#expect(base.invocations == [
+			.item(id: "A"),
+			.children(parent: "A"),
+			.item(id: "B"),
+			.children(parent: "B")
+		])
 	}
 
 	@Test
@@ -98,6 +107,21 @@ extension MirrorStoreTests {
 		// Assert
 		#expect(result == "A")
 		#expect(base.invocations == [.parent(id: "B")])
+	}
+
+	@Test
+	func childrenReturnsBaseChildIdentifiers() {
+		// Arrange
+		let base = NodeStorageMock<Container<TestItem<String>>>()
+		base.stubs.children = ["A": ["B", "C"]]
+		let store = MirrorStore<TestItem<String>>(base: base)
+
+		// Act
+		let result = store.children(of: "A")
+
+		// Assert
+		#expect(result == ["B", "C"])
+		#expect(base.invocations == [.children(parent: "A")])
 	}
 }
 
@@ -331,11 +355,6 @@ extension MirrorStoreTests {
 			"C": .item(value: TestItem(id: "C"))
 		]
 		base.stubs.parents = ["B": "A", "C": "B"]
-		base.stubs.descendants = [
-			"A": ["A", "B", "C"],
-			"B": ["B", "C"],
-			"C": ["C"]
-		]
 		base.stubs.canMoveItems = false
 		let store = MirrorStore<TestItem<String>>(base: base)
 
@@ -371,7 +390,6 @@ extension MirrorStoreTests {
 			"A": .item(value: TestItem(id: "A")),
 			"M(A)": .mirror(id: "M(A)", reference: "A")
 		]
-		base.stubs.descendants = ["A": ["A"], "M(A)": ["M(A)"]]
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
@@ -399,7 +417,6 @@ extension MirrorStoreTests {
 			"M(A)": .mirror(id: "M(A)", reference: "A"),
 			"B": .item(value: TestItem(id: "B"))
 		]
-		base.stubs.descendants = ["A": ["A"], "M(A)": ["M(A)"], "B": ["B"]]
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
@@ -443,12 +460,6 @@ extension MirrorStoreTests {
 			"M(A)": .mirror(id: "M(A)", reference: "A")
 		]
 		base.stubs.parents = ["B": "A", "C": "B"]
-		base.stubs.descendants = [
-			"A": ["A", "B", "C"],
-			"B": ["B", "C"],
-			"C": ["C"],
-			"M(A)": ["M(A)"]
-		]
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
@@ -500,13 +511,7 @@ extension MirrorStoreTests {
 			"M(A)": .mirror(id: "M(A)", reference: "A")
 		]
 		base.stubs.parents = ["X": "A", "Y": "X", "M(A)": "B"]
-		base.stubs.descendants = [
-			"A": ["A", "X", "Y"],
-			"X": ["X", "Y"],
-			"Y": ["Y"],
-			"B": ["B", "M(A)"],
-			"M(A)": ["M(A)"]
-		]
+		base.stubs.children = ["B": ["M(A)"]]
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
@@ -543,12 +548,6 @@ extension MirrorStoreTests {
 			"C": .item(value: TestItem(id: "C"))
 		]
 		base.stubs.parents = ["C": "B"]
-		base.stubs.descendants = [
-			"A": ["A"],
-			"B": ["B", "C"],
-			"M(A)": ["M(A)"],
-			"C": ["C"]
-		]
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
@@ -578,7 +577,6 @@ extension MirrorStoreTests {
 			"M2(A)": .mirror(id: "M2(A)", reference: "A"),
 			"B": .item(value: TestItem(id: "B"))
 		]
-		base.stubs.descendants = ["M1(A)": ["M1(A)"]]
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
@@ -618,7 +616,7 @@ extension MirrorStoreTests {
 			"C": .item(value: TestItem(id: "C"))
 		]
 		base.stubs.parents = ["B": "A"]
-		base.stubs.descendants = ["A": ["A", "B"]]
+		base.stubs.children = ["A": ["B"]]
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
@@ -656,7 +654,6 @@ extension MirrorStoreTests {
 			"M(A)": .mirror(id: "M(A)", reference: "A")
 		]
 		base.stubs.parents = ["B": "A"]
-		base.stubs.descendants = ["M(A)": ["M(A)"]]
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
@@ -688,7 +685,6 @@ extension MirrorStoreTests {
 			"A": .item(value: TestItem(id: "A")),
 			"B": .item(value: TestItem(id: "B"))
 		]
-		base.stubs.descendants = ["A": ["A"]]
 		base.stubs.canMoveItems = false
 		let store = MirrorStore<TestItem<String>>(base: base)
 
@@ -724,7 +720,6 @@ extension MirrorStoreTests {
 			"A": .item(value: TestItem(id: "A")),
 			"M(A)": .mirror(id: "M(A)", reference: "A")
 		]
-		base.stubs.descendants = ["M(A)": ["M(A)"]]
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
@@ -750,7 +745,6 @@ extension MirrorStoreTests {
 			"A": .item(value: TestItem(id: "A")),
 			"B": .item(value: TestItem(id: "B"))
 		]
-		base.stubs.descendants = ["A": ["A"]]
 		base.stubs.moveItemsError = .missingNode
 		let store = MirrorStore<TestItem<String>>(base: base)
 
@@ -791,10 +785,6 @@ extension MirrorStoreTests {
 			"M(A)": .mirror(id: "M(A)", reference: "A")
 		]
 		base.stubs.parents = ["B": "A"]
-		base.stubs.descendants = [
-			"A": ["A", "B"],
-			"M(A)": ["M(A)"]
-		]
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
@@ -833,7 +823,10 @@ extension MirrorStoreTests {
 			"M(C)": .mirror(id: "M(C)", reference: "C")
 		]
 		base.stubs.parents = ["B": "A", "M(C)": "B"]
-		base.stubs.descendants = ["A": ["A", "B", "M(C)"]]
+		base.stubs.children = [
+			"A": ["B"],
+			"B": ["M(C)"]
+		]
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
@@ -868,7 +861,6 @@ extension MirrorStoreTests {
 			"B": .item(value: TestItem(id: "B", title: "original"))
 		]
 		base.stubs.parents = ["B": "A"]
-		base.stubs.descendants = ["A": ["A", "B"]]
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
@@ -947,7 +939,6 @@ extension MirrorStoreTests {
 			"M1(A)": .mirror(id: "M1(A)", reference: "A"),
 			"M2(A)": .mirror(id: "M2(A)", reference: "A")
 		]
-		base.stubs.descendants = ["M1(A)": ["M1(A)"]]
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
@@ -983,7 +974,6 @@ extension MirrorStoreTests {
 			"M1(A)": .mirror(id: "M1(A)", reference: "A"),
 			"M2(A)": .mirror(id: "M2(A)", reference: "A")
 		]
-		base.stubs.descendants = ["A": ["A"]]
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
@@ -1019,7 +1009,7 @@ extension MirrorStoreTests {
 			"M(A)": .mirror(id: "M(A)", reference: "A")
 		]
 		base.stubs.parents = ["M(A)": "B"]
-		base.stubs.descendants = ["B": ["B", "M(A)"]]
+		base.stubs.children = ["B": ["M(A)"]]
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
@@ -1055,7 +1045,7 @@ extension MirrorStoreTests {
 			"M(B)": .mirror(id: "M(B)", reference: "B")
 		]
 		base.stubs.parents = ["B": "A"]
-		base.stubs.descendants = ["A": ["A", "B"]]
+		base.stubs.children = ["A": ["B"]]
 		let store = MirrorStore<TestItem<String>>(base: base)
 
 		// Act
