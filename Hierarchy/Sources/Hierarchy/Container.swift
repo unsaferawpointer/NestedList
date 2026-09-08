@@ -58,6 +58,16 @@ extension Container {
 		}
 	}
 
+	/// The identifier of the represented item.
+	///
+	/// For an item, this is its own identifier. For a mirror, this is the referenced item's identifier.
+	var itemID: Value.ID {
+		switch self {
+		case let .item(value):			value.id
+		case let .mirror(_, reference):	reference
+		}
+	}
+
 	var reference: Value.ID? {
 		switch self {
 		case .item:						nil
