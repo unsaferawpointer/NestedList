@@ -7,14 +7,15 @@ struct ResolvedTests { }
 extension ResolvedTests {
 
 	@Test
-	func initStoresContentAndMirrorFlag() {
+	func initStoresIdentifierContentAndMirrorFlag() {
 		// Arrange
-		let content = TestItem(id: "A", title: "Original")
+		let content = TestItem(id: "Content", title: "Original")
 
 		// Act
-		let resolved = Resolved(content: content, isMirror: true)
+		let resolved = Resolved(id: "A", content: content, isMirror: true)
 
 		// Assert
+		#expect(resolved.id == "A")
 		#expect(resolved.content == content)
 		#expect(resolved.isMirror)
 	}
@@ -22,10 +23,10 @@ extension ResolvedTests {
 	@Test
 	func initCreatesOriginalByDefault() {
 		// Arrange
-		let content = TestItem(id: "A", title: "Original")
+		let content = TestItem(id: "Content", title: "Original")
 
 		// Act
-		let resolved = Resolved(content: content)
+		let resolved = Resolved(id: "A", content: content)
 
 		// Assert
 		#expect(!resolved.isMirror)
@@ -36,10 +37,11 @@ extension ResolvedTests {
 extension ResolvedTests {
 
 	@Test
-	func idProxiesContentIdentifier() {
+	func idCanBeUpdated() {
 		// Arrange
 		var resolved = Resolved(
-			content: TestItem(id: "A", title: "Original")
+			id: "A",
+			content: TestItem(id: "Content", title: "Original")
 		)
 
 		// Act
@@ -47,7 +49,6 @@ extension ResolvedTests {
 
 		// Assert
 		#expect(resolved.id == "B")
-		#expect(resolved.content.id == "B")
 	}
 }
 
@@ -57,12 +58,26 @@ extension ResolvedTests {
 	@Test
 	func equalityIncludesMirrorFlag() {
 		// Arrange
-		let content = TestItem(id: "A", title: "Original")
-		let original = Resolved(content: content)
-		let mirror = Resolved(content: content, isMirror: true)
+		let content = TestItem(id: "Content", title: "Original")
+		let original = Resolved(id: "A", content: content)
+		let mirror = Resolved(id: "A", content: content, isMirror: true)
 
 		// Act
 		let areEqual = original == mirror
+
+		// Assert
+		#expect(!areEqual)
+	}
+
+	@Test
+	func equalityIncludesIdentifier() {
+		// Arrange
+		let content = TestItem(id: "Content", title: "Original")
+		let first = Resolved(id: "A", content: content)
+		let second = Resolved(id: "B", content: content)
+
+		// Act
+		let areEqual = first == second
 
 		// Assert
 		#expect(!areEqual)
@@ -75,9 +90,9 @@ extension ResolvedTests {
 	@Test
 	func hashingIncludesMirrorFlag() {
 		// Arrange
-		let content = TestItem(id: "A", title: "Original")
-		let original = Resolved(content: content)
-		let mirror = Resolved(content: content, isMirror: true)
+		let content = TestItem(id: "Content", title: "Original")
+		let original = Resolved(id: "A", content: content)
+		let mirror = Resolved(id: "A", content: content, isMirror: true)
 
 		// Act
 		let values: Set = [original, mirror]

@@ -12,16 +12,17 @@ struct ItemTests { }
 // MARK: - Initialization
 extension ItemTests {
 
-	@Test func initWithContentPreservesContentAndMirrorFlag() {
+	@Test func initWithContentPreservesIdentifierAndContent() {
 		// Arrange
+		let uuid = UUID()
 		let content = ItemContent(text: "Item")
 
 		// Act
-		let item = Item(content: content, isMirror: true)
+		let item = Item(id: uuid, content: content)
 
 		// Assert
+		#expect(item.id == uuid)
 		#expect(item.content == content)
-		#expect(item.isMirror)
 	}
 
 	@Test func convenienceInitCreatesOriginalItem() {
@@ -32,8 +33,8 @@ extension ItemTests {
 		let item = Item(uuid: uuid, text: "Item", view: .columns)
 
 		// Assert
-		#expect(item.content == ItemContent(uuid: uuid, text: "Item", view: .columns))
-		#expect(!item.isMirror)
+		#expect(item.id == uuid)
+		#expect(item.content == ItemContent(text: "Item", view: .columns))
 	}
 }
 
@@ -42,8 +43,8 @@ extension ItemTests {
 
 	@Test func storedPropertyProxiesReadContent() {
 		// Arrange
+		let uuid = UUID()
 		let content = ItemContent(
-			uuid: UUID(),
 			text: "Item",
 			note: "Note",
 			options: [.strikethrough],
@@ -53,10 +54,10 @@ extension ItemTests {
 		)
 
 		// Act
-		let item = Item(content: content)
+		let item = Item(id: uuid, content: content)
 
 		// Assert
-		#expect(item.uuid == content.uuid)
+		#expect(item.uuid == uuid)
 		#expect(item.text == content.text)
 		#expect(item.note == content.note)
 		#expect(item.options == content.options)
@@ -82,7 +83,7 @@ extension ItemTests {
 		item.tintColor = .blue
 
 		// Assert
-		#expect(item.content.uuid == uuid)
+		#expect(item.id == uuid)
 		#expect(item.content.text == "Updated")
 		#expect(item.content.note == "Note")
 		#expect(item.content.options == [.strikethrough])
@@ -112,18 +113,17 @@ extension ItemTests {
 // MARK: - Copying
 extension ItemTests {
 
-	@Test func copyReplacesIdentifierAndPreservesMirrorFlag() {
+	@Test func copyReplacesIdentifierAndPreservesContent() {
 		// Arrange
 		let newId = UUID()
-		let item = Item(text: "Item", isMirror: true)
+		let item = Item(text: "Item")
 
 		// Act
 		let copy = item.copy(with: newId)
 
 		// Assert
 		#expect(copy.uuid == newId)
-		#expect(copy.text == item.text)
-		#expect(copy.isMirror == item.isMirror)
+		#expect(copy.content == item.content)
 	}
 }
 
@@ -141,9 +141,10 @@ extension ItemTests {
 
 		// Assert
 		#expect(object["text"] as? String == "Item")
+		#expect(object["uuid"] as? String == item.uuid.uuidString)
 		#expect(object["content"] == nil)
 		#expect(object["isMirror"] == nil)
+		#expect(decoded.id == item.id)
 		#expect(decoded.content == item.content)
-		#expect(!decoded.isMirror)
 	}
 }

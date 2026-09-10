@@ -20,8 +20,8 @@ public final class MirrorStore<Value: MutableIdentifiable & Hashable> where Valu
 	}
 }
 
-// MARK: - NodeStoring
-extension MirrorStore: NodeStoring {
+// MARK: - MirrorStoring
+extension MirrorStore: MirrorStoring {
 
 	public var identifiers: Set<Value.ID> {
 		base.identifiers
@@ -29,7 +29,7 @@ extension MirrorStore: NodeStoring {
 
 	// MARK: - Subscripts
 
-	public subscript(id: Value.ID) -> Value? {
+	public subscript(id: Value.ID) -> Resolved<Value>? {
 		item(with: id)
 	}
 
@@ -132,7 +132,7 @@ extension MirrorStore: NodeStoring {
 
 		let originalIDs = Set(
 			targetIDs.compactMap {
-				item(with: $0)?.id
+				item(with: $0)?.content.id
 			}
 		)
 
@@ -146,10 +146,10 @@ extension MirrorStore: NodeStoring {
 	}
 }
 
-// MARK: - MirrorStoring
-extension MirrorStore: MirrorStoring {
+// MARK: - Mirror Interface
+public extension MirrorStore {
 
-	public func insertMirror(
+	func insertMirror(
 		for ids: [Value.ID],
 		to destination: Destination<Value.ID>
 	) throws(NodeStoreError) -> [Value.ID] {
@@ -168,7 +168,7 @@ extension MirrorStore: MirrorStoring {
 		return inserted.map(\.id)
 	}
 
-	public func canInsertMirror(
+	func canInsertMirror(
 		for ids: [Value.ID],
 		to destination: Destination<Value.ID>
 	) -> Bool {
@@ -213,18 +213,18 @@ private extension MirrorStore {
 		return ancestorIDs.isDisjoint(with: references)
 	}
 
-	func item(with id: Value.ID) -> Value? {
+	func item(with id: Value.ID) -> Resolved<Value>? {
 		guard let container = base[id] else {
 			return nil
 		}
 		switch container {
 		case let .item(value):
-			return value
+			return Resolved(id: id, content: value)
 		case let .mirror(_, reference):
 			guard case let .item(value) = base[reference] else {
 				fatalError("Link to non-item")
 			}
-			return value
+			return Resolved(id: id, content: value, isMirror: true)
 		}
 	}
 }

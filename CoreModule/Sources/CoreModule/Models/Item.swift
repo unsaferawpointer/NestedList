@@ -8,14 +8,28 @@
 import Foundation
 import Hierarchy
 
-public typealias Item = Resolved<ItemContent>
+public struct Item {
+
+	public var id: UUID
+
+	public var content: ItemContent
+
+	// MARK: - Initialization
+
+	public init(id: UUID, content: ItemContent) {
+		self.id = id
+		self.content = content
+	}
+}
+
+public typealias ResolvedItem = Resolved<Item>
 
 // MARK: - ItemContent interface
-public extension Resolved where Content == ItemContent {
+public extension Item {
 
 	var uuid: UUID {
-		get { content.uuid }
-		set { content.uuid = newValue }
+		get { id }
+		set { id = newValue }
 	}
 
 	var text: String {
@@ -74,27 +88,25 @@ public extension Resolved where Content == ItemContent {
 		options: ItemOptions = [],
 		view: View = .list,
 		iconName: IconName? = nil,
-		tintColor: ItemColor? = nil,
-		isMirror: Bool = false
+		tintColor: ItemColor? = nil
 	) {
 		self.init(
+			id: uuid,
 			content: ItemContent(
-				uuid: uuid,
 				text: text,
 				note: note,
 				options: options,
 				view: view,
 				iconName: iconName,
 				tintColor: tintColor
-			),
-			isMirror: isMirror
+			)
 		)
 	}
 
-	init(uuid: UUID = UUID(), properties: ItemProperties, isMirror: Bool = false) {
+	init(uuid: UUID = UUID(), properties: ItemProperties) {
 		self.init(
-			content: ItemContent(uuid: uuid, properties: properties),
-			isMirror: isMirror
+			id: uuid,
+			content: ItemContent(properties: properties)
 		)
 	}
 
@@ -102,8 +114,8 @@ public extension Resolved where Content == ItemContent {
 
 	func copy(with newId: UUID = .init()) -> Item {
 		return Item(
-			content: content.copy(with: newId),
-			isMirror: isMirror
+			id: newId,
+			content: content
 		)
 	}
 
@@ -114,14 +126,30 @@ public extension Resolved where Content == ItemContent {
 	typealias Style = ItemContent.Style
 }
 
+// MARK: - MutableIdentifiable
+extension Item: MutableIdentifiable { }
+
+// MARK: - Hashable
+extension Item: Hashable { }
+
 // MARK: - Codable
-extension Resolved: @retroactive Codable where Content == ItemContent {
+extension Item: Codable {
 
 	public init(from decoder: any Decoder) throws {
-		self.init(content: try ItemContent(from: decoder))
+		let container = try decoder.container(keyedBy: CodingKeys.self)
+		self.init(
+			id: try container.decode(UUID.self, forKey: .uuid),
+			content: try ItemContent(from: decoder)
+		)
 	}
 
 	public func encode(to encoder: any Encoder) throws {
 		try content.encode(to: encoder)
+		var container = encoder.container(keyedBy: CodingKeys.self)
+		try container.encode(id, forKey: .uuid)
+	}
+
+	enum CodingKeys: String, CodingKey {
+		case uuid
 	}
 }

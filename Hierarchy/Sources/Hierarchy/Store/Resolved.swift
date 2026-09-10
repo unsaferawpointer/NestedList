@@ -7,7 +7,9 @@
 
 import Foundation
 
-public struct Resolved<Content> {
+public struct Resolved<Content: Identifiable> {
+
+	public var id: Content.ID
 
 	public var content: Content
 
@@ -15,7 +17,8 @@ public struct Resolved<Content> {
 
 	// MARK: - Initialization
 
-	public init(content: Content, isMirror: Bool = false) {
+	public init(id: Content.ID, content: Content, isMirror: Bool = false) {
+		self.id = id
 		self.content = content
 		self.isMirror = isMirror
 	}
@@ -28,13 +31,7 @@ extension Resolved: Equatable where Content: Equatable { }
 extension Resolved: Hashable where Content: Hashable { }
 
 // MARK: - Identifiable
-extension Resolved: Identifiable where Content: MutableIdentifiable {
-
-	public var id: Content.ID {
-		get { content.id }
-		set { content.id = newValue }
-	}
-}
+extension Resolved: Identifiable { }
 
 // MARK: - MutableIdentifiable
-extension Resolved: MutableIdentifiable where Content: MutableIdentifiable { }
+extension Resolved: MutableIdentifiable { }

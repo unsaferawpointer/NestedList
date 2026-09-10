@@ -19,7 +19,10 @@ extension MirrorStoreTests {
 		let result = store["A"]
 
 		// Assert
-		#expect(result == TestItem(id: "A", title: "Original"))
+		#expect(result == Resolved(
+			id: "A",
+			content: TestItem(id: "A", title: "Original")
+		))
 	}
 
 	@Test
@@ -36,7 +39,11 @@ extension MirrorStoreTests {
 		let result = store["M(A)"]
 
 		// Assert
-		#expect(result == TestItem(id: "A", title: "Original"))
+		#expect(result == Resolved(
+			id: "M(A)",
+			content: TestItem(id: "A", title: "Original"),
+			isMirror: true
+		))
 	}
 
 	@Test

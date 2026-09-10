@@ -6,11 +6,8 @@
 //
 
 import Foundation
-import Hierarchy
 
 public struct ItemContent {
-
-	public var uuid: UUID
 
 	public var text: String
 
@@ -29,7 +26,6 @@ public struct ItemContent {
 	// MARK: - Initialization
 
 	public init(
-		uuid: UUID = UUID(),
 		text: String,
 		note: String? = nil,
 		options: ItemOptions = [],
@@ -37,7 +33,6 @@ public struct ItemContent {
 		iconName: IconName? = nil,
 		tintColor: ItemColor? = nil
 	) {
-		self.uuid = uuid
 		self.text = text
 		self.note = note
 		self.options = options
@@ -46,8 +41,7 @@ public struct ItemContent {
 		self.tintColor = tintColor
 	}
 
-	public init(uuid: UUID = UUID(), properties: ItemProperties) {
-		self.uuid = uuid
+	public init(properties: ItemProperties) {
 		self.text = properties.text
 		self.note = properties.note
 		self.options = properties.options
@@ -57,33 +51,8 @@ public struct ItemContent {
 	}
 }
 
-// MARK: - Identifiable
-extension ItemContent: MutableIdentifiable {
-
-	public var id: UUID {
-		get { uuid }
-		set { uuid = newValue }
-	}
-}
-
 // MARK: - Hashable
 extension ItemContent: Hashable { }
-
-// MARK: - Public Interface
-public extension ItemContent {
-
-	func copy(with newId: UUID = .init()) -> ItemContent {
-		return ItemContent(
-			uuid: newId,
-			text: text,
-			note: note,
-			options: options,
-			view: view,
-			iconName: iconName,
-			tintColor: tintColor
-		)
-	}
-}
 
 // MARK: - Computed properties
 public extension ItemContent {
@@ -122,7 +91,6 @@ public extension ItemContent {
 extension ItemContent: Codable {
 	
 	enum CodingKeys: String, CodingKey {
-		case uuid
 		case text
 		case note
 		case options
@@ -135,7 +103,6 @@ extension ItemContent: Codable {
 	public init(from decoder: any Decoder) throws {
 		let container = try decoder.container(keyedBy: CodingKeys.self)
 
-		self.uuid = try container.decode(UUID.self, forKey: .uuid)
 		self.text = try container.decode(String.self, forKey: .text)
 		self.note = try container.decodeIfPresent(String.self, forKey: .note)
 		self.options = try container.decode(ItemOptions.self, forKey: .options)
@@ -164,7 +131,6 @@ extension ItemContent: Codable {
 	
 	public func encode(to encoder: any Encoder) throws {
 		var container = encoder.container(keyedBy: CodingKeys.self)
-		try container.encode(uuid, forKey: .uuid)
 		try container.encode(text, forKey: .text)
 		try container.encodeIfPresent(note, forKey: .note)
 		try container.encode(options, forKey: .options)
