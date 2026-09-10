@@ -8,10 +8,51 @@
 #if canImport(Cocoa)
 import Cocoa
 
+public final class InsetOutlineView: NSOutlineView {
+
+	var horizontalInset: CGFloat = 16 {
+		didSet {
+			tile()
+			setNeedsDisplay(bounds)
+		}
+	}
+
+	public override func frameOfOutlineCell(atRow row: Int) -> NSRect {
+		var frame = super.frameOfOutlineCell(atRow: row)
+		frame.origin.x += horizontalInset
+		return frame
+	}
+
+	public override func frameOfCell(
+		atColumn column: Int,
+		row: Int
+	) -> NSRect {
+		var frame = super.frameOfCell(
+			atColumn: column,
+			row: row
+		)
+
+		guard
+			let outlineTableColumn,
+			let outlineColumnIndex = tableColumns.firstIndex(
+				of: outlineTableColumn
+			),
+			column == outlineColumnIndex
+				else {
+			return frame
+		}
+
+		frame.origin.x += horizontalInset
+		frame.size.width -= horizontalInset * 2
+
+		return frame
+	}
+}
+
 public extension NSOutlineView {
 
-	static var standart: NSOutlineView {
-		let view = NSOutlineView()
+	static var standart: InsetOutlineView {
+		let view = InsetOutlineView()
 		view.style = .inset
 		view.rowSizeStyle = .large
 		view.floatsGroupRows = false
