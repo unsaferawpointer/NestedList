@@ -190,12 +190,12 @@ private extension Document {
 		newItem?.label = newItemToolbarItemLabel
 
 		let viewItem = toolbar.items.first { $0.itemIdentifier == .viewItem }
-		(viewItem?.view as? NSSegmentedControl)?.selectedSegment = storage.state.view.rawValue
+		(viewItem?.view as? NSSegmentedControl)?.selectedSegment = storage.state.view.toolbarSegment
 	}
 
 	var newItemToolbarItemLabel: String {
 		switch storage.state.view {
-		case .list:
+		case .list, .unknown:
 			return String(localized: "new-item-toolbar-item-label", table: "ContentLocalizable")
 		case .columns:
 			return String(localized: "new-item-toolbar-item-label", table: "ColumnsLocalizable")
@@ -214,9 +214,18 @@ extension NSToolbarItem.Identifier {
 // MARK: - Helpers
 private extension DocumentContent.ContentView {
 
+	var toolbarSegment: Int {
+		switch self {
+		case .list, .unknown:
+			0
+		case .columns:
+			1
+		}
+	}
+
 	var analyticsIdentifier: String {
 		switch self {
-		case .list:
+		case .list, .unknown:
 			"list"
 		case .columns:
 			"columns"

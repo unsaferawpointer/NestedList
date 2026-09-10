@@ -165,8 +165,35 @@ extension DocumentContent: Codable {
 // MARK: - Nested structs
 public extension DocumentContent {
 
-	enum ContentView: Int, Codable {
-		case list = 0
-		case columns = 1
+	enum ContentView {
+		case list
+		case columns
+		case unknown(Int)
 	}
 }
+
+// MARK: - RawRepresentable
+extension DocumentContent.ContentView: RawRepresentable {
+
+	public init?(rawValue: Int) {
+		switch rawValue {
+		case 0: self = .list
+		case 1: self = .columns
+		default: self = .unknown(rawValue)
+		}
+	}
+
+	public var rawValue: Int {
+		switch self {
+		case .list: 0
+		case .columns: 1
+		case let .unknown(rawValue): rawValue
+		}
+	}
+}
+
+// MARK: - Equatable
+extension DocumentContent.ContentView: Equatable { }
+
+// MARK: - Codable
+extension DocumentContent.ContentView: Codable { }
