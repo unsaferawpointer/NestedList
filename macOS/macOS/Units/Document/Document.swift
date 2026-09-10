@@ -149,7 +149,7 @@ extension Document: NSToolbarDelegate {
 				target: self,
 				action: #selector(changeView(_:))
 			)
-			button.selectedSegment = storage.state.view.rawValue
+			button.selectedSegment = min(button.segmentCount - 1, storage.state.view.rawValue)
 
 			item.label = String(localized: "View")
 			item.view = button
@@ -190,7 +190,9 @@ private extension Document {
 		newItem?.label = newItemToolbarItemLabel
 
 		let viewItem = toolbar.items.first { $0.itemIdentifier == .viewItem }
-		(viewItem?.view as? NSSegmentedControl)?.selectedSegment = storage.state.view.toolbarSegment
+		if let segmentedControl = viewItem?.view as? NSSegmentedControl {
+			segmentedControl.selectedSegment = min(segmentedControl.segmentCount - 1, storage.state.view.toolbarSegment)
+		}
 	}
 
 	var newItemToolbarItemLabel: String {
