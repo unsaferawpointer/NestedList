@@ -11,12 +11,17 @@ public final class MirrorStore<Value: MutableIdentifiable & Hashable> where Valu
 
 	typealias ID = Value.ID
 
-	private let base: any NodeStoring<Container<Value>>
+	private let base: NodeStore<Container<Value>>
 
 	// MARK: - Initialization
 
-	public init(base: any NodeStoring<Container<Value>>) {
-		self.base = base
+	public init() {
+		self.base = NodeStore()
+	}
+
+	public init<T: TreeNode>(hierarchy: [T]) where T.Value == Container<Value> {
+		self.base = NodeStore(hierarchy: hierarchy)
+		validateStorageConsistency()
 	}
 }
 
@@ -45,8 +50,16 @@ extension MirrorStore: MirrorStoring {
 		_ items: S,
 		at destination: Destination<Value.ID>
 	) throws(NodeStoreError) where S.Element == Value {
+		if let destinationID = destination.id {
+			guard let container = base[destinationID] else {
+				throw .missingNode
+			}
+			guard case .item = container else {
+				return
+			}
+		}
 		try base.insert(
-			items.lazy.map {
+			items.map {
 				.item(value: $0)
 			},
 			at: destination
@@ -143,6 +156,35 @@ extension MirrorStore: MirrorStoring {
 			for: Array(originalIDs),
 			includingDescendants: false
 		)
+	}
+}
+
+// MARK: - Storage Consistency
+private extension MirrorStore {
+
+	func validateStorageConsistency() {
+		while true {
+			let invalidIDs = base.identifiers.filter { id in
+				guard case let .mirror(_, reference) = base[id] else {
+					return false
+				}
+				guard case .item = base[reference] else {
+					return true
+				}
+				guard base.children(of: id).isEmpty else {
+					return true
+				}
+				guard let ancestorIDs = base.ancestorIDs(including: id) else {
+					return true
+				}
+				return ancestorIDs.contains(reference)
+			}
+
+			guard !invalidIDs.isEmpty else {
+				return
+			}
+			base.deleteItems(invalidIDs)
+		}
 	}
 }
 
