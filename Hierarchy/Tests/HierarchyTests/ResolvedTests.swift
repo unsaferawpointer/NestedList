@@ -31,6 +31,19 @@ extension ResolvedTests {
 		// Assert
 		#expect(!resolved.isMirror)
 	}
+
+	@Test
+	func initSupportsNonIdentifiableContent() {
+		// Arrange
+		let content = "Content"
+
+		// Act
+		let resolved = Resolved(id: 1, content: content)
+
+		// Assert
+		#expect(resolved.id == 1)
+		#expect(resolved.content == content)
+	}
 }
 
 // MARK: - MutableIdentifiable

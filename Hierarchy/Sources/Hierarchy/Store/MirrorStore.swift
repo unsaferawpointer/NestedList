@@ -29,7 +29,7 @@ extension MirrorStore: MirrorStoring {
 
 	// MARK: - Subscripts
 
-	public subscript(id: Value.ID) -> Resolved<Value>? {
+	public subscript(id: Value.ID) -> Resolved<Value, Value.ID>? {
 		item(with: id)
 	}
 
@@ -213,7 +213,7 @@ private extension MirrorStore {
 		return ancestorIDs.isDisjoint(with: references)
 	}
 
-	func item(with id: Value.ID) -> Resolved<Value>? {
+	func item(with id: Value.ID) -> Resolved<Value, Value.ID>? {
 		guard let container = base[id] else {
 			return nil
 		}

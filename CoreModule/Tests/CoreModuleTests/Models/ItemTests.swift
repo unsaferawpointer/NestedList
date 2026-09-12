@@ -22,8 +22,7 @@ extension ItemTests {
 
 		// Assert
 		#expect(item.id == uuid)
-		#expect(item.content.id == uuid)
-		#expect(item.content.content == content)
+		#expect(item.content == content)
 	}
 
 	@Test func convenienceInitCreatesOriginalItem() {
@@ -35,8 +34,7 @@ extension ItemTests {
 
 		// Assert
 		#expect(item.id == uuid)
-		#expect(item.content.id == uuid)
-		#expect(item.content.content == ItemContent(text: "Item", view: .columns))
+		#expect(item.content == ItemContent(text: "Item", view: .columns))
 	}
 }
 
@@ -125,8 +123,7 @@ extension ItemTests {
 
 		// Assert
 		#expect(copy.uuid == newId)
-		#expect(copy.content.id == newId)
-		#expect(copy.content.content == item.content.content)
+		#expect(copy.content == item.content)
 	}
 }
 

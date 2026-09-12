@@ -7,9 +7,9 @@
 
 import Foundation
 
-public struct Resolved<Content: Identifiable> {
+public struct Resolved<Content, ID: Hashable> {
 
-	public var id: Content.ID
+	public var id: ID
 
 	public var content: Content
 
@@ -17,7 +17,7 @@ public struct Resolved<Content: Identifiable> {
 
 	// MARK: - Initialization
 
-	public init(id: Content.ID, content: Content, isMirror: Bool = false) {
+	public init(id: ID, content: Content, isMirror: Bool = false) {
 		self.id = id
 		self.content = content
 		self.isMirror = isMirror

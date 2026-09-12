@@ -5,7 +5,7 @@
 //  Created by Anton Cherkasov on 03.09.2026.
 //
 
-public protocol MirrorStoring<Content>: NodeReading where Value == Resolved<Content> {
+public protocol MirrorStoring<Content>: NodeReading where Value == Resolved<Content, Content.ID> {
 
 	associatedtype Content: Identifiable
 
