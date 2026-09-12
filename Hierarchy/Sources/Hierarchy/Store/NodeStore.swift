@@ -7,7 +7,7 @@
 
 import Foundation
 
-public final class NodeStore<Value: MutableIdentifiable & Hashable> where Value.ID: RandomizableIdentifier {
+public final class NodeStore<Value: MutableIdentifiable> where Value.ID: RandomizableIdentifier {
 
 	public typealias ID = Value.ID
 
@@ -27,6 +27,14 @@ public final class NodeStore<Value: MutableIdentifiable & Hashable> where Value.
 	}
 
 	public init() { }
+}
+
+// MARK: - Equatable
+extension NodeStore: Equatable where Value: Equatable {
+
+	public static func == (lhs: NodeStore<Value>, rhs: NodeStore<Value>) -> Bool {
+		return lhs.nodes == rhs.nodes
+	}
 }
 
 // MARK: - Snapshot Support
@@ -315,16 +323,16 @@ public extension NodeStore {
 			cache[$0]
 		}
 
-		let grouped = Dictionary<Node<Value>?, [Node<Value>]>(grouping: moved) { item in
-			return item.parent
+		let grouped = Dictionary<Node<Value>.ID?, [Node<Value>]>(grouping: moved) { item in
+			return item.parent?.id
 		}
 
-		for (container, items) in grouped {
-			guard let container else {
+		for (containerID, items) in grouped {
+			guard let containerID else {
 				try moveItems(items.map(\.id), to: .toRoot)
 				continue
 			}
-			try moveItems(items.map(\.id), to: .onItem(with: container.id))
+			try moveItems(items.map(\.id), to: .onItem(with: containerID))
 		}
 	}
 
@@ -413,30 +421,22 @@ public extension NodeStore {
 	}
 }
 
-// MARK: - Equatable
-extension NodeStore: Equatable {
-
-	public static func == (lhs: NodeStore<Value>, rhs: NodeStore<Value>) -> Bool {
-		return lhs.nodes == rhs.nodes
-	}
-}
-
 // MARK: - Support moving
 private extension NodeStore {
 
 	func moveToRoot(_ moved: [Node<Value>], at index: Int) {
 
-		let grouped = Dictionary<Node<Value>?, [Node<Value>]>(grouping: moved) { item in
-			return item.parent
+		let grouped = Dictionary<ID?, [Node<Value>]>(grouping: moved) { item in
+			return item.parent?.id
 		}
 
 		var offset = 0
 
-		for (container, items) in grouped {
+		for (containerID, items) in grouped {
 
 			let cache = Set(items.map(\.id))
 
-			guard let container else {
+			guard let containerID, let container = self.cache[containerID] else {
 
 				offset = self.offset(
 					moved: cache,
@@ -464,16 +464,16 @@ private extension NodeStore {
 
 	func move(_ moved: [Node<Value>], toOther target: Node<Value>, at index: Int) {
 
-		let grouped = Dictionary<Node<Value>?, [Node<Value>]>(grouping: moved) { item in
-			return item.parent
+		let grouped = Dictionary<ID?, [Node<Value>]>(grouping: moved) { item in
+			return item.parent?.id
 		}
 
 		var offset = 0
 
-		for (container, items) in grouped {
+		for (containerID, items) in grouped {
 			let cache = Set(items.map(\.id))
 
-			guard let container else {
+			guard let containerID, let container = self.cache[containerID] else {
 				nodes.removeAll { item in
 					cache.contains(item.id)
 				}
@@ -497,15 +497,15 @@ private extension NodeStore {
 
 	func move(_ moved: [Node<Value>], to target: Node<Value>?) {
 
-		let grouped = Dictionary<Node<Value>?, [Node<Value>]>(grouping: moved) { item in
-			return item.parent
+		let grouped = Dictionary<ID?, [Node<Value>]>(grouping: moved) { item in
+			return item.parent?.id
 		}
 
-		for (container, items) in grouped {
+		for (containerID, items) in grouped {
 
 			let cache = Set(items.map(\.id))
 
-			guard let container else {
+			guard let containerID, let container = self.cache[containerID] else {
 				nodes.removeAll { item in
 					cache.contains(item.id)
 				}
