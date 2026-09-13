@@ -7,10 +7,11 @@ struct ContainerTests { }
 extension ContainerTests {
 
 	@Test
-	func itemUsesValueIdentifier() {
+	func itemUsesStoredIdentifier() {
 		// Arrange
 		let container = Container.item(
-			value: TestItem(id: "A", title: "Original")
+			id: "A",
+			content: "Original"
 		)
 
 		// Act and Assert
@@ -18,23 +19,24 @@ extension ContainerTests {
 	}
 
 	@Test
-	func settingItemIdentifierUpdatesValue() {
+	func settingItemIdentifierPreservesContent() {
 		// Arrange
 		var container = Container.item(
-			value: TestItem(id: "A", title: "Original")
+			id: "A",
+			content: "Original"
 		)
 
 		// Act
 		container.id = "B"
 
 		// Assert
-		#expect(container == .item(value: TestItem(id: "B", title: "Original")))
+		#expect(container == .item(id: "B", content: "Original"))
 	}
 
 	@Test
 	func mirrorUsesOwnIdentifier() {
 		// Arrange
-		let container = Container<TestItem<String>>.mirror(
+		let container = Container<String, String>.mirror(
 			id: "M(A)",
 			reference: "A"
 		)
@@ -46,7 +48,7 @@ extension ContainerTests {
 	@Test
 	func settingMirrorIdentifierPreservesReference() {
 		// Arrange
-		var container = Container<TestItem<String>>.mirror(
+		var container = Container<String, String>.mirror(
 			id: "M(A)",
 			reference: "A"
 		)
@@ -63,20 +65,20 @@ extension ContainerTests {
 extension ContainerTests {
 
 	@Test
-	func itemExposesValueWithoutReference() {
+	func itemExposesContentWithoutReference() {
 		// Arrange
-		let value = TestItem(id: "A", title: "Original")
-		let container = Container.item(value: value)
+		let content = "Original"
+		let container = Container.item(id: "A", content: content)
 
 		// Act and Assert
-		#expect(container.itemValue == value)
+		#expect(container.itemContent == content)
 		#expect(container.reference == nil)
 	}
 
 	@Test
 	func mirrorExposesReference() {
 		// Arrange
-		let container = Container<TestItem<String>>.mirror(
+		let container = Container<String, String>.mirror(
 			id: "M(A)",
 			reference: "A"
 		)
@@ -86,16 +88,17 @@ extension ContainerTests {
 	}
 
 	@Test
-	func settingItemValueReplacesValue() {
+	func settingItemContentPreservesIdentifier() {
 		// Arrange
 		var container = Container.item(
-			value: TestItem(id: "A", title: "Original")
+			id: "A",
+			content: "Original"
 		)
 
 		// Act
-		container.itemValue = TestItem(id: "B", title: "Updated")
+		container.itemContent = "Updated"
 
 		// Assert
-		#expect(container == .item(value: TestItem(id: "B", title: "Updated")))
+		#expect(container == .item(id: "A", content: "Updated"))
 	}
 }

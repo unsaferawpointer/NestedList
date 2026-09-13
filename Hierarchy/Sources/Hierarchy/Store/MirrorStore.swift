@@ -7,11 +7,9 @@
 
 import Foundation
 
-public final class MirrorStore<Value: MutableIdentifiable & Hashable> where Value.ID: RandomizableIdentifier {
+public final class MirrorStore<Content: Hashable, ID: RandomizableIdentifier> {
 
-	typealias ID = Value.ID
-
-	private let base: NodeStore<Container<Value>>
+	private let base: NodeStore<Container<Content, ID>>
 
 	// MARK: - Initialization
 
@@ -19,7 +17,7 @@ public final class MirrorStore<Value: MutableIdentifiable & Hashable> where Valu
 		self.base = NodeStore()
 	}
 
-	public init<T: TreeNode>(hierarchy: [T]) where T.Value == Container<Value> {
+	public init<T: TreeNode>(hierarchy: [T]) where T.Value == Container<Content, ID> {
 		self.base = NodeStore(hierarchy: hierarchy)
 		validateStorageConsistency()
 	}
@@ -28,28 +26,28 @@ public final class MirrorStore<Value: MutableIdentifiable & Hashable> where Valu
 // MARK: - MirrorStoring
 extension MirrorStore: MirrorStoring {
 
-	public var identifiers: Set<Value.ID> {
+	public var identifiers: Set<ID> {
 		base.identifiers
 	}
 
 	// MARK: - Subscripts
 
-	public subscript(id: Value.ID) -> Resolved<Value, Value.ID>? {
+	public subscript(id: ID) -> Resolved<Content, ID>? {
 		item(with: id)
 	}
 
-	public func parent(of id: Value.ID) -> Value.ID? {
+	public func parent(of id: ID) -> ID? {
 		base.parent(of: id)
 	}
 
-	public func children(of parent: Value.ID?) -> [Value.ID] {
+	public func children(of parent: ID?) -> [ID] {
 		base.children(of: parent)
 	}
 
 	public func insert<S: Sequence>(
 		_ items: S,
-		at destination: Destination<Value.ID>
-	) throws(NodeStoreError) where S.Element == Value {
+		at destination: Destination<ID>
+	) throws(NodeStoreError) where S.Element == Resolved<Content, ID> {
 		if let destinationID = destination.id {
 			guard let container = base[destinationID] else {
 				throw .missingNode
@@ -60,7 +58,7 @@ extension MirrorStore: MirrorStoring {
 		}
 		try base.insert(
 			items.map {
-				.item(value: $0)
+				.item(id: $0.id, content: $0.content)
 			},
 			at: destination
 		)
@@ -68,8 +66,8 @@ extension MirrorStore: MirrorStoring {
 
 	public func moveItems<S: Sequence>(
 		_ ids: S,
-		to destination: Destination<Value.ID>
-	) throws(NodeStoreError) where S.Element == Value.ID {
+		to destination: Destination<ID>
+	) throws(NodeStoreError) where S.Element == ID {
 		guard canMoveItems(ids, to: destination) else {
 			return
 		}
@@ -78,8 +76,8 @@ extension MirrorStore: MirrorStoring {
 
 	public func canMoveItems<S: Sequence>(
 		_ ids: S,
-		to destination: Destination<Value.ID>
-	) -> Bool where S.Element == Value.ID {
+		to destination: Destination<ID>
+	) -> Bool where S.Element == ID {
 		let identifiers = Array(ids)
 		guard base.canMoveItems(identifiers, to: destination) else {
 			return false
@@ -107,7 +105,7 @@ extension MirrorStore: MirrorStoring {
 		}
 	}
 
-	public func deleteItems<S: Sequence>(_ ids: S) where S.Element == Value.ID {
+	public func deleteItems<S: Sequence>(_ ids: S) where S.Element == ID {
 		let identifiers = Array(ids)
 		let subtreeIDs = base.descendantIDs(including: Set(identifiers))
 		let originalIDs = subtreeIDs.reduce(into: Set<ID>()) { result, id in
@@ -133,9 +131,9 @@ extension MirrorStore: MirrorStoring {
 	}
 
 	public func set<T>(
-		_ keyPath: WritableKeyPath<Value, T>,
+		_ keyPath: WritableKeyPath<Content, T>,
 		to value: T,
-		for ids: [Value.ID],
+		for ids: [ID],
 		includingDescendants: Bool
 	) {
 		let selectedIDs = Set(ids)
@@ -145,11 +143,11 @@ extension MirrorStore: MirrorStoring {
 
 		let originalIDs = Set(
 			targetIDs.compactMap {
-				item(with: $0)?.content.id
+				base[$0]?.itemID
 			}
 		)
 
-		let itemKeyPath = (\Container<Value>.itemValue).appending(path: keyPath)
+		let itemKeyPath = (\Container<Content, ID>.itemContent).appending(path: keyPath)
 		base.set(
 			itemKeyPath,
 			to: value,
@@ -192,9 +190,9 @@ private extension MirrorStore {
 public extension MirrorStore {
 
 	func insertMirror(
-		for ids: [Value.ID],
-		to destination: Destination<Value.ID>
-	) throws(NodeStoreError) -> [Value.ID] {
+		for ids: [ID],
+		to destination: Destination<ID>
+	) throws(NodeStoreError) -> [ID] {
 		guard let references = mirrorReferences(for: ids) else {
 			return []
 		}
@@ -203,16 +201,16 @@ public extension MirrorStore {
 				return []
 			}
 		}
-		let inserted: [Container<Value>] = references.map {
-			.mirror(id: Value.ID.random(), reference: $0)
+		let inserted: [Container<Content, ID>] = references.map {
+			.mirror(id: ID.random(), reference: $0)
 		}
 		try base.insert(inserted, at: destination)
 		return inserted.map(\.id)
 	}
 
 	func canInsertMirror(
-		for ids: [Value.ID],
-		to destination: Destination<Value.ID>
+		for ids: [ID],
+		to destination: Destination<ID>
 	) -> Bool {
 		guard let references = mirrorReferences(for: ids) else {
 			return false
@@ -255,18 +253,18 @@ private extension MirrorStore {
 		return ancestorIDs.isDisjoint(with: references)
 	}
 
-	func item(with id: Value.ID) -> Resolved<Value, Value.ID>? {
+	func item(with id: ID) -> Resolved<Content, ID>? {
 		guard let container = base[id] else {
 			return nil
 		}
 		switch container {
-		case let .item(value):
-			return Resolved(id: id, content: value)
+		case let .item(_, content):
+			return Resolved(id: id, content: content)
 		case let .mirror(_, reference):
-			guard case let .item(value) = base[reference] else {
+			guard case let .item(_, content) = base[reference] else {
 				fatalError("Link to non-item")
 			}
-			return Resolved(id: id, content: value, isMirror: true)
+			return Resolved(id: id, content: content, isMirror: true)
 		}
 	}
 }
