@@ -16,11 +16,19 @@ final class NodeStorageMock<Value: Identifiable & Equatable> where Value.ID: Has
 // MARK: - NodeStoring
 extension NodeStorageMock: NodeStoring {
 
-	func insert<S: Sequence>(
-		_ items: S,
-		at destination: Destination<Value.ID>
-	) throws(NodeStoreError) where S.Element == Value {
-		invocations.append(.insert(items: Array(items), destination: destination))
+	func insertItems(
+		from data: [any TreeNode<Value>],
+		to destination: Destination<Value.ID>
+	) throws(NodeStoreError) {
+		invocations.append(.insertItems(
+			items: data.map { node in
+				node.value
+			},
+			childrenCounts: data.map { node in
+				node.children.count
+			},
+			destination: destination
+		))
 		if let insertError = stubs.insertError {
 			throw insertError
 		}
@@ -34,14 +42,6 @@ extension NodeStorageMock: NodeStoring {
 		if let moveItemsError = stubs.moveItemsError {
 			throw moveItemsError
 		}
-	}
-
-	func canMoveItems<S: Sequence>(
-		_ ids: S,
-		to destination: Destination<Value.ID>
-	) -> Bool where S.Element == Value.ID {
-		invocations.append(.canMoveItems(ids: Array(ids), destination: destination))
-		return stubs.canMoveItems
 	}
 
 	func deleteItems<S: Sequence>(_ ids: S) where S.Element == Value.ID {
@@ -107,9 +107,12 @@ extension NodeStorageMock {
 	enum Action: Equatable {
 		case identifiers
 		case item(id: Value.ID)
-		case insert(items: [Value], destination: Destination<Value.ID>)
+		case insertItems(
+			items: [Value],
+			childrenCounts: [Int],
+			destination: Destination<Value.ID>
+		)
 		case moveItems(ids: [Value.ID], destination: Destination<Value.ID>)
-		case canMoveItems(ids: [Value.ID], destination: Destination<Value.ID>)
 		case deleteItems(ids: [Value.ID])
 		case set(ids: [Value.ID], includingDescendants: Bool)
 		case parent(id: Value.ID)
@@ -121,7 +124,6 @@ extension NodeStorageMock {
 		var parents: [Value.ID: Value.ID] = [:]
 		var rootIDs: [Value.ID] = []
 		var children: [Value.ID: [Value.ID]] = [:]
-		var canMoveItems = true
 		var insertError: NodeStoreError?
 		var moveItemsError: NodeStoreError?
 	}

@@ -37,22 +37,16 @@ extension NodeStore: Equatable where Value: Equatable {
 	}
 }
 
-// MARK: - Snapshot Support
-public extension NodeStore {
-
-	func snapshot() -> Snapshot<Value> {
-		Snapshot(nodes)
-	}
-}
-
 // MARK: - NodeStoring
 extension NodeStore: NodeStoring {
 
-	public func insert<S>(
-		_ items: S,
-		at destination: Destination<ID>
-	) throws(NodeStoreError) where S : Sequence, Value == S.Element {
-		let newNodes = items.map { Node(value: $0) }
+	public func insertItems(
+		from data: [any TreeNode<Value>],
+		to destination: Destination<Value.ID>
+	) throws(NodeStoreError) {
+		let newNodes = data.map { node in
+			node.map(type: Node<Value>.self)
+		}
 		try insertNodes(newNodes, to: destination)
 	}
 	
@@ -80,26 +74,6 @@ extension NodeStore: NodeStoring {
 			}
 			move(moved, toOther: target, at: index)
 		}
-	}
-	
-	public func canMoveItems<S>(
-		_ ids: S,
-		to destination: Destination<ID>
-	) -> Bool where S : Sequence, S.Element == Value.ID {
-		guard let targetId = destination.id, let item = cache[targetId] else {
-			return true
-		}
-
-		var chain = Set<ID>()
-		var current: Node<Value>? = item
-		while let node = current {
-			chain.insert(node.id)
-			current = node.parent
-		}
-
-		let intersection = chain.intersection(ids)
-
-		return intersection.isEmpty
 	}
 	
 	public func deleteItems<S>(_ ids: S) where S : Sequence, S.Element == Value.ID {
@@ -152,83 +126,8 @@ extension NodeStore: NodeReading {
 	}
 }
 
-// MARK: - Public interface
-public extension NodeStore {
-
-	func node<T: TreeNode>(with id: ID, type: T.Type) -> T? where T.Value == Value {
-		guard let node = cache[id] else {
-			return nil
-		}
-		return node.map(type: type)
-	}
-
-	/// Returns `true` when every leaf node in the subtree of the node with the given identifier has a value equal to the given value at the specified key path.
-	/// Returns `false` when the node is not found.
-	func allMatch<T: Equatable>(id: Value.ID, keyPath: KeyPath<Value, T>, equalsTo value: T) -> Bool {
-		guard let node = cache[id] else {
-			return false
-		}
-		return allMatch(in: [node], keyPath: keyPath, equalsTo: value)
-	}
-
-	/// Returns copied subtrees for the requested identifiers without nested duplicates.
-	///
-	/// If both a parent and one of its descendants are requested, the descendant is returned as
-	/// a separate copied subtree and removed from the parent's copied subtree.
-	func copiedDisjointSubtrees(with ids: [ID]) -> [any TreeNode<Value>] {
-		let cache = Set(ids)
-		let copied = nodes(with: ids).map { node in
-			copy(node)
-		}
-
-		copied.forEach { node in
-			deleteDescendants(in: node, with: cache)
-		}
-		return copied
-	}
-}
-
 // MARK: - Helpers
 private extension NodeStore {
-
-	func nodes(with ids: [ID]) -> [Node<Value>] {
-		return ids.compactMap { cache[$0] }
-	}
-
-	func copy(_ node: Node<Value>) -> Node<Value> {
-		let copied = Node(value: node.value)
-		var stack = [(source: node, destination: copied)]
-		while let item = stack.popLast() {
-			for child in item.source.children {
-				let childCopy = Node(value: child.value)
-				childCopy.parent = item.destination
-				item.destination.children.append(childCopy)
-				stack.append((source: child, destination: childCopy))
-			}
-		}
-		return copied
-	}
-
-	func deleteDescendants(in node: Node<Value>, with ids: Set<ID>) {
-		var stack = [node]
-		while let item = stack.popLast() {
-			item.children.removeAll {
-				ids.contains($0.id)
-			}
-			stack.append(contentsOf: item.children)
-		}
-	}
-
-	func allMatch<T: Equatable>(in nodes: [Node<Value>], keyPath: KeyPath<Value, T>, equalsTo value: T) -> Bool {
-		var result = true
-		enumerate(nodes) { node in
-			guard result, node.children.isEmpty else {
-				return
-			}
-			result = node.value[keyPath: keyPath] == value
-		}
-		return result
-	}
 
 	func updateCache(inserted nodes: [Node<Value>]) {
 		enumerate(nodes) { node in
@@ -256,16 +155,6 @@ private extension NodeStore {
 
 // MARK: - Insertion
 extension NodeStore {
-
-	public func insertItems(
-		from data: [any TreeNode<Value>],
-		to destination: Destination<Value.ID>
-	) throws(NodeStoreError) {
-		let newNodes: [Node<Value>] = data.map { node in
-			node.map(type: Node<Value>.self)
-		}
-		try insertNodes(newNodes, to: destination)
-	}
 
 	func insertNodes(_ newNodes: [Node<Value>], to destination: Destination<Value.ID>) throws(NodeStoreError) {
 		switch destination {
@@ -306,112 +195,6 @@ private extension NodeStore {
 			return
 		}
 		parent.deleteChild(id)
-	}
-}
-
-// MARK: - Support moving
-public extension NodeStore {
-
-	func moveToEnd(_ ids: [ID]) throws(NodeStoreError) {
-		let moved = ids.compactMap {
-			cache[$0]
-		}
-
-		let grouped = Dictionary<Node<Value>.ID?, [Node<Value>]>(grouping: moved) { item in
-			return item.parent?.id
-		}
-
-		for (containerID, items) in grouped {
-			guard let containerID else {
-				try moveItems(items.map(\.id), to: .toRoot)
-				continue
-			}
-			try moveItems(items.map(\.id), to: .onItem(with: containerID))
-		}
-	}
-
-	func validateMovingForward(_ id: ID) -> Bool {
-		let index = if let parent = cache[id]?.parent {
-			parent.children.firstIndex(where: \.id, equalsTo: id)
-		} else {
-			nodes.firstIndex(where: \.id, equalsTo: id)
-		}
-
-		guard let index else {
-			return false
-		}
-
-		let nextIndex = index + 2
-		let upperBound = if let parent = cache[id]?.parent {
-			parent.children.count
-		} else {
-			nodes.count
-		}
-
-		guard nextIndex <= upperBound else {
-			return false
-		}
-
-		return true
-	}
-
-	func moveForward(_ id: ID) throws(NodeStoreError) {
-
-		let target = cache[id]?.parent?.id
-		let index = if let parent = cache[id]?.parent {
-			parent.children.firstIndex(where: \.id, equalsTo: id)
-		} else {
-			nodes.firstIndex(where: \.id, equalsTo: id)
-		}
-
-		guard let index else {
-			return
-		}
-
-		let nextIndex = index + 2
-		let upperBound = if let parent = cache[id]?.parent {
-			parent.children.count
-		} else {
-			nodes.count
-		}
-
-		guard nextIndex <= upperBound else {
-			return
-		}
-
-		let destination = Destination(target: target, index: nextIndex)
-		try moveItems([id], to: destination)
-	}
-
-	func validateMovingBackward(_ id: ID) -> Bool {
-		let index: Int = if let parent = cache[id]?.parent {
-			parent.children.firstIndex(where: \.id, equalsTo: id) ?? 0
-		} else {
-			nodes.firstIndex(where: \.id, equalsTo: id) ?? 0
-		}
-
-		let nextIndex = index - 1
-		guard nextIndex >= 0 else {
-			return false
-		}
-		return true
-	}
-
-	func moveBackward(_ id: ID) throws(NodeStoreError) {
-		let target = cache[id]?.parent?.id
-		let index: Int = if let parent = cache[id]?.parent {
-			parent.children.firstIndex(where: \.id, equalsTo: id) ?? 0
-		} else {
-			nodes.firstIndex(where: \.id, equalsTo: id) ?? 0
-		}
-
-		let nextIndex = index - 1
-		guard nextIndex >= 0 else {
-			return
-		}
-
-		let destination = Destination<ID>(target: target, index: nextIndex)
-		try moveItems([id], to: destination)
 	}
 }
 

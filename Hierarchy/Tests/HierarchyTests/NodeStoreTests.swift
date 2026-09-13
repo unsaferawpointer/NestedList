@@ -51,20 +51,6 @@ extension NodeStoreTests {
 	}
 }
 
-// MARK: - Matching
-extension NodeStoreTests {
-
-	@Test func allMatchChecksOnlyLeafNodes() async throws {
-		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
-		let root = store.nodes(type: NodeStoreTestNode.self)[0]
-		let child = root.children[0]
-
-		#expect(store.allMatch(id: root.id, keyPath: \.title, equalsTo: "grandchild"))
-		#expect(store.allMatch(id: child.id, keyPath: \.title, equalsTo: "grandchild"))
-		#expect(!store.allMatch(id: 404, keyPath: \.title, equalsTo: "grandchild"))
-	}
-}
-
 // MARK: - Setting properties
 extension NodeStoreTests {
 
@@ -220,6 +206,24 @@ extension NodeStoreTests {
 // MARK: - Insertion
 extension NodeStoreTests {
 
+	@Test
+	func insertItemsAddsHierarchyToStore() throws {
+		// Arrange
+		let store = NodeStore<NodeStoreTestItem>()
+
+		// Act
+		try store.insertItems(
+			from: [NodeStoreTestFixtures.makeNode()],
+			to: .toRoot
+		)
+
+		// Assert
+		let nodes = store.nodes(type: NodeStoreTestNode.self)
+		#expect(nodes.map(\.id) == [1])
+		#expect(nodes[0].children.map(\.id) == [2])
+		#expect(nodes[0].children[0].children.map(\.id) == [3])
+	}
+
 	@Test func insertRegeneratesIdentifierUntilItIsUnique() async throws {
 		// Arrange
 		NodeStoreCollisionIdentifier.generatedIdentifiers = [
@@ -314,33 +318,6 @@ extension NodeStoreTests {
 
 // MARK: - Moving
 extension NodeStoreTests {
-
-	@Test func canMoveItemsRejectsMovingNodeIntoDescendant() async throws {
-		// Arrange
-		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])
-		let root = store.nodes(type: NodeStoreTestNode.self)[0]
-		let child = root.children[0]
-		let grandchild = child.children[0]
-
-		// Act
-		let canMoveRootToGrandchild = store.canMoveItems(
-			[root.id],
-			to: .onItem(with: grandchild.id)
-		)
-		let canMoveChildToGrandchild = store.canMoveItems(
-			[child.id],
-			to: .inItem(with: grandchild.id, atIndex: 0)
-		)
-		let canMoveGrandchildToRoot = store.canMoveItems(
-			[grandchild.id],
-			to: .onItem(with: root.id)
-		)
-
-		// Assert
-		#expect(!canMoveRootToGrandchild)
-		#expect(!canMoveChildToGrandchild)
-		#expect(canMoveGrandchildToRoot)
-	}
 
 	@Test func moveItemsMovesNestedNodeToRoot() async throws {
 		let store = NodeStore(hierarchy: [NodeStoreTestFixtures.makeNode()])

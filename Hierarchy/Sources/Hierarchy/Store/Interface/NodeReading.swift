@@ -58,21 +58,87 @@ public extension NodeReading {
 	/// - Parameter type: The tree node type used to represent the hierarchy.
 	/// - Returns: The root nodes in storage order, including their descendants.
 	func nodes<T: TreeNode>(type: T.Type) -> [T] where T.Value == Value {
-		func node(for id: ID) -> T? {
-			guard let value = self[id] else {
-				return nil
+		return children(of: nil).compactMap { id in
+			node(with: id, type: type)
+		}
+	}
+
+	/// Reconstructs the subtree rooted at the specified identifier.
+	///
+	/// Identifiers without a corresponding stored value are skipped.
+	///
+	/// - Parameters:
+	///   - id: The identifier of the subtree root.
+	///   - type: The tree node type used to represent the subtree.
+	/// - Returns: The reconstructed subtree, or `nil` when the root value is not found.
+	func node<T: TreeNode>(with id: ID, type: T.Type) -> T? where T.Value == Value {
+		guard let value = self[id] else {
+			return nil
+		}
+		return T(
+			value: value,
+			children: children(of: id).compactMap { id in
+				node(with: id, type: type)
 			}
-			return T(
-				value: value,
-				children: children(of: id).compactMap { id in
-					node(for: id)
-				}
-			)
+		)
+	}
+}
+
+// MARK: - Snapshot Support
+public extension NodeReading {
+
+	/// Returns a snapshot of the current hierarchy.
+	func snapshot() -> Snapshot<Value> {
+		return Snapshot(nodes(type: Node<Value>.self))
+	}
+}
+
+// MARK: - Copying
+public extension NodeReading {
+
+	/// Returns copied subtrees for the requested identifiers without nested duplicates.
+	///
+	/// If both a parent and one of its descendants are requested, the descendant is returned as
+	/// a separate copied subtree and removed from the parent's copied subtree.
+	func copiedDisjointSubtrees(with ids: [ID]) -> [any TreeNode<Value>] {
+		let identifiers = Set(ids)
+		let copied = ids.compactMap { id in
+			node(with: id, type: Node<Value>.self)
+		}
+		copied.forEach { node in
+			node.deleteDescendants(with: identifiers)
+		}
+		return copied
+	}
+}
+
+// MARK: - Matching
+public extension NodeReading {
+
+	/// Returns `true` when every leaf node in the specified subtree has a matching value at the given key path.
+	///
+	/// - Parameters:
+	///   - id: The identifier of the subtree root.
+	///   - keyPath: The value property to compare.
+	///   - value: The expected value.
+	/// - Returns: `false` when the root node is not found or at least one leaf does not match.
+	func allMatch<T: Equatable>(id: ID, keyPath: KeyPath<Value, T>, equalsTo value: T) -> Bool {
+		guard self[id] != nil else {
+			return false
 		}
 
-		return children(of: nil).compactMap { id in
-			node(for: id)
+		var pending = [id]
+		while let id = pending.popLast() {
+			let childIDs = children(of: id)
+			guard childIDs.isEmpty else {
+				pending.append(contentsOf: childIDs)
+				continue
+			}
+			guard self[id]?[keyPath: keyPath] == value else {
+				return false
+			}
 		}
+		return true
 	}
 }
 
