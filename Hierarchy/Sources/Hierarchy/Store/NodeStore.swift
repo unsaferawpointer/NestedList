@@ -155,12 +155,6 @@ extension NodeStore: NodeReading {
 // MARK: - Public interface
 public extension NodeStore {
 
-	func nodes<T: TreeNode>(type: T.Type) -> [T] where T.Value == Value {
-		return nodes.map {
-			$0.map(type: type)
-		}
-	}
-
 	func node<T: TreeNode>(with id: ID, type: T.Type) -> T? where T.Value == Value {
 		guard let node = cache[id] else {
 			return nil

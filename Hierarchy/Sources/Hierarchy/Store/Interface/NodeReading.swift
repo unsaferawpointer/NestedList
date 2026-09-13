@@ -48,6 +48,34 @@ public protocol NodeReading<Value> {
 	subscript(id: Value.ID) -> Value? { get }
 }
 
+// MARK: - Tree nodes
+public extension NodeReading {
+
+	/// Reconstructs the stored hierarchy using the specified tree node type.
+	///
+	/// Identifiers without a corresponding stored value are skipped.
+	///
+	/// - Parameter type: The tree node type used to represent the hierarchy.
+	/// - Returns: The root nodes in storage order, including their descendants.
+	func nodes<T: TreeNode>(type: T.Type) -> [T] where T.Value == Value {
+		func node(for id: ID) -> T? {
+			guard let value = self[id] else {
+				return nil
+			}
+			return T(
+				value: value,
+				children: children(of: id).compactMap { id in
+					node(for: id)
+				}
+			)
+		}
+
+		return children(of: nil).compactMap { id in
+			node(for: id)
+		}
+	}
+}
+
 // MARK: - Enumeration
 public extension NodeReading {
 
