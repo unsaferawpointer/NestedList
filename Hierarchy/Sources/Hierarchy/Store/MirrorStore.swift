@@ -9,32 +9,33 @@ import Foundation
 
 final class MirrorStore<Content, ID: RandomizableIdentifier> {
 
-	private let base: any NodeReading<Container<Content, ID>>
+	// MARK: - Internal State
+
+	private var cache = Cache()
+
+	private var nodes: [Node<Container<Content, ID>>] = []
 
 	// MARK: - Initialization
 
-	init(base: any NodeReading<Container<Content, ID>>) {
-		self.base = base
-	}
-
-	public convenience init() {
-		self.init(base: NodeStore())
-	}
+	public init() { }
 }
 
 // MARK: - MirrorReading
 extension MirrorStore: MirrorReading {
 
 	var identifiers: Set<ID> {
-		base.identifiers
+		cache.identifiers
 	}
 
 	func parent(of id: ID) -> ID? {
-		base.parent(of: id)
+		return cache[id]?.parent?.id
 	}
 
 	func children(of parent: ID?) -> [ID] {
-		base.children(of: parent)
+		guard let parent else {
+			return nodes.map(\.id)
+		}
+		return cache[parent]?.children.map(\.id) ?? []
 	}
 
 	subscript(id: ID) -> Resolved<Content, ID>? {
@@ -46,18 +47,37 @@ extension MirrorStore: MirrorReading {
 private extension MirrorStore {
 
 	func item(with id: ID) -> Resolved<Content, ID>? {
-		guard let container = base[id] else {
+		guard let container = cache[id]?.value else {
 			return nil
 		}
 		switch container {
 		case let .item(_, content):
 			return Resolved(id: id, content: content)
 		case let .mirror(_, reference):
-			guard case let .item(_, content) = base[reference] else {
+			guard case let .item(_, content) = cache[reference]?.value else {
 				assertionFailure("Link to non-item")
 				return nil
 			}
 			return Resolved(id: id, content: content, isMirror: true)
+		}
+	}
+}
+
+// MARK: - Nested Data Structs
+extension MirrorStore {
+
+	struct Cache {
+		var storage: [ID: Node<Container<Content, ID>>] = [:]
+		var identifiers: Set<ID> = .init()
+	}
+}
+
+// MARK: - Subscript
+extension MirrorStore.Cache {
+
+	subscript(id: ID) -> Node<Container<Content, ID>>? {
+		get {
+			storage[id]
 		}
 	}
 }
