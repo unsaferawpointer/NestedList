@@ -826,6 +826,62 @@ extension UnitPresenterTests {
 	}
 }
 
+// MARK: - CellDelegate test-cases
+extension UnitPresenterTests {
+
+	@Test func test_cellDidChange_tracksInlineEditLengths() async {
+		// Arrange
+		let id = UUID.random
+		let value = ItemModel.Value(title: "Updated title", subtitle: "Updated note")
+
+		// Act
+		sut.cellDidChange(newValue: value, id: id)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == .inlineEditFinish)
+		#expect(event.parameters["title_length"] == .int(value.title.count))
+		#expect(event.parameters["note_length"] == .int(value.subtitle?.count ?? 0))
+		guard case let .setText(text, note, actualId) = interactor.invocations.first else {
+			Issue.record("Expect set invocation")
+			return
+		}
+		#expect(text == value.title)
+		#expect(note == value.subtitle)
+		#expect(actualId == id)
+	}
+
+	@Test func test_cellDidChange_withEmptyTitle_deletesItemAndTracksInlineEdit() async {
+		// Arrange
+		let id = UUID.random
+		let value = ItemModel.Value(title: "", subtitle: nil)
+
+		// Act
+		sut.cellDidChange(newValue: value, id: id)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == .inlineEditFinish)
+		#expect(event.parameters["title_length"] == .int(0))
+		#expect(event.parameters["note_length"] == nil)
+		guard case let .deleteItems(ids) = interactor.invocations.first else {
+			Issue.record("Expect deleteItems invocation")
+			return
+		}
+		#expect(ids == [id])
+	}
+}
+
 // MARK: - DragDelegate test-cases
 extension UnitPresenterTests {
 

@@ -507,6 +507,14 @@ extension ContentPresenter: CellDelegate {
 	typealias Model = ItemModel
 
 	func cellDidChange(newValue: ItemModel.Value, id: UUID) {
+		// MARK: - Analytics
+		Task {
+			let event: ContentAnalyticsEvent = .inlineEditFinish(
+				titleLength: newValue.title.count,
+				noteLength: newValue.subtitle?.count
+			)
+			await analytics.track(event)
+		}
 		guard !newValue.title.isEmpty else {
 			interactor?.deleteItems([id])
 			return

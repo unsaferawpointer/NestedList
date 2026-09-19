@@ -15,4 +15,5 @@ public enum AnalyticsEventName: String, Sendable {
 	case dragDropInsert = "drag_drop_insert"
 	case documentRead = "document_read"
 	case documentReadError = "document_read_error"
+	case inlineEditFinish = "inline_edit_finish"
 }

@@ -55,6 +55,13 @@ public enum ContentAnalyticsEvent {
 	/// User opened an item by double-clicking it in the macOS content outline.
 	case itemDoubleClick
 
+	/// User finished editing an item inline in the macOS content outline.
+	///
+	/// - Parameters:
+	///   - titleLength: Number of characters in the resulting title.
+	///   - noteLength: Number of characters in the resulting note, or `nil` when no note exists.
+	case inlineEditFinish(titleLength: Int, noteLength: Int?)
+
 	/// User copied items through drag and drop on macOS.
 	///
 	/// - Parameter itemsCount: Number of copied items.
@@ -87,6 +94,8 @@ extension ContentAnalyticsEvent: AnalyticsEvent {
 			.buttonClick
 		case .dragDropCopy:
 			.dragDropCopy
+		case .inlineEditFinish:
+			.inlineEditFinish
 		#endif
 		}
 	}
@@ -95,44 +104,52 @@ extension ContentAnalyticsEvent: AnalyticsEvent {
 	public var parameters: [String: AnalyticsValue] {
 		switch self {
 		case let .menuClick(id, source):
-			[
+			return [
 				"id": .string(id),
 				"source": .string(source)
 			]
 		case let .documentShow(depth, totalCount, isRoot):
-			[
+			return [
 				"depth": .int(depth),
 				"total_count": .int(totalCount),
 				"is_root": .bool(isRoot)
 			]
 		case .subitemsShow:
-			[
+			return [
 				"id": .string("show_subitems")
 			]
 		case let .buttonClick(id, source):
-			[
+			return [
 				"id": .string(id),
 				"source": .string(source)
 			]
 		case let .dragDropMove(itemsCount):
-			[
+			return [
 				"items_count": .int(itemsCount)
 			]
 		case let .dragDropInsert(itemsCount, contentType):
-			[
+			return [
 				"items_count": .int(itemsCount),
 				"content_type": .string(contentType)
 			]
 
 		#if os(macOS)
 		case .itemDoubleClick:
-			[
+			return [
 				"id": .string("open_item")
 			]
 		case let .dragDropCopy(itemsCount):
-			[
+			return [
 				"items_count": .int(itemsCount)
 			]
+		case let .inlineEditFinish(titleLength, noteLength):
+			var parameters: [String: AnalyticsValue] = [
+				"title_length": .int(titleLength)
+			]
+			if let noteLength {
+				parameters["note_length"] = .int(noteLength)
+			}
+			return parameters
 		#endif
 		}
 	}

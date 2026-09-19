@@ -30,6 +30,9 @@ The supported common event names and required properties SHALL be:
 - `drag_drop_insert`
 	- `items_count: Int`
 	- `content_type: String`
+- `inline_edit_finish` (macOS)
+	- `title_length: Int`
+	- `note_length: Int` when the edited item has a note
 
 Feature-specific properties MAY supplement the common properties when they describe the reported interaction. Their values SHALL be machine-readable and stable; identifiers for controls and areas SHALL be descriptive and stable.
 
@@ -83,6 +86,9 @@ The system SHALL use the following area-specific event definitions. An event SHA
 		- `content_type: String` identifies the inserted content.
 	- `drag_drop_copy` (macOS): Items are copied by drag and drop.
 		- `items_count: Int` is the number copied.
+	- `inline_edit_finish` (macOS): Inline editing of an item is completed.
+		- `title_length: Int` is the length of the resulting title.
+		- `note_length: Int` is the length of the resulting note and is omitted when no note exists.
 - `document`
 	- `document_read`: A document is read successfully.
 		- `type: String` is the stable document type identifier.
