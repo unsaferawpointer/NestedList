@@ -27,11 +27,19 @@ The application SHALL use the standard document-based application interface prov
 - **THEN** the application presents its content within a standard macOS document window
 
 ### Requirement: Columns interface platform availability
-The application SHALL provide the columns document interface only on macOS. The iOS and iPadOS applications SHALL present outlines using the list interface even when the document retains `columns` view state, and SHALL preserve that stored state when reading or saving the document. Item-level view state SHALL NOT change presentation on any platform until item-specific view functionality is introduced separately.
+The application SHALL provide the columns document interface only on macOS when the columns feature is available. The macOS application SHALL determine columns availability through its feature provider. When the columns feature is unavailable, the macOS application SHALL present the list interface and hide controls that select or create columns. The iOS and iPadOS applications SHALL present outlines using the list interface even when the document retains `columns` view state, and SHALL preserve that stored state when reading or saving the document. Item-level view state SHALL NOT change presentation on any platform until item-specific view functionality is introduced separately.
 
 #### Scenario: Use columns on macOS
-- **WHEN** a macOS document selects the `columns` view
+- **WHEN** a macOS document selects the `columns` view and the columns feature is available
 - **THEN** the application presents the document using the columns interface
+
+#### Scenario: Fall back to list view when columns are unavailable
+- **WHEN** a macOS document has the `columns` view state and the columns feature is unavailable
+- **THEN** the application presents the document using the list interface, hides the columns view controls, and preserves the stored `columns` view state
+
+#### Scenario: Hide columns controls when the feature is unavailable
+- **WHEN** the columns feature is unavailable on macOS
+- **THEN** the document toolbar does not present the columns view selector or the new-column action
 
 #### Scenario: Open columns view state on iOS or iPadOS
 - **WHEN** an iOS or iPadOS application opens a document whose stored view is `columns`

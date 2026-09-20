@@ -21,6 +21,10 @@ class Document: NSDocument {
 		)
 	}()
 
+	lazy var featureProvider: any FeatureProvidable<Feature> = {
+		return FeatureProvider()
+	}()
+
 	lazy var analytics: any ConcreteAnalyticsServiceProtocol<DocumentAnalyticsEvent> =
 		ConcreteAnalyticsService<DocumentAnalyticsEvent>()
 
@@ -103,7 +107,7 @@ extension Document {
 			content.view = view
 		}
 
-		windowController.contentViewController = DocumentAssembly.build(storage: storage)
+		windowController.contentViewController = DocumentAssembly.build(storage: storage, featureProvider: featureProvider)
 		configureToolbar()
 		window.setContentSize(size)
 	}
@@ -113,11 +117,11 @@ extension Document {
 extension Document: NSToolbarDelegate {
 
 	func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-		return [.viewItem, .space, .newItem]
+		featureProvider.isAvailable(.columns) ? [.viewItem, .space, .newItem] : [.space, .newItem]
 	}
 
 	func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-		return [.viewItem, .space, .newItem]
+		featureProvider.isAvailable(.columns) ? [.viewItem, .space, .newItem] : [.space, .newItem]
 	}
 
 	func toolbar(
@@ -165,7 +169,7 @@ extension Document: NSToolbarDelegate {
 private extension Document {
 
 	func makeDocumentWindowController() -> NSWindowController {
-		let contentViewController = DocumentAssembly.build(storage: storage)
+		let contentViewController = DocumentAssembly.build(storage: storage, featureProvider: featureProvider)
 		let window = NSWindow(
 			contentRect: NSRect(x: 196, y: 240, width: 480, height: 270),
 			styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
