@@ -225,6 +225,8 @@ extension ItemCell {
 			return
 		}
 
+		updateUserInterface(animateIcon: false)
+
 		let title = titleTextfield.stringValue
 		let subtitle = subtitleTextfield.stringValue
 
