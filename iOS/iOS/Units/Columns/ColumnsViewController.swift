@@ -34,7 +34,7 @@ final class ColumnsViewController: UIViewController {
 		view.showsHorizontalScrollIndicator = true
 		view.showsVerticalScrollIndicator = false
 		view.dataSource = self
-		view.register(ColumnsCell.self, forCellWithReuseIdentifier: ColumnsCell.reuseIdentifier)
+		view.register(ColumnCell.self, forCellWithReuseIdentifier: ColumnCell.reuseIdentifier)
 		return view
 	}()
 
@@ -116,47 +116,14 @@ extension ColumnsViewController: UICollectionViewDataSource {
 		cellForItemAt indexPath: IndexPath
 	) -> UICollectionViewCell {
 		let cell = collectionView.dequeueReusableCell(
-			withReuseIdentifier: ColumnsCell.reuseIdentifier,
+			withReuseIdentifier: ColumnCell.reuseIdentifier,
 			for: indexPath
 		)
-		guard let cell = cell as? ColumnsCell else {
+		guard let cell = cell as? ColumnCell else {
 			return cell
 		}
-		cell.configure(with: columns[indexPath.item])
+		ColumnUnitAssembly.configure(cell: cell, column: columns[indexPath.item])
 		return cell
-	}
-}
-
-// MARK: - ColumnsModel
-private extension ColumnsViewController {
-
-	final class ColumnsCell: UICollectionViewCell {
-
-		static let reuseIdentifier = "ColumnsCell"
-
-		private let titleLabel: UILabel = {
-			let label = UILabel()
-			label.font = .preferredFont(forTextStyle: .headline)
-			label.numberOfLines = 0
-			return label
-		}()
-
-		override init(frame: CGRect) {
-			super.init(frame: frame)
-			backgroundColor = .secondarySystemBackground
-			layer.cornerRadius = 12
-			contentView.addSubview(titleLabel)
-			titleLabel.pin(edges: [.leading, .top, .trailing], to: contentView, with: 16)
-		}
-
-		@available(*, unavailable)
-		required init?(coder: NSCoder) {
-			fatalError("init(coder:) has not been implemented")
-		}
-
-		func configure(with column: UUID) {
-			titleLabel.text = column.uuidString
-		}
 	}
 }
 
