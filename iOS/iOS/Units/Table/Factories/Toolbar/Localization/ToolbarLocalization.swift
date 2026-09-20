@@ -9,7 +9,6 @@ protocol ToolbarLocalizationProtocol {
 	var selectItemTitle: String { get }
 	var selectAllItemTitle: String { get }
 	var reorderItemTitle: String { get }
-	var settingsItemTitle: String { get }
 	var doneItemTitle: String { get }
 	var expandAllItemTitle: String { get }
 	var collapseAllItemTitle: String { get }
@@ -44,10 +43,6 @@ extension ToolbarLocalization: ToolbarLocalizationProtocol {
 		String(localized: "reorder_toolbar_item_title", table: "ToolbarLocalizable")
 	}
 	
-	var settingsItemTitle: String {
-		String(localized: "settings_toolbar_item_title", table: "ToolbarLocalizable")
-	}
-
 	var doneItemTitle: String {
 		String(localized: "done_toolbar_item_title", table: "ToolbarLocalizable")
 	}

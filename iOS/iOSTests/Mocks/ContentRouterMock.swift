@@ -27,10 +27,6 @@ extension ContentRouterMock: ContentRouterProtocol {
 		invocations.append(.showDetails(model: model, barItem: barItem))
 	}
 
-	func showSettings() {
-		invocations.append(.showSettings)
-	}
-
 	func showTargetsScreen(for ids: Set<UUID>, completionHandler: @escaping (UUID?, Bool) -> Void) {
 		invocations.append(.showTargetsScreen(ids: ids))
 	}
@@ -61,7 +57,6 @@ extension ContentRouterMock {
 
 	enum Action {
 		case showDetails(model: ItemDetailsView.Model, barItem: String?)
-		case showSettings
 		case showTargetsScreen(ids: Set<UUID>)
 		case showReorderScreen(item: UUID)
 		case showIconPicker(title: String)

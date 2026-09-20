@@ -241,22 +241,6 @@
         }
       }
     },
-	"settings_toolbar_item_title" : {
-	  "localizations" : {
-		"en" : {
-		  "stringUnit" : {
-            "state" : "translated",
-            "value" : "Settings…"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Настройки…"
-          }
-		}
-	  }
-	},
 	"hide_subitems_menu_item_title" : {
 	  "localizations" : {
 		"en" : {

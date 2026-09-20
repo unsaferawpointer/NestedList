@@ -22,7 +22,7 @@ extension ContentToolbarBuilder {
 	func build(
 		configuration: ContentToolbarConfiguration<ID>,
 		delegate: (any ContentToolbarDelegate<ID>)?
-	) -> (top: [UIBarButtonItem], bottom: [UIBarButtonItem], showUndoGroup: Bool) {
+	) -> (top: [UIBarButtonItem], topMenuElements: [UIMenuElement], bottom: [UIBarButtonItem], showUndoGroup: Bool) {
 		let top = buildTop(
 			editingMode: configuration.editingMode,
 			selection: configuration.selection,
@@ -36,7 +36,7 @@ extension ContentToolbarBuilder {
 			delegate: delegate
 		)
 
-		return (top, bottom, configuration.showUndoGroup)
+		return (top.items, top.menuElements, bottom, configuration.showUndoGroup)
 	}
 }
 
@@ -47,9 +47,9 @@ private extension ContentToolbarBuilder {
 		editingMode: EditingMode?,
 		selection: [ID],
 		delegate: (any ContentToolbarDelegate<ID>)?
-	) -> [UIBarButtonItem] {
+	) -> (items: [UIBarButtonItem], menuElements: [UIMenuElement]) {
 		guard editingMode == nil else {
-			return [
+			return (items: [
 				barButton(
 					identifier: .done,
 					title: localization.doneItemTitle,
@@ -57,66 +57,54 @@ private extension ContentToolbarBuilder {
 					delegate: delegate,
 					isPrimaryAction: true
 				)
-			]
+			], menuElements: [])
 		}
 
-		return [
-			barButton(
-				identifier: .more,
-				image: "ellipsis",
-				menu: UIMenu(
+		return (
+			items: [],
+			menuElements: [
+				UIMenu(
+					identifier: .init("mode"),
+					options: [.displayInline],
+					preferredElementSize: .large,
 					children: [
-						UIMenu(
-							identifier: .init("mode"),
-							options: [.displayInline],
-							preferredElementSize: .large,
-							children: [
-								action(
-									identifier: .selectionMode,
-									title: localization.selectItemTitle,
-									image: "checkmark.circle",
-									selection: selection,
-									delegate: delegate
-								),
-								action(
-									identifier: .reorderingMode,
-									title: localization.reorderItemTitle,
-									image: "line.3.horizontal",
-									selection: selection,
-									delegate: delegate
-								)
-							]
-						),
-						UIMenu(
-							identifier: .init("outline"),
-							options: [.displayInline],
-							preferredElementSize: .large,
-							children: [
-								action(
-									identifier: .expandAll,
-									title: localization.expandAllItemTitle,
-									selection: selection,
-									delegate: delegate
-								),
-								action(
-									identifier: .collapseAll,
-									title: localization.collapseAllItemTitle,
-									selection: selection,
-									delegate: delegate
-								)
-							]
+						action(
+							identifier: .selectionMode,
+							title: localization.selectItemTitle,
+							image: "checkmark.circle",
+							selection: selection,
+							delegate: delegate
 						),
 						action(
-							identifier: .settings,
-							title: localization.settingsItemTitle,
-							image: "slider.horizontal.2.square",
+							identifier: .reorderingMode,
+							title: localization.reorderItemTitle,
+							image: "line.3.horizontal",
+							selection: selection,
+							delegate: delegate
+						)
+					]
+				),
+				UIMenu(
+					identifier: .init("outline"),
+					options: [.displayInline],
+					preferredElementSize: .large,
+					children: [
+						action(
+							identifier: .expandAll,
+							title: localization.expandAllItemTitle,
+							selection: selection,
+							delegate: delegate
+						),
+						action(
+							identifier: .collapseAll,
+							title: localization.collapseAllItemTitle,
 							selection: selection,
 							delegate: delegate
 						)
 					]
 				)
-			)
-		]
+			]
+		)
 	}
 
 	func buildBottom(

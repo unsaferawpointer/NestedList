@@ -101,6 +101,7 @@ extension TableViewController: ContentView {
 		let toolbar = toolbarBuilder.build(configuration: configuration, delegate: delegate)
 		display(
 			top: toolbar.top,
+			topMenuElements: toolbar.topMenuElements,
 			bottom: toolbar.bottom,
 			showUndoGroup: toolbar.showUndoGroup
 		)
@@ -150,7 +151,12 @@ private extension TableViewController {
 			.first
 	}
 
-	func display(top: [UIBarButtonItem], bottom: [UIBarButtonItem], showUndoGroup: Bool) {
+	func display(
+		top: [UIBarButtonItem],
+		topMenuElements: [UIMenuElement],
+		bottom: [UIBarButtonItem],
+		showUndoGroup: Bool
+	) {
 		guard let root = parent as? DocumentViewController else {
 			navigationItem.setRightBarButtonItems(top, animated: true)
 			toolbarItems = documentViewController?.makeBottomToolbarItems(
@@ -162,6 +168,7 @@ private extension TableViewController {
 
 		root.displayToolbar(
 			top: top,
+			topMenuElements: topMenuElements,
 			bottom: bottom,
 			showUndoGroup: showUndoGroup,
 			animated: displaysToolbarAnimated

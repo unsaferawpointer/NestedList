@@ -18,6 +18,8 @@ protocol DocumentViewDelegate: ViewDelegate { }
 class DocumentViewController: UIDocumentViewController {
 
 	private var undoRedoItems: [UIBarButtonItem] = []
+	private let toolbarBuilder = DocumentToolbarBuilder()
+	private lazy var router: any DocumentRouterProtocol = DocumentRouter(root: self)
 
 	// MARK: - DI by Property
 
@@ -98,16 +100,38 @@ private extension DocumentViewController {
 extension DocumentViewController: ToolbarSupportable {
 
 	func displayToolbar(top: [UIBarButtonItem], bottom: [UIBarButtonItem], showUndoGroup: Bool) {
-		displayToolbar(top: top, bottom: bottom, showUndoGroup: showUndoGroup, animated: true)
+		displayToolbar(top: top, topMenuElements: [], bottom: bottom, showUndoGroup: showUndoGroup, animated: true)
 	}
 
-	func displayToolbar(top: [UIBarButtonItem], bottom: [UIBarButtonItem], showUndoGroup: Bool, animated: Bool) {
-		navigationItem.setRightBarButtonItems(top, animated: animated)
+	func displayToolbar(
+		top: [UIBarButtonItem],
+		topMenuElements: [UIMenuElement],
+		bottom: [UIBarButtonItem],
+		showUndoGroup: Bool,
+		animated: Bool = true
+	) {
+		let documentTop = topMenuElements.isEmpty
+			? top
+			: [toolbarBuilder.build(actions: topMenuElements, delegate: self)] + top
+		navigationItem.setRightBarButtonItems(documentTop, animated: animated)
 		toolbarItems = makeBottomToolbarItems(bottom: bottom, showUndoGroup: showUndoGroup)
 	}
 
 	func makeBottomToolbarItems(bottom: [UIBarButtonItem], showUndoGroup: Bool) -> [UIBarButtonItem] {
 		showUndoGroup ? undoRedoItems + bottom : bottom
+	}
+}
+
+// MARK: - DocumentToolbarDelegate
+extension DocumentViewController: DocumentToolbarDelegate {
+
+	func userDidTapToolbar(with id: DocumentToolbarIdentifier) {
+		switch id {
+		case .settings:
+			router.showSettings()
+		case .more:
+			break
+		}
 	}
 }
 

@@ -23,7 +23,6 @@ enum ContentToolbarIdentifier: String {
 	case deleteItems = "delete"
 
 	case done
-	case settings
 	case reorderingMode = "reordering-mode"
 	case selectionMode = "selection-mode"
 
@@ -31,7 +30,6 @@ enum ContentToolbarIdentifier: String {
 	case collapseAll = "collapse-all"
 	case expandAll = "expand-all"
 
-	case more
 }
 
 // MARK: - Equatable

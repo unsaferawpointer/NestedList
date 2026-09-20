@@ -18,7 +18,6 @@ protocol ContentRouterProtocol {
 		animateBottomBarItem barItem: String?,
 		completionHandler: @escaping @MainActor (ItemDetailsView.Properties, Bool) -> Void
 	)
-	func showSettings()
 	func showTargetsScreen(for ids: Set<UUID>, completionHandler: @escaping (UUID?, Bool) -> Void)
 	func showReorderScreen(for item: UUID, completionHandler: @escaping () -> Void)
 	func showIconPicker(title: String, completionHandler: @escaping @MainActor (IconName?) -> Void)
@@ -65,15 +64,6 @@ extension ContentRouter: ContentRouterProtocol {
 		}
 
 		root.present(controller, animated: true)
-	}
-
-	func showSettings() {
-		let settings = SettingsView(provider: SettingsProvider.shared)
-		let controller = UIHostingController(rootView: settings)
-		controller.modalPresentationStyle = .formSheet
-		controller.title = String(localized: "settings-viewcontroller-title", table: "UnitLocalizable")
-		let navigationController = UINavigationController(rootViewController: controller)
-		root.present(navigationController, animated: true)
 	}
 
 	func showTargetsScreen(for ids: Set<UUID>, completionHandler: @escaping (UUID?, Bool) -> Void) {

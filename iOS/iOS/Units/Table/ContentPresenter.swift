@@ -346,13 +346,11 @@ extension ContentPresenter: ContentToolbarDelegate {
 		case .moveItems:					move(selection: currentSelection)
 		case .deleteItems:					delete(selection: currentSelection)
 		case .done:							editingMode = nil
-		case .settings:						router.showSettings()
 		case .reorderingMode:				editingMode = .reordering
 		case .selectionMode:				editingMode = .selection
 		case .selectAll:					view?.selectAll()
 		case .collapseAll:					view?.collapseAll()
 		case .expandAll:					view?.expandAll()
-		case .more:							break
 		}
 	}
 }
