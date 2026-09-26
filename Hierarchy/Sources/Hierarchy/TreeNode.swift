@@ -57,6 +57,16 @@ public extension TreeNode {
 		)
 	}
 
+	func map<T, N: TreeNode>(_ transform: (Value) -> T) -> N where N.Value == T {
+		let transformed = transform(value)
+		return .init(
+			value: transformed,
+			children: children.map{ node in
+				node.map(transform)
+			}
+		)
+	}
+
 	func map<T: TreeNode>(type: T.Type) -> T where T.Value == Value {
 		return T.init(
 			value: value,

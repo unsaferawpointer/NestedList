@@ -194,7 +194,11 @@ private extension NodeStore {
 			}
 			return
 		}
-		parent.deleteChild(id)
+
+		guard let index = parent.children.firstIndex(where: \.id, equalsTo: id) else {
+			return
+		}
+		parent.children.remove(at: index)
 	}
 }
 

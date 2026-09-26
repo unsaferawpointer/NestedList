@@ -53,16 +53,6 @@ extension Node: Identifiable {
 // MARK: - Public interface
 extension Node {
 
-	func map<T>(_ transform: (Value) -> T) -> Node<T> {
-		let transformed = transform(value)
-		return .init(
-			value: transformed,
-			children: children.map{ node in
-				node.map(transform)
-			}
-		)
-	}
-
 	func enumerateBackwards(_ block: (Node) -> Void) {
 		block(self)
 		parent?.enumerateBackwards(block)
@@ -79,15 +69,6 @@ extension Node {
 				)
 			}
 		}
-	}
-
-	@discardableResult
-	func deleteChild(_ id: ID) -> Int? {
-		guard let index = children.firstIndex(where: \.id, equalsTo: id) else {
-			return nil
-		}
-		children.remove(at: index)
-		return index
 	}
 
 	func deleteDescendants(with ids: Set<ID>) {

@@ -343,7 +343,7 @@ public extension Snapshot {
 
 	func map<T: Identifiable>(_ transform: (Model) -> T) -> Snapshot<T> {
 		let nodes = getNodes()
-		let transformed = nodes.map {
+		let transformed: [Node<T>] = nodes.map {
 			$0.map { model in
 				transform(model)
 			}
