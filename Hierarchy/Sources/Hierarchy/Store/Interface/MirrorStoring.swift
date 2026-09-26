@@ -5,42 +5,25 @@
 //  Created by Anton Cherkasov on 03.09.2026.
 //
 
-public protocol MirrorStoring<Content, Identifier>: NodeReading where Value == Resolved<Content, Identifier> {
+public protocol MirrorStoring<Content, ID> {
 
 	associatedtype Content
-	associatedtype Identifier: Hashable
+	associatedtype ID: RandomizableIdentifier
 
-	func insert<S: Sequence>(
-		_ items: S,
-		at destination: Destination<Identifier>
-	) throws(NodeStoreError) where S.Element == Resolved<Content, Identifier>
+	func insert<T: TreeNode>(
+		nodes: [T],
+		to destination: Destination<ID>
+	) throws(MirrorStoreError) where T.Value == Container<Content, ID>
 
-	func moveItems<S: Sequence>(
+	func deleteItems<S: Sequence>(_ ids: S) where S.Element == ID
+
+	func moveItems<S>(
 		_ ids: S,
-		to destination: Destination<Identifier>
-	) throws(NodeStoreError) where S.Element == Identifier
+		to destination: Destination<ID>
+	) throws(MirrorStoreError) where S : Sequence, S.Element == ID
 
-	func canMoveItems<S: Sequence>(
+	func validateMove<S: Sequence>(
 		_ ids: S,
-		to destination: Destination<Identifier>
-	) -> Bool where S.Element == Identifier
-
-	func deleteItems<S: Sequence>(_ ids: S) where S.Element == Identifier
-
-	func set<T>(
-		_ keyPath: WritableKeyPath<Content, T>,
-		to value: T,
-		for ids: [Identifier],
-		includingDescendants: Bool
-	)
-
-	func insertMirror(
-		for ids: [Identifier],
-		to destination: Destination<Identifier>
-	) throws(NodeStoreError) -> [Identifier]
-
-	func canInsertMirror(
-		for ids: [Identifier],
-		to destination: Destination<Identifier>
-	) -> Bool
+		to destination: Destination<ID>
+	) -> Bool where S.Element == ID
 }

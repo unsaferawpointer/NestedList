@@ -15,4 +15,5 @@ public enum MirrorStoreError: Error {
 	case mirrorHasChildren
 	case missingDestination
 	case invalidDestinationIndex
+	case movingIntoDescendant
 }

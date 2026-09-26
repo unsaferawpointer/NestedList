@@ -158,6 +158,241 @@ extension MirrorStoreTests {
 	}
 }
 
+// MARK: - Deletion
+extension MirrorStoreTests {
+
+	// A
+	// B ──▶ A
+	@Test
+	func deleteItemsRemovesMirrorPlacement() throws {
+		// Arrange
+		let item = Node(
+			value: Container<String, String>.item(id: "A", content: "Item")
+		)
+		let mirror = Node(
+			value: Container<String, String>.mirror(id: "B", reference: "A")
+		)
+		let store = try MirrorStore(nodes: [item, mirror])
+
+		// Act
+		store.deleteItems(["B"])
+
+		// Assert
+		#expect(store.identifiers == ["A"])
+		#expect(store["A"]?.content == "Item")
+		#expect(store["B"] == nil)
+	}
+
+	// A
+	// └── B
+	@Test
+	func deleteItemsRemovesItemAndDescendants() throws {
+		// Arrange
+		let root = Node(
+			value: Container<String, String>.item(id: "A", content: "Root"),
+			children: [
+				Node(
+					value: Container<String, String>.item(id: "B", content: "Child")
+				)
+			]
+		)
+		let store = try MirrorStore(nodes: [root])
+
+		// Act
+		store.deleteItems(["A"])
+
+		// Assert
+		#expect(store.identifiers.isEmpty)
+		#expect(store.children(of: nil).isEmpty)
+	}
+
+	// A
+	// B ──▶ A
+	@Test
+	func deleteItemsRemovesDependentMirrorsWhenSourceIsDeleted() throws {
+		// Arrange
+		let item = Node(
+			value: Container<String, String>.item(id: "A", content: "Item")
+		)
+		let mirror = Node(
+			value: Container<String, String>.mirror(id: "B", reference: "A")
+		)
+		let store = try MirrorStore(nodes: [item, mirror])
+
+		// Act
+		store.deleteItems(["A"])
+
+		// Assert
+		#expect(store.identifiers.isEmpty)
+		#expect(store.children(of: nil).isEmpty)
+	}
+}
+
+// MARK: - Moving
+extension MirrorStoreTests {
+
+	// A
+	// └── B
+	// validating move B under A
+	@Test
+	func validateMoveReturnsTrueForValidDestination() throws {
+		// Arrange
+		let first = Node(
+			value: Container<String, String>.item(id: "A", content: "First")
+		)
+		let second = Node(
+			value: Container<String, String>.item(id: "B", content: "Second")
+		)
+		let store = try MirrorStore(nodes: [first, second])
+
+		// Act
+		let isValid = store.validateMove(["B"], to: .onItem(with: "A"))
+
+		// Assert
+		#expect(isValid)
+		#expect(store.children(of: nil) == ["A", "B"])
+		#expect(store.children(of: "A").isEmpty)
+	}
+
+	// A
+	// └── B
+	// validating move A under B // invalid
+	@Test
+	func validateMoveReturnsFalseWhenMovingNodeIntoDescendant() throws {
+		// Arrange
+		let child = Node(
+			value: Container<String, String>.item(id: "B", content: "Child")
+		)
+		let root = Node(
+			value: Container<String, String>.item(id: "A", content: "Root"),
+			children: [child]
+		)
+		let store = try MirrorStore(nodes: [root])
+
+		// Act
+		let isValid = store.validateMove(["A"], to: .onItem(with: "B"))
+
+		// Assert
+		#expect(!isValid)
+		#expect(store.children(of: nil) == ["A"])
+		#expect(store.children(of: "A") == ["B"])
+	}
+
+	// A
+	// └── M ──▶ B
+	// validating move M under B // creates a cycle
+	@Test
+	func validateMoveReturnsFalseWhenMoveCreatesReferenceCycle() throws {
+		// Arrange
+		let mirror = Node(
+			value: Container<String, String>.mirror(id: "M", reference: "B")
+		)
+		let first = Node(
+			value: Container<String, String>.item(id: "A", content: "First"),
+			children: [mirror]
+		)
+		let second = Node(
+			value: Container<String, String>.item(id: "B", content: "Second")
+		)
+		let store = try MirrorStore(nodes: [first, second])
+
+		// Act
+		let isValid = store.validateMove(["M"], to: .onItem(with: "B"))
+
+		// Assert
+		#expect(!isValid)
+		#expect(store.children(of: "A") == ["M"])
+		#expect(store.children(of: "B").isEmpty)
+	}
+
+	// A
+	// └── B
+	@Test
+	func moveItemsPlacesNodesAtDestination() throws {
+		// Arrange
+		let first = Node(
+			value: Container<String, String>.item(id: "A", content: "First")
+		)
+		let second = Node(
+			value: Container<String, String>.item(id: "B", content: "Second")
+		)
+		let store = try MirrorStore(nodes: [first, second])
+
+		// Act
+		try store.moveItems(["B"], to: .onItem(with: "A"))
+
+		// Assert
+		#expect(store.children(of: nil) == ["A"])
+		#expect(store.children(of: "A") == ["B"])
+		#expect(store.parent(of: "B") == "A")
+	}
+
+	// A
+	// └── B
+	// moving A under B // invalid
+	@Test
+	func moveItemsThrowsWhenMovingNodeIntoDescendant() throws {
+		// Arrange
+		let child = Node(
+			value: Container<String, String>.item(id: "B", content: "Child")
+		)
+		let root = Node(
+			value: Container<String, String>.item(id: "A", content: "Root"),
+			children: [child]
+		)
+		let store = try MirrorStore(nodes: [root])
+
+		// Act & Assert
+		#expect {
+			try store.moveItems(["A"], to: .onItem(with: "B"))
+		} throws: { error in
+			guard let error = error as? MirrorStoreError else {
+				return false
+			}
+			guard case .movingIntoDescendant = error else {
+				return false
+			}
+			return true
+		}
+		#expect(store.children(of: nil) == ["A"])
+		#expect(store.children(of: "A") == ["B"])
+	}
+
+	// A
+	// └── M ──▶ B
+	// moving M under B // creates a cycle
+	@Test
+	func moveItemsRollsBackWhenMoveCreatesReferenceCycle() throws {
+		// Arrange
+		let mirror = Node(
+			value: Container<String, String>.mirror(id: "M", reference: "B")
+		)
+		let first = Node(
+			value: Container<String, String>.item(id: "A", content: "First"),
+			children: [mirror]
+		)
+		let second = Node(
+			value: Container<String, String>.item(id: "B", content: "Second")
+		)
+		let store = try MirrorStore(nodes: [first, second])
+
+		// Act & Assert
+		#expect {
+			try store.moveItems(["M"], to: .onItem(with: "B"))
+		} throws: { error in
+			guard let error = error as? MirrorStoreError else {
+				return false
+			}
+			guard case .referenceCycle = error else {
+				return false
+			}
+			return true
+		}
+		#expect(store.children(of: "A") == ["M"])
+		#expect(store.children(of: "B").isEmpty)
+	}
+}
+
 // MARK: - Validation
 extension MirrorStoreTests {
 

@@ -25,8 +25,8 @@ final class MirrorStore<Content, ID: RandomizableIdentifier> {
 	}
 }
 
-// MARK: - Insertion
-extension MirrorStore {
+// MARK: - MirrorStoring
+extension MirrorStore: MirrorStoring {
 
 	func insert<T: TreeNode>(
 		nodes: [T],
@@ -49,6 +49,76 @@ extension MirrorStore {
 			remove(newNodes, from: destination)
 			updateCache(removed: newNodes)
 			throw error
+		}
+	}
+
+	func deleteItems<S: Sequence>(_ ids: S) where S.Element == ID {
+		ids.forEach { deleteItem($0) }
+	}
+
+	func moveItems<S: Sequence>(
+		_ ids: S,
+		to destination: Destination<ID>
+	) throws(MirrorStoreError) where S.Element == ID {
+		var moved: [Node<Container<Content, ID>>] = []
+		var movedIDs = Set<ID>()
+		for id in ids {
+			guard movedIDs.insert(id).inserted, let node = cache[id] else {
+				continue
+			}
+			moved.append(node)
+		}
+
+		try validateDestination(destination)
+		try validateMoving(moved, to: destination)
+
+		let originalNodes = nodes.map { $0.copy() }
+		move(moved, to: destination)
+
+		do {
+			try validateStore()
+		} catch {
+			nodes = originalNodes
+			cache = Cache()
+			updateCache(inserted: nodes)
+			throw error
+		}
+	}
+
+	func validateMove<S: Sequence>(
+		_ ids: S,
+		to destination: Destination<ID>
+	) -> Bool where S.Element == ID {
+		var moved: [Node<Container<Content, ID>>] = []
+		var movedIDs = Set<ID>()
+		for id in ids {
+			guard movedIDs.insert(id).inserted, let node = cache[id] else {
+				continue
+			}
+			moved.append(node)
+		}
+
+		do {
+			try validateDestination(destination)
+			try validateMoving(moved, to: destination)
+		} catch {
+			return false
+		}
+
+		let originalNodes = nodes.map { $0.copy() }
+		move(moved, to: destination)
+
+		defer {
+			nodes = originalNodes
+			cache = Cache()
+			updateCache(inserted: nodes)
+		}
+
+		do {
+			try validateStore()
+			return true
+		} catch {
+			return false
 		}
 	}
 
@@ -122,6 +192,105 @@ private extension MirrorStore {
 			cache[id]?.children.removeAll { identifiers.contains($0.id) }
 		}
 	}
+
+	func deleteItem(_ id: ID) {
+		guard let item = cache[id] else {
+			return
+		}
+
+		var removedIDs = Set<ID>()
+		item.traverse { node in
+			removedIDs.insert(node.id)
+		}
+
+		var removedSourceIDs = Set<ID>()
+		for removedID in removedIDs {
+			if case .item = cache[removedID]?.value {
+				removedSourceIDs.insert(removedID)
+			}
+		}
+
+		for root in nodes {
+			root.traverse { node in
+				guard case let .mirror(_, reference) = node.value,
+					  removedSourceIDs.contains(reference) else {
+					return
+				}
+				removedIDs.insert(node.id)
+			}
+		}
+
+		let removedNodes = removedIDs.compactMap { cache[$0] }
+		updateCache(removed: removedNodes)
+		removeNodes(with: removedIDs, from: &nodes)
+
+	}
+
+	func removeNodes(
+		with ids: Set<ID>,
+		from nodes: inout [Node<Container<Content, ID>>]
+	) {
+		nodes.removeAll { ids.contains($0.id) }
+		for node in nodes {
+			var children = node.children
+			removeNodes(with: ids, from: &children)
+			node.children = children
+		}
+	}
+
+	func move(
+		_ nodes: [Node<Container<Content, ID>>],
+		to destination: Destination<ID>
+	) {
+		let movedIDs = Set(nodes.map(\.id))
+		let insertionIndex: Int?
+		switch destination {
+		case let .inRoot(atIndex: index):
+			insertionIndex = adjustedIndex(index, in: self.nodes, moving: movedIDs)
+		case let .inItem(with: id, atIndex: index):
+			insertionIndex = cache[id].map {
+				adjustedIndex(index, in: $0.children, moving: movedIDs)
+			}
+		default:
+			insertionIndex = nil
+		}
+
+		for node in nodes {
+			if let parent = node.parent {
+				parent.children.removeAll { movedIDs.contains($0.id) }
+			} else {
+				self.nodes.removeAll { movedIDs.contains($0.id) }
+			}
+		}
+
+		switch destination {
+		case .toRoot:
+			self.nodes.append(contentsOf: nodes)
+			nodes.forEach { $0.parent = nil }
+		case .inRoot:
+			self.nodes.insert(contentsOf: nodes, at: insertionIndex ?? self.nodes.count)
+			nodes.forEach { $0.parent = nil }
+		case let .onItem(with: id):
+			cache[id]?.appendItems(with: nodes)
+		case let .inItem(with: id, atIndex: _):
+			if let target = cache[id] {
+				target.insertItems(with: nodes, to: insertionIndex ?? target.children.count)
+			}
+		}
+	}
+
+	func adjustedIndex(
+		_ index: Int,
+		in siblings: [Node<Container<Content, ID>>],
+		moving ids: Set<ID>
+	) -> Int {
+		let offset = siblings[..<index].reduce(into: 0) { result, node in
+			if ids.contains(node.id) {
+				result += 1
+			}
+		}
+		return index - offset
+	}
 }
 
 // MARK: - Validation
@@ -153,6 +322,18 @@ private extension MirrorStore {
 			guard (0...target.children.count).contains(index) else {
 				throw MirrorStoreError.invalidDestinationIndex
 			}
+		}
+	}
+
+	func validateMoving(
+		_ nodes: [Node<Container<Content, ID>>],
+		to destination: Destination<ID>
+	) throws(MirrorStoreError) {
+		guard let targetID = destination.id else {
+			return
+		}
+		for node in nodes where node.id == targetID || node.isAncestor(of: targetID) {
+			throw MirrorStoreError.movingIntoDescendant
 		}
 	}
 
