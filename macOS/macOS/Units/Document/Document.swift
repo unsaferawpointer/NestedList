@@ -11,6 +11,8 @@ import CorePresentation
 
 class Document: NSDocument {
 
+	private let windowFrameAutosaveName = "document-window-\(UUID().uuidString)"
+
 	// MARK: - DI
 
 	lazy var storage: DocumentStorage<DocumentContent> = {
@@ -171,19 +173,20 @@ private extension Document {
 	func makeDocumentWindowController() -> NSWindowController {
 		let contentViewController = DocumentAssembly.build(storage: storage, featureProvider: featureProvider)
 		let window = NSWindow(
-			contentRect: NSRect(x: 196, y: 240, width: 480, height: 270),
+			contentRect: NSRect(x: 196, y: 240, width: 640, height: 480),
 			styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
 			backing: .buffered,
 			defer: false
 		)
 		window.minSize = NSSize(width: 360, height: 240)
 		window.contentViewController = contentViewController
+		window.setContentSize(.init(width: 640, height: 480))
 		window.toolbar = toolbar
 		window.isReleasedWhenClosed = false
 		window.animationBehavior = .default
 
 		let windowController = NSWindowController(window: window)
-		windowController.windowFrameAutosaveName = "document-window"
+		windowController.windowFrameAutosaveName = windowFrameAutosaveName
 		return windowController
 	}
 
