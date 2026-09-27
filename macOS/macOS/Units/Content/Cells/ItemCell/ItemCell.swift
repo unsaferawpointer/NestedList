@@ -225,10 +225,13 @@ extension ItemCell {
 			return
 		}
 
-		updateUserInterface(animateIcon: false)
-
 		let title = titleTextfield.stringValue
 		let subtitle = subtitleTextfield.stringValue
+
+		model.value.title = title
+		model.value.subtitle = subtitle.isEmpty ? nil : subtitle
+
+		updateUserInterface(animateIcon: false)
 
 		delegate?.cellDidChange(newValue: .init(title: title, subtitle: subtitle), id: model.id)
 	}
