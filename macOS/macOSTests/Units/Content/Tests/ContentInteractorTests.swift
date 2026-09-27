@@ -261,7 +261,7 @@ extension CommonInteractorMock: CommonInteractorProtocol {
 	}
 
 	func setProperty<T>(
-		_ property: WritableKeyPath<Item, T>,
+		_ property: WritableKeyPath<ItemContent, T>,
 		to value: T,
 		for ids: [UUID],
 		downstream: Bool
@@ -305,24 +305,24 @@ extension CommonInteractorMock {
 		case tintColor(ItemColor?)
 		case note(String?)
 
-		init?<T>(property: WritableKeyPath<Item, T>, value: T) {
+		init?<T>(property: WritableKeyPath<ItemContent, T>, value: T) {
 			switch property {
-			case \Item.isSubitemsHidden:
+			case \ItemContent.isSubitemsHidden:
 				guard let value = value as? Bool else {
 					return nil
 				}
 				self = .isSubitemsHidden(value)
-			case \Item.iconName:
+			case \ItemContent.iconName:
 				guard let value = value as? IconName? else {
 					return nil
 				}
 				self = .iconName(value)
-			case \Item.tintColor:
+			case \ItemContent.tintColor:
 				guard let value = value as? ItemColor? else {
 					return nil
 				}
 				self = .tintColor(value)
-			case \Item.note:
+			case \ItemContent.note:
 				guard let value = value as? String? else {
 					return nil
 				}
