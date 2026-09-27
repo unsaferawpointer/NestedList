@@ -11,9 +11,7 @@ final class MirrorStore<Content, ID: RandomizableIdentifier> {
 
 	// MARK: - Internal State
 
-	private var cache = Cache()
-
-	private var nodes: [Node<Container<Content, ID>>] = []
+	private var storage = InternalStorage()
 
 	// MARK: - Initialization
 
@@ -63,7 +61,7 @@ extension MirrorStore: MirrorStoring {
 		var moved: [Node<Container<Content, ID>>] = []
 		var movedIDs = Set<ID>()
 		for id in ids {
-			guard movedIDs.insert(id).inserted, let node = cache[id] else {
+			guard movedIDs.insert(id).inserted, let node = storage.cache[id] else {
 				continue
 			}
 			moved.append(node)
@@ -72,15 +70,15 @@ extension MirrorStore: MirrorStoring {
 		try validateDestination(destination)
 		try validateMoving(moved, to: destination)
 
-		let originalNodes = nodes.map { $0.copy() }
+		let originalNodes = storage.nodes.map { $0.copy() }
 		move(moved, to: destination)
 
 		do {
 			try validateStore()
 		} catch {
-			nodes = originalNodes
-			cache = Cache()
-			updateCache(inserted: nodes)
+			storage.nodes = originalNodes
+			storage.cache = InternalStorage.Cache()
+			updateCache(inserted: storage.nodes)
 			throw error
 		}
 	}
@@ -92,7 +90,7 @@ extension MirrorStore: MirrorStoring {
 		var moved: [Node<Container<Content, ID>>] = []
 		var movedIDs = Set<ID>()
 		for id in ids {
-			guard movedIDs.insert(id).inserted, let node = cache[id] else {
+			guard movedIDs.insert(id).inserted, let node = storage.cache[id] else {
 				continue
 			}
 			moved.append(node)
@@ -105,13 +103,13 @@ extension MirrorStore: MirrorStoring {
 			return false
 		}
 
-		let originalNodes = nodes.map { $0.copy() }
+		let originalNodes = storage.nodes.map { $0.copy() }
 		move(moved, to: destination)
 
 		defer {
-			nodes = originalNodes
-			cache = Cache()
-			updateCache(inserted: nodes)
+			storage.nodes = originalNodes
+			storage.cache = InternalStorage.Cache()
+			updateCache(inserted: storage.nodes)
 		}
 
 		do {
@@ -133,18 +131,18 @@ private extension MirrorStore {
 	) {
 		switch destination {
 		case .toRoot:
-			self.nodes.append(contentsOf: nodes)
+			storage.nodes.append(contentsOf: nodes)
 		case let .inRoot(atIndex: index):
-			self.nodes.insert(contentsOf: nodes, at: index)
+			storage.nodes.insert(contentsOf: nodes, at: index)
 		case let .onItem(with: id):
-			cache[id]?.appendItems(with: nodes)
+			storage.cache[id]?.appendItems(with: nodes)
 		case let .inItem(with: id, atIndex: index):
-			cache[id]?.insertItems(with: nodes, to: index)
+			storage.cache[id]?.insertItems(with: nodes, to: index)
 		}
 	}
 
 	func prepareIdentifiers(for nodes: [Node<Container<Content, ID>>]) {
-		var occupied = cache.identifiers
+		var occupied = storage.cache.identifiers
 		var replacements: [ID: ID] = [:]
 
 		for root in nodes {
@@ -187,14 +185,14 @@ private extension MirrorStore {
 		let identifiers = Set(nodes.map(\.id))
 		switch destination {
 		case .toRoot, .inRoot:
-			self.nodes.removeAll { identifiers.contains($0.id) }
+			storage.nodes.removeAll { identifiers.contains($0.id) }
 		case let .onItem(with: id), let .inItem(with: id, atIndex: _):
-			cache[id]?.children.removeAll { identifiers.contains($0.id) }
+			storage.cache[id]?.children.removeAll { identifiers.contains($0.id) }
 		}
 	}
 
 	func deleteItem(_ id: ID) {
-		guard let item = cache[id] else {
+		guard let item = storage.cache[id] else {
 			return
 		}
 
@@ -205,12 +203,12 @@ private extension MirrorStore {
 
 		var removedSourceIDs = Set<ID>()
 		for removedID in removedIDs {
-			if case .item = cache[removedID]?.value {
+			if case .item = storage.cache[removedID]?.value {
 				removedSourceIDs.insert(removedID)
 			}
 		}
 
-		for root in nodes {
+		for root in storage.nodes {
 			root.traverse { node in
 				guard case let .mirror(_, reference) = node.value,
 					  removedSourceIDs.contains(reference) else {
@@ -220,9 +218,9 @@ private extension MirrorStore {
 			}
 		}
 
-		let removedNodes = removedIDs.compactMap { cache[$0] }
+		let removedNodes = removedIDs.compactMap { storage.cache[$0] }
 		updateCache(removed: removedNodes)
-		removeNodes(with: removedIDs, from: &nodes)
+		removeNodes(with: removedIDs, from: &storage.nodes)
 
 	}
 
@@ -246,9 +244,9 @@ private extension MirrorStore {
 		let insertionIndex: Int?
 		switch destination {
 		case let .inRoot(atIndex: index):
-			insertionIndex = adjustedIndex(index, in: self.nodes, moving: movedIDs)
+			insertionIndex = adjustedIndex(index, in: storage.nodes, moving: movedIDs)
 		case let .inItem(with: id, atIndex: index):
-			insertionIndex = cache[id].map {
+			insertionIndex = storage.cache[id].map {
 				adjustedIndex(index, in: $0.children, moving: movedIDs)
 			}
 		default:
@@ -259,21 +257,21 @@ private extension MirrorStore {
 			if let parent = node.parent {
 				parent.children.removeAll { movedIDs.contains($0.id) }
 			} else {
-				self.nodes.removeAll { movedIDs.contains($0.id) }
+				storage.nodes.removeAll { movedIDs.contains($0.id) }
 			}
 		}
 
 		switch destination {
 		case .toRoot:
-			self.nodes.append(contentsOf: nodes)
+			storage.nodes.append(contentsOf: nodes)
 			nodes.forEach { $0.parent = nil }
 		case .inRoot:
-			self.nodes.insert(contentsOf: nodes, at: insertionIndex ?? self.nodes.count)
+			storage.nodes.insert(contentsOf: nodes, at: insertionIndex ?? storage.nodes.count)
 			nodes.forEach { $0.parent = nil }
 		case let .onItem(with: id):
-			cache[id]?.appendItems(with: nodes)
+			storage.cache[id]?.appendItems(with: nodes)
 		case let .inItem(with: id, atIndex: _):
-			if let target = cache[id] {
+			if let target = storage.cache[id] {
 				target.insertItems(with: nodes, to: insertionIndex ?? target.children.count)
 			}
 		}
@@ -297,10 +295,10 @@ private extension MirrorStore {
 private extension MirrorStore {
 
 	func validateStore() throws(MirrorStoreError) {
-		try validateUniqueIdentifiers(in: nodes)
-		try validateReferences(in: nodes)
-		try validateReferenceCycles(in: nodes)
-		try validateMirrorChildren(in: nodes)
+		try validateUniqueIdentifiers(in: storage.nodes)
+		try validateReferences(in: storage.nodes)
+		try validateReferenceCycles(in: storage.nodes)
+		try validateMirrorChildren(in: storage.nodes)
 	}
 
 	func validateDestination(_ destination: Destination<ID>) throws(MirrorStoreError) {
@@ -308,15 +306,15 @@ private extension MirrorStore {
 		case .toRoot:
 			return
 		case let .inRoot(atIndex: index):
-			guard (0...nodes.count).contains(index) else {
+			guard (0...storage.nodes.count).contains(index) else {
 				throw MirrorStoreError.invalidDestinationIndex
 			}
 		case let .onItem(with: id):
-			guard cache[id] != nil else {
+			guard storage.cache[id] != nil else {
 				throw MirrorStoreError.missingDestination
 			}
 		case let .inItem(with: id, atIndex: index):
-			guard let target = cache[id] else {
+			guard let target = storage.cache[id] else {
 				throw MirrorStoreError.missingDestination
 			}
 			guard (0...target.children.count).contains(index) else {
@@ -361,7 +359,7 @@ private extension MirrorStore {
 					guard case let .mirror(_, reference) = node.value else {
 						return
 					}
-					guard let target = cache[reference] else {
+					guard let target = storage.cache[reference] else {
 						throw MirrorStoreError.missingReference
 					}
 					guard case .item = target.value else {
@@ -448,7 +446,7 @@ private extension MirrorStore {
 	func updateCache(inserted nodes: [Node<Container<Content, ID>>]) {
 		for node in nodes {
 			node.traverse { node in
-				cache.insert(node)
+				storage.cache.insert(node)
 			}
 		}
 	}
@@ -456,7 +454,7 @@ private extension MirrorStore {
 	func updateCache(removed nodes: [Node<Container<Content, ID>>]) {
 		for node in nodes {
 			node.traverse { node in
-				cache.remove(node)
+				storage.cache.remove(node)
 			}
 		}
 	}
@@ -466,18 +464,18 @@ private extension MirrorStore {
 extension MirrorStore: MirrorReading {
 
 	var identifiers: Set<ID> {
-		cache.identifiers
+		storage.cache.identifiers
 	}
 
 	func parent(of id: ID) -> ID? {
-		return cache[id]?.parent?.id
+		return storage.cache[id]?.parent?.id
 	}
 
 	func children(of parent: ID?) -> [ID] {
 		guard let parent else {
-			return nodes.map(\.id)
+			return storage.nodes.map(\.id)
 		}
-		return cache[parent]?.children.map(\.id) ?? []
+		return storage.cache[parent]?.children.map(\.id) ?? []
 	}
 
 	subscript(id: ID) -> Resolved<Content, ID>? {
@@ -489,50 +487,18 @@ extension MirrorStore: MirrorReading {
 private extension MirrorStore {
 
 	func item(with id: ID) -> Resolved<Content, ID>? {
-		guard let container = cache[id]?.value else {
+		guard let container = storage.cache[id]?.value else {
 			return nil
 		}
 		switch container {
 		case let .item(_, content):
 			return Resolved(id: id, content: content)
 		case let .mirror(_, reference):
-			guard case let .item(_, content) = cache[reference]?.value else {
+			guard case let .item(_, content) = storage.cache[reference]?.value else {
 				assertionFailure("Link to non-item")
 				return nil
 			}
 			return Resolved(id: id, content: content, isMirror: true)
-		}
-	}
-}
-
-// MARK: - Nested Data Structs
-extension MirrorStore {
-
-	struct Cache {
-		private var storage: [ID: Node<Container<Content, ID>>] = [:]
-		private(set) var identifiers: Set<ID> = .init()
-	}
-}
-
-extension MirrorStore.Cache {
-
-	mutating func insert(_ node: Node<Container<Content, ID>>) {
-		storage[node.id] = node
-		identifiers.insert(node.id)
-	}
-
-	mutating func remove(_ node: Node<Container<Content, ID>>) {
-		storage[node.id] = nil
-		identifiers.remove(node.id)
-	}
-}
-
-// MARK: - Subscript
-extension MirrorStore.Cache {
-
-	subscript(id: ID) -> Node<Container<Content, ID>>? {
-		get {
-			storage[id]
 		}
 	}
 }
