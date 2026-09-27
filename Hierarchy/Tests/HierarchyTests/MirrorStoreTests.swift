@@ -20,6 +20,40 @@ extension MirrorStoreTests {
 	}
 }
 
+// MARK: - Snapshot Support
+extension MirrorStoreTests {
+
+	// A
+	// ├── B
+	// └── C ──▶ B
+	@Test
+	func snapshotBuildsResolvedHierarchy() throws {
+		// Arrange
+		let child = Node(
+			value: Container<String, String>.item(id: "B", content: "Child")
+		)
+		let root = Node(
+			value: Container<String, String>.item(id: "A", content: "Root"),
+			children: [child]
+		)
+		let mirror = Node(
+			value: Container<String, String>.mirror(id: "C", reference: "B")
+		)
+		let store = try MirrorStore(nodes: [root, mirror])
+
+		// Act
+		let snapshot = store.snapshot()
+
+		// Assert
+		#expect(snapshot.root == ["A", "C"])
+		#expect(snapshot.hierarchy["A"] == ["B"])
+		#expect(snapshot.hierarchy["C"] == [])
+		#expect(snapshot[0] == Resolved(id: "A", content: "Root"))
+		#expect(snapshot[1] == Resolved(id: "B", content: "Child"))
+		#expect(snapshot[2] == Resolved(id: "C", content: "Child", isMirror: true))
+	}
+}
+
 // MARK: - Initialization
 extension MirrorStoreTests {
 
