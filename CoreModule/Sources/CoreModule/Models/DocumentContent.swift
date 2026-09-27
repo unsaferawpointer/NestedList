@@ -14,7 +14,7 @@ public struct DocumentContent {
 
 	public var view: ContentView
 
-	private var store: NodeStore<Item>
+	private var store: MirrorStore<ItemContent, UUID>
 
 	// MARK: - Initialization
 
@@ -24,7 +24,7 @@ public struct DocumentContent {
 		view: ContentView = .list
 	) {
 		self.uuid = uuid
-		self.store = NodeStore<Item>(hierarchy: nodes)
+		self.store = try! MirrorStore<ItemContent, UUID>(hierarchy: nodes)
 		self.view = view
 	}
 }
@@ -49,11 +49,19 @@ public extension DocumentContent {
 	}
 
 	func insertItems(with contents: [Item], to destination: Destination<UUID>) throws {
-		try store.insert(contents, at: destination)
+		let containers = contents.map {
+			Container.item(id: $0.id, content: $0.content)
+		}
+		try store.insert(containers, at: destination)
 	}
 
 	func insertItems(from data: [any TreeNode<Item>], to destination: Destination<UUID>) throws {
-		try store.insertItems(from: data, to: destination)
+		let containers: [ContainerNode] = data.map { node in
+			node.map { value in
+				Container.item(id: value.id, content: value.content)
+			}
+		}
+		try store.insertItems(from: containers, to: destination)
 	}
 
 	func validateMoving(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
@@ -100,7 +108,7 @@ public extension DocumentContent {
 	}
 
 	func setProperty<T>(
-		_ keyPath: WritableKeyPath<Item, T>,
+		_ keyPath: WritableKeyPath<ItemContent, T>,
 		to value: T,
 		for ids: [UUID],
 		downstream: Bool = false
@@ -118,11 +126,24 @@ public extension DocumentContent {
 
 	func copy(ids: [UUID], to destination: Destination<UUID>) throws {
 		let copied = store.copiedDisjointSubtrees(with: ids)
-		try store.insertItems(from: copied, to: destination)
+		try insertItems(from: copied, to: destination)
 	}
 
-	func allMatch<T: Equatable>(id: UUID, keyPath: KeyPath<Item, T>, equalsTo value: T) -> Bool {
-		store.allMatch(id: id, keyPath: keyPath, equalsTo: value)
+	func allMatch<T: Equatable>(id: UUID, keyPath: KeyPath<ItemContent, T>, equalsTo value: T) -> Bool {
+		let resolvedKeyPath = (\Resolved<ItemContent, UUID>.content).appending(path: keyPath)
+		return store.allMatch(id: id, keyPath: resolvedKeyPath, equalsTo: value)
+	}
+}
+
+// MARK: - Private helpers
+private struct ContainerNode: TreeNode {
+
+	var value: Container<ItemContent, UUID>
+	let children: [ContainerNode]
+
+	init(value: Container<ItemContent, UUID>, children: [ContainerNode]) {
+		self.value = value
+		self.children = children
 	}
 }
 

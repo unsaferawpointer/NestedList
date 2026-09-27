@@ -30,7 +30,7 @@ public protocol CommonInteractorProtocol {
 	func string(for ids: [UUID]) -> String
 
 	func setProperty<T>(
-		_ property: WritableKeyPath<Item, T>,
+		_ property: WritableKeyPath<ItemContent, T>,
 		to value: T,
 		for ids: [UUID],
 		downstream: Bool
@@ -173,7 +173,7 @@ extension CommonInteractor: CommonInteractorProtocol {
 	}
 
 	public func setProperty<T>(
-		_ property: WritableKeyPath<Item, T>,
+		_ property: WritableKeyPath<ItemContent, T>,
 		to value: T,
 		for ids: [UUID],
 		downstream: Bool

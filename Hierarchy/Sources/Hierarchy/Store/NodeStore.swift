@@ -43,7 +43,7 @@ extension NodeStore: NodeStoring {
 	public func insertItems(
 		from data: [any TreeNode<Value>],
 		to destination: Destination<Value.ID>
-	) throws(NodeStoreError) {
+	) throws(MirrorStoreError) {
 		let newNodes = data.map { node in
 			node.map(type: Node<Value>.self)
 		}
@@ -53,7 +53,7 @@ extension NodeStore: NodeStoring {
 	public func moveItems<S>(
 		_ ids: S,
 		to destination: Destination<ID>
-	) throws(NodeStoreError) where S : Sequence, S.Element == Value.ID {
+	) throws(MirrorStoreError) where S : Sequence, S.Element == Value.ID {
 		let moved = ids.compactMap {
 			cache[$0]
 		}
@@ -156,7 +156,7 @@ private extension NodeStore {
 // MARK: - Insertion
 extension NodeStore {
 
-	func insertNodes(_ newNodes: [Node<Value>], to destination: Destination<Value.ID>) throws(NodeStoreError) {
+	func insertNodes(_ newNodes: [Node<Value>], to destination: Destination<Value.ID>) throws(MirrorStoreError) {
 		switch destination {
 		case .toRoot:
 			nodes.append(contentsOf: newNodes)

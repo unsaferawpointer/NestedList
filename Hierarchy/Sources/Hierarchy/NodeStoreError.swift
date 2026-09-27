@@ -7,8 +7,5 @@
 
 import Foundation
 
-public enum NodeStoreError: Error {
-	case duplicateNode
-	case invalidDestinationIndex
-	case missingNode
-}
+@available(*, deprecated, renamed: "MirrorStoreError")
+public typealias NodeStoreError = MirrorStoreError

@@ -274,7 +274,7 @@ extension NodeStoreTests {
 		do {
 			try store.insert([item], at: .onItem(with: 404))
 			Issue.record("Expected missing node error")
-		} catch NodeStoreError.missingNode {
+		} catch MirrorStoreError.missingNode {
 			#expect(store.nodes(type: NodeStoreTestNode.self).map(\.id) == [1])
 			#expect(store[4] == nil)
 		} catch {
@@ -289,7 +289,7 @@ extension NodeStoreTests {
 		do {
 			try store.insert([item], at: .inItem(with: 404, atIndex: 0))
 			Issue.record("Expected missing node error")
-		} catch NodeStoreError.missingNode {
+		} catch MirrorStoreError.missingNode {
 			#expect(store.nodes(type: NodeStoreTestNode.self).map(\.id) == [1])
 			#expect(store[4] == nil)
 		} catch {
@@ -343,7 +343,7 @@ extension NodeStoreTests {
 		do {
 			try store.moveItems([child.id], to: .onItem(with: 404))
 			Issue.record("Expected missing node error")
-		} catch NodeStoreError.missingNode {
+		} catch MirrorStoreError.missingNode {
 			let nodes = store.nodes(type: NodeStoreTestNode.self)
 			#expect(nodes.map(\.id) == [root.id])
 			#expect(nodes[0].children.map(\.id) == [child.id])

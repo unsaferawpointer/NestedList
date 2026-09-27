@@ -26,6 +26,22 @@ public final class MirrorStore<Content, ID: RandomizableIdentifier> {
 	public convenience init<T: TreeNode>(nodes: [T]) throws(MirrorStoreError) where T.Value == Container<Content, ID> {
 		try self.init(hierarchy: nodes)
 	}
+
+	/// Creates a store from the legacy resolved-item hierarchy.
+	///
+	/// The legacy representation contains resolved values rather than explicit
+	/// containers. Since it does not retain mirror references, every value is
+	/// imported as an item while preserving its identifier and content.
+	public convenience init<T: TreeNode>(hierarchy: [T]) throws(MirrorStoreError)
+	where T.Value == Resolved<Content, ID> {
+		self.init()
+		let nodes: [Node<Container<Content, ID>>] = hierarchy.map {
+			$0.map { value in
+				Container.item(id: value.id, content: value.content)
+			}
+		}
+		try insertNodes(nodes, to: .toRoot)
+	}
 }
 
 // MARK: - Equatable

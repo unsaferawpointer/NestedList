@@ -19,7 +19,7 @@ extension NodeStorageMock: NodeStoring {
 	func insertItems(
 		from data: [any TreeNode<Value>],
 		to destination: Destination<Value.ID>
-	) throws(NodeStoreError) {
+	) throws(MirrorStoreError) {
 		invocations.append(.insertItems(
 			items: data.map { node in
 				node.value
@@ -37,7 +37,7 @@ extension NodeStorageMock: NodeStoring {
 	func moveItems<S: Sequence>(
 		_ ids: S,
 		to destination: Destination<Value.ID>
-	) throws(NodeStoreError) where S.Element == Value.ID {
+	) throws(MirrorStoreError) where S.Element == Value.ID {
 		invocations.append(.moveItems(ids: Array(ids), destination: destination))
 		if let moveItemsError = stubs.moveItemsError {
 			throw moveItemsError
@@ -124,7 +124,7 @@ extension NodeStorageMock {
 		var parents: [Value.ID: Value.ID] = [:]
 		var rootIDs: [Value.ID] = []
 		var children: [Value.ID: [Value.ID]] = [:]
-		var insertError: NodeStoreError?
-		var moveItemsError: NodeStoreError?
+		var insertError: MirrorStoreError?
+		var moveItemsError: MirrorStoreError?
 	}
 }

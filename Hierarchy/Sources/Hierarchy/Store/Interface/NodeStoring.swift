@@ -12,12 +12,12 @@ public protocol NodeStoring<Value>: NodeReading where Value: Identifiable {
 	func insertItems(
 		from data: [any TreeNode<Value>],
 		to destination: Destination<ID>
-	) throws(NodeStoreError)
+	) throws(MirrorStoreError)
 
 	func moveItems<S: Sequence>(
 		_ ids: S,
 		to destination: Destination<ID>
-	) throws(NodeStoreError) where S.Element == ID
+	) throws(MirrorStoreError) where S.Element == ID
 
 	func canMoveItems<S: Sequence>(_ ids: S, to destination: Destination<ID>) -> Bool where S.Element == ID
 
@@ -38,7 +38,7 @@ public extension NodeStoring {
 	func insert<S: Sequence>(
 		_ items: S,
 		at destination: Destination<ID>
-	) throws(NodeStoreError) where S.Element == Value {
+	) throws(MirrorStoreError) where S.Element == Value {
 		let nodes: [any TreeNode<Value>] = items.map { value in
 			Node(value: value)
 		}
@@ -67,7 +67,7 @@ public extension NodeStoring {
 	}
 
 	/// Moves the specified nodes to the end of their current parent containers.
-	func moveToEnd(_ ids: [ID]) throws(NodeStoreError) {
+	func moveToEnd(_ ids: [ID]) throws(MirrorStoreError) {
 		let grouped = Dictionary(grouping: ids.filter { id in
 			self[id] != nil
 		}) { id in
@@ -96,7 +96,7 @@ public extension NodeStoring {
 	}
 
 	/// Moves the specified node one position forward among its siblings.
-	func moveForward(_ id: ID) throws(NodeStoreError) {
+	func moveForward(_ id: ID) throws(MirrorStoreError) {
 		guard let location = location(of: id), location.index + 1 < location.count else {
 			return
 		}
@@ -104,7 +104,7 @@ public extension NodeStoring {
 	}
 
 	/// Moves the specified node one position backward among its siblings.
-	func moveBackward(_ id: ID) throws(NodeStoreError) {
+	func moveBackward(_ id: ID) throws(MirrorStoreError) {
 		guard let location = location(of: id), location.index > 0 else {
 			return
 		}

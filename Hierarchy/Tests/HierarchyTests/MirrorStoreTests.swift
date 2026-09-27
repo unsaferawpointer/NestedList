@@ -105,6 +105,26 @@ extension MirrorStoreTests {
 		#expect(store.children(of: "A") == ["B"])
 		#expect(store.identifiers == ["A", "B"])
 	}
+
+	@Test
+	func initWithLegacyResolvedHierarchyStoresItems() throws {
+		// Arrange
+		let root = Node(
+			value: Resolved(id: "A", content: "Root"),
+			children: [
+				Node(value: Resolved(id: "B", content: "Child"))
+			]
+		)
+
+		// Act
+		let store = try MirrorStore<String, String>(hierarchy: [root])
+
+		// Assert
+		#expect(store.children(of: nil) == ["A"])
+		#expect(store.children(of: "A") == ["B"])
+		#expect(store["A"]?.content == "Root")
+		#expect(store["B"]?.content == "Child")
+	}
 }
 
 extension MirrorStoreTests {
