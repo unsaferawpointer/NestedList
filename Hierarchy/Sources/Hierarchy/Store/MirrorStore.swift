@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class MirrorStore<Content, ID: RandomizableIdentifier> {
+public final class MirrorStore<Content, ID: RandomizableIdentifier> {
 
 	// MARK: - Internal State
 
@@ -17,44 +17,53 @@ final class MirrorStore<Content, ID: RandomizableIdentifier> {
 
 	public init() { }
 
-	convenience init<T: TreeNode>(nodes: [T]) throws(MirrorStoreError) where T.Value == Container<Content, ID> {
+	public convenience init<T: TreeNode>(hierarchy: [T]) throws(MirrorStoreError)
+	where T.Value == Container<Content, ID> {
 		self.init()
-		try insert(nodes: nodes, to: .toRoot)
+		try insert(nodes: hierarchy, to: .toRoot)
+	}
+
+	public convenience init<T: TreeNode>(nodes: [T]) throws(MirrorStoreError) where T.Value == Container<Content, ID> {
+		try self.init(hierarchy: nodes)
+	}
+}
+
+// MARK: - Equatable
+extension MirrorStore: Equatable where Content: Equatable {
+
+	public static func == (lhs: MirrorStore<Content, ID>, rhs: MirrorStore<Content, ID>) -> Bool {
+		lhs.storage.nodes == rhs.storage.nodes
 	}
 }
 
 // MARK: - MirrorStoring
 extension MirrorStore: MirrorStoring {
 
-	func insert<T: TreeNode>(
+	public func insertItems(
+		from data: [any TreeNode<Container<Content, ID>>],
+		to destination: Destination<ID>
+	) throws(MirrorStoreError) {
+		let newNodes = data.map {
+			$0.map(type: Node<Container<Content, ID>>.self)
+		}
+		try insertNodes(newNodes, to: destination)
+	}
+
+	public func insert<T: TreeNode>(
 		nodes: [T],
 		to destination: Destination<ID>
 	) throws(MirrorStoreError) where T.Value == Container<Content, ID> {
 		let newNodes = nodes.map {
 			$0.map(type: Node<Container<Content, ID>>.self)
 		}
-
-		try validateUniqueIdentifiers(in: newNodes)
-		try validateDestination(destination)
-		prepareIdentifiers(for: newNodes)
-
-		insert(newNodes, to: destination)
-		storage.updateCache(inserted: newNodes)
-
-		do {
-			try validateStore()
-		} catch {
-			remove(newNodes, from: destination)
-			storage.updateCache(removed: newNodes)
-			throw error
-		}
+		try insertNodes(newNodes, to: destination)
 	}
 
-	func deleteItems<S: Sequence>(_ ids: S) where S.Element == ID {
+	public func deleteItems<S: Sequence>(_ ids: S) where S.Element == ID {
 		ids.forEach { deleteItem($0) }
 	}
 
-	func moveItems<S: Sequence>(
+	public func moveItems<S: Sequence>(
 		_ ids: S,
 		to destination: Destination<ID>
 	) throws(MirrorStoreError) where S.Element == ID {
@@ -83,7 +92,7 @@ extension MirrorStore: MirrorStoring {
 		}
 	}
 
-	func validateMove<S: Sequence>(
+	public func validateMove<S: Sequence>(
 		_ ids: S,
 		to destination: Destination<ID>
 	) -> Bool where S.Element == ID {
@@ -120,10 +129,90 @@ extension MirrorStore: MirrorStoring {
 		}
 	}
 
+	public func set<T>(
+		_ keyPath: WritableKeyPath<Content, T>,
+		to value: T,
+		for ids: [ID],
+		includingDescendants: Bool
+	) {
+		var sourceIDs = [ID]()
+		var visited = Set<ID>()
+
+		for id in ids {
+			guard let node = storage[id] else {
+				continue
+			}
+			collectSourceIDs(
+				from: node,
+				includingDescendants: includingDescendants,
+				into: &sourceIDs,
+				visited: &visited
+			)
+		}
+
+		for sourceID in sourceIDs {
+			guard let sourceNode = storage[sourceID],
+				  case let .item(id, content) = sourceNode.value else {
+				continue
+			}
+			var updatedContent = content
+			updatedContent[keyPath: keyPath] = value
+			sourceNode.value = .item(id: id, content: updatedContent)
+		}
+	}
+
 }
 
 // MARK: - Insertion Helpers
 private extension MirrorStore {
+
+	func insertNodes(
+		_ newNodes: [Node<Container<Content, ID>>],
+		to destination: Destination<ID>
+	) throws(MirrorStoreError) {
+		try validateUniqueIdentifiers(in: newNodes)
+		try validateDestination(destination)
+		prepareIdentifiers(for: newNodes)
+
+		insert(newNodes, to: destination)
+		storage.updateCache(inserted: newNodes)
+
+		do {
+			try validateStore()
+		} catch {
+			remove(newNodes, from: destination)
+			storage.updateCache(removed: newNodes)
+			throw error
+		}
+	}
+
+	func collectSourceIDs(
+		from node: Node<Container<Content, ID>>,
+		includingDescendants: Bool,
+		into sourceIDs: inout [ID],
+		visited: inout Set<ID>
+	) {
+		let sourceID = node.value.itemID
+		guard let sourceNode = storage[sourceID], case .item = sourceNode.value else {
+			return
+		}
+		guard visited.insert(sourceID).inserted else {
+			return
+		}
+		sourceIDs.append(sourceID)
+
+		guard includingDescendants else {
+			return
+		}
+		for child in sourceNode.children {
+			collectSourceIDs(
+				from: child,
+				includingDescendants: true,
+				into: &sourceIDs,
+				visited: &visited
+			)
+		}
+	}
 
 	func insert(
 		_ nodes: [Node<Container<Content, ID>>],
@@ -448,22 +537,22 @@ private extension MirrorStore {
 // MARK: - MirrorReading
 extension MirrorStore: MirrorReading {
 
-	var identifiers: Set<ID> {
+	public var identifiers: Set<ID> {
 		storage.identifiers
 	}
 
-	func parent(of id: ID) -> ID? {
+	public func parent(of id: ID) -> ID? {
 		return storage[id]?.parent?.id
 	}
 
-	func children(of parent: ID?) -> [ID] {
+	public func children(of parent: ID?) -> [ID] {
 		guard let parent else {
 			return storage.nodes.map(\.id)
 		}
 		return storage[parent]?.children.map(\.id) ?? []
 	}
 
-	subscript(id: ID) -> Resolved<Content, ID>? {
+	public subscript(id: ID) -> Resolved<Content, ID>? {
 		item(with: id)
 	}
 }

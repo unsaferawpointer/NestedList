@@ -6,6 +6,109 @@ struct MirrorStoreTests { }
 // MARK: - Initialization
 extension MirrorStoreTests {
 
+	@Test
+	func equalityComparesStoredHierarchy() throws {
+		// Arrange
+		let first = try MirrorStore(hierarchy: [
+			Node(value: Container<String, String>.item(id: "A", content: "Value"))
+		])
+		let second = try MirrorStore(hierarchy: [
+			Node(value: Container<String, String>.item(id: "A", content: "Value"))
+		])
+		let different = try MirrorStore(hierarchy: [
+			Node(value: Container<String, String>.item(id: "A", content: "Other"))
+		])
+
+		// Act
+		let equal = first == second
+		let notEqual = first != different
+
+		// Assert
+		#expect(equal)
+		#expect(notEqual)
+	}
+}
+
+extension MirrorStoreTests {
+
+	@Test
+	func insertItemsAddsTreeNodes() throws {
+		// Arrange
+		let store = MirrorStore<String, String>()
+		let root = Node(
+			value: Container<String, String>.item(id: "A", content: "Root")
+		)
+
+		// Act
+		try store.insertItems(from: [root], to: .toRoot)
+
+		// Assert
+		#expect(store.children(of: nil) == ["A"])
+		#expect(store["A"]?.content == "Root")
+	}
+
+	@Test
+	func insertAddsLeafContainersAtDestination() throws {
+		// Arrange
+		let store = MirrorStore<String, String>()
+		let item = Container<String, String>.item(id: "A", content: "Root")
+
+		// Act
+		try store.insert([item], at: .toRoot)
+
+		// Assert
+		#expect(store.children(of: nil) == ["A"])
+		#expect(store["A"]?.content == "Root")
+	}
+}
+
+extension MirrorStoreTests {
+
+	@Test
+	func canMoveItemsMatchesMoveValidation() throws {
+		// Arrange
+		let root = Node(
+			value: Container<String, String>.item(id: "A", content: "A"),
+			children: [
+				Node(value: Container<String, String>.item(id: "B", content: "B"))
+			]
+		)
+		let store = try MirrorStore(nodes: [root])
+
+		// Act
+		let canMoveToRoot = store.canMoveItems(["B"], to: .toRoot)
+		let canMoveIntoDescendant = store.canMoveItems(["A"], to: .onItem(with: "B"))
+
+		// Assert
+		#expect(canMoveToRoot == store.validateMove(["B"], to: .toRoot))
+		#expect(!canMoveIntoDescendant)
+	}
+}
+
+extension MirrorStoreTests {
+
+	@Test
+	func initWithHierarchyStoresRootsAndDescendants() throws {
+		// Arrange
+		let root = Node(
+			value: Container<String, String>.item(id: "A", content: "Root"),
+			children: [
+				Node(value: Container<String, String>.item(id: "B", content: "Child"))
+			]
+		)
+
+		// Act
+		let store = try MirrorStore(hierarchy: [root])
+
+		// Assert
+		#expect(store.children(of: nil) == ["A"])
+		#expect(store.children(of: "A") == ["B"])
+		#expect(store.identifiers == ["A", "B"])
+	}
+}
+
+extension MirrorStoreTests {
+
 	// ∅
 	@Test
 	func initCreatesEmptyStore() {
@@ -17,6 +120,231 @@ extension MirrorStoreTests {
 
 		// Assert
 		#expect(identifiers.isEmpty)
+	}
+}
+
+// MARK: - MirrorReading Helpers
+extension MirrorStoreTests {
+
+	@Test
+	func mirrorReadingReconstructsNodesAndTracksRelationships() throws {
+		// Arrange
+		let root = Node(
+			value: Container<String, String>.item(id: "A", content: "Root"),
+			children: [
+				Node(value: Container<String, String>.item(id: "B", content: "Leaf"))
+			]
+		)
+		let store = try MirrorStore(nodes: [root])
+
+		// Act
+		let nodes = store.nodes(type: Node<Resolved<String, String>>.self)
+		let descendants = store.descendantIDs(including: ["A"])
+		let ancestors = store.ancestorIDs(including: "B")
+
+		// Assert
+		#expect(nodes.map(\.id) == ["A"])
+		#expect(nodes[0].children.map(\.id) == ["B"])
+		#expect(descendants == ["A", "B"])
+		#expect(ancestors == ["A", "B"])
+	}
+
+	@Test
+	func mirrorReadingEnumeratesLeavesAndMatchesValues() throws {
+		// Arrange
+		let root = Node(
+			value: Container<String, String>.item(id: "A", content: "Root"),
+			children: [
+				Node(value: Container<String, String>.item(id: "B", content: "Leaf"))
+			]
+		)
+		let store = try MirrorStore(nodes: [root])
+		var enumerated: [String] = []
+
+		// Act
+		store.enumerate { enumerated.append($0.content) }
+		let leavesMatch = store.allMatch(id: "A", keyPath: \.content, equalsTo: "Leaf")
+
+		// Assert
+		#expect(enumerated == ["Root", "Leaf"])
+		#expect(leavesMatch)
+	}
+}
+
+// MARK: - Content Updates
+extension MirrorStoreTests {
+
+	@Test
+	func setUpdatesSelectedItemContent() throws {
+		// Arrange
+		let store = try MirrorStore(nodes: [
+			Node(value: Container<TestContent, String>.item(
+				id: "A",
+				content: TestContent(title: "Original")
+			))
+		])
+
+		// Act
+		store.set(\.title, to: "Updated", for: ["A"], includingDescendants: false)
+
+		// Assert
+		#expect(store["A"]?.content.title == "Updated")
+	}
+
+	@Test
+	func setUpdatesReferencedItemWhenSelectingMirror() throws {
+		// Arrange
+		let item = Node(
+			value: Container<TestContent, String>.item(
+				id: "A",
+				content: TestContent(title: "Original")
+			)
+		)
+		let mirror = Node(
+			value: Container<TestContent, String>.mirror(id: "B", reference: "A")
+		)
+		let store = try MirrorStore(nodes: [item, mirror])
+
+		// Act
+		store.set(\.title, to: "Updated", for: ["B"], includingDescendants: false)
+
+		// Assert
+		#expect(store["A"]?.content.title == "Updated")
+		#expect(store["B"]?.content.title == "Updated")
+	}
+
+	@Test
+	func setUpdatesPhysicalDescendantsWhenRequested() throws {
+		// Arrange
+		let root = Node(
+			value: Container<TestContent, String>.item(
+				id: "A",
+				content: TestContent(title: "Root")
+			),
+			children: [
+				Node(value: Container<TestContent, String>.item(
+					id: "B",
+					content: TestContent(title: "Child")
+				))
+			]
+		)
+		let store = try MirrorStore(nodes: [root])
+
+		// Act
+		store.set(\.title, to: "Updated", for: ["A"], includingDescendants: true)
+
+		// Assert
+		#expect(store["A"]?.content.title == "Updated")
+		#expect(store["B"]?.content.title == "Updated")
+	}
+
+	@Test
+	func setRedirectsNestedMirrorToItsSource() throws {
+		// Arrange
+		let source = Node(
+			value: Container<TestContent, String>.item(
+				id: "S",
+				content: TestContent(title: "Source")
+			),
+			children: [
+				Node(value: Container<TestContent, String>.item(
+					id: "T",
+					content: TestContent(title: "Source child")
+				))
+			]
+		)
+		let root = Node(
+			value: Container<TestContent, String>.item(
+				id: "A",
+				content: TestContent(title: "Root")
+			),
+			children: [
+				Node(value: Container<TestContent, String>.mirror(id: "M", reference: "S"))
+			]
+		)
+		let store = try MirrorStore(nodes: [source, root])
+
+		// Act
+		store.set(\.title, to: "Updated", for: ["A"], includingDescendants: true)
+
+		// Assert
+		#expect(store["A"]?.content.title == "Updated")
+		#expect(store["S"]?.content.title == "Updated")
+		#expect(store["T"]?.content.title == "Updated")
+		#expect(store["M"]?.content.title == "Updated")
+	}
+}
+
+private struct TestContent {
+	var title: String
+}
+
+// MARK: - Moving Helpers
+extension MirrorStoreTests {
+
+	@Test
+	func movingHelpersValidateSiblingBoundaries() throws {
+		// Arrange
+		let store = try MirrorStore(nodes: [
+			Node(value: Container<String, String>.item(id: "A", content: "A")),
+			Node(value: Container<String, String>.item(id: "B", content: "B")),
+			Node(value: Container<String, String>.item(id: "C", content: "C"))
+		])
+
+		// Act
+		let canMoveFirstBackward = store.validateMovingBackward("A")
+		let canMoveMiddleBackward = store.validateMovingBackward("B")
+		let canMoveMiddleForward = store.validateMovingForward("B")
+		let canMoveLastForward = store.validateMovingForward("C")
+		let canMoveMissing = store.validateMovingForward("missing")
+
+		// Assert
+		#expect(!canMoveFirstBackward)
+		#expect(canMoveMiddleBackward)
+		#expect(canMoveMiddleForward)
+		#expect(!canMoveLastForward)
+		#expect(!canMoveMissing)
+	}
+
+	@Test
+	func moveForwardAndBackwardMoveNodeAmongSiblings() throws {
+		// Arrange
+		let store = try MirrorStore(nodes: [
+			Node(value: Container<String, String>.item(id: "A", content: "A")),
+			Node(value: Container<String, String>.item(id: "B", content: "B")),
+			Node(value: Container<String, String>.item(id: "C", content: "C"))
+		])
+
+		// Act
+		try store.moveForward("A")
+		try store.moveBackward("C")
+
+		// Assert
+		#expect(store.children(of: nil) == ["B", "C", "A"])
+	}
+
+	@Test
+	func moveToEndMovesNodesWithinTheirCurrentContainers() throws {
+		// Arrange
+		let nested = Node(
+			value: Container<String, String>.item(id: "P", content: "Parent"),
+			children: [
+				Node(value: Container<String, String>.item(id: "A", content: "A")),
+				Node(value: Container<String, String>.item(id: "B", content: "B"))
+			]
+		)
+		let store = try MirrorStore(nodes: [
+			nested,
+			Node(value: Container<String, String>.item(id: "C", content: "C")),
+			Node(value: Container<String, String>.item(id: "D", content: "D"))
+		])
+
+		// Act
+		try store.moveToEnd(["A", "C"])
+
+		// Assert
+		#expect(store.children(of: "P") == ["B", "A"])
+		#expect(store.children(of: nil) == ["P", "D", "C"])
 	}
 }
 
