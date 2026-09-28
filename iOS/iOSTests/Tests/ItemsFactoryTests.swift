@@ -42,6 +42,19 @@ struct ItemsFactoryTests {
 		#expect(result.icon?.name == .bolt)
 	}
 
+	@Test func makeItem_whenItemIsMirror_setsBadgeConfiguration() {
+		// Arrange
+		let sut = ItemsFactory()
+		var item = Item(text: .random)
+		item.isMirror = true
+
+		// Act
+		let result = sut.makeItem(item: item, isLeaf: true, iconColor: .neutral)
+
+		// Assert
+		#expect(result.badge?.name == .link)
+	}
+
 	@Test func makeItem_whenAppearanceIsNeutral() {
 		// Act
 		checkTint(reference: .monochrome(token: .tertiary), for: .neutral)

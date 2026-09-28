@@ -16,6 +16,8 @@ struct ItemModel {
 
 	var icon: IconConfiguration?
 
+	var badge: IconConfiguration?
+
 	var title: TextConfiguration
 
 	var subtitle: TextConfiguration?
@@ -40,6 +42,7 @@ extension ItemModel: CellModel {
 	var configuration: ItemConfiguration {
 		ItemConfiguration(
 			icon: icon,
+			badge: badge,
 			title: title,
 			subtitle: subtitle,
 			showsTrailingDisclosure: showsTrailingDisclosure

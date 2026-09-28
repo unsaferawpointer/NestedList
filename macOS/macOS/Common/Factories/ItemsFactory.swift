@@ -53,11 +53,18 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			IconConfiguration(name: .point, appearence: iconAppearence)
 		}
 
+		let badgeConfiguration: IconConfiguration? = if item.isMirror {
+			IconConfiguration(name: .link, token: .secondary)
+		} else {
+			nil
+		}
+
 		return ItemModel(
 			id: item.id,
 			value: .init(title: item.text, subtitle: item.note),
 			configuration: .init(
 				icon: iconConfiguration,
+				badge: badgeConfiguration,
 				text: textConfiguration,
 				showsTrailingDisclosure: item.isSubitemsHidden
 			),

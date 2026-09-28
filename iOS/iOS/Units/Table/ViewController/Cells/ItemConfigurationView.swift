@@ -17,17 +17,7 @@ final class ItemConfigurationView: UIView {
 
 	// MARK: - UI - Properties
 
-	private lazy var iconView: UIImageView = {
-		let view = UIImageView()
-		view.contentMode = .scaleAspectFit
-		view.setContentHuggingPriority(.required, for: .horizontal)
-		view.setContentCompressionResistancePriority(.required, for: .horizontal)
-		return view
-	}()
-
-	/// Fixed width of the icon column, so the text leading is identical for every row
-	/// regardless of the icon's intrinsic width.
-	private static let iconColumnWidth = UIFontMetrics.default.scaledValue(for: 28)
+	private lazy var iconBadgeView = CompositeIcon()
 
 	private lazy var titleLabel: UILabel = {
 		let label = UILabel()
@@ -52,7 +42,7 @@ final class ItemConfigurationView: UIView {
 	}()
 
 	private lazy var contentStack: UIStackView = {
-		let stack = UIStackView(arrangedSubviews: [iconView, textStack])
+		let stack = UIStackView(arrangedSubviews: [iconBadgeView, textStack])
 		stack.axis = .horizontal
 		stack.alignment = .center
 		stack.spacing = 12
@@ -86,6 +76,7 @@ final class ItemConfigurationView: UIView {
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
+
 }
 
 // MARK: - UIContentView
@@ -116,8 +107,10 @@ private extension ItemConfigurationView {
 			addSubview($0)
 		}
 
+		iconBadgeView.translatesAutoresizingMaskIntoConstraints = false
+
 		NSLayoutConstraint.activate([
-			iconView.widthAnchor.constraint(equalToConstant: Self.iconColumnWidth),
+			iconBadgeView.widthAnchor.constraint(equalTo: iconBadgeView.heightAnchor),
 
 			contentStack.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
 			contentStack.trailingAnchor.constraint(equalTo: trailingArrow.leadingAnchor, constant: -4),
@@ -131,9 +124,9 @@ private extension ItemConfigurationView {
 
 	func apply(_ configuration: ItemConfiguration) {
 		_configuration = configuration
-
-		iconView.image = makeImage(from: configuration)
-		iconView.tintColor = configuration.icon?.appearence.tint
+		iconBadgeView.iconConfiguration = configuration.icon
+		iconBadgeView.badgeConfiguration = configuration.badge
+		iconBadgeView.textStyle = configuration.title.style
 
 		trailingArrow.isHidden = !configuration.showsTrailingDisclosure
 
@@ -156,14 +149,4 @@ private extension ItemConfigurationView {
 		}
 	}
 
-	func makeImage(from configuration: ItemConfiguration) -> UIImage? {
-		guard let icon = configuration.icon else {
-			return nil
-		}
-		let symbolConfiguration = icon.appearence.configuration
-		return icon.name?.uiImage
-			.applyingSymbolConfiguration(symbolConfiguration)?
-			.applyingSymbolConfiguration(.init(textStyle: configuration.title.style.value))?
-			.applyingSymbolConfiguration(.init(scale: .medium))
-	}
 }

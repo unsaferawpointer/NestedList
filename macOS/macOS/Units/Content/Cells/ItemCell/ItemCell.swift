@@ -12,8 +12,6 @@ import SwiftUI
 
 final class ItemCell: NSView, ListCell {
 
-	private let iconSlotWidth: CGFloat = 20
-
 	// MARK: - ListCell
 
 	typealias Model = ItemModel
@@ -45,7 +43,7 @@ final class ItemCell: NSView, ListCell {
 	}
 
 	func animate() {
-		iconView.addSymbolEffect(.bounce, options: .repeat(1))
+		compositeIcon.animate()
 	}
 
 	// MARK: - UI-Properties
@@ -91,15 +89,10 @@ final class ItemCell: NSView, ListCell {
 		return view
 	}()
 
-	lazy var iconView: NSImageView = {
-		let view = NSImageView()
-		view.image?.isTemplate = true
-		view.imageAlignment = .alignCenter
-		return view
-	}()
+	lazy var compositeIcon = CompositeIcon()
 
 	lazy var container: NSStackView = {
-		let view = NSStackView(views: [iconView, textfieldsContainer, disclosureView])
+		let view = NSStackView(views: [compositeIcon, textfieldsContainer, disclosureView])
 		view.orientation = .horizontal
 		view.distribution = .fill
 		view.spacing = 6
@@ -157,7 +150,12 @@ private extension ItemCell {
 		)
 		titleTextfield.font = NSFont.preferredFont(forTextStyle: configuration.text.style.value)
 
-		setIcon(configuration: model.configuration.icon, animateIcon: animateIcon)
+		compositeIcon.iconConfiguration = model.configuration.icon
+		compositeIcon.badgeConfiguration = model.configuration.badge
+		compositeIcon.textStyle = configuration.text.style
+		if animateIcon {
+			compositeIcon.animate()
+		}
 
 		// Value
 		titleTextfield.attributedStringValue = attrString
@@ -175,43 +173,12 @@ private extension ItemCell {
 		}
 
 		[
-			iconView.widthAnchor.constraint(equalToConstant: iconSlotWidth),
 			container.centerYAnchor.constraint(equalTo: centerYAnchor),
 			container.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
 			container.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4)
 		]
 			.forEach { $0.isActive = true }
 
-	}
-
-	func setIcon(configuration: IconConfiguration?, animateIcon: Bool) {
-
-		iconView.isHidden = configuration == nil
-
-		guard let configuration else {
-			iconView.image = nil
-			return
-		}
-
-		let image = configuration.name?.nsImage?
-			.withSymbolConfiguration(
-				configuration.appearence.configuration
-					.applying(
-						.init(textStyle: model.configuration.text.style.value)
-					)
-			)
-
-		iconView.contentTintColor = configuration.appearence.tint
-		guard let image else {
-			iconView.image = nil
-			return
-		}
-
-		if #available(macOS 14.0, *), animateIcon {
-			iconView.setSymbolImage(image, contentTransition: .replace)
-		} else {
-			iconView.image = image
-		}
 	}
 }
 

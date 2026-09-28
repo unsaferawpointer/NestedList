@@ -64,9 +64,16 @@ extension ItemsFactory: ItemsFactoryProtocol {
 			IconConfiguration(name: .point, appearence: iconAppearence)
 		}
 
+		let badgeConfiguration: IconConfiguration? = if item.isMirror {
+			IconConfiguration(name: .link, token: .secondary)
+		} else {
+			nil
+		}
+
 		return ItemModel(
 			uuid: item.id,
 			icon: iconConfiguration,
+			badge: badgeConfiguration,
 			title: titleConfiguration,
 			subtitle: subtitleConfiguration,
 			showsTrailingDisclosure: item.isSubitemsHidden

@@ -16,6 +16,8 @@ struct ItemConfiguration {
 
 	var icon: IconConfiguration?
 
+	var badge: IconConfiguration?
+
 	var title: TextConfiguration
 
 	var subtitle: TextConfiguration?

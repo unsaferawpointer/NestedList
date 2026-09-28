@@ -613,6 +613,23 @@
         }
       }
     },
+    "semantic-image-link": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ссылка"
+          }
+        }
+      }
+    },
     "semantic-image-moon-stars": {
       "extractionState": "manual",
       "localizations": {

@@ -33,6 +33,7 @@ extension ItemModel {
 
 	struct Configuration: Equatable {
 		var icon: IconConfiguration?
+		var badge: IconConfiguration?
 		var text: TextConfiguration
 		var showsTrailingDisclosure: Bool
 	}

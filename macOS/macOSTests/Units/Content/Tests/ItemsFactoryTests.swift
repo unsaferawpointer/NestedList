@@ -66,6 +66,19 @@ struct ItemsFactoryTests {
 		#expect(result.configuration.text.strikethrough)
 	}
 
+	@Test func makeItem_whenItemIsMirror_setsBadgeConfiguration() {
+		// Arrange
+		let sut = ItemsFactory()
+		var item = Item(text: .random)
+		item.isMirror = true
+
+		// Act
+		let result = sut.makeItem(item: item, isLeaf: true, iconColor: .neutral)
+
+		// Assert
+		#expect(result.configuration.badge?.name == .link)
+	}
+
 	@Test func makeSection_whenTintColorIsAccent() {
 		// Arrange
 		let sut = ItemsFactory()

@@ -61,6 +61,7 @@ public enum SemanticImage {
 	case bookmark
 	case tag
 	case squareOnSquare
+	case link
 	case insetDiamond
 	case insetCircle
 	case insetSquare
@@ -346,6 +347,13 @@ public extension SemanticImage {
 				table: "Localizable",
 				bundle: .module
 			)
+		case .link:
+			String(
+				localized: "semantic-image-link",
+				defaultValue: "Link",
+				table: "Localizable",
+				bundle: .module
+			)
 		case .insetDiamond:
 			String(
 				localized: "semantic-image-diamond",
@@ -579,6 +587,8 @@ public extension SemanticImage {
 			"tag"
 		case .squareOnSquare:
 			"square.on.square"
+		case .link:
+			"arrow.up.right"
 		case .insetDiamond:
 			"diamond"
 		case .insetCircle:
