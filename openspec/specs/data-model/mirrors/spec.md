@@ -45,17 +45,21 @@ An original item SHALL occur exactly once as an original within a hierarchy. A m
 - **THEN** it has its own element identifier and identifies the original item from which its data is derived
 
 ### Requirement: Globally unique element identities
-The system SHALL maintain one identity namespace for original and mirror elements within a hierarchy. Every original and mirror identifier SHALL be unique, and a mirror identifier SHALL NOT equal the identifier of its referenced original.
+The system SHALL maintain one identity namespace for original and mirror elements within the stored hierarchy. Every stored original and mirror identifier SHALL be unique, and a mirror identifier SHALL NOT equal the identifier of its referenced original.
 
-The system SHALL reject ambiguous duplicate identities rather than silently changing an original identifier when doing so could change the meaning of a mirror reference.
+When a new tree is inserted, duplicate identifiers within that incoming tree SHALL be rejected. When an incoming identifier conflicts with an identifier already stored in the hierarchy, the system SHALL assign the incoming element a new unused identifier and SHALL update references within the incoming tree that target the replaced identifier. Existing elements and their identifiers SHALL remain unchanged.
 
 #### Scenario: Accept unique identities
 - **WHEN** every original and mirror has a distinct identifier
 - **THEN** the hierarchy satisfies the identity invariant
 
-#### Scenario: Reject a duplicate identity
-- **WHEN** an original or mirror identifier duplicates another element identifier
-- **THEN** the hierarchy is rejected without silently changing the identity of an original item
+#### Scenario: Reject a duplicate identity within an inserted tree
+- **WHEN** two elements in the same incoming tree have the same identifier
+- **THEN** the insertion is rejected with a duplicate-identifier error and the hierarchy remains unchanged
+
+#### Scenario: Regenerate an identifier that conflicts with stored state
+- **WHEN** an incoming element has an identifier already used by a stored element
+- **THEN** the incoming element receives a new unused identifier, references in the incoming tree are updated accordingly, and the stored element retains its identifier and data
 
 ### Requirement: Direct and valid mirror references
 A mirror SHALL reference an existing original item in the same hierarchy. A mirror SHALL NOT reference another mirror. When a mirror is derived from an existing mirror, the new mirror SHALL reference the same original item directly.
@@ -165,63 +169,36 @@ A mirror located inside the deleted subtree SHALL be deleted as part of that sub
 - **WHEN** an original subtree is deleted and mirrors elsewhere reference original descendants in that subtree
 - **THEN** those mirrors are also deleted
 
-### Requirement: Initialization consistency validation
-When the mirror-capable store is initialized from an existing hierarchy, the system SHALL validate mirror consistency before exposing the initialized state.
-
-The system SHALL remove a mirror during initialization when any of the following conditions is true:
-
-- Its reference does not identify an existing original item.
-- Its reference identifies another mirror.
-- The mirror has one or more physical child elements.
-- Its reference identifies one of its physical ancestors.
-
-Removing an invalid mirror SHALL remove its entire physical subtree. Validation SHALL repeat after removals until no remaining mirror violates these conditions. This repeated validation SHALL remove mirrors whose references become invalid because an earlier invalid mirror subtree was removed.
-
-The system SHALL NOT retarget an invalid mirror. Originals and valid mirrors outside removed subtrees SHALL retain their identifiers, item data, relationships, and sibling order.
-
-#### Scenario: Remove a mirror with a missing original
-- **WHEN** the store is initialized with a mirror whose reference does not identify an existing original
-- **THEN** that mirror is removed before the initialized state is exposed
-
-#### Scenario: Remove a mirror that references another mirror
-- **WHEN** the store is initialized with a mirror whose reference identifies another mirror
-- **THEN** the referencing mirror is removed and the referenced valid mirror remains unchanged
-
-#### Scenario: Remove a mirror with children
-- **WHEN** the store is initialized with a mirror that contains physical child elements
-- **THEN** the mirror and its entire physical subtree are removed
-
-#### Scenario: Remove a mirror of a physical ancestor
-- **WHEN** the store is initialized with a mirror whose referenced original is one of its physical ancestors
-- **THEN** the mirror is removed and the referenced original remains unchanged
-
-#### Scenario: Repeat validation after removing an invalid subtree
-- **WHEN** removing an invalid mirror subtree removes an original referenced by another mirror
-- **THEN** validation runs again and removes the mirror whose reference became invalid
-
-#### Scenario: Preserve a consistent initialized hierarchy
-- **WHEN** the store is initialized with originals and mirrors that satisfy every mirror consistency invariant
-- **THEN** initialization preserves those elements and their physical relationships
-
 ### Requirement: Hierarchy state validation
-The system SHALL accept a mirror-capable hierarchy only when all of the following invariants hold:
+The system SHALL validate the resulting stored hierarchy after initialization, insertion, and movement. A valid state SHALL satisfy all of the following conditions:
 
 - The physical hierarchy is a forest of ordered trees.
-- Each element occurs in the physical hierarchy no more than once.
-- Every original and mirror identifier is unique.
+- Every stored element has a unique identifier.
 - Every mirror references an existing original in the same hierarchy.
 - No mirror references another mirror.
 - Every mirror is a leaf.
-- No mirror references one of its physical ancestors.
+- Physical containment and mirror references SHALL NOT form a dependency cycle, including a mirror referencing one of its physical ancestors.
 
-The system SHALL validate the resulting state before committing a runtime structural operation. Invalid runtime structural operations SHALL be rejected atomically. Invalid or ambiguous mirror references SHALL NOT be repaired by silently retargeting a mirror or changing an original identifier.
+Initialization SHALL validate the supplied hierarchy before exposing the store. If initialization violates a condition, it SHALL fail with the corresponding validation error; it SHALL NOT remove invalid mirrors or silently retarget references.
 
-Initialization SHALL apply the consistency-validation and removal behavior defined above before exposing imported hierarchy state. This initialization behavior is distinct from runtime structural-operation validation and SHALL NOT permit a runtime operation to commit a partially valid state.
+Insertion SHALL validate identifiers in the incoming tree before insertion, then validate the complete resulting hierarchy. If validation fails, the insertion SHALL be rejected and all inserted nodes and cache state SHALL be rolled back atomically.
+
+Movement SHALL validate the destination and reject a move into the moved subtree. After applying a candidate move, the complete resulting hierarchy SHALL be validated. If validation fails, the move SHALL be rejected and the original hierarchy SHALL be restored atomically.
+
+Validation SHALL report the applicable error for duplicate identifiers, missing references, references to mirrors, reference cycles, mirrors with children, missing destinations, invalid destination indexes, or movement into a descendant. Invalid references SHALL NOT be repaired by retargeting an existing mirror.
 
 #### Scenario: Accept a valid original-only hierarchy
-- **WHEN** a hierarchy contains only uniquely identified original items arranged as ordered trees
-- **THEN** it is accepted as a valid mirror-capable hierarchy
+- **WHEN** a hierarchy contains uniquely identified original items arranged as ordered trees
+- **THEN** initialization accepts it as a valid mirror-capable hierarchy
 
-#### Scenario: Reject an invalid runtime structural operation
-- **WHEN** a runtime structural operation would violate an identity, reference, leaf, ancestry, or physical-tree invariant
-- **THEN** the operation is rejected without exposing a partially committed state
+#### Scenario: Reject an invalid hierarchy during initialization
+- **WHEN** initialization encounters a duplicate identifier, invalid mirror reference, reference cycle, or mirror with children
+- **THEN** initialization fails with the corresponding validation error and does not expose a partially initialized store
+
+#### Scenario: Roll back an invalid insertion
+- **WHEN** an insertion would make the resulting hierarchy invalid
+- **THEN** the insertion fails and the hierarchy remains unchanged
+
+#### Scenario: Roll back an invalid move
+- **WHEN** a move would create a physical or mirror-reference cycle, move into the moved subtree, or place children under a mirror
+- **THEN** the move fails and the hierarchy remains unchanged
