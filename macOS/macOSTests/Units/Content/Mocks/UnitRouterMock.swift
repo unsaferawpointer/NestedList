@@ -32,6 +32,15 @@ extension UnitRouterMock: ContentRouterProtocol {
 		invocations.append(.showDetails(model: model))
 	}
 
+	func showItemPicker(
+		navigationTitle: String,
+		filter: @escaping (Item) -> Bool,
+		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
+	) {
+		stubs.showItemPickerCompletionHandler = completionHandler
+		invocations.append(.showItemPicker(navigationTitle: navigationTitle))
+	}
+
 	func showIconPicker(
 		navigationTitle: String,
 		completionHandler: @escaping @MainActor (IconName?) -> Void
@@ -58,6 +67,7 @@ extension UnitRouterMock {
 
 	enum Action {
 		case showDetails(model: ItemDetailsView.Model)
+		case showItemPicker(navigationTitle: String)
 		case showIconPicker(navigationTitle: String)
 		case showColorPicker(navigationTitle: String)
 		case showDocument(id: UUID)
@@ -65,6 +75,7 @@ extension UnitRouterMock {
 
 	struct Stubs {
 		var showDetailsCompletionHandler: ((ItemDetailsView.Properties) -> Void)?
+		var showItemPickerCompletionHandler: (@MainActor (UUID?, Bool) -> Void)?
 		var showIconPickerCompletionHandler: (@MainActor (IconName?) -> Void)?
 		var showColorPickerCompletionHandler: (@MainActor (ItemColor?) -> Void)?
 	}

@@ -27,6 +27,14 @@ extension ContentRouterMock: ContentRouterProtocol {
 		invocations.append(.showDetails(model: model, barItem: barItem))
 	}
 
+	func showItemPicker(
+		title: String,
+		filter: @escaping (Item) -> Bool,
+		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
+	) {
+		invocations.append(.showItemPicker(title: title))
+	}
+
 	func showTargetsScreen(for ids: Set<UUID>, completionHandler: @escaping (UUID?, Bool) -> Void) {
 		invocations.append(.showTargetsScreen(ids: ids))
 	}
@@ -55,8 +63,9 @@ extension ContentRouterMock: ContentRouterProtocol {
 // MARK: - Nested data structs
 extension ContentRouterMock {
 
-	enum Action {
+		enum Action {
 		case showDetails(model: ItemDetailsView.Model, barItem: String?)
+		case showItemPicker(title: String)
 		case showTargetsScreen(ids: Set<UUID>)
 		case showReorderScreen(item: UUID)
 		case showIconPicker(title: String)

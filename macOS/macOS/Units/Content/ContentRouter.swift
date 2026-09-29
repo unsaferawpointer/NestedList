@@ -17,6 +17,12 @@ import CorePresentation
 		completionHandler: @escaping (ItemDetailsView.Properties) -> Void
 	)
 
+	func showItemPicker(
+		navigationTitle: String,
+		filter: @escaping (Item) -> Bool,
+		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
+	)
+
 	func showIconPicker(
 		navigationTitle: String,
 		completionHandler: @escaping @MainActor (IconName?) -> Void
@@ -63,6 +69,26 @@ extension ContentRouter: ContentRouterProtocol {
 				}
 		)
 		contentViewController.title = model.navigationTitle
+		root.presentAsSheet(contentViewController)
+	}
+
+	func showItemPicker(
+		navigationTitle: String,
+		filter: @escaping (Item) -> Bool,
+		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
+	) {
+		let contentViewController = NSHostingController(
+			rootView:
+				ItemPicker(
+					storage: storage,
+					title: navigationTitle,
+					filter: filter
+				) { [weak self] itemID, isSuccess in
+					self?.closeSheet()
+					completionHandler(itemID, isSuccess)
+				}
+		)
+		contentViewController.title = navigationTitle
 		root.presentAsSheet(contentViewController)
 	}
 

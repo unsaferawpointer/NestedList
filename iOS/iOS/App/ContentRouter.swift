@@ -18,6 +18,11 @@ protocol ContentRouterProtocol {
 		animateBottomBarItem barItem: String?,
 		completionHandler: @escaping @MainActor (ItemDetailsView.Properties, Bool) -> Void
 	)
+	func showItemPicker(
+		title: String,
+		filter: @escaping (Item) -> Bool,
+		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
+	)
 	func showTargetsScreen(for ids: Set<UUID>, completionHandler: @escaping (UUID?, Bool) -> Void)
 	func showReorderScreen(for item: UUID, completionHandler: @escaping () -> Void)
 	func showIconPicker(title: String, completionHandler: @escaping @MainActor (IconName?) -> Void)
@@ -63,6 +68,26 @@ extension ContentRouter: ContentRouterProtocol {
 			sheet.detents = [.medium(), .large()]
 		}
 
+		root.present(controller, animated: true)
+	}
+
+	func showItemPicker(
+		title: String,
+		filter: @escaping (Item) -> Bool,
+		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
+	) {
+		let picker = ItemPicker(
+			storage: storage,
+			title: title,
+			filter: filter
+		) { [weak self] itemID, isSuccess in
+			self?.root.presentedViewController?.dismiss(animated: true)
+			completionHandler(itemID, isSuccess)
+		}
+
+		let controller = UIHostingController(rootView: picker)
+		controller.modalPresentationStyle = .formSheet
+		controller.title = title
 		root.present(controller, animated: true)
 	}
 

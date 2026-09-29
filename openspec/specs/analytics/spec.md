@@ -45,7 +45,7 @@ Feature-specific properties MAY supplement the common properties when they descr
 - **THEN** the system reports a `drag_drop_insert` event with the number of inserted items and the inserted content type
 
 ### Requirement: Application interaction coverage
-The system SHALL report the supported user interactions and screen presentations from the areas that emit analytics events: onboarding, content, document, settings, item details, icon picker, color picker, target destination, reorder, and the macOS column and columns interfaces.
+The system SHALL report the supported user interactions and screen presentations from the areas that emit analytics events: onboarding, content, document, settings, item details, icon picker, color picker, item picker, target destination, reorder, and the macOS column and columns interfaces.
 
 The system SHALL report successful and failed document reads as `document_read` and `document_read_error` respectively. A successful document-read event SHALL include the document type. A failed document-read event SHALL include a stable failure reason.
 
@@ -121,6 +121,12 @@ The system SHALL use the following area-specific event definitions. An event SHA
 	- `button_click`: The picker is cancelled or a color is selected.
 		- `id: String` is `cancel` or `select_color`.
 		- `raw_value: Int` is the selected color value; `none` represents no selection.
+- `item_picker`
+	- `screen_show`: The item picker is shown.
+		- `items_count: Int` is the number of items accepted by the picker filter.
+	- `button_click`: The item picker is cancelled or an item is selected.
+		- `id: String` is `cancel` or `select_item`.
+		- The selected item's identifier SHALL NOT be included in analytics parameters.
 - `target_destination`
 	- `screen_show`: The target-destination screen is shown.
 		- `available_items_count: Int` and `unavailable_items_count: Int` describe available destinations.
