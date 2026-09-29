@@ -1,6 +1,22 @@
 {
   "sourceLanguage" : "en",
-  "strings" : {
+	"strings" : {
+		"add-mirror-item-title" : {
+			"localizations" : {
+				"en" : {
+					"stringUnit" : {
+						"state" : "translated",
+						"value" : "New Mirror…"
+					}
+				},
+				"ru" : {
+					"stringUnit" : {
+						"state" : "translated",
+						"value" : "Новое зеркало…"
+					}
+				}
+			}
+		},
     "appearance-header-item-title" : {
       "localizations" : {
         "en" : {

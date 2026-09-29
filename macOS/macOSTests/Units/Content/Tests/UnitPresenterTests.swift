@@ -324,6 +324,26 @@ extension UnitPresenterTests {
 		#expect(event.parameters["source"] == .string("context-menu"))
 	}
 
+	@Test func test_menuItemClickedAddMirror_tracksAnalyticsWithoutChangingContent() async {
+		// Arrange
+		view.stubs.selection = [.random]
+
+		// Act
+		sut.menuItemClicked(.addMirror)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == .menuItemClick)
+		#expect(event.parameters["id"] == .string("add-mirror"))
+		#expect(event.parameters["source"] == .string("context-menu"))
+		#expect(interactor.invocations.isEmpty)
+	}
+
 	@Test func test_menuItemClickedFromMainMenu_tracksAnalytics() async {
 		// Arrange
 		view.stubs.selection = [.random]

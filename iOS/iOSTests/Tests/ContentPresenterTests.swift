@@ -108,6 +108,26 @@ extension ContentPresenterTests {
 // MARK: - ContentMenuDelegate test-cases
 extension ContentPresenterTests {
 
+	@Test func test_userDidTapMenuAddMirror_tracksAnalyticsWithoutChangingContent() async {
+		// Arrange
+		let expectedId = UUID()
+
+		// Act
+		sut.userDidTapMenu(with: .addMirror, selection: [expectedId])
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == .menuItemClick)
+		#expect(event.parameters["id"] == "add-mirror")
+		#expect(event.parameters["source"] == "context-menu")
+		#expect(interactor.invocations.isEmpty)
+	}
+
 	@Test func test_userDidTapMenuStrikethrough_tracksAnalytics() async {
 		// Arrange
 		let expectedId = UUID()

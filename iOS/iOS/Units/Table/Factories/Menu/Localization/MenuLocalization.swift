@@ -11,6 +11,7 @@ protocol MenuLocalizationProtocol {
 	var pasteItemTitle: String { get }
 	var editItemTitle: String { get }
 	var newItemTitle: String { get }
+	var addMirrorItemTitle: String { get }
 	var moveItemTitle: String { get }
 	var strikethroughItemTitle: String { get }
 	var hideSubitemsItemTitle: String { get }
@@ -46,6 +47,10 @@ extension MenuLocalization: MenuLocalizationProtocol {
 	
 	var newItemTitle: String {
 		String(localized: "new_menu_item_title", table: "MenuLocalizable")
+	}
+
+	var addMirrorItemTitle: String {
+		String(localized: "add_mirror_menu_item_title", table: "MenuLocalizable")
 	}
 
 	var moveItemTitle: String {

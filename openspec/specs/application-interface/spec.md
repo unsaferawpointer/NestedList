@@ -134,6 +134,7 @@ The macOS application SHALL present an item context menu based on the current se
 | Entry | Icon | Shortcut | Action |
 | --- | --- | --- | --- |
 | `New Item` | `plus` | `⌘T` | Create an item |
+| `New Mirror…` | `arrow.triangle.branch` | — | Open mirror source selection |
 
 #### Scenario: Present the context menu with a selection
 - **WHEN** one or more items are selected
@@ -142,6 +143,7 @@ The macOS application SHALL present an item context menu based on the current se
 | Entry | Icon | Shortcut | Action |
 | --- | --- | --- | --- |
 | `New Item` | `plus` | `⌘T` | Create an item |
+| `New Mirror…` | `arrow.triangle.branch` | — | Open mirror source selection |
 | Separator | — | — | — |
 | `Edit…` | `square.and.pencil` | — | Edit item details |
 | Separator | — | — | — |
@@ -174,6 +176,7 @@ The iOS application SHALL present a context menu for an outline item when the li
 | Separator | — | — | — |
 | `Edit…` | `pencil` | — | Edit item details |
 | `New…` | `plus` | — | Create an item |
+| `New Mirror…` | `arrow.triangle.branch` | — | Open mirror source selection |
 | `Appearance` | `slider.horizontal.below.square.filled.and.square` | — | — |
 | ↳ `Icon…` | `photo` | — | Select an icon |
 | ↳ `Color…` | `paintpalette` | — | Select a color |
@@ -186,7 +189,6 @@ The iOS application SHALL present a context menu for an outline item when the li
 #### Scenario: Use an editing mode
 - **WHEN** the list is in selection or reordering mode
 - **THEN** the application does not present an item context menu
-
 ### Requirement: iOS document toolbar
 The iOS and iPadOS applications SHALL present document controls across the top navigation bar and bottom toolbar according to the current interaction mode.
 

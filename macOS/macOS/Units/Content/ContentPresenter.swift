@@ -191,6 +191,7 @@ extension ContentPresenter: UnitViewOutput {
 
 	func menuItems() -> [ContentMenuIdentifier] {
 		return [.newItem,
+				.addMirror,
 				.separator,
 				.editItem,
 				.separator,
@@ -232,6 +233,8 @@ extension ContentPresenter: UnitViewOutput {
 		switch item {
 		case .newItem:
 			newItem(in: selection)
+		case .addMirror:
+			break
 		case .toggleStrikethrough:
 			toggleStrikethrough(for: selection)
 		case .toggleSubitemsVisibility:

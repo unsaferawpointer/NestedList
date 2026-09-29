@@ -111,6 +111,16 @@ extension ContentMenuBuilder {
 					selection: selection
 				)
 			},
+			buildAction(
+				title: localization.addMirrorItemTitle,
+				icon: "arrow.triangle.branch",
+				identifier: .addMirror
+			) {
+				delegate?.userDidTapMenu(
+					with: .addMirror,
+					selection: selection
+				)
+			},
 			UIMenu(
 				title: localization.appearanceMenuTitle,
 				image: UIImage(systemName: "slider.horizontal.below.square.filled.and.square"),

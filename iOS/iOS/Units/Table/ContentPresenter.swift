@@ -314,6 +314,7 @@ extension ContentPresenter: ContentMenuDelegate {
 		case .paste:						paste(selection: currentSelection)
 		case .editItem:						edit(selection: currentSelection)
 		case .newItem:						newItem(selection: currentSelection)
+		case .addMirror:					break
 		case .toggleStrikethrough:			toggleStrikethroughFlag(selection: currentSelection)
 		case .toggleSubitemsVisibility:		toggleHideSubitemsFlag(selection: currentSelection)
 		case .changeIcon:					showIconPicker(selection: currentSelection)
