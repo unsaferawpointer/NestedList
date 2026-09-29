@@ -16,7 +16,7 @@ public extension NSScrollView {
 		view.hasHorizontalScroller = false
 		view.autohidesScrollers = true
 		view.hasVerticalScroller = false
-		view.automaticallyAdjustsContentInsets = true
+		view.automaticallyAdjustsContentInsets = false
 		view.drawsBackground = true
 		return view
 	}

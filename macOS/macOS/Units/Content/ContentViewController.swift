@@ -109,6 +109,13 @@ class ContentViewController: NSViewController {
 		configureToolbarIfNeeded()
 	}
 
+	override func viewDidLayout() {
+		super.viewDidLayout()
+
+		let topInset = view.safeAreaInsets.top
+		scrollview.contentInsets = .init(top: topInset, left: 16, bottom: 0, right: 16)
+	}
+
 }
 
 // MARK: - Public Interface
