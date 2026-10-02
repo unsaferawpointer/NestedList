@@ -49,7 +49,7 @@ extension TextDataProvider: ContentProvider {
 		}
 
 		let nodes = parser.parse(from: string).map {
-			$0.map(type: DocumentNode.self)
+			$0.map(type: DocumentNode<Item>.self)
 		}
 		log("Parsed \(nodes.count) root nodes of type '\(typeName)'")
 		return .init(uuid: UUID(), nodes: nodes)
@@ -76,7 +76,7 @@ extension TextDataProvider: ContentProvider {
 		}
 
 		let nodes = parser.parse(from: string).map {
-			$0.map(type: DocumentNode.self)
+			$0.map(type: DocumentNode<Item>.self)
 		}
 		log("Parsed \(nodes.count) root nodes")
 		return .init(uuid: UUID(), nodes: nodes)

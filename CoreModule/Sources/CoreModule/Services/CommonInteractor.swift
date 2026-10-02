@@ -139,7 +139,7 @@ extension CommonInteractor: CommonInteractorProtocol {
 	public func insertItems(_ data: [Data], to destination: Destination<UUID>) throws {
 		let decoder = JSONDecoder()
 		let nodes = data.compactMap {
-			try? decoder.decode(DocumentNode.self, from: $0)
+			try? decoder.decode(DocumentNode<Item>.self, from: $0)
 		}
 		try storage.modificate { content in
 			try content.insertItems(from: nodes, to: destination)

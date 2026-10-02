@@ -52,6 +52,16 @@ extension MirrorStore: Equatable where Content: Equatable {
 	}
 }
 
+// MARK: - Persisted container reading
+public extension MirrorStore {
+
+	func storedNodes<T: TreeNode>(type: T.Type) -> [T]
+	where T.Value == Container<Content, ID> {
+		storage.nodes.map { $0.map(type: type) }
+	}
+
+}
+
 // MARK: - MirrorStoring
 extension MirrorStore: MirrorStoring {
 

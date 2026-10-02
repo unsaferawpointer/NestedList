@@ -1,0 +1,29 @@
+{
+  "content": {
+    "items": [
+      {
+        "value": {
+          "item": {
+            "id": "11111111-1111-1111-1111-111111111111",
+            "content": {
+              "text": "First",
+              "options": 0
+            }
+          }
+        }
+      },
+      {
+        "value": {
+          "item": {
+            "id": "11111111-1111-1111-1111-111111111111",
+            "content": {
+              "text": "Second",
+              "options": 0
+            }
+          }
+        }
+      }
+    ]
+  },
+  "version": "3.0.0"
+}

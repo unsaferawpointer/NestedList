@@ -10,6 +10,9 @@ public enum Container<Content, ID: RandomizableIdentifier> {
 	case mirror(id: ID, reference: ID)
 }
 
+// MARK: - Codable
+extension Container: Codable where Content: Codable, ID: Codable { }
+
 // MARK: - Equatable
 extension Container: Equatable where Content: Equatable { }
 

@@ -1,32 +1,31 @@
-# document-format Specification
-
-## Purpose
-
-Defines the `.nlist` JSON document format so NestedList can reliably preserve outline data and mirror references on iOS, iPadOS, and macOS.
-
-## Document Type
-
-The document Uniform Type Identifier (UTType) is `dev.zeroindex.nested-list.doc`. It conforms to `public.data` and uses the `nlist` filename extension.
-
-## Requirements
-
-### Requirement: Document type identification
-The system SHALL identify `.nlist` documents with the UTType `dev.zeroindex.nested-list.doc`, which conforms to `public.data`, on iOS, iPadOS, and macOS.
-
-#### Scenario: Open a document by type
-- **WHEN** the operating system provides a document with UTType `dev.zeroindex.nested-list.doc`
-- **THEN** the system recognizes it as a NestedList `.nlist` document
+## MODIFIED Requirements
 
 ### Requirement: Versioned `.nlist` document envelope
-The system SHALL store a `.nlist` document as a JSON object with a `version` string and a `content` object. New documents SHALL write version `3.0.0`. When reading, the system SHALL accept supported version 1 and version 2 documents and migrate them in memory to the current model. The `content` object SHALL contain the document's `items` tree and MAY contain its `view` and `uuid` properties.
+The system SHALL store a `.nlist` document as a JSON object with a `version` string and a `content` object. New documents that use the mirror-capable format SHALL write version `3.0.0`. When reading, the system SHALL accept supported version 1 and version 2 documents and migrate them in memory to the current model. The `content` object SHALL contain the document's `items` tree and MAY contain its `view` and `uuid` properties.
+
+#### Scenario: Save a mirror-capable document
+- **WHEN** the system saves a document using the version 3 format
+- **THEN** it writes the versioned JSON envelope using version `3.0.0`
+
+#### Scenario: Read a version 1 document
+- **WHEN** the system opens a valid version 1 `.nlist` document
+- **THEN** it restores the document and migrates its legacy item appearance into the current model
+
+#### Scenario: Read a versioned document
+- **WHEN** a `.nlist` JSON document contains a valid `version` and a valid `content.items` tree
+- **THEN** the system restores its document content
 
 #### Scenario: Save a document
 - **WHEN** the system saves a `.nlist` document
 - **THEN** it writes the versioned JSON envelope using version `3.0.0`
 
-#### Scenario: Read a version 1 or version 2 document
-- **WHEN** the system opens a valid supported legacy `.nlist` document
-- **THEN** it restores the document and migrates its original item data and appearance into the current model
+#### Scenario: Read a version with a prefix or omitted components
+- **WHEN** a document version has an optional leading `v` or omits its minor or patch component
+- **THEN** the system derives the missing version components as `0` and attempts to read the document
+
+#### Scenario: Read a version 2 document
+- **WHEN** the system opens a valid version 2 `.nlist` document
+- **THEN** it restores the document and migrates its original items into the version 3-capable model
 
 #### Scenario: Read a document without an envelope field
 - **WHEN** a `.nlist` JSON document omits `version`, `content`, or `content.items`
@@ -47,20 +46,13 @@ The `.nlist` format SHALL encode the outline hierarchy in `content.items` as an 
 - **WHEN** a version 3 node value contains an `item` payload with `id` and nested item `content`
 - **THEN** the system restores an original item with its stored content
 
-#### Scenario: Preserve hierarchy order
-- **WHEN** original nodes contain descendants or multiple siblings
-- **THEN** reading and saving preserves every parent-child relationship and sibling order
+#### Scenario: Preserve a mirror as a leaf
+- **WHEN** a mirror node is saved or read
+- **THEN** its encoded `children` collection is empty or absent
 
-### Requirement: Item field encoding
-The system SHALL encode original item content with text, note, options, view, icon, and tint fields according to the current item model. Version 1 appearance data SHALL remain readable and migrate into the current appearance fields. Optional appearance values that cannot be decoded SHALL be ignored without rejecting otherwise valid content.
-
-#### Scenario: Read an item with optional content
-- **WHEN** an original item contains note, view, icon, tint, or legacy v1 style data
-- **THEN** the system restores the available item properties and appearance semantics
-
-#### Scenario: Read an item without optional content
-- **WHEN** an original item omits optional fields
-- **THEN** the system restores the documented defaults
+#### Scenario: Preserve nested originals
+- **WHEN** an original node contains descendant nodes in `children`
+- **THEN** the system restores and saves those nodes in their stored order
 
 ### Requirement: Backward-compatible document reading
 The system SHALL maintain backward compatibility with valid `.nlist` documents written in supported earlier formats on iOS, iPadOS, and macOS. It SHALL restore their hierarchy, item data, and available appearance semantics, then save documents using version `3.0.0`. Earlier-version documents contain original items only and SHALL remain valid without modification until saved.
@@ -71,7 +63,15 @@ The system SHALL maintain backward compatibility with valid `.nlist` documents w
 
 #### Scenario: Save content read from a legacy document
 - **WHEN** the system saves content that was read from a valid earlier document
-- **THEN** it writes version `3.0.0` while preserving the content, appearance, hierarchy, and order
+- **THEN** it writes version `3.0.0` while preserving the content and appearance semantics
+
+#### Scenario: Open a document in the legacy format
+- **WHEN** the system opens a valid document matching a supported legacy JSON format
+- **THEN** it restores the document content and its available appearance semantics
+
+#### Scenario: Open a document in the current format
+- **WHEN** the system opens a valid version 3 document matching the current JSON format
+- **THEN** it restores the document content without requiring legacy-only fields
 
 #### Scenario: Open a version 3 document containing only originals
 - **WHEN** the system opens a version 3 document without mirrors
@@ -89,27 +89,36 @@ The system SHALL reject a version 3 document when a mirror has a missing referen
 - **THEN** the system rejects the document as having an unexpected format
 
 #### Scenario: Reject duplicate element identifiers
-- **WHEN** two original or mirror elements use the same identifier
+- **WHEN** two original or mirror elements use the same `uuid`
 - **THEN** the system rejects the document as having an unexpected format
 
 #### Scenario: Reject children under a mirror
 - **WHEN** a mirror node contains one or more child nodes
 - **THEN** the system rejects the document as having an unexpected format
 
-### Requirement: Breaking format versioning
-The system SHALL increase the major component of the `.nlist` document version for every breaking change to the persisted document format. Version `3.0.0` communicates that documents written with mirror semantics require a v3-capable reader.
+### Requirement: Document format validation
+The system SHALL reject a `.nlist` document whose declared major format version is newer than the application's supported version 3 with the `unknownVersion` error. It SHALL reject damaged JSON, invalid envelope data, invalid version 3 mirror data, or required fields that cannot be decoded with the `unexpectedFormat` error. Unreadable optional appearance fields and `content.uuid` SHALL NOT by themselves cause this error.
 
 #### Scenario: Read a document newer than version 3
-- **WHEN** a `.nlist` document has a declared major version greater than `3`
-- **THEN** the system rejects it with `unknownVersion`
+- **WHEN** the system opens a `.nlist` document whose declared major format version is greater than `3`
+- **THEN** it rejects the document with the `unknownVersion` error
 
-### Requirement: Document format validation
-The system SHALL reject damaged JSON, invalid envelope data, invalid version 3 mirror data, or required fields that cannot be decoded with `unexpectedFormat`. Unreadable optional appearance fields and `content.uuid` SHALL NOT by themselves cause this error.
+#### Scenario: Read a document newer than the application's last version
+- **WHEN** the system opens a `.nlist` document whose declared major format version is greater than the application's supported version
+- **THEN** it rejects the document with the `unknownVersion` error
 
 #### Scenario: Read damaged JSON
 - **WHEN** the system opens a file that is not valid JSON or has no decodable document envelope
-- **THEN** it rejects the document with `unexpectedFormat`
+- **THEN** it rejects the document with the `unexpectedFormat` error
+
+#### Scenario: Read a damaged document
+- **WHEN** the system opens a `.nlist` file that is not valid JSON or does not contain a decodable document envelope
+- **THEN** it rejects the document with the `unexpectedFormat` error
+
+#### Scenario: Read invalid mirror content
+- **WHEN** a version 3 document contains invalid mirror relationships
+- **THEN** it rejects the document with the `unexpectedFormat` error
 
 #### Scenario: Read invalid content for its format
 - **WHEN** a document's envelope version is supported but its required content structure cannot be decoded
-- **THEN** the system rejects the document with `unexpectedFormat`
+- **THEN** it rejects the document with the `unexpectedFormat` error

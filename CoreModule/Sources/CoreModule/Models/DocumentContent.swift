@@ -20,7 +20,7 @@ public struct DocumentContent {
 
 	public init(
 		uuid: UUID?,
-		nodes: [DocumentNode] = [],
+		nodes: [DocumentNode<Item>] = [],
 		view: ContentView = .list
 	) {
 		self.uuid = uuid
@@ -40,8 +40,8 @@ public extension DocumentContent {
 // MARK: - Public Interface
 public extension DocumentContent {
 
-	func node(with id: UUID) -> DocumentNode? {
-		store.node(with: id, type: DocumentNode.self)
+	func node(with id: UUID) -> DocumentNode<Item>? {
+		store.node(with: id, type: DocumentNode<Item>.self)
 	}
 
 	func snapshot() -> Snapshot<Item> {
@@ -121,7 +121,7 @@ public extension DocumentContent {
 	}
 
 	func tree() -> [any TreeNode<Item>] {
-		store.nodes(type: DocumentNode.self)
+		store.nodes(type: DocumentNode<Item>.self)
 	}
 
 	func copy(ids: [UUID], to destination: Destination<UUID>) throws {
@@ -147,6 +147,8 @@ private struct ContainerNode: TreeNode {
 	}
 }
 
+private typealias StoredDocumentNode = DocumentNode<Container<ItemContent, UUID>>
+
 // MARK: - Templates
 public extension DocumentContent {
 
@@ -169,15 +171,33 @@ extension DocumentContent: Codable {
 
 	public init(from decoder: Decoder) throws {
 		let container = try decoder.container(keyedBy: CodingKeys.self)
-		let nodes = try container.decode([DocumentNode].self, forKey: .items)
+		let version: Version? = if let key = CodingUserInfoKey.documentVersion {
+			decoder.userInfo[key] as? Version
+		} else {
+			nil
+		}
+		let nodes: [StoredDocumentNode]
+
+		if version?.major == 1 || version?.major == 2 {
+			let legacyNodes = try container.decode([DocumentNode<Item>].self, forKey: .items)
+			nodes = legacyNodes.map { node in
+				node.map { value in
+					Container.item(id: value.id, content: value.content)
+				}
+			}
+		} else {
+			nodes = try container.decode([StoredDocumentNode].self, forKey: .items)
+		}
 		let view = try container.decodeIfPresent(ContentView.self, forKey: .view) ?? .list
 		let uuid = try? container.decodeIfPresent(UUID.self, forKey: .uuid)
-		self.init(uuid: uuid, nodes: nodes, view: view)
+		self.uuid = uuid
+		self.view = view
+		self.store = try MirrorStore<ItemContent, UUID>(hierarchy: nodes)
 	}
 
 	public func encode(to encoder: Encoder) throws {
 		var container = encoder.container(keyedBy: CodingKeys.self)
-		try container.encode(store.nodes(type: DocumentNode.self), forKey: .items)
+		try container.encode(store.storedNodes(type: StoredDocumentNode.self), forKey: .items)
 		try container.encode(view, forKey: .view)
 		try container.encode(uuid ?? UUID(), forKey: .uuid)
 	}

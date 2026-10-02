@@ -2,31 +2,35 @@
 
 ## Purpose
 
-Defines the mirror extension to the outline data model: original items, leaf mirror references, their invariants, and their structural operation semantics. Mirror functionality is not currently available in NestedList; this capability establishes future domain behavior without introducing user-facing behavior or changing the current `.nlist` document format.
+Defines the mirror extension to the outline data model: original items, leaf mirror references, their invariants, and their structural operation semantics.
 
 ## Requirements
 
 ### Requirement: Mirror capability availability
-The mirror-capable behavior defined by this specification SHALL be treated as a future capability rather than implemented current behavior. The current product SHALL operate with original items only and SHALL NOT expose mirror creation, presentation, editing, movement, or deletion to users.
+The mirror-capable behavior SHALL be available to the document model and persistence layer. The product SHALL be able to read, preserve, and expose valid mirrors to downstream document and hierarchy behavior. User-facing mirror creation and editing controls remain outside the scope of this format migration unless separately introduced.
+
+#### Scenario: Read a document containing mirrors
+- **WHEN** a valid version 3 document contains a mirror
+- **THEN** the document model restores that mirror and its reference
+
+#### Scenario: Operate on an original-only document
+- **WHEN** the application operates on a document containing only original items
+- **THEN** it preserves the existing original-item behavior and hierarchy
 
 #### Scenario: Use the current product
 - **WHEN** a user creates or edits an outline with the current product
-- **THEN** the available hierarchy behavior uses original items only and provides no Mirror functionality
-
-#### Scenario: Interpret the mirror requirements
-- **WHEN** a mirror-specific requirement in this specification is evaluated before Mirror functionality is introduced
-- **THEN** it defines the intended future domain contract rather than an available current-product capability
+- **THEN** the available hierarchy behavior uses original items only unless mirror behavior is separately exposed
 
 ### Requirement: Future-facing hierarchy compatibility
-The system SHALL treat an existing hierarchy containing only original items as a valid subset of the mirror-capable hierarchy. Introducing the mirror-capable structure SHALL NOT require existing hierarchies to contain mirrors, SHALL NOT make Mirror functionality available in the current product, and SHALL NOT by itself change the current `.nlist` document format.
+The system SHALL treat a hierarchy containing only original items as a valid subset of the mirror-capable hierarchy. Introducing persisted mirror support SHALL NOT require existing documents to contain mirrors, and reading or saving an original-only document SHALL preserve its parent-child relationships and sibling order.
 
-#### Scenario: Use the hierarchy before Mirror functionality is introduced
-- **WHEN** the application operates on a hierarchy created by the current product
-- **THEN** the hierarchy contains only original items and retains its existing parent-child relationships and sibling order
+#### Scenario: Read an existing original-only hierarchy
+- **WHEN** the application opens a valid version 1 or version 2 document
+- **THEN** it restores the hierarchy as original items in the version 3-capable model
 
-#### Scenario: Preserve the current document format
-- **WHEN** the mirror-capable domain structure is introduced without a separate document-format change
-- **THEN** current `.nlist` documents continue to represent only original items using the existing format
+#### Scenario: Save an original-only hierarchy
+- **WHEN** the application saves a hierarchy that contains no mirrors
+- **THEN** it writes a valid version 3 document without adding mirror records
 
 ### Requirement: Original and mirror element kinds
 The system SHALL represent each hierarchy element as exactly one of the following kinds:
@@ -34,7 +38,15 @@ The system SHALL represent each hierarchy element as exactly one of the followin
 - An original item that owns its item data and ordered child elements.
 - A mirror item that owns a distinct element identifier and a reference to an original item.
 
-An original item SHALL occur exactly once as an original within a hierarchy. A mirror SHALL NOT own an independent copy of the referenced original's item data.
+An original item SHALL occur exactly once as an original within a hierarchy. A mirror SHALL NOT own an independent copy of the referenced original's item data. These distinctions SHALL be preserved when the hierarchy is persisted and restored.
+
+#### Scenario: Persist an original item
+- **WHEN** an original item is saved
+- **THEN** its item data is encoded with its own identifier and can include ordered children
+
+#### Scenario: Persist a mirror item
+- **WHEN** a mirror is saved
+- **THEN** only its element identifier and original reference are persisted as mirror data
 
 #### Scenario: Represent an original item
 - **WHEN** an original item is added to the hierarchy
@@ -64,13 +76,17 @@ When a new tree is inserted, duplicate identifiers within that incoming tree SHA
 ### Requirement: Direct and valid mirror references
 A mirror SHALL reference an existing original item in the same hierarchy. A mirror SHALL NOT reference another mirror. When a mirror is derived from an existing mirror, the new mirror SHALL reference the same original item directly.
 
-#### Scenario: Reference an original item
-- **WHEN** a mirror references an existing original in the same hierarchy
-- **THEN** the reference satisfies the target invariant
+#### Scenario: Restore a direct reference
+- **WHEN** a mirror references an existing original item in the same hierarchy
+- **THEN** the reference is accepted and the mirror resolves to the original's current data
 
-#### Scenario: Reject creation with a missing target
-- **WHEN** a runtime operation attempts to create a mirror for an identifier that does not identify an existing original
-- **THEN** the operation is rejected without changing the hierarchy
+#### Scenario: Reject a missing target
+- **WHEN** a persisted mirror references an identifier that does not identify an original
+- **THEN** the document is rejected without producing a partially restored hierarchy
+
+#### Scenario: Reject an indirect reference
+- **WHEN** a persisted mirror references another mirror
+- **THEN** the document is rejected without producing a partially restored hierarchy
 
 #### Scenario: Derive a mirror from another mirror
 - **WHEN** a mirror is derived from an existing mirror
@@ -88,11 +104,15 @@ The item data associated with a mirror SHALL be the item data owned by its refer
 - **THEN** the referenced original owns the changed data and the mirror remains a reference without independent item data
 
 ### Requirement: Mirrors are leaf elements
-A mirror SHALL NOT contain child elements and SHALL NOT be used as the parent of another element. A mirror reference SHALL NOT contribute parent-child relationships to the hierarchy.
+A mirror SHALL NOT contain child elements and SHALL NOT be used as the parent of another element. A mirror reference SHALL NOT contribute parent-child relationships to the hierarchy. This invariant SHALL be enforced when reading persisted documents.
 
-#### Scenario: Preserve a mirror as a leaf
-- **WHEN** a valid mirror is present in the hierarchy
-- **THEN** it has no child elements
+#### Scenario: Restore a valid mirror leaf
+- **WHEN** a persisted mirror has no children
+- **THEN** it is restored as a leaf element
+
+#### Scenario: Reject a persisted mirror with children
+- **WHEN** a persisted mirror contains child elements
+- **THEN** document reading fails with an invalid-format error
 
 #### Scenario: Reject a child under a mirror
 - **WHEN** an operation would add or move an element under a mirror
@@ -101,19 +121,9 @@ A mirror SHALL NOT contain child elements and SHALL NOT be used as the parent of
 ### Requirement: Mirrors cannot reference physical ancestors
 A mirror SHALL NOT reference an original item that is a physical ancestor of that mirror. Physical ancestors SHALL be determined exclusively through parent-child relationships; mirror references SHALL NOT be traversed when determining ancestry.
 
-The system SHALL preserve this invariant when a mirror is created, when a hierarchy or subtree is inserted, and when any original or mirror is moved.
-
 #### Scenario: Reject a mirror of its parent
 - **WHEN** a mirror would reference its original parent
 - **THEN** the operation is rejected without changing the hierarchy
-
-#### Scenario: Reject a mirror of a higher ancestor
-- **WHEN** a mirror would reference any original above its parent in the physical ancestor chain
-- **THEN** the operation is rejected without changing the hierarchy
-
-#### Scenario: Reject a move that introduces an ancestor reference
-- **WHEN** moving a subtree would place one of its mirrors below that mirror's referenced original
-- **THEN** the entire move is rejected without changing the hierarchy
 
 #### Scenario: Allow a reference outside the ancestor chain
 - **WHEN** a mirror references an original that is not one of its physical ancestors
@@ -141,10 +151,6 @@ The move SHALL be rejected when it uses a mirror as the destination parent or pl
 - **WHEN** a mirror is moved to a valid destination
 - **THEN** only the selected mirror changes location
 
-#### Scenario: Reject moving a mirror below its original
-- **WHEN** a mirror would be moved into the physical subtree of its referenced original
-- **THEN** the move is rejected without changing the hierarchy
-
 ### Requirement: Mirror deletion semantics
 Deleting a mirror SHALL remove only that mirror. The referenced original and all other mirrors of that original SHALL remain in the hierarchy.
 
@@ -153,9 +159,7 @@ Deleting a mirror SHALL remove only that mirror. The referenced original and all
 - **THEN** that mirror is removed and its referenced original and all other mirrors of that original remain unchanged
 
 ### Requirement: Original deletion semantics
-Deleting an original SHALL delete its entire physical subtree and every mirror anywhere in the hierarchy that references the deleted original or any original descendant in the deleted subtree.
-
-A mirror located inside the deleted subtree SHALL be deleted as part of that subtree. An original referenced by such an internal mirror SHALL remain unless that original is itself part of the deleted subtree. The deletion SHALL be atomic and SHALL leave no mirror that references a deleted original.
+Deleting an original SHALL delete its entire physical subtree and every mirror anywhere in the hierarchy that references the deleted original or any original descendant in the deleted subtree. The deletion SHALL be atomic and SHALL leave no mirror that references a deleted original.
 
 #### Scenario: Delete an original with external mirrors
 - **WHEN** an original is deleted while mirrors elsewhere reference it
@@ -165,10 +169,6 @@ A mirror located inside the deleted subtree SHALL be deleted as part of that sub
 - **WHEN** the deleted subtree contains a mirror of an original outside that subtree
 - **THEN** the internal mirror is deleted with the subtree and the external original remains
 
-#### Scenario: Delete mirrors of original descendants
-- **WHEN** an original subtree is deleted and mirrors elsewhere reference original descendants in that subtree
-- **THEN** those mirrors are also deleted
-
 ### Requirement: Hierarchy state validation
 The system SHALL validate the resulting stored hierarchy after initialization, insertion, and movement. A valid state SHALL satisfy all of the following conditions:
 
@@ -177,15 +177,9 @@ The system SHALL validate the resulting stored hierarchy after initialization, i
 - Every mirror references an existing original in the same hierarchy.
 - No mirror references another mirror.
 - Every mirror is a leaf.
-- Physical containment and mirror references SHALL NOT form a dependency cycle, including a mirror referencing one of its physical ancestors.
+- Physical containment and mirror references SHALL NOT form a dependency cycle.
 
-Initialization SHALL validate the supplied hierarchy before exposing the store. If initialization violates a condition, it SHALL fail with the corresponding validation error; it SHALL NOT remove invalid mirrors or silently retarget references.
-
-Insertion SHALL validate identifiers in the incoming tree before insertion, then validate the complete resulting hierarchy. If validation fails, the insertion SHALL be rejected and all inserted nodes and cache state SHALL be rolled back atomically.
-
-Movement SHALL validate the destination and reject a move into the moved subtree. After applying a candidate move, the complete resulting hierarchy SHALL be validated. If validation fails, the move SHALL be rejected and the original hierarchy SHALL be restored atomically.
-
-Validation SHALL report the applicable error for duplicate identifiers, missing references, references to mirrors, reference cycles, mirrors with children, missing destinations, invalid destination indexes, or movement into a descendant. Invalid references SHALL NOT be repaired by retargeting an existing mirror.
+Initialization SHALL validate the supplied hierarchy before exposing the store. If initialization violates a condition, it SHALL fail with the corresponding validation error. Insertion and movement SHALL reject invalid states atomically.
 
 #### Scenario: Accept a valid original-only hierarchy
 - **WHEN** a hierarchy contains uniquely identified original items arranged as ordered trees
@@ -195,10 +189,6 @@ Validation SHALL report the applicable error for duplicate identifiers, missing 
 - **WHEN** initialization encounters a duplicate identifier, invalid mirror reference, reference cycle, or mirror with children
 - **THEN** initialization fails with the corresponding validation error and does not expose a partially initialized store
 
-#### Scenario: Roll back an invalid insertion
-- **WHEN** an insertion would make the resulting hierarchy invalid
-- **THEN** the insertion fails and the hierarchy remains unchanged
-
-#### Scenario: Roll back an invalid move
-- **WHEN** a move would create a physical or mirror-reference cycle, move into the moved subtree, or place children under a mirror
-- **THEN** the move fails and the hierarchy remains unchanged
+#### Scenario: Roll back an invalid insertion or move
+- **WHEN** an insertion or move would make the resulting hierarchy invalid
+- **THEN** the operation fails and the hierarchy remains unchanged

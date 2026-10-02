@@ -426,8 +426,8 @@ extension UnitPresenterTests {
 		view.stubs.selection = [firstId, secondId]
 		settingsProvider.stubs.state = .standart
 
-		let firstNode = DocumentNode(value: .init(uuid: firstId, text: .random), children: [])
-		let secondNode = DocumentNode(value: .init(uuid: secondId, text: .random), children: [])
+		let firstNode = DocumentNode<Item>(value: .init(uuid: firstId, text: .random), children: [])
+		let secondNode = DocumentNode<Item>(value: .init(uuid: secondId, text: .random), children: [])
 
 		sut.present(Snapshot([firstNode, secondNode]))
 
@@ -456,8 +456,8 @@ extension UnitPresenterTests {
 		view.stubs.selection = [firstId, secondId]
 		settingsProvider.stubs.state = Settings(completionBehaviour: .moveToEnd)
 
-		let firstNode = DocumentNode(value: .init(uuid: firstId, text: .random), children: [])
-		let secondNode = DocumentNode(value: .init(uuid: secondId, text: .random), children: [])
+		let firstNode = DocumentNode<Item>(value: .init(uuid: firstId, text: .random), children: [])
+		let secondNode = DocumentNode<Item>(value: .init(uuid: secondId, text: .random), children: [])
 
 		sut.present(Snapshot([firstNode, secondNode]))
 
@@ -534,8 +534,8 @@ extension UnitPresenterTests {
 		view.stubs.selection = [firstId, secondId]
 		settingsProvider.stubs.state = .standart
 
-		let firstNode = DocumentNode(value: .init(uuid: firstId, text: .random), children: [])
-		let secondNode = DocumentNode(value: .init(uuid: secondId, text: .random), children: [])
+		let firstNode = DocumentNode<Item>(value: .init(uuid: firstId, text: .random), children: [])
+		let secondNode = DocumentNode<Item>(value: .init(uuid: secondId, text: .random), children: [])
 
 		sut.present(Snapshot([firstNode, secondNode]))
 
@@ -573,8 +573,8 @@ extension UnitPresenterTests {
 		view.stubs.selection = [firstId, secondId]
 		settingsProvider.stubs.state = .standart
 
-		let firstNode = DocumentNode(value: .init(uuid: firstId, text: .random, note: .random), children: [])
-		let secondNode = DocumentNode(value: .init(uuid: secondId, text: .random, note: .random), children: [])
+		let firstNode = DocumentNode<Item>(value: .init(uuid: firstId, text: .random, note: .random), children: [])
+		let secondNode = DocumentNode<Item>(value: .init(uuid: secondId, text: .random, note: .random), children: [])
 
 		sut.present(Snapshot([firstNode, secondNode]))
 
@@ -908,7 +908,7 @@ extension UnitPresenterTests {
 	@Test func test_writeToPasteboard() {
 		// Arrange
 		let id = UUID()
-		let node = DocumentNode(value: .init(uuid: id, text: "Title"), children: [])
+		let node = DocumentNode<Item>(value: .init(uuid: id, text: "Title"), children: [])
 		interactor.stubs.nodes = [node]
 		let pasteboard = PasteboardMock()
 

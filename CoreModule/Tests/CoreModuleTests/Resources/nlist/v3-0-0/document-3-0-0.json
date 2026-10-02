@@ -1,0 +1,41 @@
+{
+  "content": {
+    "uuid": "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA",
+    "view": 1,
+    "items": [
+      {
+        "value": {
+          "item": {
+            "id": "11111111-1111-1111-1111-111111111111",
+            "content": {
+              "text": "Original",
+              "options": 0
+            }
+          }
+        },
+        "children": [
+          {
+            "value": {
+              "item": {
+                "id": "22222222-2222-2222-2222-222222222222",
+                "content": {
+                  "text": "Nested original",
+                  "options": 0
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "value": {
+          "mirror": {
+            "id": "33333333-3333-3333-3333-333333333333",
+            "reference": "22222222-2222-2222-2222-222222222222"
+          }
+        }
+      }
+    ]
+  },
+  "version": "3.0.0"
+}

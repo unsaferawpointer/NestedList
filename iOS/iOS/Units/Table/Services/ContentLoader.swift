@@ -13,7 +13,7 @@ import CoreModule
 protocol ContentLoaderProtocol {
 	func loadItems(
 		providers: [NSItemProvider],
-		completionHandler: @escaping ([DocumentNode]) -> Void
+		completionHandler: @escaping ([DocumentNode<Item>]) -> Void
 	) -> Bool
 	func loadStrings(providers: [NSItemProvider], completionHandler: @escaping ([String]) -> Void) -> Bool
 	func itemProvider(text: String?, data: Data?) -> NSItemProvider
@@ -32,7 +32,7 @@ extension ContentLoader: ContentLoaderProtocol {
 
 	func loadItems(
 		providers: [NSItemProvider],
-		completionHandler: @escaping ([DocumentNode]) -> Void
+		completionHandler: @escaping ([DocumentNode<Item>]) -> Void
 	) -> Bool {
 
 		let filtered = providers.filter {
@@ -43,7 +43,7 @@ extension ContentLoader: ContentLoaderProtocol {
 			return false
 		}
 
-		var cache: [Int: DocumentNode] = [:]
+		var cache: [Int: DocumentNode<Item>] = [:]
 
 		let group = DispatchGroup()
 		let lock = NSLock()
@@ -51,7 +51,7 @@ extension ContentLoader: ContentLoaderProtocol {
 		for (index, provider) in filtered.enumerated() {
 			group.enter()
 			_ = provider.loadDataRepresentation(forTypeIdentifier: itemType) { data, error in
-				if let data, let node = try? JSONDecoder().decode(DocumentNode.self, from: data) {
+				if let data, let node = try? JSONDecoder().decode(DocumentNode<Item>.self, from: data) {
 					lock.lock()
 					cache[index] = node
 					lock.unlock()
