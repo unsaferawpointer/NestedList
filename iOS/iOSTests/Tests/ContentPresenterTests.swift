@@ -108,6 +108,50 @@ extension ContentPresenterTests {
 // MARK: - ContentMenuDelegate test-cases
 extension ContentPresenterTests {
 
+	@Test func test_userDidTapMenuAddMirror_opensItemPicker() {
+		// Arrange
+		let expectedTarget = UUID()
+		let expectedSource = UUID()
+		interactor.stubs.mirrorSourceIDs = [expectedSource]
+
+		// Act
+		sut.userDidTapMenu(with: .addMirror, selection: [expectedTarget])
+
+		// Assert
+		guard case let .showItemPicker(title) = router.invocations.first else {
+			Issue.record("Expect show item picker invocation")
+			return
+		}
+
+		#expect(title == MenuLocalization().addMirrorItemTitle)
+		#expect(router.showItemPickerAllowedIDs == [expectedSource])
+		#expect(interactor.invocations.contains { action in
+			guard case let .mirrorSourceIDs(destination) = action else {
+				return false
+			}
+			return destination == .onItem(with: expectedTarget)
+		})
+	}
+
+	@Test func test_userDidTapMenuAddMirror_createsMirrorFromPickedSource() {
+		// Arrange
+		let expectedTarget = UUID()
+		let expectedSource = UUID()
+		sut.userDidTapMenu(with: .addMirror, selection: [expectedTarget])
+
+		// Act
+		router.showItemPickerCompletionHandler?(expectedSource, true)
+
+		// Assert
+		guard case let .createMirror(reference, target) = interactor.invocations.last else {
+			Issue.record("Expect createMirror invocation")
+			return
+		}
+
+		#expect(reference == expectedSource)
+		#expect(target == expectedTarget)
+	}
+
 	@Test func test_userDidTapMenuAddMirror_tracksAnalyticsWithoutChangingContent() async {
 		// Arrange
 		let expectedId = UUID()
@@ -125,7 +169,12 @@ extension ContentPresenterTests {
 		#expect(event.name == .menuItemClick)
 		#expect(event.parameters["id"] == "add-mirror")
 		#expect(event.parameters["source"] == "context-menu")
-		#expect(interactor.invocations.isEmpty)
+		#expect(interactor.invocations.contains { action in
+			guard case let .mirrorSourceIDs(destination) = action else {
+				return false
+			}
+			return destination == .onItem(with: expectedId)
+		})
 	}
 
 	@Test func test_userDidTapMenuStrikethrough_tracksAnalytics() async {
@@ -326,6 +375,7 @@ extension ContentPresenterTests {
 		// Arrange
 		let expectedIds = [UUID(), UUID()]
 		let expectedDestination: Destination<UUID> = .toRoot
+		interactor.stubs.validateMovement = true
 
 		// Act
 		sut.move(expectedIds, to: expectedDestination)
@@ -345,12 +395,18 @@ extension ContentPresenterTests {
 		// Arrange
 		let expectedIds = [UUID(), UUID()]
 		let expectedDestination: Destination<UUID> = .toRoot
+		interactor.stubs.validateMovement = true
 
 		// Act
 		sut.move(expectedIds, to: expectedDestination)
 
 		// Assert
-		guard case let .move(ids, destination) = interactor.invocations.first else {
+		guard let move = interactor.invocations.first(where: { action in
+			guard case .move = action else {
+				return false
+			}
+			return true
+		}), case let .move(ids, destination) = move else {
 			Issue.record("Expect move invocation")
 			return
 		}
@@ -370,11 +426,37 @@ extension ContentPresenterTests {
 		let expectedIds = [UUID(), UUID()]
 		let expectedDestination: Destination<UUID> = .toRoot
 		settingsProvider.stubs.state = Settings(soundEffects: .disabled)
+		interactor.stubs.validateMovement = true
 
 		// Act
 		sut.move(expectedIds, to: expectedDestination)
 
 		// Assert
+		#expect(soundPlayer.invocations.isEmpty)
+	}
+
+	@Test func test_moveItems_whenMovementInvalid_doesNotMove() {
+		// Arrange
+		let ids = [UUID()]
+		let destination: Destination<UUID> = .toRoot
+		interactor.stubs.validateMovement = false
+
+		// Act
+		sut.move(ids, to: destination)
+
+		// Assert
+		#expect(interactor.invocations.contains { action in
+			guard case let .validateMovement(actualIDs, actualDestination) = action else {
+				return false
+			}
+			return actualIDs == ids && actualDestination == destination
+		})
+		#expect(!interactor.invocations.contains { action in
+			guard case .move = action else {
+				return false
+			}
+			return true
+		})
 		#expect(soundPlayer.invocations.isEmpty)
 	}
 }

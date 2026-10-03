@@ -34,7 +34,7 @@ extension UnitRouterMock: ContentRouterProtocol {
 
 	func showItemPicker(
 		navigationTitle: String,
-		filter: @escaping (Item) -> Bool,
+		allowedIDs: Set<UUID>,
 		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
 	) {
 		stubs.showItemPickerCompletionHandler = completionHandler

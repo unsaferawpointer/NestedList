@@ -51,6 +51,16 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 		return stubs.newItem
 	}
 
+	func createMirror(reference: UUID, target: UUID?) -> UUID {
+		invocations.append(.createMirror(reference: reference, target: target))
+		return stubs.newItem
+	}
+
+	func mirrorSourceIDs(to destination: Destination<UUID>) -> Set<UUID> {
+		invocations.append(.mirrorSourceIDs(destination: destination))
+		return stubs.mirrorSourceIDs
+	}
+
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool) {
 		invocations.append(.setStatus(status, ids: ids, moveToEnd: moveToEnd))
 	}
@@ -121,6 +131,8 @@ extension UnitInteractorMock {
 		case validateMovement(_ ids: [UUID], destination: Destination<UUID>)
 		case copy(_ ids: [UUID], destination: Destination<UUID>)
 		case newItem(_ properties: ItemProperties, target: UUID?)
+		case createMirror(reference: UUID, target: UUID?)
+		case mirrorSourceIDs(destination: Destination<UUID>)
 		case setStatus(_ status: Bool, ids: [UUID], moveToEnd: Bool)
 		case setSubitemsHidden(_ hidden: Bool, ids: [UUID])
 		case toggleSubitemsHidden(id: UUID)
@@ -140,6 +152,7 @@ extension UnitInteractorMock {
 	struct Stubs {
 		var validateMovement: Bool = false
 		var newItem: UUID = .random
+		var mirrorSourceIDs = Set<UUID>()
 		var fetchedItem: Item?
 		var snapshot = Snapshot<Item>()
 		var nodes: [any TreeNode<Item>] = []

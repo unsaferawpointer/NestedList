@@ -234,7 +234,7 @@ extension ContentPresenter: UnitViewOutput {
 		case .newItem:
 			newItem(in: selection)
 		case .addMirror:
-			break
+			newMirror(in: selection)
 		case .toggleStrikethrough:
 			toggleStrikethrough(for: selection)
 		case .toggleSubitemsVisibility:
@@ -263,6 +263,8 @@ extension ContentPresenter: UnitViewOutput {
 	func validateMenuItem(_ item: ContentMenuIdentifier) -> Bool {
 		switch item {
 		case .newItem:
+			return true
+		case .addMirror:
 			return true
 		case .paste:
 			let types = Set([stringType, itemType])
@@ -312,6 +314,31 @@ private extension ContentPresenter {
 			view?.focus(on: id, key: "title")
 		} catch {
 			// TODO: - Implement error handling
+		}
+	}
+
+	func newMirror(in selection: [UUID]) {
+		let destination = Destination(target: selection.first)
+		let allowedIDs = interactor?.mirrorSourceIDs(to: destination) ?? []
+		router.showItemPicker(
+			navigationTitle: MenuLocalization.addMirrorItemTitle,
+			allowedIDs: allowedIDs
+		) { [weak self] source, isSuccess in
+			guard isSuccess, let source else {
+				return
+			}
+
+			do {
+				guard let id = try self?.interactor?.createMirror(
+					reference: source,
+					target: selection.first
+				) else {
+					return
+				}
+				self?.view?.scroll(to: id)
+			} catch {
+				// TODO: - Implement error handling
+			}
 		}
 	}
 

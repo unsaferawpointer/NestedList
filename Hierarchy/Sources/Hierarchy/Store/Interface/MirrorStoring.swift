@@ -7,6 +7,11 @@
 
 public protocol MirrorStoring<Content, ID>: MirrorReading where ID: RandomizableIdentifier {
 
+	func insertMirror(
+		reference: ID,
+		to destination: Destination<ID>
+	) throws(MirrorStoreError) -> ID
+
 	func insertItems(
 		from data: [any TreeNode<Container<Content, ID>>],
 		to destination: Destination<ID>

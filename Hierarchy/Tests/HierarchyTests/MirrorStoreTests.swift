@@ -143,6 +143,58 @@ extension MirrorStoreTests {
 	}
 }
 
+// MARK: - Mirror Source Validation
+extension MirrorStoreTests {
+
+	@Test
+	func mirrorSourceIDs_excludesItemsCreatingReferenceCycles() throws {
+		// Arrange
+		let destination = Node(
+			value: Container<String, String>.item(id: "A", content: "Destination")
+		)
+		let cyclicSource = Node(
+			value: Container<String, String>.item(id: "B", content: "Cyclic source"),
+			children: [
+				Node(
+					value: Container<String, String>.item(id: "C", content: "Nested source"),
+					children: [
+						Node(value: Container<String, String>.mirror(id: "M", reference: "A"))
+					]
+				)
+			]
+		)
+		let source = Node(
+			value: Container<String, String>.item(id: "D", content: "Source")
+		)
+		let store = try MirrorStore(nodes: [destination, cyclicSource, source])
+
+		// Act
+		let sourceIDs = store.mirrorSourceIDs(to: .onItem(with: "A"))
+
+		// Assert
+		#expect(sourceIDs == ["D"])
+		#expect(store.children(of: "A").isEmpty)
+	}
+
+	@Test
+	func mirrorSourceIDs_returnsEmptyForMirrorDestination() throws {
+		// Arrange
+		let source = Node(
+			value: Container<String, String>.item(id: "A", content: "Source")
+		)
+		let destination = Node(
+			value: Container<String, String>.mirror(id: "B", reference: "A")
+		)
+		let store = try MirrorStore(nodes: [source, destination])
+
+		// Act
+		let sourceIDs = store.mirrorSourceIDs(to: .onItem(with: "B"))
+
+		// Assert
+		#expect(sourceIDs.isEmpty)
+	}
+}
+
 // MARK: - MirrorReading Helpers
 extension MirrorStoreTests {
 

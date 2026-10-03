@@ -30,6 +30,16 @@ extension ContentUnitInteractorMock: ContentUnitInteractorProtocol {
 		return stubs.newItem
 	}
 
+	func createMirror(reference: UUID, target: UUID?) -> UUID {
+		invocations.append(.createMirror(reference: reference, target: target))
+		return stubs.newItem
+	}
+
+	func mirrorSourceIDs(to destination: Destination<UUID>) -> Set<UUID> {
+		invocations.append(.mirrorSourceIDs(destination: destination))
+		return stubs.mirrorSourceIDs
+	}
+
 	func deleteItems(_ ids: [UUID]) {
 		invocations.append(.deleteItems(ids))
 	}
@@ -110,6 +120,8 @@ extension ContentUnitInteractorMock {
 	enum Action {
 		case fetchData
 		case newItem(ItemProperties, target: UUID?)
+		case createMirror(reference: UUID, target: UUID?)
+		case mirrorSourceIDs(destination: Destination<UUID>)
 		case deleteItems([UUID])
 		case setStatus(Bool, ids: [UUID], moveToEnd: Bool)
 		case setSubitemsHidden(Bool, ids: [UUID])
@@ -133,6 +145,7 @@ extension ContentUnitInteractorMock {
 		var fetchedItem: Item?
 		var snapshot = Snapshot<Item>()
 		var newItem = UUID()
+		var mirrorSourceIDs = Set<UUID>()
 		var item = Item(text: "")
 		var nodes: [any TreeNode<Item>] = []
 		var data: Data?

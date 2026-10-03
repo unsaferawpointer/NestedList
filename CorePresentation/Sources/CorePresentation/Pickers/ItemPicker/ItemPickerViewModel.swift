@@ -17,7 +17,7 @@ import Observation
 
 	private let action: @MainActor (UUID?, Bool) -> Void
 	private let analytics: any ConcreteAnalyticsServiceProtocol<ItemPickerAnalyticsEvent>
-	private let filter: (Item) -> Bool
+	private let allowedIDs: Set<UUID>
 
 	@ObservationIgnored
 	private let storage: DocumentStorage<DocumentContent>
@@ -29,14 +29,14 @@ import Observation
 	init(
 		storage: DocumentStorage<DocumentContent>,
 		title: String,
-		filter: @escaping (Item) -> Bool,
+		allowedIDs: Set<UUID>,
 		analytics: any ConcreteAnalyticsServiceProtocol<ItemPickerAnalyticsEvent>,
 		action: @escaping @MainActor (UUID?, Bool) -> Void
 	) {
 		self.title = title
 		self.analytics = analytics
 		self.action = action
-		self.filter = filter
+		self.allowedIDs = allowedIDs
 		self.storage = storage
 
 		present(content: storage.state)
@@ -88,7 +88,7 @@ private extension ItemPickerViewModel {
 		let snapshot = content.snapshot()
 		items = snapshot
 			.flattened { _ in true }
-			.filter(filter)
+			.filter { allowedIDs.contains($0.id) }
 			.map { item in
 				ItemPickerItem(
 					id: item.id,

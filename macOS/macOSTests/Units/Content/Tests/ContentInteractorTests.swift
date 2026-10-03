@@ -14,6 +14,56 @@ import Hierarchy
 @MainActor
 struct ContentInteractorTests {
 
+	@Test func createMirror_proxiesToCommonInteractorWithRelativeRootTarget() throws {
+		// Arrange
+		let root = UUID()
+		let reference = UUID()
+		let target = UUID()
+		let base = CommonInteractorMock()
+		base.stubs.newItem = UUID()
+		let sut = makeSUT(root: root, base: base)
+
+		// Act
+		let result = try sut.createMirror(reference: reference, target: target)
+
+		// Assert
+		#expect(result == base.stubs.newItem)
+		guard case let .createMirror(actualReference, actualTarget) = base.invocations.first else {
+			Issue.record("Expect createMirror invocation")
+			return
+		}
+		#expect(actualReference == reference)
+		#expect(actualTarget == target)
+	}
+
+	@Test func mirrorSourceIDs_returnsItemsAllowedAtDestination() {
+		// Arrange
+		let target = Item(text: "Target")
+		let source = Item(text: "Source")
+		let storage = DocumentStorage(
+			stateProvider: StateProvider(
+				initialState: DocumentContent(
+					uuid: nil,
+					nodes: [
+					DocumentNode(value: target, children: []),
+					DocumentNode(value: source, children: [])
+				]
+				)
+			),
+			contentProvider: JsonDataProvider(),
+			undoManager: nil
+		)
+		let sut = ContentInteractor(storage: storage)
+		let initialCount = storage.state.snapshot().count
+
+		// Act
+		let result = sut.mirrorSourceIDs(to: .onItem(with: target.id))
+
+		// Assert
+		#expect(result == [source.id])
+		#expect(storage.state.snapshot().count == initialCount)
+	}
+
 	@Test func newItem_proxiesToCommonInteractorWithRelativeRootTarget() throws {
 		// Arrange
 		let root = UUID()
@@ -186,6 +236,16 @@ extension CommonInteractorMock: CommonInteractorProtocol {
 		return stubs.newItem
 	}
 
+	func createMirror(reference: UUID, target: UUID?) -> UUID {
+		invocations.append(.createMirror(reference, target))
+		return stubs.newItem
+	}
+
+	func mirrorSourceIDs(to destination: Destination<UUID>) -> Set<UUID> {
+		invocations.append(.mirrorSourceIDs(destination))
+		return stubs.mirrorSourceIDs
+	}
+
 	func deleteItems(_ ids: [UUID]) {
 		invocations.append(.deleteItems(ids))
 	}
@@ -279,6 +339,8 @@ extension CommonInteractorMock {
 
 	enum Action {
 		case newItem(_ properties: ItemProperties, target: UUID?)
+		case createMirror(_ reference: UUID, _ target: UUID?)
+		case mirrorSourceIDs(_ destination: Destination<UUID>)
 		case deleteItems(_ ids: [UUID])
 		case validateMovement(_ ids: [UUID], _ destination: Destination<UUID>)
 		case move(_ ids: [UUID], _ destination: Destination<UUID>)
@@ -335,6 +397,7 @@ extension CommonInteractorMock {
 
 	struct Stubs {
 		var newItem = UUID()
+		var mirrorSourceIDs = Set<UUID>()
 		var validateMovement = false
 		var validateMovingForward = false
 		var validateMovingBackward = false

@@ -326,7 +326,8 @@ extension UnitPresenterTests {
 
 	@Test func test_menuItemClickedAddMirror_tracksAnalyticsWithoutChangingContent() async {
 		// Arrange
-		view.stubs.selection = [.random]
+		let selectedID = UUID()
+		view.stubs.selection = [selectedID]
 
 		// Act
 		sut.menuItemClicked(.addMirror)
@@ -341,7 +342,11 @@ extension UnitPresenterTests {
 		#expect(event.name == .menuItemClick)
 		#expect(event.parameters["id"] == .string("add-mirror"))
 		#expect(event.parameters["source"] == .string("context-menu"))
-		#expect(interactor.invocations.isEmpty)
+		guard case let .mirrorSourceIDs(destination) = interactor.invocations.first else {
+			Issue.record("Expect mirror source validation")
+			return
+		}
+		#expect(destination == .onItem(with: selectedID))
 	}
 
 	@Test func test_menuItemClickedFromMainMenu_tracksAnalytics() async {

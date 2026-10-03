@@ -22,7 +22,7 @@ import Testing
 		])
 
 		// Act
-		let sut = makeSUT(storage: storage) { $0.text != "Second" }
+		let sut = makeSUT(storage: storage, allowedIDs: [first.id, third.id])
 
 		// Assert
 		#expect(sut.items.map(\.title) == ["First", "Third"])
@@ -120,13 +120,14 @@ import Testing
 	func makeSUT(
 		storage: DocumentStorage<DocumentContent>? = nil,
 		analytics: ItemPickerAnalyticsMock = ItemPickerAnalyticsMock(),
-		filter: @escaping (Item) -> Bool = { _ in true },
+		allowedIDs: Set<UUID>? = nil,
 		action: @escaping @MainActor (UUID?, Bool) -> Void = { _, _ in }
 	) -> ItemPickerViewModel {
+		let storage = storage ?? makeStorage()
 		ItemPickerViewModel(
-			storage: storage ?? makeStorage(),
+			storage: storage,
 			title: "Choose Item",
-			filter: filter,
+			allowedIDs: allowedIDs ?? Set(storage.state.snapshot().flattened { _ in true }.map { $0.model.id }),
 			analytics: analytics,
 			action: action
 		)

@@ -21,14 +21,14 @@ import AppKit
 	public init(
 		storage: DocumentStorage<DocumentContent>,
 		title: String,
-		filter: @escaping (Item) -> Bool,
+		allowedIDs: Set<UUID>,
 		analytics: any ConcreteAnalyticsServiceProtocol<ItemPickerAnalyticsEvent> = ConcreteAnalyticsService<ItemPickerAnalyticsEvent>(),
 		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
 	) {
 		self.model = ItemPickerViewModel(
 			storage: storage,
 			title: title,
-			filter: filter,
+			allowedIDs: allowedIDs,
 			analytics: analytics,
 			action: completionHandler
 		)

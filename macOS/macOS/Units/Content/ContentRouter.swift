@@ -19,7 +19,7 @@ import CorePresentation
 
 	func showItemPicker(
 		navigationTitle: String,
-		filter: @escaping (Item) -> Bool,
+		allowedIDs: Set<UUID>,
 		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
 	)
 
@@ -74,7 +74,7 @@ extension ContentRouter: ContentRouterProtocol {
 
 	func showItemPicker(
 		navigationTitle: String,
-		filter: @escaping (Item) -> Bool,
+		allowedIDs: Set<UUID>,
 		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
 	) {
 		let contentViewController = NSHostingController(
@@ -82,7 +82,7 @@ extension ContentRouter: ContentRouterProtocol {
 				ItemPicker(
 					storage: storage,
 					title: navigationTitle,
-					filter: filter
+					allowedIDs: allowedIDs
 				) { [weak self] itemID, isSuccess in
 					self?.closeSheet()
 					completionHandler(itemID, isSuccess)

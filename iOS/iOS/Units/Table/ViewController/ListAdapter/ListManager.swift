@@ -275,6 +275,10 @@ extension ListManager {
 			}
 
 			guard let target = coordinator.destinationIndexPath else {
+				guard delegate?.validateMovement([id], to: .toRoot) == true else {
+					storage.cancelMovement()
+					return
+				}
 				storage.endMovement(for: id, to: .toRoot)
 				delegate?.move([id], to: .toRoot)
 				return
@@ -283,12 +287,22 @@ extension ListManager {
 			switch proposal.intent {
 			case .insertAtDestinationIndexPath:
 				let destination = storage.destination(for: target.row)
-				let newDestination = self.storage.endMovement(for: id, to: destination)
-				self.delegate?.move([id], to: newDestination)
+				let movementDestination = storage.movementDestination(for: id, to: destination)
+				guard delegate?.validateMovement([id], to: movementDestination) == true else {
+					storage.cancelMovement()
+					return
+				}
+				storage.endMovement(for: id, to: destination)
+				delegate?.move([id], to: movementDestination)
 			case .insertIntoDestinationIndexPath:
 				let model = storage.model(with: target.row)
-				self.storage.endMovement(for: id, to: .onItem(with: model.id))
-				self.delegate?.move([id], to: .onItem(with: model.id))
+				let destination: Destination<Model.ID> = .onItem(with: model.id)
+				guard delegate?.validateMovement([id], to: destination) == true else {
+					storage.cancelMovement()
+					return
+				}
+				storage.endMovement(for: id, to: destination)
+				delegate?.move([id], to: destination)
 			default:
 				return
 			}

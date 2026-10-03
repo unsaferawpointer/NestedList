@@ -20,7 +20,7 @@ protocol ContentRouterProtocol {
 	)
 	func showItemPicker(
 		title: String,
-		filter: @escaping (Item) -> Bool,
+		allowedIDs: Set<UUID>,
 		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
 	)
 	func showTargetsScreen(for ids: Set<UUID>, completionHandler: @escaping (UUID?, Bool) -> Void)
@@ -73,13 +73,13 @@ extension ContentRouter: ContentRouterProtocol {
 
 	func showItemPicker(
 		title: String,
-		filter: @escaping (Item) -> Bool,
+		allowedIDs: Set<UUID>,
 		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
 	) {
 		let picker = ItemPicker(
 			storage: storage,
 			title: title,
-			filter: filter
+			allowedIDs: allowedIDs
 		) { [weak self] itemID, isSuccess in
 			self?.root.presentedViewController?.dismiss(animated: true)
 			completionHandler(itemID, isSuccess)

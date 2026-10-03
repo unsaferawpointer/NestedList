@@ -55,6 +55,14 @@ public extension DocumentContent {
 		try store.insert(containers, at: destination)
 	}
 
+	func insertMirror(reference: UUID, to destination: Destination<UUID>) throws -> UUID {
+		try store.insertMirror(reference: reference, to: destination)
+	}
+
+	func mirrorSourceIDs(to destination: Destination<UUID>) -> Set<UUID> {
+		store.mirrorSourceIDs(to: destination)
+	}
+
 	func insertItems(from data: [any TreeNode<Item>], to destination: Destination<UUID>) throws {
 		let containers: [ContainerNode] = data.map { node in
 			node.map { value in

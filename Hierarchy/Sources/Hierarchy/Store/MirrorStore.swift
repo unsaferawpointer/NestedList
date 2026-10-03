@@ -55,11 +55,56 @@ extension MirrorStore: Equatable where Content: Equatable {
 // MARK: - Persisted container reading
 public extension MirrorStore {
 
+	func insertMirror(reference: ID, to destination: Destination<ID>) throws(MirrorStoreError) -> ID {
+		guard let source = storage[reference] else {
+			throw .missingReference
+		}
+
+		let originalReference: ID = switch source.value {
+		case .item:
+			reference
+		case let .mirror(_, reference):
+			reference
+		}
+
+		var id = ID.random()
+		while storage[id] != nil {
+			id = ID.random()
+		}
+
+		let node = Node<Container<Content, ID>>(
+			value: .mirror(id: id, reference: originalReference)
+		)
+		try insertNodes([node], to: destination)
+		return id
+	}
+
 	func storedNodes<T: TreeNode>(type: T.Type) -> [T]
 	where T.Value == Container<Content, ID> {
 		storage.nodes.map { $0.map(type: type) }
 	}
 
+}
+
+// MARK: - Mirror Source Validation
+public extension MirrorStore {
+
+	func mirrorSourceIDs(to destination: Destination<ID>) -> Set<ID> {
+		guard isMirrorDestinationValid(destination) else {
+			return []
+		}
+
+		let invalidSourceIDs = mirrorSourceIDsCreatingReferenceCycle(
+			to: destination
+		)
+		return storage.identifiers.reduce(into: Set<ID>()) { sourceIDs, id in
+			guard case .item = storage[id]?.value,
+				  !invalidSourceIDs.contains(id) else {
+				return
+			}
+			sourceIDs.insert(id)
+		}
+	}
 }
 
 // MARK: - MirrorStoring
@@ -191,6 +236,92 @@ extension MirrorStore: MirrorStoring {
 
 // MARK: - Insertion Helpers
 private extension MirrorStore {
+
+	func isMirrorDestinationValid(_ destination: Destination<ID>) -> Bool {
+		switch destination {
+		case .toRoot:
+			return true
+		case let .inRoot(atIndex: index):
+			return (0...storage.nodes.count).contains(index)
+		case let .onItem(with: id):
+			guard case .item = storage[id]?.value else {
+				return false
+			}
+			return true
+		case let .inItem(with: id, atIndex: index):
+			guard let target = storage[id], case .item = target.value else {
+				return false
+			}
+			return (0...target.children.count).contains(index)
+		}
+	}
+
+	func mirrorSourceIDsCreatingReferenceCycle(
+		to destination: Destination<ID>
+	) -> Set<ID> {
+		guard let targetID = destination.id else {
+			return []
+		}
+
+		let mirrorParentIDsByReference = mirrorParentIDsByReference()
+		var invalidSourceIDs = Set<ID>()
+		var pendingIDs = [targetID]
+		while let id = pendingIDs.popLast() {
+			guard invalidSourceIDs.insert(id).inserted,
+				  let item = storage[id] else {
+				continue
+			}
+
+			if let parentID = item.parent?.id {
+				pendingIDs.append(parentID)
+			}
+			pendingIDs.append(contentsOf: mirrorParentIDsByReference[id, default: []])
+		}
+		return invalidSourceIDs
+	}
+
+	func mirrorParentIDsByReference() -> [ID: Set<ID>] {
+		var parentIDsByReference: [ID: Set<ID>] = [:]
+
+		for node in storage.nodes {
+			node.traverse { node in
+				guard case let .mirror(_, reference) = node.value,
+					  let parentID = node.parent?.id else {
+					return
+				}
+				parentIDsByReference[reference, default: []].insert(parentID)
+			}
+		}
+
+		return parentIDsByReference
+	}
+
+	func referenceDependencies() -> [ID: Set<ID>] {
+		var dependencies: [ID: Set<ID>] = [:]
+
+		for node in storage.nodes {
+			var itemAncestorIDs: [ID] = []
+			node.traverse(
+				enter: { node in
+					switch node.value {
+					case let .item(id, _):
+						itemAncestorIDs.append(id)
+					case let .mirror(_, reference):
+						for ancestorID in itemAncestorIDs {
+							dependencies[ancestorID, default: []].insert(reference)
+						}
+					}
+				},
+				leave: { node in
+					if case .item = node.value {
+						itemAncestorIDs.removeLast()
+					}
+				}
+			)
+		}
+
+		return dependencies
+	}
 
 	func insertNodes(
 		_ newNodes: [Node<Container<Content, ID>>],
@@ -412,7 +543,7 @@ private extension MirrorStore {
 	func validateStore() throws(MirrorStoreError) {
 		try validateUniqueIdentifiers(in: storage.nodes)
 		try validateReferences(in: storage.nodes)
-		try validateReferenceCycles(in: storage.nodes)
+		try validateReferenceCycles()
 		try validateMirrorChildren(in: storage.nodes)
 	}
 
@@ -485,31 +616,8 @@ private extension MirrorStore {
 		}
 	}
 
-	func validateReferenceCycles(
-		in nodes: [Node<Container<Content, ID>>]
-	) throws(MirrorStoreError) {
-		var dependencies: [ID: Set<ID>] = [:]
-
-		for node in nodes {
-			var itemAncestors: [ID] = []
-			node.traverse(
-				enter: { node in
-					switch node.value {
-					case let .item(id, _):
-						itemAncestors.append(id)
-					case let .mirror(_, reference):
-						for ancestor in itemAncestors {
-							dependencies[ancestor, default: []].insert(reference)
-						}
-					}
-				},
-				leave: { node in
-					if case .item = node.value {
-						itemAncestors.removeLast()
-					}
-				}
-			)
-		}
+	func validateReferenceCycles() throws(MirrorStoreError) {
+		let dependencies = referenceDependencies()
 
 		var visited = Set<ID>()
 		var visiting = Set<ID>()

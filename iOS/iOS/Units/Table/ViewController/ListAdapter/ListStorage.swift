@@ -42,16 +42,15 @@ extension ListStorage {
 		apply(newState: newState)
 	}
 
-	@discardableResult
-	func endMovement(for id: Model.ID, to destination: Destination<Model.ID>) -> Destination<Model.ID> {
-		defer {
-			self.backupState = nil
-		}
+	func movementDestination(
+		for id: Model.ID,
+		to destination: Destination<Model.ID>
+	) -> Destination<Model.ID> {
 		guard let backupState else {
 			fatalError("Incosistent state")
 		}
 
-		let resultDestination: Destination<Model.ID> = if
+		return if
 			backupState.snapshot.parent(for: id)?.id == destination.id,
 			let rawIndex = destination.index,
 			backupState.snapshot.localIndex(for: id) < rawIndex + 1
@@ -59,6 +58,18 @@ extension ListStorage {
 			destination.shifted(by: 1)
 		} else {
 			destination
+		}
+	}
+
+	@discardableResult
+	func endMovement(for id: Model.ID, to destination: Destination<Model.ID>) -> Destination<Model.ID> {
+		defer {
+			self.backupState = nil
+		}
+		let resultDestination = movementDestination(for: id, to: destination)
+
+		guard let backupState else {
+			fatalError("Incosistent state")
 		}
 
 		let model = backupState.model(for: id)

@@ -185,6 +185,25 @@ private extension ContentPresenter {
 		createNew(target: selection.first)
 	}
 
+	func newMirror(selection: [UUID]) {
+		editingMode = nil
+		let destination = Destination(target: selection.first)
+		let allowedIDs = interactor?.mirrorSourceIDs(to: destination) ?? []
+		router.showItemPicker(
+			title: MenuLocalization().addMirrorItemTitle,
+			allowedIDs: allowedIDs
+		) { [weak self] source, isSuccess in
+			guard isSuccess, let source else {
+				return
+			}
+
+			_ = try? self?.interactor?.createMirror(
+				reference: source,
+				target: selection.first
+			)
+		}
+	}
+
 	func cut(selection: [UUID]) {
 		editingMode = nil
 		guard
@@ -314,7 +333,7 @@ extension ContentPresenter: ContentMenuDelegate {
 		case .paste:						paste(selection: currentSelection)
 		case .editItem:						edit(selection: currentSelection)
 		case .newItem:						newItem(selection: currentSelection)
-		case .addMirror:					break
+		case .addMirror:					newMirror(selection: currentSelection)
 		case .toggleStrikethrough:			toggleStrikethroughFlag(selection: currentSelection)
 		case .toggleSubitemsVisibility:		toggleHideSubitemsFlag(selection: currentSelection)
 		case .changeIcon:					showIconPicker(selection: currentSelection)
@@ -402,6 +421,10 @@ extension ContentPresenter: DropDelegate {
 	typealias ID = UUID
 
 	func move(_ ids: [UUID], to destination: Destination<UUID>) {
+		guard interactor?.validateMovement(ids, to: destination) == true else {
+			return
+		}
+
 		// MARK: - Analytics
 		let event: ContentAnalyticsEvent = .dragDropMove(itemsCount: ids.count)
 		Task { await analytics.track(event) }

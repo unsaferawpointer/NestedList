@@ -15,6 +15,9 @@ protocol ContentUnitInteractorProtocol {
 
 	@discardableResult
 	func newItem(with properties: ItemProperties, target: UUID?) throws -> UUID
+	@discardableResult
+	func createMirror(reference: UUID, target: UUID?) throws -> UUID
+	func mirrorSourceIDs(to destination: Destination<UUID>) -> Set<UUID>
 	func deleteItems(_ ids: [UUID])
 	func setStatus(_ isStrikethrough: Bool, for ids: [UUID], moveToEnd: Bool)
 	func setSubitemsHidden(_ hidden: Bool, for ids: [UUID])
@@ -91,6 +94,15 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 	func newItem(with properties: ItemProperties, target: UUID?) throws -> UUID {
 		let destination = Destination(target: target)
 		return try base.newItem(with: properties, target: destination.relative(to: root).id)
+	}
+
+	func createMirror(reference: UUID, target: UUID?) throws -> UUID {
+		let destination = Destination(target: target)
+		return try base.createMirror(reference: reference, target: destination.relative(to: root).id)
+	}
+
+	func mirrorSourceIDs(to destination: Destination<UUID>) -> Set<UUID> {
+		base.mirrorSourceIDs(to: destination.relative(to: root))
 	}
 
 	func item(for id: UUID) -> Item {

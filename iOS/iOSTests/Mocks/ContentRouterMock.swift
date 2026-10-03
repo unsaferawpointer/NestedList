@@ -14,6 +14,8 @@ import CorePresentation
 final class ContentRouterMock {
 
 	private(set) var invocations: [Action] = []
+	var showItemPickerCompletionHandler: (@MainActor (UUID?, Bool) -> Void)?
+	var showItemPickerAllowedIDs = Set<UUID>()
 }
 
 // MARK: - ContentRouterProtocol
@@ -29,9 +31,11 @@ extension ContentRouterMock: ContentRouterProtocol {
 
 	func showItemPicker(
 		title: String,
-		filter: @escaping (Item) -> Bool,
+		allowedIDs: Set<UUID>,
 		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
 	) {
+		showItemPickerCompletionHandler = completionHandler
+		showItemPickerAllowedIDs = allowedIDs
 		invocations.append(.showItemPicker(title: title))
 	}
 

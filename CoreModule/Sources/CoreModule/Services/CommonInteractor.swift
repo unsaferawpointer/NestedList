@@ -10,6 +10,8 @@ import Hierarchy
 
 public protocol CommonInteractorProtocol {
 	func newItem(with properties: ItemProperties, target: UUID?) throws -> UUID
+	func createMirror(reference: UUID, target: UUID?) throws -> UUID
+	func mirrorSourceIDs(to destination: Destination<UUID>) -> Set<UUID>
 	func deleteItems(_ ids: [UUID])
 
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool
@@ -56,6 +58,19 @@ extension CommonInteractor: CommonInteractorProtocol {
 			try content.insertItems(with: [newItem], to: destination)
 		}
 		return newItem.id
+	}
+
+	public func createMirror(reference: UUID, target: UUID?) throws -> UUID {
+		let destination = Destination(target: target)
+		var result: UUID?
+		try storage.modificate { content in
+			result = try content.insertMirror(reference: reference, to: destination)
+		}
+		return result!
+	}
+
+	public func mirrorSourceIDs(to destination: Destination<UUID>) -> Set<UUID> {
+		storage.state.mirrorSourceIDs(to: destination)
 	}
 
 	public func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
