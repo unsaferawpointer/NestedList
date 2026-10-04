@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import QuartzCore
 
 #if os(iOS)
 
@@ -15,22 +16,13 @@ public final class CompositeIcon: UIView {
 
 	private lazy var iconView: UIImageView = {
 		let view = UIImageView()
-		view.contentMode = .center
+		view.contentMode = .scaleAspectFit
 		return view
 	}()
 
 	private lazy var badgeIconView: UIImageView = {
 		let view = UIImageView()
 		view.contentMode = .scaleAspectFit
-		return view
-	}()
-
-	private lazy var badgeBackgroundView: UIView = {
-		let view = UIView()
-		view.backgroundColor = .systemBackground
-		view.layer.cornerCurve = .circular
-		view.layer.masksToBounds = true
-		view.addSubview(badgeIconView)
 		return view
 	}()
 
@@ -51,12 +43,14 @@ public final class CompositeIcon: UIView {
 			updateForCurrentTraits()
 		}
 	}
+
+	// MARK: - Constants
+
 	private var contentSizeCategoryObserver: NSObjectProtocol?
 
-	private let iconBaseSide: CGFloat = 28
-	private let badgeSideRatio: CGFloat = 12 / 28
-	private let badgePaddingRatio: CGFloat = 2 / 28
-	private let referenceFontPointSize = UIFont.preferredFont(forTextStyle: .body).pointSize
+	private let badgeSideRatio: CGFloat = 8 / 20
+	private let badgePaddingRatio: CGFloat = 1 / 20
+	private let badgeOverlapRatio: CGFloat = 0.75
 
 	// MARK: - Initialization
 
@@ -85,66 +79,47 @@ public final class CompositeIcon: UIView {
 }
 
 // MARK: - Layout
+public extension CompositeIcon {
 
-extension CompositeIcon {
-
-	public override var intrinsicContentSize: CGSize {
-		let badgeSide = semanticIconSide * badgeSideRatio
-		return CGSize(
-			width: scaled(iconBaseSide) + badgeSide,
-			height: semanticIconSide + badgeSide
-		)
+	override var intrinsicContentSize: CGSize {
+		return iconGeometry.intrinsicContentSize
 	}
 
-	public override func layoutSubviews() {
+	override func layoutSubviews() {
 		super.layoutSubviews()
 		layoutCompositeIcon()
 	}
 }
 
 // MARK: - View hierarchy
-
 private extension CompositeIcon {
 
 	func addSubviews() {
 		addSubview(iconView)
-		addSubview(badgeBackgroundView)
+		addSubview(badgeIconView)
 		setContentHuggingPriority(.required, for: .horizontal)
 		setContentCompressionResistancePriority(.required, for: .horizontal)
+		setContentHuggingPriority(.required, for: .vertical)
+		setContentCompressionResistancePriority(.required, for: .vertical)
 	}
 }
 
 // MARK: - Layout
-
 private extension CompositeIcon {
 
 	func layoutCompositeIcon() {
-		let iconSide = semanticIconSide
-		let badgeSide = iconSide * badgeSideRatio
-		let iconFrame = CGRect(
-			x: (bounds.width - iconSide) / 2,
-			y: (bounds.height - iconSide) / 2,
-			width: iconSide,
-			height: iconSide
-		)
-		let badgeFrame = CGRect(
-			x: iconFrame.minX - badgeSide / 2,
-			y: iconFrame.maxY - badgeSide / 2,
-			width: badgeSide,
-			height: badgeSide
+		let isRightToLeft = effectiveUserInterfaceLayoutDirection == .rightToLeft
+		let frames = iconGeometry.frames(
+			isRightToLeft: isRightToLeft,
+			badgePosition: .top
 		)
 
-		iconView.frame = iconFrame
-		badgeBackgroundView.frame = badgeFrame
-
-		let badgePadding = iconSide * badgePaddingRatio
-		let badgeIconSide = badgeSide - badgePadding * 2
-		badgeIconView.frame = CGRect(
-			x: (badgeBackgroundView.bounds.width - badgeIconSide) / 2,
-			y: (badgeBackgroundView.bounds.height - badgeIconSide) / 2,
-			width: badgeIconSide,
-			height: badgeIconSide
+		iconView.frame = frames.mainIcon
+		badgeIconView.frame = frames.badgeCutout.insetBy(
+			dx: iconGeometry.badgePadding,
+			dy: iconGeometry.badgePadding
 		)
+		updateIconMask(for: frames.badgeCutout)
 	}
 }
 
@@ -157,8 +132,7 @@ private extension CompositeIcon {
 		iconView.tintColor = iconConfiguration?.appearence.tint
 		badgeIconView.image = makeImage(configuration: badgeConfiguration, scale: .small)
 		badgeIconView.tintColor = badgeConfiguration?.appearence.tint
-		badgeBackgroundView.isHidden = badgeConfiguration == nil
-		badgeBackgroundView.layer.cornerRadius = semanticIconSide * badgeSideRatio / 2
+		badgeIconView.isHidden = badgeConfiguration == nil
 		invalidateIntrinsicContentSize()
 		setNeedsLayout()
 	}
@@ -168,17 +142,30 @@ private extension CompositeIcon {
 
 private extension CompositeIcon {
 
-	func scaled(_ value: CGFloat) -> CGFloat {
-		let font = semanticFont
-		return value * font.pointSize / referenceFontPointSize
+	func updateIconMask(for badgeCutoutFrame: CGRect) {
+		guard badgeConfiguration != nil else {
+			iconView.layer.mask = nil
+			return
+		}
+
+		let badgeFrame = convert(badgeCutoutFrame, to: iconView)
+		iconView.layer.mask = makeCutoutMask(
+			in: iconView.bounds,
+			cuttingOut: badgeFrame
+		)
+	}
+
+	var iconGeometry: CompositeIconGeometry {
+		CompositeIconGeometry(
+			iconSide: semanticFont.pointSize,
+			badgeSideRatio: badgeSideRatio,
+			badgePaddingRatio: badgePaddingRatio,
+			badgeOverlapRatio: badgeOverlapRatio
+		)
 	}
 
 	var semanticFont: UIFont {
 		UIFont.preferredFont(forTextStyle: textStyle.value, compatibleWith: traitCollection)
-	}
-
-	var semanticIconSide: CGFloat {
-		semanticFont.lineHeight
 	}
 
 	func makeImage(
@@ -205,7 +192,8 @@ public final class CompositeIcon: NSView {
 	private lazy var iconView: NSImageView = {
 		let view = NSImageView()
 		view.imageAlignment = .alignCenter
-		view.imageScaling = .scaleNone
+		view.imageScaling = .scaleProportionallyUpOrDown
+		view.wantsLayer = true
 		return view
 	}()
 
@@ -213,16 +201,6 @@ public final class CompositeIcon: NSView {
 		let view = NSImageView()
 		view.imageAlignment = .alignCenter
 		view.imageScaling = .scaleProportionallyDown
-		return view
-	}()
-
-	private lazy var badgeBackgroundView: NSView = {
-		let view = NSView()
-		view.wantsLayer = true
-		view.layer?.backgroundColor = NSColor.controlBackgroundColor.cgColor
-		view.layer?.cornerCurve = .continuous
-		view.layer?.masksToBounds = true
-		view.addSubview(badgeIconView)
 		return view
 	}()
 
@@ -244,10 +222,10 @@ public final class CompositeIcon: NSView {
 		}
 	}
 
-	private let iconBaseSide: CGFloat = 28
-	private let badgeSideRatio: CGFloat = 16 / 28
-	private let badgePaddingRatio: CGFloat = 2 / 28
-	private let referenceFontPointSize = NSFont.preferredFont(forTextStyle: .body).pointSize
+	private let iconBaseSide: CGFloat = 20
+	private let badgeSideRatio: CGFloat = 7 / 20
+	private let badgePaddingRatio: CGFloat = 2 / 20
+	private let badgeOverlapRatio: CGFloat = 0.75
 
 	// MARK: - Initialization
 
@@ -275,11 +253,16 @@ public extension CompositeIcon {
 extension CompositeIcon {
 
 	public override var intrinsicContentSize: NSSize {
-		let badgeSide = semanticIconSide * badgeSideRatio
-		return NSSize(
-			width: scaled(iconBaseSide) + badgeSide,
-			height: semanticIconSide + badgeSide
-		)
+		return iconGeometry.intrinsicContentSize
+	}
+
+	public override var firstBaselineOffsetFromTop: CGFloat {
+		let viewHeight = bounds.height > 0 ? bounds.height : intrinsicContentSize.height
+		return viewHeight - mainIconBaselineOffsetFromBottom
+	}
+
+	public override var lastBaselineOffsetFromBottom: CGFloat {
+		return mainIconBaselineOffsetFromBottom
 	}
 
 	public override func layout() {
@@ -294,9 +277,11 @@ private extension CompositeIcon {
 
 	func addSubviews() {
 		addSubview(iconView)
-		addSubview(badgeBackgroundView)
+		addSubview(badgeIconView)
 		setContentHuggingPriority(.required, for: .horizontal)
 		setContentCompressionResistancePriority(.required, for: .horizontal)
+		setContentHuggingPriority(.required, for: .vertical)
+		setContentCompressionResistancePriority(.required, for: .vertical)
 	}
 }
 
@@ -305,32 +290,18 @@ private extension CompositeIcon {
 private extension CompositeIcon {
 
 	func layoutCompositeIcon() {
-		let iconSide = semanticIconSide
-		let badgeSide = iconSide * badgeSideRatio
-		let iconFrame = NSRect(
-			x: (bounds.width - iconSide) / 2,
-			y: (bounds.height - iconSide) / 2,
-			width: iconSide,
-			height: iconSide
-		)
-		let badgeFrame = NSRect(
-			x: iconFrame.minX - badgeSide / 2,
-			y: iconFrame.minY - badgeSide / 2,
-			width: badgeSide,
-			height: badgeSide
+		let isRightToLeft = userInterfaceLayoutDirection == .rightToLeft
+		let frames = iconGeometry.frames(
+			isRightToLeft: isRightToLeft,
+			badgePosition: .bottom
 		)
 
-		iconView.frame = iconFrame
-		badgeBackgroundView.frame = badgeFrame
-
-		let badgePadding = iconSide * badgePaddingRatio
-		let badgeIconSide = badgeSide - badgePadding * 2
-		badgeIconView.frame = NSRect(
-			x: (badgeBackgroundView.bounds.width - badgeIconSide) / 2,
-			y: (badgeBackgroundView.bounds.height - badgeIconSide) / 2,
-			width: badgeIconSide,
-			height: badgeIconSide
+		iconView.frame = frames.mainIcon
+		badgeIconView.frame = frames.badgeCutout.insetBy(
+			dx: iconGeometry.badgePadding,
+			dy: iconGeometry.badgePadding
 		)
+		updateIconMask(for: frames.badgeCutout)
 	}
 }
 
@@ -345,8 +316,7 @@ private extension CompositeIcon {
 		badgeIconView.image = makeImage(configuration: badgeConfiguration, scale: .small)
 		badgeIconView.contentTintColor = badgeConfiguration?.appearence.tint
 
-		badgeBackgroundView.isHidden = badgeConfiguration == nil
-		badgeBackgroundView.layer?.cornerRadius = semanticIconSide * badgeSideRatio / 2
+		badgeIconView.isHidden = badgeConfiguration == nil
 		invalidateIntrinsicContentSize()
 		needsLayout = true
 	}
@@ -356,17 +326,41 @@ private extension CompositeIcon {
 
 private extension CompositeIcon {
 
-	func scaled(_ value: CGFloat) -> CGFloat {
-		let font = semanticFont
-		return value * font.pointSize / referenceFontPointSize
+	func updateIconMask(for badgeCutoutFrame: NSRect) {
+		guard badgeConfiguration != nil else {
+			iconView.layer?.mask = nil
+			return
+		}
+
+		let badgeFrame = convert(badgeCutoutFrame, to: iconView)
+		iconView.layer?.mask = makeCutoutMask(in: iconView.bounds, cuttingOut: badgeFrame)
+	}
+
+	var iconGeometry: CompositeIconGeometry {
+		CompositeIconGeometry(
+			iconSide: iconBaseSide * semanticFont.pointSize / baseFont.pointSize,
+			badgeSideRatio: badgeSideRatio,
+			badgePaddingRatio: badgePaddingRatio,
+			badgeOverlapRatio: badgeOverlapRatio
+		)
 	}
 
 	var semanticFont: NSFont {
 		NSFont.preferredFont(forTextStyle: textStyle.value)
 	}
 
-	var semanticIconSide: CGFloat {
-		semanticFont.boundingRectForFont.height
+	var baseFont: NSFont {
+		NSFont.preferredFont(forTextStyle: .body)
+	}
+
+	var mainIconBaselineOffsetFromBottom: CGFloat {
+		guard let image = iconView.image, image.size.width > 0, image.size.height > 0 else {
+			return iconGeometry.badgeProtrusion
+		}
+
+		let scale = min(iconGeometry.iconSide / image.size.width, iconGeometry.iconSide / image.size.height)
+		let imageVerticalInset = (iconGeometry.iconSide - image.size.height * scale) / 2
+		return iconGeometry.badgeProtrusion + imageVerticalInset + image.alignmentRect.minY * scale
 	}
 
 	func makeImage(
@@ -385,3 +379,90 @@ private extension CompositeIcon {
 }
 
 #endif
+
+private struct CompositeIconGeometry {
+
+	enum BadgePosition {
+		case top
+		case bottom
+	}
+
+	struct Frames {
+		let mainIcon: CGRect
+		let badgeCutout: CGRect
+	}
+
+	let iconSide: CGFloat
+	let badgeSideRatio: CGFloat
+	let badgePaddingRatio: CGFloat
+	let badgeOverlapRatio: CGFloat
+
+	var badgeSide: CGFloat {
+		iconSide * badgeSideRatio
+	}
+
+	var badgePadding: CGFloat {
+		iconSide * badgePaddingRatio
+	}
+
+	var badgeCutoutSide: CGFloat {
+		badgeSide + 2 * badgePadding
+	}
+
+	var badgeOverlap: CGFloat {
+		badgeCutoutSide * badgeOverlapRatio
+	}
+
+	var badgeProtrusion: CGFloat {
+		badgeCutoutSide - badgeOverlap
+	}
+
+	var intrinsicContentSize: CGSize {
+		CGSize(
+			width: iconSide + badgeProtrusion,
+			height: iconSide + 2 * badgeProtrusion
+		)
+	}
+
+	func frames(
+		isRightToLeft: Bool,
+		badgePosition: BadgePosition
+	) -> Frames {
+		let badgeCutoutY: CGFloat = switch badgePosition {
+		case .top:
+			iconSide + badgeProtrusion - badgeOverlap
+		case .bottom:
+			0
+		}
+
+		return Frames(
+			mainIcon: CGRect(
+				x: isRightToLeft ? 0 : badgeProtrusion,
+				y: badgeProtrusion,
+				width: iconSide,
+				height: iconSide
+			),
+			badgeCutout: CGRect(
+				x: isRightToLeft ? iconSide - badgeOverlap : 0,
+				y: badgeCutoutY,
+				width: badgeCutoutSide,
+				height: badgeCutoutSide
+			)
+		)
+	}
+}
+
+private func makeCutoutMask(in bounds: CGRect, cuttingOut cutoutFrame: CGRect) -> CAShapeLayer {
+
+	let path = CGMutablePath()
+	path.addRect(bounds)
+	path.addEllipse(in: cutoutFrame)
+
+	let mask = CAShapeLayer()
+	mask.frame = bounds
+	mask.path = path
+	mask.fillColor = CGColor(gray: 1, alpha: 1)
+	mask.fillRule = .evenOdd
+
+	return mask
+}

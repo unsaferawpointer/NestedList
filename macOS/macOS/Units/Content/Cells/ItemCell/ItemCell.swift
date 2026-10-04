@@ -96,7 +96,7 @@ final class ItemCell: NSView, ListCell {
 		view.orientation = .horizontal
 		view.distribution = .fill
 		view.spacing = 6
-		view.alignment = .centerY
+		view.alignment = .firstBaseline
 		return view
 	}()
 
@@ -173,9 +173,10 @@ private extension ItemCell {
 		}
 
 		[
-			container.centerYAnchor.constraint(equalTo: centerYAnchor),
 			container.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
-			container.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4)
+			container.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4),
+			container.topAnchor.constraint(equalTo: topAnchor),
+			container.bottomAnchor.constraint(equalTo: bottomAnchor)
 		]
 			.forEach { $0.isActive = true }
 

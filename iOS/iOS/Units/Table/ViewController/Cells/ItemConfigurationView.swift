@@ -110,8 +110,6 @@ private extension ItemConfigurationView {
 		iconBadgeView.translatesAutoresizingMaskIntoConstraints = false
 
 		NSLayoutConstraint.activate([
-			iconBadgeView.widthAnchor.constraint(equalTo: iconBadgeView.heightAnchor),
-
 			contentStack.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
 			contentStack.trailingAnchor.constraint(equalTo: trailingArrow.leadingAnchor, constant: -4),
 			contentStack.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor, constant: 8),
