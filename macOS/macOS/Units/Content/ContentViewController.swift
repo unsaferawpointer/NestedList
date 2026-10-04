@@ -39,7 +39,6 @@ class ContentViewController: NSViewController {
 
 	// MARK: - Delegates
 
-	weak var listDelegate: (any DesignSystem.ListDelegate<UUID>)?
 	weak var dropDelegate: (any DesignSystem.DropDelegate<UUID>)?
 	weak var dragDelegate: (any DesignSystem.DragDelegate<UUID>)?
 	weak var cellDelegate: (any DesignSystem.CellDelegate<ItemModel>)?
@@ -73,7 +72,6 @@ class ContentViewController: NSViewController {
 		self.adapter?.dropDelegate = dropDelegate
 		self.adapter?.cellDelegate = cellDelegate
 		self.adapter?.dragDelegate = dragDelegate
-		self.adapter?.delegate = listDelegate
 
 		if let items = output?.menuItems() {
 			self.adapter?.menu = MenuBuilder.build(for: items, target: self, source: .context)

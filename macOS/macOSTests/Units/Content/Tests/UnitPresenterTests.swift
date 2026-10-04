@@ -109,79 +109,8 @@ extension UnitPresenterTests {
 	}
 }
 
-// MARK: - ListDelegate test-cases
+// MARK: - CellDelegate test-cases
 extension UnitPresenterTests {
-
-	@Test func test_handleDoubleClick() async {
-		// Arrange
-		let expectedId: UUID = .random
-		settingsProvider.stubs.state = .standart
-
-		// Act
-		sut.handleDoubleClick(on: expectedId)
-		let invocation = await waitForAnalyticsInvocation()
-
-		guard case let .toggleStatus(id, moveToEnd) = interactor.invocations.first else {
-			Issue.record("Expect toggleStatus invocation")
-			return
-		}
-
-		guard case let .track(event) = invocation else {
-			Issue.record("Expect track invocation")
-			return
-		}
-
-		guard case let .play(sound) = soundPlayer.invocations.first else {
-			Issue.record("Expect play sound invocation")
-			return
-		}
-
-		#expect(id == expectedId)
-		#expect(moveToEnd == false)
-		#expect(sound == .mark)
-		#expect(event.name == .buttonClick)
-	}
-
-	@Test func test_handleDoubleClick_whenCompletionBehaviourIsMoveToEnd() {
-		// Arrange
-		let expectedId: UUID = .random
-		let item = Item(uuid: expectedId, text: .random, options: .strikethrough)
-		let snapshot = Snapshot([
-			DocumentNode(value: item, children: [])
-		])
-		settingsProvider.stubs.state = Settings(completionBehaviour: .moveToEnd)
-		sut.present(snapshot)
-		view.clear()
-
-		// Act
-		sut.handleDoubleClick(on: expectedId)
-
-		guard case let .toggleStatus(id, moveToEnd) = interactor.invocations.first else {
-			Issue.record("Expect toggleStatus invocation")
-			return
-		}
-
-		guard case let .play(sound) = soundPlayer.invocations.first else {
-			Issue.record("Expect play sound invocation")
-			return
-		}
-
-		#expect(id == expectedId)
-		#expect(moveToEnd == true)
-		#expect(sound == .unmark)
-	}
-
-	@Test func test_handleDoubleClick_whenSoundEffectsDisabled_doesNotPlaySound() {
-		// Arrange
-		let expectedId: UUID = .random
-		settingsProvider.stubs.state = Settings(soundEffects: .disabled)
-
-		// Act
-		sut.handleDoubleClick(on: expectedId)
-
-		// Assert
-		#expect(soundPlayer.invocations.isEmpty)
-	}
 
 	@Test func test_cellDidTapDisclosure_showsDocumentAndTracksAnalytics() async {
 		// Arrange

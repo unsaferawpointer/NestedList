@@ -52,9 +52,6 @@ public enum ContentAnalyticsEvent {
 	case dragDropInsert(itemsCount: Int, contentType: String)
 
 	#if os(macOS)
-	/// User opened an item by double-clicking it in the macOS content outline.
-	case itemDoubleClick
-
 	/// User finished editing an item inline in the macOS content outline.
 	///
 	/// - Parameters:
@@ -90,8 +87,6 @@ extension ContentAnalyticsEvent: AnalyticsEvent {
 			.dragDropInsert
 
 		#if os(macOS)
-		case .itemDoubleClick:
-			.buttonClick
 		case .dragDropCopy:
 			.dragDropCopy
 		case .inlineEditFinish:
@@ -134,10 +129,6 @@ extension ContentAnalyticsEvent: AnalyticsEvent {
 			]
 
 		#if os(macOS)
-		case .itemDoubleClick:
-			return [
-				"id": .string("open_item")
-			]
 		case let .dragDropCopy(itemsCount):
 			return [
 				"items_count": .int(itemsCount)

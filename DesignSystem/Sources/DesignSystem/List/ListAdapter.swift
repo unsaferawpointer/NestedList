@@ -35,14 +35,6 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 	unowned var tableView: NSOutlineView
 
-	// MARK: - Delegates
-
-	public weak var delegate: (any ListDelegate<ID>)? {
-		didSet {
-			proxy.delegate = delegate
-		}
-	}
-
 	public weak var dropDelegate: (any DropDelegate<ID>)? {
 		didSet {
 			proxy.dropDelegate = dropDelegate
@@ -81,8 +73,6 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		tableView.dataSource = self
 		tableView.delegate = self
 
-		tableView.target = self
-		tableView.doubleAction = #selector(handleDoubleClick(_:))
 	}
 
 	// MARK: - NSOutlineViewDataSource
@@ -159,14 +149,6 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 	public func outlineViewItemDidExpand(_ notification: Notification) {
 		proxy.outlineViewItemDidExpand(notification)
-	}
-
-	@objc
-	func handleDoubleClick(_ sender: Any?) {
-		guard let item = tableView.clickedItem(with: ListAdapterProxy<Model>.Item.self) else {
-			return
-		}
-		proxy.handleDoubleClick(basicId: item.id)
 	}
 
 	// MARK: - Menu Support

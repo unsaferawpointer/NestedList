@@ -127,27 +127,6 @@ extension ContentPresenter: ContentPresenterProtocol {
 	}
 }
 
-// MARK: - ListDelegate
-extension ContentPresenter: ListDelegate {
-
-	func handleDoubleClick(on item: UUID) {
-		// MARK: - Analytics
-		let event: ContentAnalyticsEvent = .itemDoubleClick
-		Task { await analytics.track(event) }
-
-		let isValid = cache.validate(.isStrikethrough, other: [item])
-		if isValid == true {
-			playSound(.unmark)
-		} else {
-			playSound(.mark)
-		}
-		let completionBehaviour = settingsProvider.state.completionBehaviour
-		let moveToEnd = completionBehaviour == .moveToEnd
-
-		interactor?.toggleStrikethrough(for: item, moveToEnd: moveToEnd)
-	}
-}
-
 // MARK: - ViewDelegate
 extension ContentPresenter: ViewDelegate {
 

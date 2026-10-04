@@ -46,8 +46,6 @@ public final class ListAdapterProxy<Model: CellModel> where Model.ID: Codable {
 
 	// MARK: - Delegates
 
-	public weak var delegate: (any ListDelegate<ID>)?
-
 	public weak var cellDelegate: (any CellDelegate<Model>)?
 
 	// MARK: - Data
@@ -227,14 +225,6 @@ extension ListAdapterProxy {
 		validateSelection()
 	}
 
-	func handleDoubleClick(basicId: InternalModel.ID) {
-		guard case let .item(id) = basicId else {
-			return
-		}
-		Task { @MainActor [weak self] in
-			self?.delegate?.handleDoubleClick(on: id)
-		}
-	}
 }
 
 // MARK: - Menu Support

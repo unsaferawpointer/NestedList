@@ -7,16 +7,6 @@
 
 import Foundation
 
-#if os(macOS)
-@MainActor
-public protocol ListDelegate<ID>: AnyObject {
-
-	associatedtype ID
-
-	func handleDoubleClick(on item: ID)
-}
-#endif
-
 #if os(iOS)
 @MainActor
 public protocol ListDelegate<ID>: AnyObject {

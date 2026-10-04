@@ -25,7 +25,6 @@ final class ContentUnitAssembly {
 			viewController.dropDelegate = presenter
 			viewController.cellDelegate = presenter
 			viewController.dragDelegate = presenter
-			viewController.listDelegate = presenter
 
 			presenter.view = viewController
 			presenter.interactor = interactor
