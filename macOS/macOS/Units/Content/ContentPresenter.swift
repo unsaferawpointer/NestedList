@@ -33,7 +33,7 @@ final class ContentPresenter {
 
 	weak var view: UnitView?
 
-	private(set) var factory: ItemsFactoryProtocol = ItemsFactory()
+	private let factory = ItemsFactory()
 
 	private(set) var localization: ContentLocalizationProtocol
 
@@ -98,11 +98,11 @@ extension ContentPresenter: ContentPresenterProtocol {
 		cache.store(.hasNote, keyPath: \.note, notEqualsTo: nil, from: snapshot)
 
 		let converted = snapshot.map { info in
-			factory.makeItem(
+			ItemModel(presentation: factory.makeItem(
 				item: info.model,
 				isLeaf: info.isLeaf,
 				iconColor: settingsProvider.state.iconColor
-			)
+			))
 		}
 
 		guard !converted.identifiers.isEmpty else {

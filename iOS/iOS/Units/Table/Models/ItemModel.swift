@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 import Hierarchy
 import DesignSystem
+import CorePresentation
 
 struct ItemModel {
 
@@ -23,6 +24,33 @@ struct ItemModel {
 	var subtitle: TextConfiguration?
 
 	var showsTrailingDisclosure: Bool
+}
+
+// MARK: - Initialization
+extension ItemModel {
+
+	init(presentation: ItemPresentation) {
+		self.init(
+			uuid: presentation.id,
+			icon: presentation.icon,
+			badge: presentation.badge,
+			title: .init(
+				text: presentation.title.value,
+				style: presentation.title.style,
+				colorToken: presentation.title.colorToken,
+				strikethrough: presentation.title.strikethrough
+			),
+			subtitle: presentation.subtitle.map {
+				.init(
+					text: $0.value,
+					style: $0.style,
+					colorToken: $0.colorToken,
+					strikethrough: $0.strikethrough
+				)
+			},
+			showsTrailingDisclosure: presentation.showsTrailingDisclosure
+		)
+	}
 }
 
 // MARK: - MutableIdentifiable

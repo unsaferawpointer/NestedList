@@ -7,6 +7,7 @@
 
 import DesignSystem
 import Cocoa
+import CorePresentation
 
 struct ItemModel: CellModel {
 
@@ -28,6 +29,23 @@ struct ItemModel: CellModel {
 
 }
 
+// MARK: - Initialization
+extension ItemModel {
+
+	init(presentation: ItemPresentation) {
+		self.init(
+			id: presentation.id,
+			value: .init(
+				title: presentation.title.value,
+				subtitle: presentation.subtitle?.value
+			),
+			configuration: .init(presentation: presentation),
+			isGroup: presentation.isGroup,
+			height: presentation.subtitle == nil ? nil : 36
+		)
+	}
+}
+
 // MARK: - Nested data structs
 extension ItemModel {
 
@@ -41,6 +59,23 @@ extension ItemModel {
 	struct Value: Equatable {
 		var title: String
 		var subtitle: String?
+	}
+}
+
+// MARK: - Initialization
+extension ItemModel.Configuration {
+
+	init(presentation: ItemPresentation) {
+		self.init(
+			icon: presentation.icon,
+			badge: presentation.badge,
+			text: .init(
+				style: presentation.title.style,
+				colorToken: presentation.title.colorToken,
+				strikethrough: presentation.title.strikethrough
+			),
+			showsTrailingDisclosure: presentation.showsTrailingDisclosure
+		)
 	}
 }
 

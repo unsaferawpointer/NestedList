@@ -31,7 +31,7 @@ final class ContentPresenter {
 
 	weak var view: ContentView?
 
-	private(set) var factory: ItemsFactoryProtocol = ItemsFactory()
+	private let factory = ItemsFactory()
 
 	var settingsProvider: any StateProviderProtocol<Settings>
 
@@ -100,11 +100,11 @@ extension ContentPresenter: ContentPresenterProtocol {
 
 		let converted = pruned
 			.map { info in
-				return factory.makeItem(
+				return ItemModel(presentation: factory.makeItem(
 					item: info.model,
 					isLeaf: info.isLeaf,
 					iconColor: settingsProvider.state.iconColor
-				)
+				))
 			}
 		view?.display(converted)
 	}

@@ -33,7 +33,7 @@ final class ColumnPresenter {
 
 	private(set) var settingsProvider: any StateProviderProtocol<Settings>
 
-	private let factory: ItemsFactoryProtocol
+	private let factory: ItemsFactory
 
 	private let analytics: any ConcreteAnalyticsServiceProtocol<ColumnAnalyticsEvent>
 
@@ -43,7 +43,7 @@ final class ColumnPresenter {
 		router: ContentRouterProtocol,
 		settingsProvider: any StateProviderProtocol<Settings> = SettingsProvider.shared,
 		localization: ColumnLocalizationProtocol = ColumnLocalization(),
-		factory: ItemsFactoryProtocol = ItemsFactory(),
+		factory: ItemsFactory = ItemsFactory(),
 		analytics: any ConcreteAnalyticsServiceProtocol<ColumnAnalyticsEvent> = ConcreteAnalyticsService<ColumnAnalyticsEvent>()
 	) {
 		self.router = router
@@ -184,9 +184,8 @@ extension ColumnPresenter: MenuDelegate {
 extension ColumnPresenter: ColumnPresenterProtocol {
 
 	func present(_ item: Item) {
-		let itemModel = factory.makeItem(item: item, isLeaf: false, iconColor: settingsProvider.state.iconColor)
-		let model = ColumnModel(title: item.text, configuration: itemModel.configuration)
-		view?.display(model)
+		let presentation = factory.makeItem(item: item, isLeaf: false, iconColor: settingsProvider.state.iconColor)
+		view?.display(.init(presentation: presentation))
 	}
 }
 

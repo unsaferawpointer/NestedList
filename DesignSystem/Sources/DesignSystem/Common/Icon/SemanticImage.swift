@@ -62,6 +62,7 @@ public enum SemanticImage {
 	case tag
 	case squareOnSquare
 	case link
+	case linkPoint
 	case insetDiamond
 	case insetCircle
 	case insetSquare
@@ -347,7 +348,7 @@ public extension SemanticImage {
 				table: "Localizable",
 				bundle: .module
 			)
-		case .link:
+		case .link, .linkPoint:
 			String(
 				localized: "semantic-image-link",
 				defaultValue: "Link",
@@ -517,7 +518,7 @@ public extension SemanticImage {
 			"circle.slash"
 		case .filledCircle:
 			"circle.fill"
-		case .point, .asteriskPoint, .diamondPoint, .starPoint, .stopPoint:
+		case .point, .asteriskPoint, .diamondPoint, .starPoint, .stopPoint, .linkPoint:
 			nil
 		case .folder:
 			"folder"
@@ -669,6 +670,7 @@ private extension SemanticImage {
 		case .diamondPoint:		.customDiamondCircle
 		case .starPoint:		.customStarCircle
 		case .stopPoint:		.customStopCircle
+		case .linkPoint:		.customLinkCircle
 		default:				nil
 		}
 	}
