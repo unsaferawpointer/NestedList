@@ -92,15 +92,15 @@ final class ItemCell: NSView, ListCell {
 	lazy var compositeIcon = CompositeIcon()
 
 	lazy var container: NSStackView = {
-		let view = NSStackView(views: [compositeIcon, textfieldsContainer, disclosureView])
+		let view = NSStackView(views: [compositeIcon, textfieldsContainer, disclosureButton])
 		view.orientation = .horizontal
 		view.distribution = .fill
 		view.spacing = 6
-		view.alignment = .firstBaseline
+		view.alignment = .centerY
 		return view
 	}()
 
-	lazy var disclosureView: NSButton = {
+	lazy var disclosureButton: NSButton = {
 		let view = NSButton()
 		view.isBordered = true
 		view.bezelStyle = .automatic
@@ -162,7 +162,7 @@ private extension ItemCell {
 
 		subtitleTextfield.isHidden = value.subtitle == nil
 		subtitleTextfield.stringValue = value.subtitle ?? ""
-		disclosureView.isHidden = !configuration.showsTrailingDisclosure
+		disclosureButton.isHidden = !configuration.showsTrailingDisclosure
 	}
 
 	func configureConstraints() {
@@ -206,7 +206,7 @@ extension ItemCell {
 
 	@objc
 	func disclosureDidTap(_ sender: NSButton) {
-		guard sender === disclosureView else {
+		guard sender === disclosureButton else {
 			return
 		}
 		delegate?.cellDidTapDisclosure(id: model.id)
