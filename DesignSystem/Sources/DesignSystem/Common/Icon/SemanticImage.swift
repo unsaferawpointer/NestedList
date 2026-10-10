@@ -665,12 +665,12 @@ private extension SemanticImage {
 
 	var resource: ImageResource? {
 		switch self {
-		case .point:			.point
-		case .asteriskPoint:	.customAsteriskCircle
-		case .diamondPoint:		.customDiamondCircle
-		case .starPoint:		.customStarCircle
-		case .stopPoint:		.customStopCircle
-		case .linkPoint:		.customLinkCircle
+		case .point:			.init(name: "custom.point.circle", bundle: .module)
+		case .asteriskPoint:	.init(name: "custom.asterisk.circle", bundle: .module)
+		case .diamondPoint:		.init(name: "custom.diamond.circle", bundle: .module)
+		case .starPoint:			.init(name: "custom.star.circle", bundle: .module)
+		case .stopPoint:			.init(name: "custom.stop.circle", bundle: .module)
+		case .linkPoint:			.init(name: "custom.link.circle", bundle: .module)
 		default:				nil
 		}
 	}

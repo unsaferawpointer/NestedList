@@ -7,6 +7,7 @@
 
 import CoreModule
 import DesignSystem
+import Foundation
 import Testing
 @testable import CorePresentation
 
@@ -33,8 +34,10 @@ extension ItemsFactoryTests {
 		#expect(result.id == item.id)
 		#expect(result.title == .init(value: item.text, style: .body, colorToken: .primary, strikethrough: false))
 		#expect(result.subtitle == .init(value: "Note", style: .callout, colorToken: .secondary, strikethrough: false))
-		#expect(result.icon == .init(name: .bolt, appearence: .monochrome(token: .cyan)))
-		#expect(result.badge == nil)
+		#expect(result.compositeIcon == .init(
+			icon: .init(name: .bolt, appearence: .monochrome(token: .cyan)),
+			badge: nil
+		))
 		#expect(result.showsTrailingDisclosure == false)
 		#expect(result.isGroup == false)
 	}
@@ -50,7 +53,10 @@ extension ItemsFactoryTests {
 		// Assert
 		#expect(result.title.colorToken == .disabledText)
 		#expect(result.title.strikethrough)
-		#expect(result.icon == .init(name: .bolt, appearence: .monochrome(token: .tertiary)))
+		#expect(result.compositeIcon == .init(
+			icon: .init(name: .bolt, appearence: .monochrome(token: .tertiary)),
+			badge: nil
+		))
 	}
 
 	@Test func makeItem_whenItemIsGroup_createsHeadlinePresentation() {
@@ -64,7 +70,10 @@ extension ItemsFactoryTests {
 		// Assert
 		#expect(result.title.style == .headline)
 		#expect(result.isGroup)
-		#expect(result.icon == .init(name: .folder, appearence: .monochrome(token: .tertiary)))
+		#expect(result.compositeIcon == .init(
+			icon: .init(name: .folder, appearence: .monochrome(token: .tertiary)),
+			badge: nil
+		))
 	}
 
 	@Test func makeItem_whenMirrorDoesNotHaveIcon_usesLinkAsMainIcon() {
@@ -77,8 +86,10 @@ extension ItemsFactoryTests {
 		let result = sut.makeItem(item: item, isLeaf: true, iconColor: .multicolor)
 
 		// Assert
-		#expect(result.icon == .init(name: .linkPoint, appearence: .hierarchical(token: .cyan)))
-		#expect(result.badge == nil)
+		#expect(result.compositeIcon == .init(
+			icon: .init(name: .linkPoint, appearence: .monochrome(token: .cyan)),
+			badge: nil
+		))
 	}
 
 	@Test func makeItem_whenMirrorHasIcon_createsBadge() {
@@ -91,8 +102,10 @@ extension ItemsFactoryTests {
 		let result = sut.makeItem(item: item, isLeaf: true, iconColor: .neutral)
 
 		// Assert
-		#expect(result.icon == .init(name: .bolt, appearence: .monochrome(token: .tertiary)))
-		#expect(result.badge == .init(name: .link, appearence: .monochrome(token: .tertiary)))
+		#expect(result.compositeIcon == .init(
+			icon: .init(name: .bolt, appearence: .monochrome(token: .tertiary)),
+			badge: .init(name: .link, appearence: .monochrome(token: .tertiary))
+		))
 	}
 
 	@Test func makeItem_whenSubitemsAreHidden_showsTrailingDisclosure() {
@@ -105,6 +118,18 @@ extension ItemsFactoryTests {
 
 		// Assert
 		#expect(result.showsTrailingDisclosure)
+	}
+
+	@Test func makeItem_whenItemDoesNotHaveIcon_returnsNilCompositeIcon() {
+		// Arrange
+		let item = Item(text: "Title")
+		let sut = ItemsFactory()
+
+		// Act
+		let result = sut.makeItem(item: item, isLeaf: true, iconColor: .neutral)
+
+		// Assert
+		#expect(result.compositeIcon == nil)
 	}
 
 	@Test(arguments: [
@@ -124,6 +149,9 @@ extension ItemsFactoryTests {
 		let result = sut.makeItem(item: item, isLeaf: true, iconColor: iconColor)
 
 		// Assert
-		#expect(result.icon == .init(name: .bolt, appearence: expectedAppearance))
+		#expect(result.compositeIcon == .init(
+			icon: .init(name: .bolt, appearence: expectedAppearance),
+			badge: nil
+		))
 	}
 }

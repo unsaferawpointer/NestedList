@@ -1,6 +1,7 @@
 import Testing
 @testable import CorePresentation
 
+@Suite(.serialized)
 @MainActor struct SettingsViewModelTests { }
 
 // MARK: - Public Interface

@@ -15,6 +15,9 @@ public enum IconAppearence {
 // MARK: - Hashable
 extension IconAppearence: Hashable { }
 
+// MARK: - Sendable
+extension IconAppearence: Sendable { }
+
 #if os(macOS)
 import AppKit
 

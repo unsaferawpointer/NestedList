@@ -1,0 +1,32 @@
+name: CorePresentation Tests
+
+on:
+  push:
+    paths:
+      - 'CorePresentation/**'
+      - '.github/workflows/corepresentation-tests.yml'
+  pull_request:
+    paths:
+      - 'CorePresentation/**'
+      - '.github/workflows/corepresentation-tests.yml'
+  workflow_dispatch:
+
+jobs:
+  corepresentation-tests:
+    runs-on: macos-26
+    timeout-minutes: 15
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Print Swift version
+        run: swift --version
+
+      - name: Build CorePresentation package
+        run: swift build --package-path CorePresentation
+
+      - name: Run CorePresentation package tests
+        run: swift test --package-path CorePresentation --parallel

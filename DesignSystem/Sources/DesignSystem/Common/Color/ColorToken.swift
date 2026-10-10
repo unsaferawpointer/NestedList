@@ -55,6 +55,9 @@ public extension KeyedDecodingContainer {
 // MARK: - Hashable
 extension ColorToken: Hashable { }
 
+// MARK: - Sendable
+extension ColorToken: Sendable { }
+
 // MARK: - CaseIterable
 extension ColorToken: CaseIterable { }
 

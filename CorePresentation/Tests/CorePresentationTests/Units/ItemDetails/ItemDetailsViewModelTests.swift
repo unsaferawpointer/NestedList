@@ -16,7 +16,8 @@ import Testing
 
 		let event = await analytics.waitForEvent()
 		let events = await analytics.trackedEvents()
-		#expect(event.name == "item_details_show")
+		#expect(event.name == .screenShow)
+		#expect(event.area == "item_details")
 		#expect(events.count == 1)
 	}
 
@@ -30,7 +31,8 @@ import Testing
 		sut.cancel()
 
 		let event = await analytics.waitForEvent()
-		#expect(event.name == "item_details_cancel_button_click")
+		#expect(event.name == .buttonClick)
+		#expect(event.parameters["id"] == .string("cancel"))
 		#expect(result?.properties.text == "Title")
 		#expect(result?.properties.description == "Note")
 		#expect(result?.isSuccess == false)
@@ -46,7 +48,8 @@ import Testing
 		sut.save()
 
 		let event = await analytics.waitForEvent()
-		#expect(event.name == "item_details_save_button_click")
+		#expect(event.name == .buttonClick)
+		#expect(event.parameters["id"] == .string("save"))
 		#expect(result?.properties.text == "Title")
 		#expect(result?.properties.description == "Note")
 		#expect(result?.isSuccess == true)

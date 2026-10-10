@@ -124,16 +124,16 @@ import Testing
 		action: @escaping @MainActor (UUID?, Bool) -> Void = { _, _ in }
 	) -> ItemPickerViewModel {
 		let storage = storage ?? makeStorage()
-		ItemPickerViewModel(
+		return ItemPickerViewModel(
 			storage: storage,
 			title: "Choose Item",
-			allowedIDs: allowedIDs ?? Set(storage.state.snapshot().flattened { _ in true }.map { $0.model.id }),
+			allowedIDs: allowedIDs ?? Set(storage.state.snapshot().flattened { _ in true }.map(\.id)),
 			analytics: analytics,
 			action: action
 		)
 	}
 
-	func makeStorage(nodes: [DocumentNode] = [DocumentNode(value: Item(text: "Item"), children: [])]) -> DocumentStorage<DocumentContent> {
+	func makeStorage(nodes: [DocumentNode<Item>] = [DocumentNode(value: Item(text: "Item"), children: [])]) -> DocumentStorage<DocumentContent> {
 		DocumentStorage(
 			stateProvider: StateProvider(initialState: DocumentContent(uuid: nil, nodes: nodes)),
 			contentProvider: JsonDataProvider(),

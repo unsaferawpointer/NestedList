@@ -18,6 +18,9 @@ public enum IconColor: Int {
 // MARK: - Hashable
 extension IconColor: Hashable { }
 
+// MARK: - Sendable
+extension IconColor: Sendable { }
+
 // MARK: - SettingsProperty
 extension IconColor: SettingsProperty {
 
