@@ -11,6 +11,7 @@ enum ContentToolbarIdentifier: String {
 	case copyItems = "copy"
 
 	case newItem = "new-item"
+	case addMirror = "add-mirror"
 
 	case toggleStrikethrough = "completed-toggle"
 	case toggleSubitemsVisibility = "hide-subitems-toggle"

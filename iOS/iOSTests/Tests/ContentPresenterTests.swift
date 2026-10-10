@@ -368,6 +368,57 @@ extension ContentPresenterTests {
 	}
 }
 
+// MARK: - ContentToolbarDelegate test-cases
+extension ContentPresenterTests {
+
+	@Test func test_userDidTapToolbarAddMirror_opensItemPickerAndTracksAnalytics() async {
+		// Arrange
+		let expectedTarget = UUID()
+		let expectedSource = UUID()
+		interactor.stubs.mirrorSourceIDs = [expectedSource]
+
+		// Act
+		sut.userDidTapToolbar(with: .addMirror, selection: [expectedTarget])
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .showItemPicker(title) = router.invocations.first else {
+			Issue.record("Expect show item picker invocation")
+			return
+		}
+
+		#expect(title == MenuLocalization().addMirrorItemTitle)
+		#expect(router.showItemPickerAllowedIDs == [expectedSource])
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == .menuItemClick)
+		#expect(event.parameters["id"] == .string("add-mirror"))
+		#expect(event.parameters["source"] == .string(MenuSource.toolbar.rawValue))
+	}
+
+	@Test func test_userDidTapToolbarNewItem_tracksAnalytics() async {
+		// Arrange
+		let expectedTarget = UUID()
+
+		// Act
+		sut.userDidTapToolbar(with: .newItem, selection: [expectedTarget])
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == .menuItemClick)
+		#expect(event.parameters["id"] == .string("new-item"))
+		#expect(event.parameters["source"] == .string(MenuSource.toolbar.rawValue))
+	}
+}
+
 // MARK: - DropDelegate test-cases
 extension ContentPresenterTests {
 

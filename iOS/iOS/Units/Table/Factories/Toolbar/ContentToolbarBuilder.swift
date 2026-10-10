@@ -14,6 +14,7 @@ import UIKit
 
 final class ContentToolbarBuilder<ID: Hashable> {
 	private let localization: ToolbarLocalizationProtocol = ToolbarLocalization()
+	private let menuLocalization: MenuLocalizationProtocol = MenuLocalization()
 }
 
 // MARK: - Public interface
@@ -152,10 +153,35 @@ private extension ContentToolbarBuilder {
 					identifier: .newItem,
 					image: "plus",
 					selection: selection,
-					delegate: delegate
+					delegate: delegate,
+					menu: additionMenu(selection: selection, delegate: delegate)
 				)
 			]
 		}
+	}
+
+	func additionMenu(
+		selection: [ID],
+		delegate: (any ContentToolbarDelegate<ID>)?
+	) -> UIMenu {
+		UIMenu(
+			children: [
+				action(
+					identifier: .newItem,
+					title: menuLocalization.newItemTitle,
+					image: "plus",
+					selection: selection,
+					delegate: delegate
+				),
+				action(
+					identifier: .addMirror,
+					title: menuLocalization.addMirrorItemTitle,
+					image: "arrow.triangle.branch",
+					selection: selection,
+					delegate: delegate
+				)
+			]
+		)
 	}
 
 	func selectionMenu(

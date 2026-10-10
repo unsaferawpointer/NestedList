@@ -359,6 +359,7 @@ extension ContentPresenter: ContentToolbarDelegate {
 		case .cutItems:						cut(selection: currentSelection)
 		case .copyItems:					copy(selection: currentSelection)
 		case .newItem:						newItem(selection: currentSelection)
+		case .addMirror:					newMirror(selection: currentSelection)
 		case .toggleStrikethrough:			toggleStrikethroughFlag(selection: currentSelection)
 		case .toggleSubitemsVisibility:		toggleHideSubitemsFlag(selection: currentSelection)
 		case .changeIcon:					showIconPicker(selection: currentSelection)
