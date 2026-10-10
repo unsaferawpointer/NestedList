@@ -176,7 +176,7 @@ private extension ContentToolbarBuilder {
 				action(
 					identifier: .addMirror,
 					title: menuLocalization.addMirrorItemTitle,
-					image: "arrow.triangle.branch",
+					image: "arrow.up.forward",
 					selection: selection,
 					delegate: delegate
 				)

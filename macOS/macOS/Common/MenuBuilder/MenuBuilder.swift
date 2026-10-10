@@ -62,7 +62,7 @@ private extension MenuBuilder {
 		case .addMirror:
 			item.identifier = .init(id.rawValue)
 			item.title = MenuLocalization.addMirrorItemTitle
-			item.image = NSImage(systemSymbolName: "arrow.triangle.branch", accessibilityDescription: nil)
+			item.image = NSImage(systemSymbolName: "arrow.up.forward", accessibilityDescription: nil)
 		case .toggleStrikethrough:
 			item.identifier = .init(id.rawValue)
 			item.title = MenuLocalization.strikethroughItemTitle

@@ -113,7 +113,7 @@ extension ContentMenuBuilder {
 			},
 			buildAction(
 				title: localization.addMirrorItemTitle,
-				icon: "arrow.triangle.branch",
+				icon: "arrow.up.forward",
 				identifier: .addMirror
 			) {
 				delegate?.userDidTapMenu(
