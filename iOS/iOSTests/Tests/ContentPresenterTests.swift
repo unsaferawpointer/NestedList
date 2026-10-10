@@ -394,9 +394,9 @@ extension ContentPresenterTests {
 			return
 		}
 
-		#expect(event.name == .menuItemClick)
+		#expect(event.name == .buttonClick)
 		#expect(event.parameters["id"] == .string("add-mirror"))
-		#expect(event.parameters["source"] == .string(MenuSource.toolbar.rawValue))
+		#expect(event.parameters["source"] == .string("toolbar"))
 	}
 
 	@Test func test_userDidTapToolbarNewItem_tracksAnalytics() async {
@@ -413,9 +413,9 @@ extension ContentPresenterTests {
 			return
 		}
 
-		#expect(event.name == .menuItemClick)
+		#expect(event.name == .buttonClick)
 		#expect(event.parameters["id"] == .string("new-item"))
-		#expect(event.parameters["source"] == .string(MenuSource.toolbar.rawValue))
+		#expect(event.parameters["source"] == .string("toolbar"))
 	}
 }
 
