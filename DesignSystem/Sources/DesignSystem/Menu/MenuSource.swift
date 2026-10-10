@@ -10,4 +10,5 @@ public enum MenuSource: String, Equatable, Sendable {
 
 	case main = "main-menu"
 	case context = "context-menu"
+	case toolbar = "toolbar-button-menu"
 }

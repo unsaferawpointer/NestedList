@@ -185,21 +185,6 @@ extension ContentPresenter: UnitViewOutput {
 				.deleteItems]
 	}
 
-	func toolbarButtonClicked(id: ElementIdentifier) {
-		guard id.rawValue == "new-item-toolbar-item" else {
-			return
-		}
-		guard let selection = view?.selection else {
-			return
-		}
-
-		// MARK: - Analytics
-		let event: ContentAnalyticsEvent = .buttonClick(id: "new-item", source: "toolbar")
-		Task { await analytics.track(event) }
-
-		newItem(in: selection)
-	}
-
 	func menuItemClicked(_ item: ContentMenuIdentifier, source: MenuSource = .context) {
 		guard let selection = view?.selection else {
 			return

@@ -25,7 +25,7 @@ extension FeatureProvider: FeatureProvidable {
 		switch feature {
 		case .columns:
 			#if DEBUG
-			true
+			false
 			#else
 			false
 			#endif

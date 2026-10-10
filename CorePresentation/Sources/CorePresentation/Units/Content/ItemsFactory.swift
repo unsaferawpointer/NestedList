@@ -65,7 +65,7 @@ private extension ItemsFactory {
 	) -> IconAppearence {
 		let token = colorToken(for: item, iconColor: iconColor)
 		if isLinkPoint {
-			return .hierarchical(token: token)
+			return .monochrome(token: token)
 		}
 		return iconName?.preferredAppearance(with: token) ?? .monochrome(token: token)
 	}

@@ -214,26 +214,6 @@ extension UnitPresenterTests {
 		#expect(event.parameters["is_root"] == .bool(false))
 	}
 
-	@Test func test_toolbarButtonClicked_tracksAnalytics() async {
-		// Arrange
-		view.stubs.selection = [.random]
-		interactor.stubs.newItem = .random
-
-		// Act
-		sut.toolbarButtonClicked(id: .init(rawValue: "new-item-toolbar-item"))
-		let invocation = await waitForAnalyticsInvocation()
-
-		// Assert
-		guard case let .track(event) = invocation else {
-			Issue.record("Expect track invocation")
-			return
-		}
-
-		#expect(event.name == .buttonClick)
-		#expect(event.parameters["id"] == .string("new-item"))
-		#expect(event.parameters["source"] == .string("toolbar"))
-	}
-
 	@Test func test_menuItemClicked_tracksAnalytics() async {
 		// Arrange
 		view.stubs.selection = [.random]
@@ -253,13 +233,33 @@ extension UnitPresenterTests {
 		#expect(event.parameters["source"] == .string("context-menu"))
 	}
 
-	@Test func test_menuItemClickedAddMirror_tracksAnalyticsWithoutChangingContent() async {
+	@Test func test_menuItemClickedNewItemFromToolbar_tracksAnalytics() async {
+		// Arrange
+		view.stubs.selection = [.random]
+		interactor.stubs.newItem = .random
+
+		// Act
+		sut.menuItemClicked(.newItem, source: .toolbar)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+
+		#expect(event.name == .menuItemClick)
+		#expect(event.parameters["id"] == .string("new-item"))
+		#expect(event.parameters["source"] == .string("toolbar"))
+	}
+
+	@Test func test_menuItemClickedAddMirrorFromToolbar_tracksAnalyticsWithoutChangingContent() async {
 		// Arrange
 		let selectedID = UUID()
 		view.stubs.selection = [selectedID]
 
 		// Act
-		sut.menuItemClicked(.addMirror)
+		sut.menuItemClicked(.addMirror, source: .toolbar)
 		let invocation = await waitForAnalyticsInvocation()
 
 		// Assert
@@ -270,7 +270,7 @@ extension UnitPresenterTests {
 
 		#expect(event.name == .menuItemClick)
 		#expect(event.parameters["id"] == .string("add-mirror"))
-		#expect(event.parameters["source"] == .string("context-menu"))
+		#expect(event.parameters["source"] == .string("toolbar"))
 		guard case let .mirrorSourceIDs(destination) = interactor.invocations.first else {
 			Issue.record("Expect mirror source validation")
 			return

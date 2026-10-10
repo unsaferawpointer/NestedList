@@ -8,6 +8,7 @@
 import Cocoa
 import CoreModule
 import CorePresentation
+import DesignSystem
 
 class Document: NSDocument {
 
@@ -131,21 +132,21 @@ extension Document: NSToolbarDelegate {
 		itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier,
 		willBeInsertedIntoToolbar flag: Bool
 	) -> NSToolbarItem? {
-
-		let item = NSToolbarItem(itemIdentifier: itemIdentifier)
-		item.visibilityPriority = .high
-
 		switch itemIdentifier {
 		case .newItem:
-			let image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)!
-			let button = NSButton(image: image, target: nil, action: #selector(DocumentToolbarSupportable.newItem(_:)))
-			button.bezelStyle = .toolbar
-			button.imagePosition = .imageOnly
-			button.sendAction(on: .leftMouseDown)
-
+			let item = NSMenuToolbarItem(itemIdentifier: itemIdentifier)
 			item.label = newItemToolbarItemLabel
-			item.view = button
+			item.image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)!
+			item.showsIndicator = true
+			item.visibilityPriority = .high
+			item.menu = MenuBuilder.build(
+				for: [.newItem, .addMirror],
+				target: nil,
+				source: .toolbar
+			)
+			return item
 		case .viewItem:
+			let item = NSToolbarItem(itemIdentifier: itemIdentifier)
 			let button = NSSegmentedControl(
 				images: [
 					NSImage(systemSymbolName: "list.bullet", accessibilityDescription: nil)!,
@@ -159,11 +160,11 @@ extension Document: NSToolbarDelegate {
 
 			item.label = String(localized: "View")
 			item.view = button
+			item.visibilityPriority = .high
+			return item
 		default:
-			break
+			return nil
 		}
-
-		return item
 	}
 }
 
@@ -191,11 +192,6 @@ private extension Document {
 	}
 
 	func configureToolbar() {
-		let target = windowControllers.first?.contentViewController as? DocumentToolbarSupportable
-		let newItem = toolbar.items.first { $0.itemIdentifier == .newItem }
-		(newItem?.view as? NSButton)?.target = target
-		newItem?.label = newItemToolbarItemLabel
-
 		let viewItem = toolbar.items.first { $0.itemIdentifier == .viewItem }
 		if let segmentedControl = viewItem?.view as? NSSegmentedControl {
 			segmentedControl.selectedSegment = min(segmentedControl.segmentCount - 1, storage.state.view.toolbarSegment)

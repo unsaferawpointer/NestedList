@@ -137,10 +137,11 @@ extension ColumnsViewController: ColumnsUnitView {
 	}
 }
 
-// MARK: - DocumentToolbarSupportable
-extension ColumnsViewController: DocumentToolbarSupportable {
+// MARK: - Actions
+extension ColumnsViewController {
 
-	func newItem(_ sender: Any) {
+	@objc
+	func newColumn(_ sender: Any) {
 		output?.handleNewColumnClick()
 	}
 }
@@ -168,7 +169,7 @@ extension ColumnsViewController: NSToolbarDelegate {
 		switch itemIdentifier {
 		case .newColumn:
 			let image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)!
-			let button = NSButton(image: image, target: self, action: #selector(DocumentToolbarSupportable.newItem(_:)))
+			let button = NSButton(image: image, target: self, action: #selector(ColumnsViewController.newColumn(_:)))
 			button.bezelStyle = .toolbar
 			button.imagePosition = .imageOnly
 			button.sendAction(on: .leftMouseDown)

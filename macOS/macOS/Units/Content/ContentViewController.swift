@@ -14,7 +14,6 @@ import CorePresentation
 import SwiftUI
 
 @MainActor protocol UnitViewOutput: ViewDelegate {
-	func toolbarButtonClicked(id: ElementIdentifier)
 	func menuItems() -> [ContentMenuIdentifier]
 	func menuItemClicked(_ item: ContentMenuIdentifier, source: MenuSource)
 	func validateMenuItem(_ item: ContentMenuIdentifier) -> Bool
@@ -219,14 +218,6 @@ private extension ContentViewController {
 	}
 }
 
-// MARK: - DocumentToolbarSupportable
-extension ContentViewController: DocumentToolbarSupportable {
-
-	func newItem(_ sender: Any) {
-		output?.toolbarButtonClicked(id: .init(rawValue: "new-item-toolbar-item"))
-	}
-}
-
 // MARK: - NSToolbarDelegate
 extension ContentViewController: NSToolbarDelegate {
 
@@ -244,29 +235,22 @@ extension ContentViewController: NSToolbarDelegate {
 		willBeInsertedIntoToolbar flag: Bool
 	) -> NSToolbarItem? {
 
-		let item = NSToolbarItem(itemIdentifier: itemIdentifier)
-		item.visibilityPriority = .high
-
 		switch itemIdentifier {
 		case .newItem:
-			let image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)!
-			let button = NSButton(image: image, target: self, action: #selector(DocumentToolbarSupportable.newItem(_:)))
-			button.bezelStyle = .toolbar
-			button.imagePosition = .imageOnly
-			button.sendAction(on: .leftMouseDown)
-
+			let item = NSMenuToolbarItem(itemIdentifier: itemIdentifier)
+			item.menu = MenuBuilder.build(for: [.newItem, .addMirror], target: nil, source: .toolbar)
+			item.image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)
 			item.label = localization.newItemToolbarItemLabel
-			item.view = button
+			item.visibilityPriority = .high
+			return item
 		default:
-			break
+			return nil
 		}
-
-		return item
 	}
 }
 
-// MARK: - Interaction Delegate
-extension ContentViewController {
+// MARK: - MenuSupportable
+extension ContentViewController: MenuSupportable {
 
 	@objc
 	func menuItemClicked(_ sender: NSMenuItem) {
