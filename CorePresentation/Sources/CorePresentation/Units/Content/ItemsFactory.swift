@@ -26,6 +26,12 @@ public extension ItemsFactory {
 			iconColor: iconColor,
 			isLinkPoint: isLinkPoint
 		)
+		let compositeIcon = makeCompositeIcon(
+			iconName: iconName,
+			isLinkPoint: isLinkPoint,
+			isMirror: item.isMirror,
+			appearence: iconAppearence
+		)
 
 		return ItemPresentation(
 			id: item.id,
@@ -43,11 +49,7 @@ public extension ItemsFactory {
 					strikethrough: false
 				)
 			},
-			icon: .init(
-				name: iconName ?? (isLinkPoint ? .linkPoint : .point),
-				appearence: iconAppearence
-			),
-			badge: item.isMirror && iconName != nil ? .init(name: .link, appearence: iconAppearence) : nil,
+			compositeIcon: compositeIcon,
 			showsTrailingDisclosure: item.isSubitemsHidden,
 			isGroup: !isLeaf
 		)
@@ -56,6 +58,22 @@ public extension ItemsFactory {
 
 // MARK: - Private methods
 private extension ItemsFactory {
+
+	func makeCompositeIcon(
+		iconName: SemanticImage?,
+		isLinkPoint: Bool,
+		isMirror: Bool,
+		appearence: IconAppearence
+	) -> CompositeIconModel? {
+		guard let name = iconName ?? (isLinkPoint ? .linkPoint : nil) else {
+			return nil
+		}
+
+		return CompositeIconModel(
+			icon: .init(name: name, appearence: appearence),
+			badge: isMirror && iconName != nil ? .init(name: .link, appearence: appearence) : nil
+		)
+	}
 
 	func iconAppearence(
 		for item: Item,

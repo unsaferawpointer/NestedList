@@ -20,8 +20,8 @@ final class ItemCell: NSView, ListCell {
 
 	var model: Model {
 		didSet {
-			let oldIconValue = oldValue.configuration.icon?.name
-			let newIconValue = model.configuration.icon?.name
+			let oldIconValue = oldValue.configuration.compositeIcon?.icon.name
+			let newIconValue = model.configuration.compositeIcon?.icon.name
 			let shouldAnimateIcon = oldValue.id == model.id && oldIconValue != newIconValue
 			updateUserInterface(
 				animateIcon: shouldAnimateIcon
@@ -150,8 +150,8 @@ private extension ItemCell {
 		)
 		titleTextfield.font = NSFont.preferredFont(forTextStyle: configuration.text.style.value)
 
-		compositeIcon.iconConfiguration = model.configuration.icon
-		compositeIcon.badgeConfiguration = model.configuration.badge
+		compositeIcon.model = configuration.compositeIcon
+		compositeIcon.isHidden = configuration.compositeIcon == nil
 		compositeIcon.textStyle = configuration.text.style
 		if animateIcon {
 			compositeIcon.animate()

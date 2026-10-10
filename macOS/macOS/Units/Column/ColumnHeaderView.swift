@@ -123,7 +123,7 @@ extension ColumnHeaderView {
 		)
 		titleTextfield.font = NSFont.preferredFont(forTextStyle: configuration.text.style.value)
 
-		if let iconConfiguration = configuration.icon {
+		if let iconConfiguration = configuration.compositeIcon?.icon {
 			iconView.isHidden = false
 			let image = iconConfiguration.name?.nsImage
 

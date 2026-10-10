@@ -14,9 +14,7 @@ import DesignSystem
 /// and produces a hand-built ``ItemView`` instead of relying on `UIListContentConfiguration`.
 struct ItemConfiguration {
 
-	var icon: IconConfiguration?
-
-	var badge: IconConfiguration?
+	var compositeIcon: CompositeIconModel?
 
 	var title: TextConfiguration
 

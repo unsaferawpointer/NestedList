@@ -28,12 +28,7 @@ public final class CompositeIcon: UIView {
 
 	// MARK: - State
 
-	public var iconConfiguration: IconConfiguration? {
-		didSet {
-			updateForCurrentTraits()
-		}
-	}
-	public var badgeConfiguration: IconConfiguration? {
+	public var model: CompositeIconModel? {
 		didSet {
 			updateForCurrentTraits()
 		}
@@ -128,11 +123,11 @@ private extension CompositeIcon {
 private extension CompositeIcon {
 
 	func updateForCurrentTraits() {
-		iconView.image = makeImage(configuration: iconConfiguration, scale: .medium)
-		iconView.tintColor = iconConfiguration?.appearence.tint
-		badgeIconView.image = makeImage(configuration: badgeConfiguration, scale: .small)
-		badgeIconView.tintColor = badgeConfiguration?.appearence.tint
-		badgeIconView.isHidden = badgeConfiguration == nil
+		iconView.image = makeImage(configuration: model?.icon, scale: .medium)
+		iconView.tintColor = model?.icon.appearence.tint
+		badgeIconView.image = makeImage(configuration: model?.badge, scale: .small)
+		badgeIconView.tintColor = model?.badge?.appearence.tint
+		badgeIconView.isHidden = model?.badge == nil
 		invalidateIntrinsicContentSize()
 		setNeedsLayout()
 	}
@@ -143,7 +138,7 @@ private extension CompositeIcon {
 private extension CompositeIcon {
 
 	func updateIconMask(for badgeCutoutFrame: CGRect) {
-		guard badgeConfiguration != nil else {
+		guard model?.badge != nil else {
 			iconView.layer.mask = nil
 			return
 		}
@@ -206,12 +201,7 @@ public final class CompositeIcon: NSView {
 
 	// MARK: - State
 
-	public var iconConfiguration: IconConfiguration? {
-		didSet {
-			updateForCurrentTraits()
-		}
-	}
-	public var badgeConfiguration: IconConfiguration? {
+	public var model: CompositeIconModel? {
 		didSet {
 			updateForCurrentTraits()
 		}
@@ -310,13 +300,13 @@ private extension CompositeIcon {
 private extension CompositeIcon {
 
 	func updateForCurrentTraits() {
-		iconView.image = makeImage(configuration: iconConfiguration, scale: .medium)
-		iconView.contentTintColor = iconConfiguration?.appearence.tint
+		iconView.image = makeImage(configuration: model?.icon, scale: .medium)
+		iconView.contentTintColor = model?.icon.appearence.tint
 
-		badgeIconView.image = makeImage(configuration: badgeConfiguration, scale: .small)
-		badgeIconView.contentTintColor = badgeConfiguration?.appearence.tint
+		badgeIconView.image = makeImage(configuration: model?.badge, scale: .small)
+		badgeIconView.contentTintColor = model?.badge?.appearence.tint
 
-		badgeIconView.isHidden = badgeConfiguration == nil
+		badgeIconView.isHidden = model?.badge == nil
 		invalidateIntrinsicContentSize()
 		needsLayout = true
 	}
@@ -327,7 +317,7 @@ private extension CompositeIcon {
 private extension CompositeIcon {
 
 	func updateIconMask(for badgeCutoutFrame: NSRect) {
-		guard badgeConfiguration != nil else {
+		guard model?.badge != nil else {
 			iconView.layer?.mask = nil
 			return
 		}

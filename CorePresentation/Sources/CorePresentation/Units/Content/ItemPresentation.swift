@@ -16,9 +16,7 @@ public struct ItemPresentation {
 
 	public let subtitle: Text?
 
-	public let icon: IconConfiguration?
-
-	public let badge: IconConfiguration?
+	public let compositeIcon: CompositeIconModel?
 
 	public let showsTrailingDisclosure: Bool
 
@@ -30,16 +28,14 @@ public struct ItemPresentation {
 		id: UUID,
 		title: Text,
 		subtitle: Text?,
-		icon: IconConfiguration?,
-		badge: IconConfiguration?,
+		compositeIcon: CompositeIconModel?,
 		showsTrailingDisclosure: Bool,
 		isGroup: Bool
 	) {
 		self.id = id
 		self.title = title
 		self.subtitle = subtitle
-		self.icon = icon
-		self.badge = badge
+		self.compositeIcon = compositeIcon
 		self.showsTrailingDisclosure = showsTrailingDisclosure
 		self.isGroup = isGroup
 	}

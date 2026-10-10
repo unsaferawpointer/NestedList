@@ -15,9 +15,7 @@ struct ItemModel {
 
 	var uuid: UUID
 
-	var icon: IconConfiguration?
-
-	var badge: IconConfiguration?
+	var compositeIcon: CompositeIconModel?
 
 	var title: TextConfiguration
 
@@ -32,8 +30,7 @@ extension ItemModel {
 	init(presentation: ItemPresentation) {
 		self.init(
 			uuid: presentation.id,
-			icon: presentation.icon,
-			badge: presentation.badge,
+			compositeIcon: presentation.compositeIcon,
 			title: .init(
 				text: presentation.title.value,
 				style: presentation.title.style,
@@ -69,8 +66,7 @@ extension ItemModel: CellModel {
 
 	var configuration: ItemConfiguration {
 		ItemConfiguration(
-			icon: icon,
-			badge: badge,
+			compositeIcon: compositeIcon,
 			title: title,
 			subtitle: subtitle,
 			showsTrailingDisclosure: showsTrailingDisclosure

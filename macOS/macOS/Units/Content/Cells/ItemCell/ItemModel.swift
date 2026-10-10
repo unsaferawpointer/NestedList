@@ -50,8 +50,7 @@ extension ItemModel {
 extension ItemModel {
 
 	struct Configuration: Equatable {
-		var icon: IconConfiguration?
-		var badge: IconConfiguration?
+		var compositeIcon: CompositeIconModel?
 		var text: TextConfiguration
 		var showsTrailingDisclosure: Bool
 	}
@@ -67,8 +66,7 @@ extension ItemModel.Configuration {
 
 	init(presentation: ItemPresentation) {
 		self.init(
-			icon: presentation.icon,
-			badge: presentation.badge,
+			compositeIcon: presentation.compositeIcon,
 			text: .init(
 				style: presentation.title.style,
 				colorToken: presentation.title.colorToken,

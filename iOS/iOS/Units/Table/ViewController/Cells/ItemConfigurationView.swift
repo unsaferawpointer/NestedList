@@ -122,8 +122,8 @@ private extension ItemConfigurationView {
 
 	func apply(_ configuration: ItemConfiguration) {
 		_configuration = configuration
-		iconBadgeView.iconConfiguration = configuration.icon
-		iconBadgeView.badgeConfiguration = configuration.badge
+		iconBadgeView.model = configuration.compositeIcon
+		iconBadgeView.isHidden = configuration.compositeIcon == nil
 		iconBadgeView.textStyle = configuration.title.style
 
 		trailingArrow.isHidden = !configuration.showsTrailingDisclosure
