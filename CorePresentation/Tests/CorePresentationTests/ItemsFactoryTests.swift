@@ -120,16 +120,34 @@ extension ItemsFactoryTests {
 		#expect(result.showsTrailingDisclosure)
 	}
 
-	@Test func makeItem_whenItemDoesNotHaveIcon_returnsNilCompositeIcon() {
+	@Test func makeItem_whenItemDoesNotHaveIcon_usesQuaternaryPoint() {
 		// Arrange
 		let item = Item(text: "Title")
 		let sut = ItemsFactory()
 
 		// Act
-		let result = sut.makeItem(item: item, isLeaf: true, iconColor: .neutral)
+		let result = sut.makeItem(item: item, isLeaf: true, iconColor: .multicolor)
 
 		// Assert
-		#expect(result.compositeIcon == nil)
+		#expect(result.compositeIcon == .init(
+			icon: .init(name: .point, appearence: .monochrome(token: .quaternary)),
+			badge: nil
+		))
+	}
+
+	@Test func makeItem_whenItemDoesNotHaveIconButHasTint_usesTintedPoint() {
+		// Arrange
+		let item = Item(text: "Title", tintColor: .cyan)
+		let sut = ItemsFactory()
+
+		// Act
+		let result = sut.makeItem(item: item, isLeaf: true, iconColor: .multicolor)
+
+		// Assert
+		#expect(result.compositeIcon == .init(
+			icon: .init(name: .point, appearence: .monochrome(token: .cyan)),
+			badge: nil
+		))
 	}
 
 	@Test(arguments: [

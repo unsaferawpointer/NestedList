@@ -95,7 +95,7 @@ final class ItemCell: NSView, ListCell {
 		let view = NSStackView(views: [compositeIcon, textfieldsContainer, disclosureButton])
 		view.orientation = .horizontal
 		view.distribution = .fill
-		view.spacing = 6
+		view.spacing = 4
 		view.alignment = .centerY
 		return view
 	}()
@@ -173,8 +173,8 @@ private extension ItemCell {
 		}
 
 		[
-			container.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
-			container.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4),
+			container.leadingAnchor.constraint(equalTo: leadingAnchor),
+			container.trailingAnchor.constraint(equalTo: trailingAnchor),
 			container.topAnchor.constraint(equalTo: topAnchor),
 			container.bottomAnchor.constraint(equalTo: bottomAnchor)
 		]

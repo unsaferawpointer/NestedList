@@ -12,7 +12,7 @@ public final class ColorMapper {
 
 	public static func map(color: ItemColor?) -> ColorToken {
 		guard let color else {
-			return .tertiary
+			return .quaternary
 		}
 		return switch color {
 		case .unknown: 		.tertiary

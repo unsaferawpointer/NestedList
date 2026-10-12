@@ -214,7 +214,7 @@ public final class CompositeIcon: NSView {
 
 	private let iconBaseSide: CGFloat = 20
 	private let badgeSideRatio: CGFloat = 7 / 20
-	private let badgePaddingRatio: CGFloat = 2 / 20
+	private let badgePaddingRatio: CGFloat = 0 / 20
 	private let badgeOverlapRatio: CGFloat = 0.75
 
 	// MARK: - Initialization
@@ -363,7 +363,13 @@ private extension CompositeIcon {
 		return configuration.name?.nsImage?
 			.withSymbolConfiguration(
 				configuration.appearence.configuration
-					.applying(.init(textStyle: textStyle.value, scale: scale))
+					.applying(
+						.init(
+							pointSize: semanticFont.pointSize,
+							weight: .bold,
+							scale: scale
+						)
+					)
 			)
 	}
 }

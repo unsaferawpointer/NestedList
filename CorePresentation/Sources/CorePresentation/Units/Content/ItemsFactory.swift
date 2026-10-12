@@ -18,19 +18,16 @@ public extension ItemsFactory {
 
 	func makeItem(item: Item, isLeaf: Bool, iconColor: IconColor) -> ItemPresentation {
 		let isStrikethrough = item.isStrikethrough
-		let iconName = IconMapper.map(icon: item.iconName, filled: true)
-		let isLinkPoint = iconName == nil && item.isMirror
-		let iconAppearence = iconAppearence(
-			for: item,
-			iconName: iconName,
-			iconColor: iconColor,
-			isLinkPoint: isLinkPoint
-		)
-		let compositeIcon = makeCompositeIcon(
-			iconName: iconName,
-			isLinkPoint: isLinkPoint,
-			isMirror: item.isMirror,
-			appearence: iconAppearence
+		let sourceIcon = IconMapper.map(icon: item.iconName, filled: true)
+		let iconName = sourceIcon ?? (item.isMirror ? .linkPoint : .point)
+		let token = colorToken(for: item, iconColor: iconColor)
+		let appearence = sourceIcon?.preferredAppearance(with: token)
+			?? .monochrome(token: token)
+		let compositeIcon = CompositeIconModel(
+			icon: .init(name: iconName, appearence: appearence),
+			badge: item.isMirror && sourceIcon != nil
+				? .init(name: .link, appearence: appearence)
+				: nil
 		)
 
 		return ItemPresentation(
@@ -58,35 +55,6 @@ public extension ItemsFactory {
 
 // MARK: - Private methods
 private extension ItemsFactory {
-
-	func makeCompositeIcon(
-		iconName: SemanticImage?,
-		isLinkPoint: Bool,
-		isMirror: Bool,
-		appearence: IconAppearence
-	) -> CompositeIconModel? {
-		guard let name = iconName ?? (isLinkPoint ? .linkPoint : nil) else {
-			return nil
-		}
-
-		return CompositeIconModel(
-			icon: .init(name: name, appearence: appearence),
-			badge: isMirror && iconName != nil ? .init(name: .link, appearence: appearence) : nil
-		)
-	}
-
-	func iconAppearence(
-		for item: Item,
-		iconName: SemanticImage?,
-		iconColor: IconColor,
-		isLinkPoint: Bool
-	) -> IconAppearence {
-		let token = colorToken(for: item, iconColor: iconColor)
-		if isLinkPoint {
-			return .monochrome(token: token)
-		}
-		return iconName?.preferredAppearance(with: token) ?? .monochrome(token: token)
-	}
 
 	func colorToken(for item: Item, iconColor: IconColor) -> ColorToken {
 		if item.isStrikethrough {
