@@ -142,11 +142,6 @@ extension DocumentPage {
 		}
 	}
 
-	func checkMenuItemIsMissing(with id: String) {
-		menuItem(for: id) { element in
-			XCTAssertFalse(element.exists)
-		}
-	}
 }
 
 extension DocumentPage {

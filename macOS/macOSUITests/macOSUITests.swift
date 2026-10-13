@@ -148,7 +148,7 @@ extension macOSUITests {
 		doc.checkMenuItem(with: "note-toggle", title: "Note", isEnabled: false)
 		doc.checkMenuItem(with: "icon", title: "Icon…", isEnabled: false)
 		doc.checkMenuItem(with: "delete", title: "Delete", isEnabled: false)
-		doc.checkMenuItemIsMissing(with: "open-in-new-window")
+		doc.checkMenuItem(with: "open-in-new-window", title: "Open in New Window", isEnabled: false)
 
 	}
 

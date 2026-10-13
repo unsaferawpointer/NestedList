@@ -324,26 +324,26 @@ extension UnitPresenterTests {
 		#expect(event.parameters["source"] == .string("context-menu"))
 	}
 
-	@Test func test_isHiddenOpenInNewWindow_whenSelectionIsEmpty() {
+	@Test func test_validateMenuItemOpenInNewWindow_whenSelectionIsEmpty_returnsFalse() {
 		// Arrange
 		view.stubs.selection = []
 
 		// Act
-		let result = sut.isHidden(.openInNewWindow)
+		let result = sut.validateMenuItem(.openInNewWindow)
 
 		// Assert
-		#expect(result)
+		#expect(!result)
 	}
 
-	@Test func test_isHiddenOpenInNewWindow_whenSelectionIsNotEmpty() {
+	@Test func test_validateMenuItemOpenInNewWindow_whenSelectionIsNotEmpty_returnsTrue() {
 		// Arrange
 		view.stubs.selection = [.random]
 
 		// Act
-		let result = sut.isHidden(.openInNewWindow)
+		let result = sut.validateMenuItem(.openInNewWindow)
 
 		// Assert
-		#expect(!result)
+		#expect(result)
 	}
 
 	@Test func test_userCreateNewItem() {

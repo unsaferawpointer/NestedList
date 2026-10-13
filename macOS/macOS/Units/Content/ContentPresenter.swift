@@ -260,14 +260,6 @@ extension ContentPresenter: UnitViewOutput {
 		}
 	}
 
-	func isHidden(_ item: ContentMenuIdentifier) -> Bool {
-		switch item {
-		case .openInNewWindow:
-			view?.selection.isEmpty ?? true
-		default:
-			false
-		}
-	}
 }
 
 // MARK: - Helpers
