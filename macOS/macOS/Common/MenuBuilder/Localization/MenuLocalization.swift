@@ -23,6 +23,10 @@ extension MenuLocalization {
 	static var addMirrorItemTitle: String {
 		String(localized: "add-mirror-item-title", table: "MenuLocalizable")
 	}
+
+	static var openInNewWindowItemTitle: String {
+		String(localized: "open-in-new-window-item-title", table: "MenuLocalizable")
+	}
 	
 	static var propertiesHeaderTitle: String {
 		String(localized: "properties-header-title", table: "MenuLocalizable")

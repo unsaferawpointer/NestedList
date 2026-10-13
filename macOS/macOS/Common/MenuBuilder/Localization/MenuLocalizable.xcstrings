@@ -113,7 +113,7 @@
         }
       }
     },
-    "hide-subitems-item-title" : {
+		"hide-subitems-item-title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -127,9 +127,25 @@
             "value" : "Скрыть подпункты"
           }
         }
-      }
-    },
-    "icon-item-title" : {
+			}
+		},
+		"open-in-new-window-item-title" : {
+			"localizations" : {
+				"en" : {
+					"stringUnit" : {
+						"state" : "translated",
+						"value" : "Open in New Window"
+					}
+				},
+				"ru" : {
+					"stringUnit" : {
+						"state" : "translated",
+						"value" : "Открыть в новом окне"
+					}
+				}
+			}
+		},
+		"icon-item-title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {

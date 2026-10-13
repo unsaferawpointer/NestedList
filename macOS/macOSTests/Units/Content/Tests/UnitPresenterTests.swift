@@ -297,6 +297,55 @@ extension UnitPresenterTests {
 		#expect(event.parameters["source"] == .string("main-menu"))
 	}
 
+	@Test func test_menuItemClickedOpenInNewWindow_opensFirstSelectedDocumentAndTracksAnalytics() async {
+		// Arrange
+		let firstId = UUID()
+		let secondId = UUID()
+		view.stubs.selection = [firstId, secondId]
+
+		// Act
+		sut.menuItemClicked(.openInNewWindow)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .showDocument(id) = router.invocations.first else {
+			Issue.record("Expect showDocument invocation")
+			return
+		}
+		#expect(id == firstId)
+		#expect(router.invocations.count == 1)
+
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+		#expect(event.name == .menuItemClick)
+		#expect(event.parameters["id"] == .string("open-in-new-window"))
+		#expect(event.parameters["source"] == .string("context-menu"))
+	}
+
+	@Test func test_isHiddenOpenInNewWindow_whenSelectionIsEmpty() {
+		// Arrange
+		view.stubs.selection = []
+
+		// Act
+		let result = sut.isHidden(.openInNewWindow)
+
+		// Assert
+		#expect(result)
+	}
+
+	@Test func test_isHiddenOpenInNewWindow_whenSelectionIsNotEmpty() {
+		// Arrange
+		view.stubs.selection = [.random]
+
+		// Act
+		let result = sut.isHidden(.openInNewWindow)
+
+		// Assert
+		#expect(!result)
+	}
+
 	@Test func test_userCreateNewItem() {
 		// Arrange
 		view.stubs.selection = [.random, .random]

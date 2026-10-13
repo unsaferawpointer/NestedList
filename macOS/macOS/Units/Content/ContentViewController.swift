@@ -18,6 +18,7 @@ import SwiftUI
 	func menuItemClicked(_ item: ContentMenuIdentifier, source: MenuSource)
 	func validateMenuItem(_ item: ContentMenuIdentifier) -> Bool
 	func stateForMenuItem(_ item: ContentMenuIdentifier) -> ControlState
+	func isHidden(_ item: ContentMenuIdentifier) -> Bool
 
 	func configure(root: UUID?)
 }
@@ -74,6 +75,9 @@ class ContentViewController: NSViewController {
 
 		if let items = output?.menuItems() {
 			self.adapter?.menu = MenuBuilder.build(for: items, target: self, source: .context)
+		}
+		self.adapter?.menuNeedsUpdateHandler = { [weak self] menu in
+			self?.updateContextMenu(menu)
 		}
 	}
 
@@ -179,6 +183,18 @@ extension ContentViewController: ListSupportable {
 
 // MARK: - Helpers
 private extension ContentViewController {
+
+	func updateContextMenu(_ menu: NSMenu) {
+		for item in menu.items {
+			guard
+				let rawValue = item.identifier?.rawValue,
+				let id = ContentMenuIdentifier(rawValue: rawValue)
+			else {
+				continue
+			}
+			item.isHidden = output?.isHidden(id) ?? false
+		}
+	}
 
 	func configureUserInterface() {
 

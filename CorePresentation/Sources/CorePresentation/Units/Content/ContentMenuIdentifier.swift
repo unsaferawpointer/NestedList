@@ -29,6 +29,7 @@ public enum ContentMenuIdentifier: String, Equatable {
 	#endif
 
 	#if os(macOS)
+	case openInNewWindow = "open-in-new-window"
 	case toggleNote = "note-toggle"
 	case appearanceHeader = "appearance-header"
 	case separator = "separator"

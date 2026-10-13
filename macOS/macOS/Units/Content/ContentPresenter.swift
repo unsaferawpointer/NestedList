@@ -172,6 +172,7 @@ extension ContentPresenter: UnitViewOutput {
 		return [.newItem,
 				.addMirror,
 				.separator,
+				.openInNewWindow,
 				.editItem,
 				.separator,
 				.toggleStrikethrough,
@@ -199,6 +200,8 @@ extension ContentPresenter: UnitViewOutput {
 			newItem(in: selection)
 		case .addMirror:
 			newMirror(in: selection)
+		case .openInNewWindow:
+			openInNewWindow(with: selection)
 		case .toggleStrikethrough:
 			toggleStrikethrough(for: selection)
 		case .toggleSubitemsVisibility:
@@ -256,10 +259,26 @@ extension ContentPresenter: UnitViewOutput {
 			.off
 		}
 	}
+
+	func isHidden(_ item: ContentMenuIdentifier) -> Bool {
+		switch item {
+		case .openInNewWindow:
+			view?.selection.isEmpty ?? true
+		default:
+			false
+		}
+	}
 }
 
 // MARK: - Helpers
 private extension ContentPresenter {
+
+	func openInNewWindow(with selection: [UUID]) {
+		guard let id = selection.first else {
+			return
+		}
+		router.showDocument(for: id)
+	}
 
 	func newItem(in selection: [UUID]) {
 

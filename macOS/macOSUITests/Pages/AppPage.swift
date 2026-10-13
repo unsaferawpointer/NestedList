@@ -105,16 +105,16 @@ extension AppPage {
 		let expectation = XCTNSPredicateExpectation(predicate: predicate, object: app.windows)
 		return XCTWaiter.wait(for: [expectation], timeout: 4) == .completed
 	}
-}
-
-// MARK: - Private helpers
-private extension AppPage {
 
 	func waitForWindowsCount(atLeast count: Int) -> Bool {
 		let predicate = NSPredicate(format: "count >= %d", count)
 		let expectation = XCTNSPredicateExpectation(predicate: predicate, object: app.windows)
 		return XCTWaiter.wait(for: [expectation], timeout: 2) == .completed
 	}
+}
+
+// MARK: - Private helpers
+private extension AppPage {
 
 	func selectFileMenuItem(_ title: String) -> Bool {
 		let fileMenu = app.menuBars.menuBarItems["File"]

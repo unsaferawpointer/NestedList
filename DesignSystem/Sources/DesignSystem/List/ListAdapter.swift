@@ -33,6 +33,8 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		}
 	}
 
+	public var menuNeedsUpdateHandler: ((NSMenu) -> Void)?
+
 	unowned var tableView: NSOutlineView
 
 	public weak var dropDelegate: (any DropDelegate<ID>)? {
@@ -155,6 +157,7 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 
 	public func menuNeedsUpdate(_ menu: NSMenu) {
 		proxy.menuNeedsUpdate(menu)
+		menuNeedsUpdateHandler?(menu)
 	}
 }
 
