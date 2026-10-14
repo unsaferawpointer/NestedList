@@ -214,8 +214,8 @@ public final class CompositeIcon: NSView {
 
 	private let iconBaseSide: CGFloat = 20
 	private let badgeSideRatio: CGFloat = 7 / 20
-	private let badgePaddingRatio: CGFloat = 0 / 20
-	private let badgeOverlapRatio: CGFloat = 0.75
+	private let badgePaddingRatio: CGFloat = 1 / 20
+	private let badgeOverlapRatio: CGFloat = 0.85
 
 	// MARK: - Initialization
 

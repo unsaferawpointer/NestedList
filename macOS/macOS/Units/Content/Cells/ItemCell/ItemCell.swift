@@ -106,7 +106,7 @@ final class ItemCell: NSView, ListCell {
 		view.bezelStyle = .automatic
 		view.imagePosition = .imageOnly
 		view.image = NSImage(systemSymbolName: "chevron.forward", accessibilityDescription: nil)
-		view.controlSize = .small
+		view.controlSize = .mini
 		view.showsBorderOnlyWhileMouseInside = true
 		view.target = self
 		view.action = #selector(disclosureDidTap(_:))
