@@ -164,8 +164,18 @@ extension UnitPresenterTests {
 			return
 		}
 		#expect(snapshot.identifiers.count == 2)
+		guard case let .displayPath(items) = view.invocations[1] else {
+			Issue.record("Expect empty path display invocation")
+			return
+		}
+		#expect(items.isEmpty)
 
-		guard case let .expand(ids) = view.invocations.dropFirst().first else {
+		guard case let .expand(ids) = view.invocations.first(where: {
+			if case .expand = $0 {
+				return true
+			}
+			return false
+		}) else {
 			Issue.record("Expect expand invocation")
 			return
 		}
@@ -344,6 +354,120 @@ extension UnitPresenterTests {
 
 		// Assert
 		#expect(result)
+	}
+
+	@Test func focusMenuItem_isAvailable() {
+		// Arrange
+		let items = sut.menuItems()
+
+		// Assert
+		#expect(items.contains(.focus))
+	}
+
+	@Test func focusMenuItem_isDisabledForMirror() {
+		// Arrange
+		let mirrorID = UUID()
+		view.stubs.selection = [mirrorID]
+		interactor.stubs.canFocus = false
+
+		// Act
+		let result = sut.validateMenuItem(.focus)
+
+		// Assert
+		#expect(!result)
+		#expect(interactor.invocations.count == 1)
+		guard case let .canFocus(id) = interactor.invocations.first else {
+			Issue.record("Expected focus availability check")
+			return
+		}
+		#expect(id == mirrorID)
+	}
+
+	@Test func focusMenuItem_doesNotFocusMirror() {
+		// Arrange
+		let mirrorID = UUID()
+		view.stubs.selection = [mirrorID]
+		interactor.stubs.canFocus = false
+		interactor.clear()
+
+		// Act
+		sut.menuItemClicked(.focus)
+
+		// Assert
+		#expect(interactor.invocations.count == 1)
+		guard case let .canFocus(id) = interactor.invocations.first else {
+			Issue.record("Expected focus availability check")
+			return
+		}
+		#expect(id == mirrorID)
+	}
+
+	@Test func focusMenuItem_focusesFirstSelectedItemAndTracksStaticAnalytics() async {
+		// Arrange
+		let focused = Item(text: "Focused")
+		view.stubs.selection = [focused.id, UUID()]
+		interactor.stubs.fetchedItem = focused
+		interactor.stubs.snapshot = makeSnapshot()
+		interactor.stubs.path = [nil, focused]
+		interactor.clear()
+		view.clear()
+
+		// Act
+		sut.menuItemClicked(.focus)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .canFocus(validatedID) = interactor.invocations.first else {
+			Issue.record("Expect focus validation")
+			return
+		}
+		#expect(validatedID == focused.id)
+		guard case let .focus(id) = interactor.invocations[1] else {
+			Issue.record("Expect focus invocation")
+			return
+		}
+		#expect(id == focused.id)
+		guard case let .displayPath(items) = view.invocations[2] else {
+			Issue.record("Expect path display invocation")
+			return
+		}
+		#expect(items.map(\.id) == [nil, focused.id])
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect analytics invocation")
+			return
+		}
+		#expect(event.name == .menuItemClick)
+		#expect(event.parameters == [
+			"id": .string("focus"),
+			"source": .string("context-menu")
+		])
+	}
+
+	@Test func pathComponentSelectionRestoresDocumentRootAndTracksStaticAnalytics() async {
+		// Arrange
+		interactor.stubs.snapshot = makeSnapshot()
+		interactor.clear()
+		view.clear()
+
+		// Act
+		sut.selectPathComponent(nil)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		guard case let .focus(id) = interactor.invocations.first else {
+			Issue.record("Expect focus invocation")
+			return
+		}
+		#expect(id == nil)
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect analytics invocation")
+			return
+		}
+		#expect(event.name == .buttonClick)
+		#expect(event.parameters == [
+			"id": .string("focus-path-component"),
+			"source": .string("path-control")
+		])
 	}
 
 	@Test func test_userCreateNewItem() {

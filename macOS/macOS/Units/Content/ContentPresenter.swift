@@ -17,6 +17,7 @@ import CorePresentation
 protocol ContentPresenterProtocol: AnyObject {
 	func present(_ snapshot: Snapshot<Item>)
 	func presentRoot(item: Item)
+	func presentPath(_ items: [Item?])
 	func close()
 }
 
@@ -122,6 +123,20 @@ extension ContentPresenter: ContentPresenterProtocol {
 		view?.updateTitle(item.text)
 	}
 
+	func presentPath(_ items: [Item?]) {
+		guard items.count > 1 else {
+			view?.displayPath([])
+			return
+		}
+		let pathItems = items.map { item in
+			guard let item else {
+				return PathItem(id: nil, text: localization.pathDocumentTitle)
+			}
+			return PathItem(id: item.id, text: item.text)
+		}
+		view?.displayPath(pathItems)
+	}
+
 	func close() {
 		view?.close()
 	}
@@ -139,6 +154,7 @@ extension ContentPresenter: ViewDelegate {
 		if let item {
 			presentRoot(item: item)
 		}
+		presentPath(interactor.pathItems())
 		view?.expand(nil)
 
 		// MARK: - Analytics
@@ -156,22 +172,11 @@ extension ContentPresenter: ViewDelegate {
 // MARK: - UnitViewOutput
 extension ContentPresenter: UnitViewOutput {
 
-	func configure(root: UUID?) {
-		guard let interactor else {
-			return
-		}
-		let (item, snapshot) = interactor.fetchData(with: root)
-		present(snapshot)
-		if let item {
-			presentRoot(item: item)
-		}
-		view?.expand(nil)
-	}
-
 	func menuItems() -> [ContentMenuIdentifier] {
 		return [.newItem,
 				.addMirror,
 				.separator,
+				.focus,
 				.openInNewWindow,
 				.editItem,
 				.separator,
@@ -190,12 +195,25 @@ extension ContentPresenter: UnitViewOutput {
 		guard let selection = view?.selection else {
 			return
 		}
+		if item == .focus {
+			guard
+				let id = selection.first,
+				interactor?.canFocus(on: id) == true
+			else {
+				return
+			}
+		}
 
 		// MARK: - Analytics
 		let event: ContentAnalyticsEvent = .menuClick(id: item.rawValue, source: source.rawValue)
 		Task { await analytics.track(event) }
 
 		switch item {
+		case .focus:
+			guard let root = selection.first else {
+				return
+			}
+			focus(on: root)
 		case .newItem:
 			newItem(in: selection)
 		case .addMirror:
@@ -226,9 +244,23 @@ extension ContentPresenter: UnitViewOutput {
 			assertionFailure("Unexpected menu item identifier")
 		}
 	}
+
+	func selectPathComponent(_ id: UUID?) {
+		focus(on: id)
+		let event: ContentAnalyticsEvent = .buttonClick(
+			id: "focus-path-component",
+			source: "path-control"
+		)
+		Task { await analytics.track(event) }
+	}
 	
 	func validateMenuItem(_ item: ContentMenuIdentifier) -> Bool {
 		switch item {
+		case .focus:
+			guard let id = view?.selection.first else {
+				return false
+			}
+			return interactor?.canFocus(on: id) == true
 		case .newItem:
 			return true
 		case .addMirror:
@@ -264,6 +296,19 @@ extension ContentPresenter: UnitViewOutput {
 
 // MARK: - Helpers
 private extension ContentPresenter {
+
+	func focus(on root: UUID?) {
+		guard let interactor else {
+			return
+		}
+		let (item, snapshot) = interactor.focus(on: root)
+		present(snapshot)
+		if let item {
+			presentRoot(item: item)
+		}
+		presentPath(interactor.pathItems())
+		view?.expand(nil)
+	}
 
 	func openInNewWindow(with selection: [UUID]) {
 		guard let id = selection.first else {

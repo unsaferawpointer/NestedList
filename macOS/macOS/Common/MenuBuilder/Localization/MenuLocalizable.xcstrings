@@ -81,7 +81,7 @@
         }
       }
     },
-    "edit-item-title" : {
+		"edit-item-title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -95,9 +95,25 @@
             "value" : "Править…"
           }
         }
-      }
-    },
-    "editor-menu-title" : {
+			}
+		},
+		"focus-item-title" : {
+			"localizations" : {
+				"en" : {
+					"stringUnit" : {
+						"state" : "translated",
+						"value" : "Focus"
+					}
+				},
+				"ru" : {
+					"stringUnit" : {
+						"state" : "translated",
+						"value" : "Фокус"
+					}
+				}
+			}
+		},
+		"editor-menu-title" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {

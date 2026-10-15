@@ -18,13 +18,13 @@ import SwiftUI
 	func menuItemClicked(_ item: ContentMenuIdentifier, source: MenuSource)
 	func validateMenuItem(_ item: ContentMenuIdentifier) -> Bool
 	func stateForMenuItem(_ item: ContentMenuIdentifier) -> ControlState
-
-	func configure(root: UUID?)
+	func selectPathComponent(_ id: UUID?)
 }
 
 @MainActor protocol UnitView: AnyObject, ListSupportable {
 	func display(_ state: ContentViewState)
 	func updateTitle(_ title: String)
+	func displayPath(_ items: [PathItem])
 	func close()
 }
 
@@ -49,6 +49,14 @@ class ContentViewController: NSViewController {
 	private let scrollview: NSScrollView = .standart
 
 	private let table: NSOutlineView = .standart
+
+	private lazy var pathView: PathView = {
+		let view = PathView()
+		view.didSelectItem = { [weak self] id in
+			self?.output?.selectPathComponent(id)
+		}
+		return view
+	}()
 
 	// MARK: - Toolbar
 
@@ -108,9 +116,7 @@ class ContentViewController: NSViewController {
 
 	override func viewDidLayout() {
 		super.viewDidLayout()
-
-		let topInset = view.safeAreaInsets.top
-		scrollview.contentInsets = .init(top: topInset, left: 16, bottom: 0, right: 16)
+		updateScrollInsets()
 	}
 
 }
@@ -119,7 +125,7 @@ class ContentViewController: NSViewController {
 extension ContentViewController {
 
 	func configure(root: UUID?) {
-		output?.configure(root: root)
+		fatalError("Unsupportable")
 	}
 }
 
@@ -131,11 +137,13 @@ extension ContentViewController: UnitView {
 		switch state {
 		case let .placeholder(model):
 			placeholderView = NSHostingView(rootView: PlaceholderView(model: model))
-
 			placeholderView?.setAccessibilityIdentifier("document-placeholder")
 			placeholderView?.setAccessibilityRole(.group)
 
-			placeholderView?.pin(edges: .all, to: view)
+			if let placeholderView {
+				view.addSubview(placeholderView, positioned: .below, relativeTo: pathView)
+			}
+			placeholderView?.pin(edges: [.top, .leading, .trailing, .bottom], to: view)
 			adapter?.apply(.init())
 		case let .list(snapshot):
 			adapter?.apply(snapshot)
@@ -144,6 +152,11 @@ extension ContentViewController: UnitView {
 
 	func updateTitle(_ title: String) {
 		self.title = title
+	}
+
+	func displayPath(_ items: [PathItem]) {
+		pathView.display(items)
+		updateScrollInsets()
 	}
 
 	func close() {
@@ -201,10 +214,9 @@ private extension ContentViewController {
 	}
 
 	func configureConstraints() {
-		scrollview.translatesAutoresizingMaskIntoConstraints = false
-
-		if !view.subviews.contains(where: { $0 == scrollview }) {
-			view.addSubview(scrollview)
+		[scrollview, pathView].forEach {
+			$0.translatesAutoresizingMaskIntoConstraints = false
+			view.addSubview($0)
 		}
 
 		NSLayoutConstraint.activate(
@@ -212,8 +224,22 @@ private extension ContentViewController {
 				scrollview.topAnchor.constraint(equalTo: view.topAnchor),
 				scrollview.leadingAnchor.constraint(equalTo: view.leadingAnchor),
 				scrollview.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-				scrollview.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+				scrollview.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+				pathView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+				pathView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+				pathView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
 			]
+		)
+	}
+
+	func updateScrollInsets() {
+		let bottomInset = pathView.isHidden ? 0 : pathView.frame.height
+		scrollview.contentInsets = .init(
+			top: view.safeAreaInsets.top,
+			left: 16,
+			bottom: bottomInset,
+			right: 16
 		)
 	}
 }

@@ -54,6 +54,10 @@ private extension MenuBuilder {
 		item.representedObject = source.rawValue
 
 		switch id {
+		case .focus:
+			item.identifier = .init(id.rawValue)
+			item.title = MenuLocalization.focusItemTitle
+			item.image = NSImage(systemSymbolName: "viewfinder", accessibilityDescription: nil)
 		case .newItem:
 			item.identifier = .init(id.rawValue)
 			item.title = MenuLocalization.newItemTitle

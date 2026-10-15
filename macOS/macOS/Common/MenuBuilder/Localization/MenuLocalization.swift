@@ -27,6 +27,10 @@ extension MenuLocalization {
 	static var openInNewWindowItemTitle: String {
 		String(localized: "open-in-new-window-item-title", table: "MenuLocalizable")
 	}
+
+	static var focusItemTitle: String {
+		String(localized: "focus-item-title", table: "MenuLocalizable")
+	}
 	
 	static var propertiesHeaderTitle: String {
 		String(localized: "properties-header-title", table: "MenuLocalizable")

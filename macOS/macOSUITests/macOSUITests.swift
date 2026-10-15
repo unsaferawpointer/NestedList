@@ -148,6 +148,7 @@ extension macOSUITests {
 		doc.checkMenuItem(with: "note-toggle", title: "Note", isEnabled: false)
 		doc.checkMenuItem(with: "icon", title: "Icon…", isEnabled: false)
 		doc.checkMenuItem(with: "delete", title: "Delete", isEnabled: false)
+		doc.checkMenuItem(with: "focus", title: "Focus", isEnabled: false)
 		doc.checkMenuItem(with: "open-in-new-window", title: "Open in New Window", isEnabled: false)
 
 	}
@@ -173,7 +174,24 @@ extension macOSUITests {
 		doc.checkMenuItem(with: "note-toggle", title: "Note", isEnabled: true)
 		doc.checkMenuItem(with: "icon", title: "Icon…", isEnabled: true)
 		doc.checkMenuItem(with: "delete", title: "Delete", isEnabled: true)
+		doc.checkMenuItem(with: "focus", title: "Focus", isEnabled: true)
 		doc.checkMenuItem(with: "open-in-new-window", title: "Open in New Window", isEnabled: true)
+	}
+
+	func test_contextMenu_focus() {
+		// Arrange
+		let app = prepareApp()
+		app.newDoc()
+
+		let window = app.firstWindow()
+		let doc = DocumentPage(window: window)
+		app.press("t", modifierFlags: .command)
+
+		// Act
+		doc.invokeContextMenu(for: 0, andClick: "focus")
+
+		// Assert
+		XCTAssertFalse(doc.outline.menus["outline_context_menu"].exists)
 	}
 
 	func test_contextMenu_openInNewWindow() {

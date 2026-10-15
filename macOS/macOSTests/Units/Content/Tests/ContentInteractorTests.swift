@@ -207,12 +207,193 @@ struct ContentInteractorTests {
 	}
 }
 
+// MARK: - Focus navigation test-cases
+extension ContentInteractorTests {
+
+	@Test func path_returnsPhysicalAncestorsInDocumentOrder() {
+		// Arrange
+		let root = Item(text: "Root")
+		let parent = Item(text: "Parent")
+		let focused = Item(text: "Focused")
+		let storage = DocumentStorage(
+			stateProvider: StateProvider(
+				initialState: DocumentContent(
+					uuid: nil,
+					nodes: [
+						DocumentNode(
+							value: root,
+							children: [
+								DocumentNode(
+									value: parent,
+									children: [DocumentNode(value: focused, children: [])]
+								)
+							]
+						)
+					]
+				)
+			),
+			contentProvider: JsonDataProvider(),
+			undoManager: nil
+		)
+		let sut = ContentInteractor(storage: storage)
+
+		// Act
+		_ = sut.focus(on: focused.id)
+		let result = sut.pathItems()
+
+		// Assert
+		#expect(result.compactMap { $0?.id } == [root.id, parent.id, focused.id])
+	}
+
+	@Test func focus_onMirrorPreservesDocumentRootScope() throws {
+		// Arrange
+		let original = Item(text: "Original")
+		let storage = DocumentStorage(
+			stateProvider: StateProvider(
+				initialState: DocumentContent(
+					uuid: nil,
+					nodes: [DocumentNode(value: original, children: [])]
+				)
+			),
+			contentProvider: JsonDataProvider(),
+			undoManager: nil
+		)
+		var mirrorID: UUID?
+		try storage.modificate { content in
+			mirrorID = try content.insertMirror(reference: original.id, to: .toRoot)
+		}
+		let sut = ContentInteractor(storage: storage)
+
+		// Act
+		_ = sut.focus(on: mirrorID)
+		let (item, snapshot) = sut.fetchData()
+
+		// Assert
+		#expect(item == nil)
+		#expect(snapshot.root == [original.id, mirrorID].compactMap { $0 })
+		#expect(sut.pathItems().count == 1)
+	}
+
+	@Test func childWindowPathStartsAtInitialRoot() {
+		// Arrange
+		let root = Item(text: "Root")
+		let initialRoot = Item(text: "Initial root")
+		let focused = Item(text: "Focused")
+		let storage = DocumentStorage(
+			stateProvider: StateProvider(
+				initialState: DocumentContent(
+					uuid: nil,
+					nodes: [
+						DocumentNode(
+							value: root,
+							children: [
+								DocumentNode(
+									value: initialRoot,
+									children: [DocumentNode(value: focused, children: [])]
+								)
+							]
+						)
+					]
+				)
+			),
+			contentProvider: JsonDataProvider(),
+			undoManager: nil
+		)
+		let sut = ContentInteractor(storage: storage, root: initialRoot.id)
+
+		// Act
+		_ = sut.focus(on: focused.id)
+		let result = sut.pathItems()
+
+		// Assert
+		#expect(result.compactMap { $0?.id } == [initialRoot.id, focused.id])
+	}
+
+	@Test func path_truncatesAtDeepestExistingComponentWhenFocusedRootMoves() throws {
+		// Arrange
+		let parent = Item(text: "Parent")
+		let focused = Item(text: "Focused")
+		let destination = Item(text: "Destination")
+		let storage = DocumentStorage(
+			stateProvider: StateProvider(
+				initialState: DocumentContent(
+					uuid: nil,
+					nodes: [
+						DocumentNode(
+							value: parent,
+							children: [DocumentNode(value: focused, children: [])]
+						),
+						DocumentNode(value: destination, children: [])
+					]
+				)
+			),
+			contentProvider: JsonDataProvider(),
+			undoManager: nil
+		)
+		let sut = ContentInteractor(storage: storage)
+
+		// Act
+		_ = sut.focus(on: focused.id)
+		try storage.modificate { content in
+			try content.moveItems(with: [focused.id], to: .onItem(with: destination.id))
+		}
+		let (item, snapshot) = sut.fetchData()
+		let result = sut.pathItems()
+
+		// Assert
+		#expect(item == nil)
+		#expect(snapshot.root.isEmpty)
+		#expect(result.compactMap { $0?.id } == [parent.id])
+	}
+
+	@Test func focusedRootDeletionRestoresDeepestExistingPathComponent() {
+		// Arrange
+		let parent = Item(text: "Parent")
+		let focused = Item(text: "Focused")
+		let sibling = Item(text: "Sibling")
+		let storage = DocumentStorage(
+			stateProvider: StateProvider(
+				initialState: DocumentContent(
+					uuid: nil,
+					nodes: [
+						DocumentNode(
+							value: parent,
+							children: [DocumentNode(value: focused, children: [])]
+						),
+						DocumentNode(value: sibling, children: [])
+					]
+				)
+			),
+			contentProvider: JsonDataProvider(),
+			undoManager: nil
+		)
+		let sut = ContentInteractor(storage: storage)
+
+		// Act
+		_ = sut.focus(on: focused.id)
+		storage.modificate { content in
+			content.deleteItems([focused.id])
+		}
+		let (item, snapshot) = sut.fetchData()
+
+		// Assert
+		#expect(item == nil)
+		#expect(snapshot.root.isEmpty)
+		#expect(sut.pathItems().compactMap { $0?.id } == [parent.id])
+	}
+}
+
 // MARK: - Helpers
 private extension ContentInteractorTests {
 
 	func makeSUT(root: UUID? = nil, base: CommonInteractorMock) -> ContentInteractor {
+		let nodes = root.map { root in
+			[DocumentNode(value: Item(uuid: root, text: "Root"), children: [])]
+		} ?? []
 		let storage = DocumentStorage(
-			stateProvider: StateProvider(initialState: DocumentContent.empty),
+			stateProvider: StateProvider(
+				initialState: DocumentContent(uuid: nil, nodes: nodes)
+			),
 			contentProvider: JsonDataProvider(),
 			undoManager: nil
 		)

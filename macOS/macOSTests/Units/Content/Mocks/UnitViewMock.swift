@@ -39,6 +39,10 @@ extension UnitViewMock: UnitView {
 		invocations.append(.updateTitle(title))
 	}
 
+	func displayPath(_ items: [PathItem]) {
+		invocations.append(.displayPath(items))
+	}
+
 	func close() {
 		invocations.append(.close)
 	}
@@ -82,6 +86,7 @@ extension UnitViewMock {
 		case showDetails(model: ItemDetailsView.Model, completionHandler: (ItemDetailsView.Properties, Bool) -> Void)
 		case closeSheet
 		case updateTitle(String)
+		case displayPath([PathItem])
 		case close
 	}
 

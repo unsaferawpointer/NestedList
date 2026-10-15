@@ -12,7 +12,9 @@ import CoreModule
 protocol ContentInteractorProtocol {
 
 	func fetchData() -> (Item?, Snapshot<Item>)
-	func fetchData(with root: UUID?) -> (Item?, Snapshot<Item>)
+	func focus(on id: UUID?) -> (Item?, Snapshot<Item>)
+	func pathItems() -> [Item?]
+	func canFocus(on id: UUID) -> Bool
 
 	func move(_ ids: [UUID], to destination: Destination<UUID>)
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool
@@ -52,30 +54,35 @@ protocol ContentInteractorProtocol {
 
 	// MARK: - Internal State
 
-	private var root: UUID?
+	private var resolver: NavigationResolver
 
 	// MARK: - Initialization
 
 	init(storage: DocumentStorage<DocumentContent>, root: UUID? = nil) {
 		self.storage = storage
 		self.base = CommonInteractor(storage: storage)
-		self.root = root
+		self.resolver = NavigationResolver(path: .init(root: root))
 		storage.addObservation(for: self) { [weak self] content in
 			guard let self else {
 				return
 			}
-			if let id = root {
+			if let id = self.resolver.path.root {
 				if let item = content[id] {
 					self.presenter?.presentRoot(item: item)
 				} else {
 					self.presenter?.close()
-					return
 				}
+			}
+			do {
+				try self.resolver.resolve(content: content)
+			} catch {
+				self.resolver = .init(path: .init(root: nil))
 			}
 			let snapshot = content
 				.snapshot()
-				.withRoot(parent: self.root)
+				.withRoot(parent: self.resolver.focused)
 			self.presenter?.present(snapshot)
+			self.presenter?.presentPath(resolver.items(in: content))
 		}
 	}
 
@@ -90,42 +97,65 @@ extension ContentInteractor: ContentInteractorProtocol {
 	func fetchData() -> (Item?, Snapshot<Item>) {
 		let snapshot = storage.state
 			.snapshot()
-			.withRoot(parent: root)
-		guard let id = root, let item = storage.state[id] else {
+			.withRoot(parent: resolver.focused)
+		guard let id = resolver.path.root, let item = storage.state[id] else {
 			return (nil, snapshot)
 		}
 		return (item, snapshot)
 	}
 
-	func fetchData(with root: UUID?) -> (Item?, Snapshot<Item>) {
-		self.root = root
+	func focus(on id: UUID?) -> (Item?, Snapshot<Item>) {
+		do {
+			if let id {
+				guard canFocus(on: id) else {
+					return fetchData()
+				}
+				try self.resolver.focus(on: id, in: storage.state)
+			} else {
+				self.resolver = .init(path: .init(root: nil))
+			}
+		} catch {}
 		return fetchData()
 	}
 
+	func pathItems() -> [Item?] {
+		return resolver.items(in: storage.state)
+	}
+
+	func canFocus(on id: UUID) -> Bool {
+		return storage.state[id]?.isMirror == false
+	}
+
 	func move(_ ids: [UUID], to destination: Destination<UUID>) {
-		try? base.move(ids, to: destination.relative(to: root))
+		try? base.move(ids, to: destination.relative(to: resolver.focused))
 	}
 
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
-		base.validateMovement(ids, to: destination.relative(to: root))
+		base.validateMovement(ids, to: destination.relative(to: resolver.focused))
 	}
 
 	func copy(_ ids: [UUID], to destination: Destination<UUID>) {
-		try? base.copy(ids, to: destination.relative(to: root))
+		try? base.copy(ids, to: destination.relative(to: resolver.focused))
 	}
 
 	func newItem(with properties: ItemProperties, target: UUID?) throws -> UUID {
 		let destination = Destination(target: target)
-		return try base.newItem(with: properties, target: destination.relative(to: root).id)
+		return try base.newItem(
+			with: properties,
+			target: destination.relative(to: resolver.focused).id
+		)
 	}
 
 	func createMirror(reference: UUID, target: UUID?) throws -> UUID {
 		let destination = Destination(target: target)
-		return try base.createMirror(reference: reference, target: destination.relative(to: root).id)
+		return try base.createMirror(
+			reference: reference,
+			target: destination.relative(to: resolver.focused).id
+		)
 	}
 
 	func mirrorSourceIDs(to destination: Destination<UUID>) -> Set<UUID> {
-		base.mirrorSourceIDs(to: destination.relative(to: root))
+		base.mirrorSourceIDs(to: destination.relative(to: resolver.focused))
 	}
 
 	func setStatus(_ status: Bool, for ids: [UUID], moveToEnd: Bool) {
@@ -157,7 +187,7 @@ extension ContentInteractor: ContentInteractorProtocol {
 	}
 
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>) {
-		try? base.insertStrings(strings, to: destination.relative(to: root))
+		try? base.insertStrings(strings, to: destination.relative(to: resolver.focused))
 	}
 
 	func set(note: String?, for ids: [UUID]) {
@@ -168,11 +198,11 @@ extension ContentInteractor: ContentInteractorProtocol {
 		let strings = data.compactMap {
 			String(data: $0, encoding: .utf8)
 		}
-		try? base.insertStrings(strings, to: destination.relative(to: root))
+		try? base.insertStrings(strings, to: destination.relative(to: resolver.focused))
 	}
 
 	func insertItems(_ data: [Data], to destination: Destination<UUID>) {
-		try? base.insertItems(data, to: destination.relative(to: root))
+		try? base.insertItems(data, to: destination.relative(to: resolver.focused))
 	}
 
 	func nodes(for ids: [UUID]) -> [any TreeNode<Item>] {

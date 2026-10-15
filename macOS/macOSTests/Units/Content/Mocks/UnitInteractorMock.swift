@@ -28,9 +28,19 @@ extension UnitInteractorMock: ContentInteractorProtocol {
 		return (stubs.fetchedItem, stubs.snapshot)
 	}
 
-	func fetchData(with root: UUID?) -> (Item?, Snapshot<Item>) {
-		invocations.append(.configure(root: root))
+	func focus(on id: UUID?) -> (Item?, Snapshot<Item>) {
+		invocations.append(.focus(id))
 		return (stubs.fetchedItem, stubs.snapshot)
+	}
+
+	func pathItems() -> [Item?] {
+		invocations.append(.pathItems)
+		return stubs.path
+	}
+
+	func canFocus(on id: UUID) -> Bool {
+		invocations.append(.canFocus(id))
+		return stubs.canFocus
 	}
 	
 	func move(_ ids: [UUID], to destination: Destination<UUID>) {
@@ -126,7 +136,9 @@ extension UnitInteractorMock {
 
 	enum Action {
 		case fetchData
-		case configure(root: UUID?)
+		case focus(_ id: UUID?)
+		case pathItems
+		case canFocus(_ id: UUID)
 		case move(_ ids: [UUID], destination: Destination<UUID>)
 		case validateMovement(_ ids: [UUID], destination: Destination<UUID>)
 		case copy(_ ids: [UUID], destination: Destination<UUID>)
@@ -150,11 +162,13 @@ extension UnitInteractorMock {
 	}
 
 	struct Stubs {
+		var canFocus = true
 		var validateMovement: Bool = false
 		var newItem: UUID = .random
 		var mirrorSourceIDs = Set<UUID>()
 		var fetchedItem: Item?
 		var snapshot = Snapshot<Item>()
+		var path: [Item?] = []
 		var nodes: [any TreeNode<Item>] = []
 		var data: [UUID: Data] = [:]
 	}

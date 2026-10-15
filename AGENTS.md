@@ -35,6 +35,12 @@
 * Use stable, descriptive values for `id` and `area`.
 * Do not introduce custom event names for these event types.
 
+### Privacy
+
+* Analytics payloads must not include sensitive, personally identifiable, or user-authored data.
+* Do not send item UUIDs, item text, notes, document names, hierarchy paths, or other data that can identify a user's content.
+* Event identifiers must describe the action, not the selected item or its content.
+
 
 ## Workflow
 
