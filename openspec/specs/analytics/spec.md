@@ -45,9 +45,11 @@ Feature-specific properties MAY supplement the common properties when they descr
 - **THEN** the system reports a `drag_drop_insert` event with the number of inserted items and the inserted content type
 
 ### Requirement: Application interaction coverage
-The system SHALL report the supported user interactions and screen presentations from the areas that emit analytics events: onboarding, content, document, settings, item details, icon picker, color picker, item picker, target destination, reorder, and the macOS column and columns interfaces.
+The system SHALL report the supported user interactions and screen presentations from the areas that emit analytics events: onboarding, content, document, settings, item details, icon picker, color picker, item picker, target destination, and reorder.
 
 The system SHALL report successful and failed document reads as `document_read` and `document_read_error` respectively. A successful document-read event SHALL include the document type. A failed document-read event SHALL include a stable failure reason.
+
+The system SHALL report opening Settings from the document interface as a `button_click` event with the stable identifier `settings`.
 
 #### Scenario: Show an application screen
 - **WHEN** a supported analytics-producing screen becomes visible
@@ -89,13 +91,14 @@ The system SHALL use the following area-specific event definitions. An event SHA
 	- `inline_edit_finish` (macOS): Inline editing of an item is completed.
 		- `title_length: Int` is the length of the resulting title.
 		- `note_length: Int` is the length of the resulting note and is omitted when no note exists.
+
 - `document`
+	- `button_click`: The document Settings control is selected.
+		- `id: String` is `settings`.
 	- `document_read`: A document is read successfully.
 		- `type: String` is the stable document type identifier.
 	- `document_read_error`: A document cannot be read.
 		- `reason: String` is `unexpected_format` or `unknown_version`.
-	- `button_click` (macOS): A document view control is selected.
-		- `id: String` begins with `document-view-` and identifies the selected view.
 - `settings`
 	- `screen_show`: Settings is shown; no additional properties.
 	- `button_click`: A settings action is selected.
@@ -139,14 +142,6 @@ The system SHALL use the following area-specific event definitions. An event SHA
 		- `id: String` is `close`.
 	- `drag_drop_move`: An item is reordered.
 		- `items_count: Int` is the number moved.
-- `column` (macOS)
-	- `menu_item_click`: A column menu item is selected.
-		- `id: String` identifies the command.
-- `columns` (macOS)
-	- `screen_show`: The columns interface is shown; no additional properties.
-	- `button_click`: A column is created.
-		- `id: String` is `new-column`.
-
 #### Scenario: Report an onboarding interaction
 - **WHEN** a user selects the Get Started button on the onboarding screen
 - **THEN** the system reports a `button_click` event in the `onboarding` area with `id` `get_started` and the current page `index`

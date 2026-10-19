@@ -9,47 +9,18 @@ import Testing
 
 struct DocumentContentTests { }
 
-// MARK: - Nested data structs
+// MARK: - Codable
 extension DocumentContentTests {
 
-	@Test func contentViewInitializesFromKnownRawValues() {
+	@Test func documentContentCodableDoesNotContainView() throws {
 		// Arrange
-		let listRawValue = 0
-		let columnsRawValue = 1
+		let content = DocumentContent(uuid: UUID())
 
 		// Act
-		let list = DocumentContent.ContentView(rawValue: listRawValue)
-		let columns = DocumentContent.ContentView(rawValue: columnsRawValue)
+		let data = try JSONEncoder().encode(content)
+		let object = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
 
 		// Assert
-		#expect(list == .list)
-		#expect(columns == .columns)
-	}
-
-	@Test func contentViewPreservesUnknownRawValue() {
-		// Arrange
-		let rawValue = 999
-
-		// Act
-		let view = DocumentContent.ContentView(rawValue: rawValue)
-
-		// Assert
-		#expect(view == .unknown(rawValue))
-		#expect(view?.rawValue == rawValue)
-	}
-
-	@Test func unknownContentViewRoundTripsThroughCodable() throws {
-		// Arrange
-		let rawValue = 999
-		let data = Data(String(rawValue).utf8)
-
-		// Act
-		let decodedView = try JSONDecoder().decode(DocumentContent.ContentView.self, from: data)
-		let encodedData = try JSONEncoder().encode(decodedView)
-		let encodedRawValue = try JSONDecoder().decode(Int.self, from: encodedData)
-
-		// Assert
-		#expect(decodedView == .unknown(rawValue))
-		#expect(encodedRawValue == rawValue)
+		#expect(object["view"] == nil)
 	}
 }

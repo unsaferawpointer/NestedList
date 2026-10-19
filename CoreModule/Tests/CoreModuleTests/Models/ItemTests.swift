@@ -30,11 +30,11 @@ extension ItemTests {
 		let uuid = UUID()
 
 		// Act
-		let item = Item(uuid: uuid, text: "Item", view: .columns)
+		let item = Item(uuid: uuid, text: "Item")
 
 		// Assert
 		#expect(item.id == uuid)
-		#expect(item.content == ItemContent(text: "Item", view: .columns))
+		#expect(item.content == ItemContent(text: "Item"))
 	}
 }
 
@@ -48,7 +48,6 @@ extension ItemTests {
 			text: "Item",
 			note: "Note",
 			options: [.strikethrough],
-			view: .columns,
 			iconName: .document,
 			tintColor: .blue
 		)
@@ -61,7 +60,6 @@ extension ItemTests {
 		#expect(item.text == content.text)
 		#expect(item.note == content.note)
 		#expect(item.options == content.options)
-		#expect(item.view == content.view)
 		#expect(item.iconName == content.iconName)
 		#expect(item.tintColor == content.tintColor)
 		#expect(item.isStrikethrough == content.isStrikethrough)
@@ -78,7 +76,6 @@ extension ItemTests {
 		item.text = "Updated"
 		item.note = "Note"
 		item.options = [.strikethrough]
-		item.view = .columns
 		item.iconName = .document
 		item.tintColor = .blue
 
@@ -87,14 +84,13 @@ extension ItemTests {
 		#expect(item.content.text == "Updated")
 		#expect(item.content.note == "Note")
 		#expect(item.content.options == [.strikethrough])
-		#expect(item.content.view == .columns)
 		#expect(item.content.iconName == .document)
 		#expect(item.content.tintColor == .blue)
 	}
 
 	@Test func computedPropertyProxiesUpdateContent() {
 		// Arrange
-		var item = Item(text: "Item", view: .columns)
+		var item = Item(text: "Item")
 
 		// Act
 		item.properties = ItemProperties(text: "Updated", note: "Note")
@@ -106,7 +102,6 @@ extension ItemTests {
 		#expect(item.content.note == "Note")
 		#expect(item.content.isStrikethrough)
 		#expect(item.content.isSubitemsHidden)
-		#expect(item.content.view == .columns)
 	}
 }
 
@@ -132,7 +127,7 @@ extension ItemTests {
 
 	@Test func codableUsesItemContentFormat() throws {
 		// Arrange
-		let item = Item(text: "Item", view: .columns)
+		let item = Item(text: "Item")
 
 		// Act
 		let data = try JSONEncoder().encode(item)

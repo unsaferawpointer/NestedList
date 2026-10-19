@@ -15,6 +15,11 @@ import CoreModule
 /// analytics backend and should only change as part of an explicit analytics schema migration.
 public enum DocumentAnalyticsEvent {
 
+	/// User clicked a document toolbar button.
+	///
+	/// - Parameter id: Stable button identifier.
+	case buttonClick(id: String)
+
 	/// Document was read successfully.
 	///
 	/// - Parameter type: Stable document type identifier.
@@ -25,10 +30,6 @@ public enum DocumentAnalyticsEvent {
 	/// - Parameter error: Reason the document could not be read.
 	case readError(DocumentError)
 
-	/// User clicked a document toolbar button.
-	///
-	/// - Parameter id: Stable button identifier.
-	case buttonClick(id: String)
 }
 
 // MARK: - AnalyticsEvent
@@ -40,18 +41,22 @@ extension DocumentAnalyticsEvent: AnalyticsEvent {
 	/// Stable analytics backend event name.
 	public var name: AnalyticsEventName {
 		switch self {
+		case .buttonClick:
+			.buttonClick
 		case .read:
 			.documentRead
 		case .readError:
 			.documentReadError
-		case .buttonClick:
-			.buttonClick
 		}
 	}
 
 	/// Typed analytics parameters sent with the event.
 	public var parameters: [String: AnalyticsValue] {
 		switch self {
+		case let .buttonClick(id):
+			[
+				"id": .string(id)
+			]
 		case let .read(type):
 			[
 				"type": .string(type)
@@ -59,10 +64,6 @@ extension DocumentAnalyticsEvent: AnalyticsEvent {
 		case let .readError(error):
 			[
 				"reason": .string(reason(for: error))
-			]
-		case let .buttonClick(id):
-			[
-				"id": .string(id)
 			]
 		}
 	}

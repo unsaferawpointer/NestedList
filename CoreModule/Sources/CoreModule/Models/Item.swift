@@ -34,11 +34,6 @@ public extension Resolved where Content == ItemContent, ID == UUID {
 		set { content.options = newValue }
 	}
 
-	var view: View {
-		get { content.view }
-		set { content.view = newValue }
-	}
-
 	// MARK: - Appearance
 
 	var iconName: IconName? {
@@ -73,7 +68,6 @@ public extension Resolved where Content == ItemContent, ID == UUID {
 		text: String,
 		note: String? = nil,
 		options: ItemOptions = [],
-		view: View = .list,
 		iconName: IconName? = nil,
 		tintColor: ItemColor? = nil
 	) {
@@ -83,7 +77,6 @@ public extension Resolved where Content == ItemContent, ID == UUID {
 				text: text,
 				note: note,
 				options: options,
-				view: view,
 				iconName: iconName,
 				tintColor: tintColor
 			)
@@ -101,8 +94,6 @@ public extension Resolved where Content == ItemContent, ID == UUID {
 	}
 
 	// MARK: - Nested data structs
-
-	typealias View = ItemContent.View
 
 	typealias Style = ItemContent.Style
 }

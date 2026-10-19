@@ -16,7 +16,7 @@ The application SHALL use the standard document-based application interface prov
 | Platform | System-provided interface | NestedList-provided interface |
 | --- | --- | --- |
 | iOS and iPadOS | Document browser, document container, and standard document lifecycle controls | Document outline, focused item outline, toolbars, context menus, empty states, and secondary flows |
-| macOS | Document window chrome, window controls, document title handling, and standard document commands | List and columns content, focused item windows, document toolbar, context menus, and placeholders |
+| macOS | Document window chrome, window controls, document title handling, and standard document commands | List content, focused item windows, document toolbar, context menus, and placeholders |
 
 #### Scenario: Browse documents on iOS or iPadOS
 - **WHEN** no document is open
@@ -25,29 +25,6 @@ The application SHALL use the standard document-based application interface prov
 #### Scenario: Present a document window on macOS
 - **WHEN** a document is opened on macOS
 - **THEN** the application presents its content within a standard macOS document window
-
-### Requirement: Columns interface platform availability
-The application SHALL provide the columns document interface only on macOS when the columns feature is available. The macOS application SHALL determine columns availability through its feature provider. When the columns feature is unavailable, the macOS application SHALL present the list interface and hide controls that select or create columns. The iOS and iPadOS applications SHALL present outlines using the list interface even when the document retains `columns` view state, and SHALL preserve that stored state when reading or saving the document. Item-level view state SHALL NOT change presentation on any platform until item-specific view functionality is introduced separately.
-
-#### Scenario: Use columns on macOS
-- **WHEN** a macOS document selects the `columns` view and the columns feature is available
-- **THEN** the application presents the document using the columns interface
-
-#### Scenario: Fall back to list view when columns are unavailable
-- **WHEN** a macOS document has the `columns` view state and the columns feature is unavailable
-- **THEN** the application presents the document using the list interface, hides the columns view controls, and preserves the stored `columns` view state
-
-#### Scenario: Hide columns controls when the feature is unavailable
-- **WHEN** the columns feature is unavailable on macOS
-- **THEN** the document toolbar does not present the columns view selector or the new-column action
-
-#### Scenario: Open columns view state on iOS or iPadOS
-- **WHEN** an iOS or iPadOS application opens a document whose stored view is `columns`
-- **THEN** it presents the document using the list interface without replacing the stored document view state
-
-#### Scenario: Retain item view without presenting it
-- **WHEN** an item retains `columns` view state on any platform
-- **THEN** that item state does not change the currently presented interface
 
 ### Requirement: iOS primary screens
 The iOS and iPadOS applications SHALL provide the following primary screens. Task-specific interfaces such as item details, icon and color pickers, move destination, and reordering SHALL be presented as secondary flows rather than primary screens.
@@ -78,16 +55,12 @@ The iOS and iPadOS applications SHALL present an empty state when a document out
 | --- | --- | --- |
 | `plus.square.on.square` | `No Items` | `To add a new item, tap the '+' button` |
 
-### Requirement: macOS primary windows
-The macOS application SHALL provide the following primary windows. Item details and appearance pickers SHALL be presented as sheets attached to a document window rather than as primary windows.
+### Requirement: macOS list-based primary windows
+The macOS application SHALL provide list-based document and focused-item windows. Item details and appearance pickers SHALL be presented as sheets attached to a document window rather than as primary windows.
 
-#### Scenario: Present a document window with list view selected
-- **WHEN** a document window uses the list view
+#### Scenario: Present a document window
+- **WHEN** a document window is opened on macOS
 - **THEN** the application presents a resizable document window with the document toolbar and a hierarchical outline in list view
-
-#### Scenario: Present a document window with columns view selected
-- **WHEN** a document window uses the columns view
-- **THEN** the application presents a resizable document window with the document toolbar, horizontal scrolling, and adjacent hierarchy columns containing item headers and descendant outlines
 
 #### Scenario: Open a focused item window
 - **WHEN** the user opens an item in a focused window
@@ -97,11 +70,11 @@ The macOS application SHALL provide the following primary windows. Item details 
 - **WHEN** onboarding is shown on macOS
 - **THEN** the application presents a resizable modal window with a hidden title, transparent title bar, feature content, and footer actions
 
-### Requirement: macOS document placeholders
-The macOS application SHALL present a placeholder when the active document view contains no visible content.
+### Requirement: macOS list document placeholders
+The macOS application SHALL present the list placeholder when a document or focused item window contains no visible content.
 
-#### Scenario: Present an empty list
-- **WHEN** the list view is selected and the document contains no visible items
+#### Scenario: Present an empty document outline
+- **WHEN** a document contains no visible items
 - **THEN** the window displays the following placeholder:
 
 | Icon | Title | Subtitle |
@@ -110,19 +83,7 @@ The macOS application SHALL present a placeholder when the active document view 
 
 #### Scenario: Present an empty focused item window
 - **WHEN** a focused item window contains no visible descendants
-- **THEN** the window displays the following placeholder:
-
-| Icon | Title | Subtitle |
-| --- | --- | --- |
-| `plus.square.on.square` | `No items yet` | `To add a new item, click the «plus» button or use the keyboard shortcut ⌘T` |
-
-#### Scenario: Present empty columns
-- **WHEN** the columns view is selected and the document contains no columns
-- **THEN** the window displays the following placeholder:
-
-| Icon | Title | Subtitle |
-| --- | --- | --- |
-| `rectangle.split.3x1` | `No columns yet` | `To add a new column, click the «plus» button or use the keyboard shortcut ⌘T` |
+- **THEN** the window displays the list placeholder
 
 ### Requirement: macOS item context menu
 The macOS application SHALL present an item context menu based on the current selection. The menu SHALL always include the `Open in New Window` command. The command SHALL be disabled when no item is selected and enabled when one or more items are selected; when enabled, it SHALL open a focused child window for the first selected item in the outline's visual order.
@@ -269,25 +230,10 @@ The iOS and iPadOS applications SHALL present document controls across the top n
 - **WHEN** the document is in reordering mode
 - **THEN** the top navigation bar displays an enabled `Done` button that leaves reordering mode, and the bottom toolbar displays no actionable controls
 
-### Requirement: macOS document toolbar
-The macOS application SHALL present a document toolbar containing a view switcher and a creation button appropriate to the selected document view.
+### Requirement: macOS list document toolbar
+The macOS application SHALL present a document toolbar containing an item-creation control and no document-view selection controls.
 
-#### Scenario: Present the toolbar in list view
-- **WHEN** the document uses the list view
-- **THEN** the application displays the following controls in order:
-
-| Control | Title | Icon | State | Action |
-| --- | --- | --- | --- | --- |
-| List view segment | — | `list.bullet` | Selected | Display the document as a list |
-| Columns view segment | — | `rectangle.split.3x1` | Unselected | Display the document as columns |
-| New item | `New Item` | `plus` | Enabled | Create an item |
-
-#### Scenario: Present the toolbar in columns view
-- **WHEN** the document uses the columns view
-- **THEN** the application displays the following controls in order:
-
-| Control | Title | Icon | State | Action |
-| --- | --- | --- | --- | --- |
-| List view segment | — | `list.bullet` | Unselected | Display the document as a list |
-| Columns view segment | — | `rectangle.split.3x1` | Selected | Display the document as columns |
-| New column | `New Column` | `plus` | Enabled | Create a column |
+#### Scenario: Present the document toolbar
+- **WHEN** a document window is open
+- **THEN** the application displays an enabled `New Item` control with the `plus` icon
+- **AND THEN** it does not display a view switcher or a new-column control

@@ -28,20 +28,16 @@ Each outline item SHALL own a UUID, text, option state, and item view. An item M
 - **WHEN** an item has no note, icon, or tint color
 - **THEN** the item remains valid without those optional values
 
-### Requirement: Document and item view state
-The system SHALL support `list` and `columns` view state independently at the document and item levels. A document or item without an explicitly restored view SHALL use the `list` view. Item view state SHALL be retained in the data model, but SHALL NOT make item-specific view functionality available until that functionality is introduced separately.
+### Requirement: List-only presentation state
+The system SHALL use `list` as the only document and item presentation state. The data model and persisted `.nlist` representation SHALL NOT contain a `columns` state.
 
-#### Scenario: Use the columns document view
-- **WHEN** a document selects the `columns` view
-- **THEN** the data model retains `columns` as the document view independently of its item views
+#### Scenario: Create a document or item
+- **WHEN** a document or item is created or restored
+- **THEN** it uses the list presentation state
 
-#### Scenario: Retain the columns item view
-- **WHEN** an item has the `columns` view
-- **THEN** the data model retains `columns` as that item's view without exposing item-specific view functionality
-
-#### Scenario: Default an unspecified view
-- **WHEN** a document or item is restored without an explicit view
-- **THEN** the data model uses the `list` view for that document or item
+#### Scenario: Encode a document
+- **WHEN** a document is encoded to the `.nlist` format
+- **THEN** its document and item data contain no `columns` view value
 
 ### Requirement: Item option semantics
 The item option state SHALL represent whether the item uses strikethrough and whether its subitems are hidden.

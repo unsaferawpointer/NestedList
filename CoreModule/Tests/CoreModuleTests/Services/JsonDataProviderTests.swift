@@ -86,8 +86,7 @@ extension JsonDataProviderTests {
 						),
 						children: []
 					),
-				],
-			view: .columns
+				]
 		)
 
 		let version = "1-0-0"
@@ -291,8 +290,7 @@ extension JsonDataProviderTests {
 						),
 						children: []
 					),
-				],
-			view: .columns
+				]
 		)
 
 		let version = "2-0-0"

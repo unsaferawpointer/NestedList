@@ -8,6 +8,14 @@ struct DocumentAnalyticsEventTests { }
 // MARK: - Public Interface
 extension DocumentAnalyticsEventTests {
 
+	@Test func buttonClick_hasExpectedSchema() {
+		let sut = DocumentAnalyticsEvent.buttonClick(id: "settings")
+
+		#expect(sut.area == "document")
+		#expect(sut.name == .buttonClick)
+		#expect(sut.parameters["id"] == .string("settings"))
+	}
+
 	@Test func read_hasExpectedSchema() {
 		let sut = DocumentAnalyticsEvent.read(type: DocumentType.nlist.rawValue)
 
@@ -24,11 +32,4 @@ extension DocumentAnalyticsEventTests {
 		#expect(sut.parameters["reason"] == .string("unexpected_format"))
 	}
 
-	@Test func buttonClick_hasExpectedSchema() {
-		let sut = DocumentAnalyticsEvent.buttonClick(id: "document-view-columns")
-
-		#expect(sut.area == "document")
-		#expect(sut.name == .buttonClick)
-		#expect(sut.parameters["id"] == .string("document-view-columns"))
-	}
 }

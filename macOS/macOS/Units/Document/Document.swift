@@ -24,10 +24,6 @@ class Document: NSDocument {
 		)
 	}()
 
-	lazy var featureProvider: any FeatureProvidable<Feature> = {
-		return FeatureProvider()
-	}()
-
 	lazy var analytics: any ConcreteAnalyticsServiceProtocol<DocumentAnalyticsEvent> =
 		ConcreteAnalyticsService<DocumentAnalyticsEvent>()
 
@@ -64,7 +60,6 @@ class Document: NSDocument {
 	override func makeWindowControllers() {
 		let windowController = makeDocumentWindowController()
 		addWindowController(windowController)
-		configureToolbar()
 	}
 
 	override func data(ofType typeName: String) throws -> Data {
@@ -86,45 +81,15 @@ class Document: NSDocument {
 	}
 }
 
-// MARK: - Actions
-extension Document {
-
-	@objc
-	func changeView(_ sender: NSSegmentedControl) {
-		guard
-			let windowController = windowControllers.first,
-			let window = windowController.window
-		else {
-			return
-		}
-
-		let view = DocumentContent.ContentView(rawValue: sender.indexOfSelectedItem) ?? .list
-		guard view != storage.state.view else {
-			return
-		}
-
-		Task { await analytics.track(.buttonClick(id: "document-view-\(view.analyticsIdentifier)")) }
-
-		let size = window.frame.size
-		storage.modificate { content in
-			content.view = view
-		}
-
-		windowController.contentViewController = DocumentAssembly.build(storage: storage, featureProvider: featureProvider)
-		configureToolbar()
-		window.setContentSize(size)
-	}
-}
-
 // MARK: - NSToolbarDelegate
 extension Document: NSToolbarDelegate {
 
 	func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-		featureProvider.isAvailable(.columns) ? [.viewItem, .space, .newItem] : [.space, .newItem]
+		[.space, .newItem]
 	}
 
 	func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-		featureProvider.isAvailable(.columns) ? [.viewItem, .space, .newItem] : [.space, .newItem]
+		[.space, .newItem]
 	}
 
 	func toolbar(
@@ -135,7 +100,7 @@ extension Document: NSToolbarDelegate {
 		switch itemIdentifier {
 		case .newItem:
 			let item = NSMenuToolbarItem(itemIdentifier: itemIdentifier)
-			item.label = newItemToolbarItemLabel
+			item.label = String(localized: "new-item-toolbar-item-label", table: "ContentLocalizable")
 			item.image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)!
 			item.showsIndicator = true
 			item.visibilityPriority = .high
@@ -144,23 +109,6 @@ extension Document: NSToolbarDelegate {
 				target: nil,
 				source: .toolbar
 			)
-			return item
-		case .viewItem:
-			let item = NSToolbarItem(itemIdentifier: itemIdentifier)
-			let button = NSSegmentedControl(
-				images: [
-					NSImage(systemSymbolName: "list.bullet", accessibilityDescription: nil)!,
-					NSImage(systemSymbolName: "rectangle.split.3x1", accessibilityDescription: nil)!
-				],
-				trackingMode: .selectOne,
-				target: self,
-				action: #selector(changeView(_:))
-			)
-			button.selectedSegment = min(button.segmentCount - 1, storage.state.view.rawValue)
-
-			item.label = String(localized: "View")
-			item.view = button
-			item.visibilityPriority = .high
 			return item
 		default:
 			return nil
@@ -172,7 +120,7 @@ extension Document: NSToolbarDelegate {
 private extension Document {
 
 	func makeDocumentWindowController() -> NSWindowController {
-		let contentViewController = DocumentAssembly.build(storage: storage, featureProvider: featureProvider)
+		let contentViewController = DocumentAssembly.build(storage: storage)
 		let window = NSWindow(
 			contentRect: NSRect(x: 196, y: 240, width: 640, height: 480),
 			styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
@@ -191,49 +139,10 @@ private extension Document {
 		return windowController
 	}
 
-	func configureToolbar() {
-		let viewItem = toolbar.items.first { $0.itemIdentifier == .viewItem }
-		if let segmentedControl = viewItem?.view as? NSSegmentedControl {
-			segmentedControl.selectedSegment = min(segmentedControl.segmentCount - 1, storage.state.view.toolbarSegment)
-		}
-	}
-
-	var newItemToolbarItemLabel: String {
-		switch storage.state.view {
-		case .list, .unknown:
-			return String(localized: "new-item-toolbar-item-label", table: "ContentLocalizable")
-		case .columns:
-			return String(localized: "new-item-toolbar-item-label", table: "ColumnsLocalizable")
-		}
-	}
 }
 
 // MARK: - Constants
 extension NSToolbarItem.Identifier {
 
 	static let newItem = NSToolbarItem.Identifier("newItem")
-
-	static let viewItem = NSToolbarItem.Identifier("viewItem")
-}
-
-// MARK: - Helpers
-private extension DocumentContent.ContentView {
-
-	var toolbarSegment: Int {
-		switch self {
-		case .list, .unknown:
-			0
-		case .columns:
-			1
-		}
-	}
-
-	var analyticsIdentifier: String {
-		switch self {
-		case .list, .unknown:
-			"list"
-		case .columns:
-			"columns"
-		}
-	}
 }

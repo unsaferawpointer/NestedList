@@ -7,19 +7,11 @@
 
 import Cocoa
 import CoreModule
-import CorePresentation
 
 final class DocumentAssembly {
 
 	@MainActor
-	static func build(storage: DocumentStorage<DocumentContent>, featureProvider: any FeatureProvidable<Feature>) -> NSViewController {
-		switch storage.state.view {
-		case .list, .unknown:
-			ContentUnitAssembly.build(storage: storage)
-		case .columns:
-			featureProvider.isAvailable(.columns)
-				? ColumnsUnitAssembly.build(storage: storage)
-				: ContentUnitAssembly.build(storage: storage)
-		}
+	static func build(storage: DocumentStorage<DocumentContent>) -> NSViewController {
+		ContentUnitAssembly.build(storage: storage)
 	}
 }

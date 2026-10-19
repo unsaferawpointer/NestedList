@@ -12,20 +12,16 @@ public struct DocumentContent {
 
 	public var uuid: UUID?
 
-	public var view: ContentView
-
 	private var store: MirrorStore<ItemContent, UUID>
 
 	// MARK: - Initialization
 
 	public init(
 		uuid: UUID?,
-		nodes: [DocumentNode<Item>] = [],
-		view: ContentView = .list
+		nodes: [DocumentNode<Item>] = []
 	) {
 		self.uuid = uuid
 		self.store = try! MirrorStore<ItemContent, UUID>(hierarchy: nodes)
-		self.view = view
 	}
 }
 
@@ -173,7 +169,6 @@ extension DocumentContent: Codable {
 
 	enum CodingKeys: CodingKey {
 		case items
-		case view
 		case uuid
 	}
 
@@ -196,53 +191,14 @@ extension DocumentContent: Codable {
 		} else {
 			nodes = try container.decode([StoredDocumentNode].self, forKey: .items)
 		}
-		let view = try container.decodeIfPresent(ContentView.self, forKey: .view) ?? .list
 		let uuid = try? container.decodeIfPresent(UUID.self, forKey: .uuid)
 		self.uuid = uuid
-		self.view = view
 		self.store = try MirrorStore<ItemContent, UUID>(hierarchy: nodes)
 	}
 
 	public func encode(to encoder: Encoder) throws {
 		var container = encoder.container(keyedBy: CodingKeys.self)
 		try container.encode(store.storedNodes(type: StoredDocumentNode.self), forKey: .items)
-		try container.encode(view, forKey: .view)
 		try container.encode(uuid ?? UUID(), forKey: .uuid)
 	}
 }
-
-// MARK: - Nested structs
-public extension DocumentContent {
-
-	enum ContentView {
-		case list
-		case columns
-		case unknown(Int)
-	}
-}
-
-// MARK: - RawRepresentable
-extension DocumentContent.ContentView: RawRepresentable {
-
-	public init?(rawValue: Int) {
-		switch rawValue {
-		case 0: self = .list
-		case 1: self = .columns
-		default: self = .unknown(rawValue)
-		}
-	}
-
-	public var rawValue: Int {
-		switch self {
-		case .list: 0
-		case .columns: 1
-		case let .unknown(rawValue): rawValue
-		}
-	}
-}
-
-// MARK: - Equatable
-extension DocumentContent.ContentView: Equatable { }
-
-// MARK: - Codable
-extension DocumentContent.ContentView: Codable { }

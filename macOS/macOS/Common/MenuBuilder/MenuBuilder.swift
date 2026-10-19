@@ -13,7 +13,6 @@ import CorePresentation
 @MainActor
 protocol MenuBuilderProtocol {
 	static func build(for items: [ContentMenuIdentifier], target: AnyObject?, source: MenuSource) -> NSMenu
-	static func build(for items: [ColumnMenuIdentifier], target: AnyObject?, source: MenuSource) -> NSMenu
 }
 
 @MainActor
@@ -31,14 +30,6 @@ extension MenuBuilder: MenuBuilderProtocol {
 		return menu
 	}
 
-	static func build(for items: [ColumnMenuIdentifier], target: AnyObject?, source: MenuSource) -> NSMenu {
-		let menu = NSMenu()
-		menu.identifier = .init(source.rawValue)
-		for item in items {
-			menu.addItem(build(id: item, target: target, source: source))
-		}
-		return menu
-	}
 }
 
 // MARK: - Helpers
@@ -103,57 +94,6 @@ private extension MenuBuilder {
 			return NSMenuItem.separator()
 		case .cutItems, .copyItems, .paste:
 			fatalError()
-		}
-
-		return item
-	}
-
-	static func build(id: ColumnMenuIdentifier, target: AnyObject? = nil, source: MenuSource) -> NSMenuItem {
-
-		let action = #selector(MenuSupportable.menuItemClicked(_:))
-
-		let item = NSMenuItem()
-		item.action = action
-		item.target = target
-		item.representedObject = source.rawValue
-
-		switch id {
-		case .columnNew:
-			item.identifier = .init(id.rawValue)
-			item.title = MenuLocalization.newItemTitle
-			item.image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)
-		case .toggleStrikethrough:
-			item.identifier = .init(id.rawValue)
-			item.title = MenuLocalization.strikethroughItemTitle
-			item.keyEquivalent = "\r"
-		case .appearanceHeader:
-			return NSMenuItem.sectionHeader(title: MenuLocalization.appearanceHeaderItemTitle)
-		case .changeIcon:
-			configureIconItem(item, id: id)
-		case .changeColor:
-			configureColorItem(item, id: id)
-		case .columnEdit:
-			item.identifier = .init(id.rawValue)
-			item.title = MenuLocalization.editItemTitle
-			item.image = NSImage(systemSymbolName: "square.and.pencil", accessibilityDescription: nil)
-			return item
-		case .columnDelete:
-			item.identifier = .init(id.rawValue)
-			item.title = MenuLocalization.deleteItemTitle
-			item.image = NSImage(systemSymbolName: "trash", accessibilityDescription: nil)
-			return item
-		case .moveForward:
-			item.identifier = .init(id.rawValue)
-			item.title = MenuLocalization.moveForward
-			item.image = NSImage(systemSymbolName: "arrow.forward", accessibilityDescription: nil)
-			return item
-		case .moveBackward:
-			item.identifier = .init(id.rawValue)
-			item.title = MenuLocalization.moveBackward
-			item.image = NSImage(systemSymbolName: "arrow.backward", accessibilityDescription: nil)
-			return item
-		case .separator:
-			return NSMenuItem.separator()
 		}
 
 		return item
