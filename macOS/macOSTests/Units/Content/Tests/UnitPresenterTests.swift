@@ -112,20 +112,32 @@ extension UnitPresenterTests {
 // MARK: - CellDelegate test-cases
 extension UnitPresenterTests {
 
-	@Test func test_cellDidTapDisclosure_showsDocumentAndTracksAnalytics() async {
+	@Test func cellDidTapDisclosure_focusesCurrentWindowAndTracksAnalytics() async {
 		// Arrange
-		let id: UUID = .random
+		let focused = Item(text: "Focused")
+		interactor.stubs.fetchedItem = focused
+		interactor.stubs.snapshot = makeSnapshot()
+		interactor.stubs.path = [nil, focused]
+		interactor.clear()
+		view.clear()
 
 		// Act
-		sut.cellDidTapDisclosure(id: id)
+		sut.cellDidTapDisclosure(id: focused.id)
 		let invocation = await waitForAnalyticsInvocation()
 
 		// Assert
-		guard case let .showDocument(openedId) = router.invocations.first else {
-			Issue.record("Expect showDocument invocation")
+		guard case let .focus(id) = interactor.invocations.first else {
+			Issue.record("Expect focus invocation")
 			return
 		}
-		#expect(openedId == id)
+		#expect(id == focused.id)
+		#expect(router.invocations.isEmpty)
+
+		guard case let .displayPath(items) = view.invocations[2] else {
+			Issue.record("Expect path display invocation")
+			return
+		}
+		#expect(items.map(\.id) == [nil, focused.id])
 
 		guard case let .track(event) = invocation else {
 			Issue.record("Expect track invocation")
@@ -133,7 +145,45 @@ extension UnitPresenterTests {
 		}
 
 		#expect(event.name == .buttonClick)
-		#expect(event.parameters["id"] == .string("show_subitems"))
+		#expect(event.parameters == [
+			"id": .string("focus"),
+			"source": .string("disclosure")
+		])
+	}
+
+	@Test func cellDidTapDisclosure_showsPlaceholderAndPathForItemWithoutVisibleDescendants() {
+		// Arrange
+		let focused = Item(text: "Focused")
+		interactor.stubs.fetchedItem = focused
+		interactor.stubs.snapshot = Snapshot()
+		interactor.stubs.path = [nil, focused]
+		interactor.clear()
+		view.clear()
+
+		// Act
+		sut.cellDidTapDisclosure(id: focused.id)
+
+		// Assert
+		guard case let .focus(id) = interactor.invocations.first else {
+			Issue.record("Expect focus invocation")
+			return
+		}
+		#expect(id == focused.id)
+		#expect(router.invocations.isEmpty)
+
+		guard case let .display(state) = view.invocations.first else {
+			Issue.record("Expect placeholder display invocation")
+			return
+		}
+		guard case .placeholder = state else {
+			Issue.record("Expect placeholder state")
+			return
+		}
+		guard case let .displayPath(items) = view.invocations[2] else {
+			Issue.record("Expect path display invocation")
+			return
+		}
+		#expect(items.map(\.id) == [nil, focused.id])
 	}
 }
 

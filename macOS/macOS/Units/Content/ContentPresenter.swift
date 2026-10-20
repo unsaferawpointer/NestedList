@@ -583,7 +583,7 @@ extension ContentPresenter: CellDelegate {
 			let event: ContentAnalyticsEvent = .subitemsShow
 			await analytics.track(event)
 		}
-		router.showDocument(for: id)
+		focus(on: id)
 	}
 }
 
