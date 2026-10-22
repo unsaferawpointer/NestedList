@@ -19,7 +19,7 @@ public extension NSOutlineView {
 		view.allowsColumnResizing = false
 		view.usesAlternatingRowBackgroundColors = false
 		view.autoresizesOutlineColumn = false
-		view.usesAutomaticRowHeights = false
+		view.usesAutomaticRowHeights = true
 		view.indentationPerLevel = 16
 		view.intercellSpacing = .init(width: 0, height: 0)
 		view.backgroundColor = .clear

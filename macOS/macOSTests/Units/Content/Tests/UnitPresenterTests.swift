@@ -145,10 +145,7 @@ extension UnitPresenterTests {
 		}
 
 		#expect(event.name == .buttonClick)
-		#expect(event.parameters == [
-			"id": .string("focus"),
-			"source": .string("disclosure")
-		])
+		#expect(event.parameters == ["id": .string("show_subitems")])
 	}
 
 	@Test func cellDidTapDisclosure_showsPlaceholderAndPathForItemWithoutVisibleDescendants() {

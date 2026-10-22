@@ -95,10 +95,6 @@ public final class ListAdapter<Model: CellModel>: NSObject,
 		return proxy.view(forItem: identifier(of: item), in: outlineView)
 	}
 
-	public func outlineView(_ outlineView: NSOutlineView, heightOfRowByItem item: Any) -> CGFloat {
-		return proxy.heightOfRow(byItem: identifier(of: item))
-	}
-
 	// MARK: - Drag And Drop support
 
 	public func outlineView(_ outlineView: NSOutlineView, pasteboardWriterForItem item: Any) -> NSPasteboardWriting? {

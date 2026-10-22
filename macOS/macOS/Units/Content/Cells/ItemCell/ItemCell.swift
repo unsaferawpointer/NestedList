@@ -97,6 +97,8 @@ final class ItemCell: NSView, ListCell {
 		view.distribution = .fill
 		view.spacing = 4
 		view.alignment = .centerY
+		// Shrink below the cached row height without competing with text compression resistance.
+		view.setHuggingPriority(.init(NSLayoutConstraint.Priority.defaultHigh.rawValue - 1), for: .vertical)
 		return view
 	}()
 
@@ -175,8 +177,8 @@ private extension ItemCell {
 		[
 			container.leadingAnchor.constraint(equalTo: leadingAnchor),
 			container.trailingAnchor.constraint(equalTo: trailingAnchor),
-			container.topAnchor.constraint(equalTo: topAnchor),
-			container.bottomAnchor.constraint(equalTo: bottomAnchor)
+			container.topAnchor.constraint(equalTo: topAnchor, constant: 2),
+			container.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -2)
 		]
 			.forEach { $0.isActive = true }
 

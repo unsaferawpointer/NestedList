@@ -187,7 +187,7 @@ public final class CompositeIcon: NSView {
 	private lazy var iconView: NSImageView = {
 		let view = NSImageView()
 		view.imageAlignment = .alignCenter
-		view.imageScaling = .scaleProportionallyUpOrDown
+		view.imageScaling = .scaleNone
 		view.wantsLayer = true
 		return view
 	}()
