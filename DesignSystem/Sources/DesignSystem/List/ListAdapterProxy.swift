@@ -127,10 +127,14 @@ extension ListAdapterProxy {
 extension ListAdapterProxy {
 
 	func view(forItem id: InternalModel.ID, in tableView: NSOutlineView) -> NSView? {
-		guard case let .model(value) = snapshot.model(with: id) else {
-			return nil
+		switch snapshot.model(with: id) {
+		case let .model(value):
+			return CellFactory.makeCellIfNeeded(for: value, in: tableView, delegate: cellDelegate)
+		case let .spacer(_, height):
+			let view = SpacerView(height: height.rawValue)
+			view.setContentHuggingPriority(.defaultHigh, for: .vertical)
+			return view
 		}
-		return CellFactory.makeCellIfNeeded(for: value, in: tableView, delegate: cellDelegate)
 	}
 
 	func heightOfRow(byItem id: InternalModel.ID) -> CGFloat {

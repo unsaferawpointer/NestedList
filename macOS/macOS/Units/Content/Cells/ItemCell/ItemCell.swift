@@ -49,13 +49,16 @@ final class ItemCell: NSView, ListCell {
 	// MARK: - UI-Properties
 
 	lazy var titleTextfield: NSTextField = {
-		let view = NSTextField()
+		let view = ItemTextField()
 		view.focusRingType = .default
 		view.cell?.sendsActionOnEndEditing = true
 		view.isBordered = false
 		view.drawsBackground = false
-		view.usesSingleLineMode = true
-		view.lineBreakMode = .byTruncatingMiddle
+		view.usesSingleLineMode = false
+		view.lineBreakMode = .byWordWrapping
+		view.cell?.isScrollable = false
+		view.cell?.wraps = true
+		view.maximumNumberOfLines = 0
 		view.font = NSFont.preferredFont(forTextStyle: .body)
 		view.target = self
 		view.action = #selector(textfieldDidChange(_:))
@@ -64,13 +67,16 @@ final class ItemCell: NSView, ListCell {
 	}()
 
 	lazy var subtitleTextfield: NSTextField = {
-		let view = NSTextField()
+		let view = ItemTextField()
 		view.focusRingType = .default
 		view.cell?.sendsActionOnEndEditing = true
 		view.isBordered = false
 		view.drawsBackground = false
-		view.usesSingleLineMode = true
-		view.lineBreakMode = .byTruncatingMiddle
+		view.usesSingleLineMode = false
+		view.lineBreakMode = .byWordWrapping
+		view.cell?.isScrollable = false
+		view.cell?.wraps = true
+		view.maximumNumberOfLines = 0
 		view.font = NSFont.preferredFont(forTextStyle: .callout)
 		view.textColor = .secondaryLabelColor
 		view.target = self
@@ -96,9 +102,12 @@ final class ItemCell: NSView, ListCell {
 		view.orientation = .horizontal
 		view.distribution = .fill
 		view.spacing = 4
-		view.alignment = .centerY
+		view.alignment = .firstBaseline
 		// Shrink below the cached row height without competing with text compression resistance.
-		view.setHuggingPriority(.init(NSLayoutConstraint.Priority.defaultHigh.rawValue - 1), for: .vertical)
+		view.setHuggingPriority(
+			.init(NSLayoutConstraint.Priority.defaultHigh.rawValue - 1),
+			for: .vertical
+		)
 		return view
 	}()
 
@@ -147,8 +156,12 @@ private extension ItemCell {
 
 		let attrString = NSAttributedString(
 			string: value.title,
-			textColor: configuration.text.colorToken.value,
-			strikethrough: configuration.text.strikethrough
+			attributes: [
+				.font: NSFont.preferredFont(forTextStyle: configuration.text.style.value),
+				.foregroundColor: configuration.text.colorToken.value,
+				.strikethroughStyle: configuration.text.strikethrough ? NSUnderlineStyle.single.rawValue : 0,
+				.strikethroughColor: configuration.text.colorToken.value
+			]
 		)
 		titleTextfield.font = NSFont.preferredFont(forTextStyle: configuration.text.style.value)
 
