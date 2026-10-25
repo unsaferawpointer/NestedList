@@ -23,6 +23,24 @@ public struct DocumentContent {
 		self.uuid = uuid
 		self.store = try! MirrorStore<ItemContent, UUID>(hierarchy: nodes)
 	}
+
+	/// Restores an independent working tree, validating the stored hierarchy.
+	public init(dto: DocumentContentDTO) throws {
+		self.uuid = dto.uuid
+		self.store = try MirrorStore<ItemContent, UUID>(hierarchy: dto.items)
+	}
+}
+
+// MARK: - File representation
+public extension DocumentContent {
+
+	/// Exports stored containers without resolving mirror references.
+	func exportContent() -> DocumentContentDTO {
+		DocumentContentDTO(
+			uuid: uuid,
+			items: store.storedNodes(type: DocumentNode<Container<ItemContent, UUID>>.self)
+		)
+	}
 }
 
 // MARK: - Subscript
@@ -151,8 +169,6 @@ private struct ContainerNode: TreeNode {
 	}
 }
 
-private typealias StoredDocumentNode = DocumentNode<Container<ItemContent, UUID>>
-
 // MARK: - Templates
 public extension DocumentContent {
 
@@ -167,38 +183,11 @@ extension DocumentContent: Equatable { }
 // MARK: - Codable
 extension DocumentContent: Codable {
 
-	enum CodingKeys: CodingKey {
-		case items
-		case uuid
-	}
-
 	public init(from decoder: Decoder) throws {
-		let container = try decoder.container(keyedBy: CodingKeys.self)
-		let version: Version? = if let key = CodingUserInfoKey.documentVersion {
-			decoder.userInfo[key] as? Version
-		} else {
-			nil
-		}
-		let nodes: [StoredDocumentNode]
-
-		if version?.major == 1 || version?.major == 2 {
-			let legacyNodes = try container.decode([DocumentNode<Item>].self, forKey: .items)
-			nodes = legacyNodes.map { node in
-				node.map { value in
-					Container.item(id: value.id, content: value.content)
-				}
-			}
-		} else {
-			nodes = try container.decode([StoredDocumentNode].self, forKey: .items)
-		}
-		let uuid = try? container.decodeIfPresent(UUID.self, forKey: .uuid)
-		self.uuid = uuid
-		self.store = try MirrorStore<ItemContent, UUID>(hierarchy: nodes)
+		try self.init(dto: DocumentContentDTO(from: decoder))
 	}
 
 	public func encode(to encoder: Encoder) throws {
-		var container = encoder.container(keyedBy: CodingKeys.self)
-		try container.encode(store.storedNodes(type: StoredDocumentNode.self), forKey: .items)
-		try container.encode(uuid ?? UUID(), forKey: .uuid)
+		try exportContent().encode(to: encoder)
 	}
 }
