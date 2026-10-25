@@ -8,7 +8,6 @@
 import Cocoa
 import CoreModule
 import CorePresentation
-import DesignSystem
 
 class Document: NSDocument {
 
@@ -26,13 +25,6 @@ class Document: NSDocument {
 
 	lazy var analytics: any ConcreteAnalyticsServiceProtocol<DocumentAnalyticsEvent> =
 		ConcreteAnalyticsService<DocumentAnalyticsEvent>()
-
-	lazy var toolbar: NSToolbar = {
-		let view = NSToolbar()
-		view.displayMode = .iconOnly
-		view.delegate = self
-		return view
-	}()
 
 	override func printOperation(
 		withSettings printSettings: [NSPrintInfo.AttributeKey : Any]
@@ -81,41 +73,6 @@ class Document: NSDocument {
 	}
 }
 
-// MARK: - NSToolbarDelegate
-extension Document: NSToolbarDelegate {
-
-	func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-		[.space, .newItem]
-	}
-
-	func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-		[.space, .newItem]
-	}
-
-	func toolbar(
-		_ toolbar: NSToolbar,
-		itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier,
-		willBeInsertedIntoToolbar flag: Bool
-	) -> NSToolbarItem? {
-		switch itemIdentifier {
-		case .newItem:
-			let item = NSMenuToolbarItem(itemIdentifier: itemIdentifier)
-			item.label = String(localized: "new-item-toolbar-item-label", table: "ContentLocalizable")
-			item.image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)!
-			item.showsIndicator = true
-			item.visibilityPriority = .high
-			item.menu = MenuBuilder.build(
-				for: [.newItem, .addMirror],
-				target: nil,
-				source: .toolbar
-			)
-			return item
-		default:
-			return nil
-		}
-	}
-}
-
 // MARK: - Private methods
 private extension Document {
 
@@ -130,7 +87,6 @@ private extension Document {
 		window.minSize = NSSize(width: 360, height: 240)
 		window.contentViewController = contentViewController
 		window.setContentSize(.init(width: 640, height: 480))
-		window.toolbar = toolbar
 		window.isReleasedWhenClosed = false
 		window.animationBehavior = .default
 
@@ -139,10 +95,4 @@ private extension Document {
 		return windowController
 	}
 
-}
-
-// MARK: - Constants
-extension NSToolbarItem.Identifier {
-
-	static let newItem = NSToolbarItem.Identifier("newItem")
 }

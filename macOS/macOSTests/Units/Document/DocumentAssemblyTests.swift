@@ -26,15 +26,15 @@ extension DocumentAssemblyTests {
 	}
 }
 
-// MARK: - Document toolbar
+// MARK: - Content toolbar
 extension DocumentAssemblyTests {
 
-	@Test func toolbarContainsOnlyNewItemControl() {
+	@Test func toolbarContainsOnlyNewItemControl() throws {
 		// Arrange
-		let document = Document()
+		let viewController = try #require(DocumentAssembly.build(storage: makeStorage()) as? ContentViewController)
 
 		// Act
-		let identifiers = document.toolbarAllowedItemIdentifiers(document.toolbar)
+		let identifiers = viewController.toolbarAllowedItemIdentifiers(viewController.toolbar)
 
 		// Assert
 		#expect(identifiers == [.space, .newItem])

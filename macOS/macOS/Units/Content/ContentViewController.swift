@@ -275,6 +275,12 @@ extension ContentViewController: NSToolbarDelegate {
 	}
 }
 
+// MARK: - Constants
+extension NSToolbarItem.Identifier {
+
+	static let newItem = NSToolbarItem.Identifier("newItem")
+}
+
 // MARK: - MenuSupportable
 extension ContentViewController: MenuSupportable {
 
