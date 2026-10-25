@@ -14,6 +14,7 @@ import AppKit
 @MainActor public struct ItemPicker {
 
 	private let model: ItemPickerViewModel
+	private let emptyState: EmptyState
 	@State private var isSearchPresented = false
 
 	// MARK: - Initialization
@@ -22,9 +23,11 @@ import AppKit
 		storage: DocumentStorage<DocumentContent>,
 		title: String,
 		allowedIDs: Set<UUID>,
+		emptyState: EmptyState = .noItems,
 		analytics: any ConcreteAnalyticsServiceProtocol<ItemPickerAnalyticsEvent> = ConcreteAnalyticsService<ItemPickerAnalyticsEvent>(),
 		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
 	) {
+		self.emptyState = emptyState
 		self.model = ItemPickerViewModel(
 			storage: storage,
 			title: title,
@@ -55,6 +58,9 @@ extension ItemPicker: View {
 				}
 			}
 			.listStyle(.insetGrouped)
+			.overlay {
+				emptyStateView
+			}
 			.searchable(text: $model.searchText)
 			.navigationTitle(model.title)
 			.toolbar {
@@ -95,6 +101,9 @@ extension ItemPicker: View {
 				}
 			}
 			.listStyle(.inset)
+			.overlay {
+				emptyStateView
+			}
 			.searchable(
 				text: $model.searchText,
 				isPresented: $isSearchPresented,
@@ -127,16 +136,34 @@ extension ItemPicker: View {
 // MARK: - Private Views
 private extension ItemPicker {
 
-	struct ItemRow: View {
+	@ViewBuilder var emptyStateView: some View {
+		if model.items.isEmpty {
+			ContentUnavailableView {
+				Label(emptyState.title, systemImage: "list.bullet")
+			} description: {
+				if let message = emptyState.message {
+					Text(message)
+				}
+			}
+		} else if model.filteredItems.isEmpty {
+			ContentUnavailableView.search(text: model.searchText)
+		}
+	}
+
+	struct ItemRow {
 
 		let item: ItemPickerItem
+	}
+}
 
-		var body: some View {
-			HStack(spacing: 8) {
-				Text(item.title)
-					.font(.body)
-			}
-			.frame(maxWidth: .infinity, alignment: .leading)
+// MARK: - View
+extension ItemPicker.ItemRow: View {
+
+	var body: some View {
+		HStack(spacing: 8) {
+			Text(item.title)
+				.font(.body)
 		}
+		.frame(maxWidth: .infinity, alignment: .leading)
 	}
 }
