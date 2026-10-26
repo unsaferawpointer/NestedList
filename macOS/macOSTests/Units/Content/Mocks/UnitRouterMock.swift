@@ -33,12 +33,11 @@ extension UnitRouterMock: ContentRouterProtocol {
 	}
 
 	func showItemPicker(
-		navigationTitle: String,
-		allowedIDs: Set<UUID>,
+		configuration: ItemPicker.Configuration,
 		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
 	) {
 		stubs.showItemPickerCompletionHandler = completionHandler
-		invocations.append(.showItemPicker(navigationTitle: navigationTitle))
+		invocations.append(.showItemPicker(configuration: configuration))
 	}
 
 	func showIconPicker(
@@ -67,7 +66,7 @@ extension UnitRouterMock {
 
 	enum Action {
 		case showDetails(model: ItemDetailsView.Model)
-		case showItemPicker(navigationTitle: String)
+		case showItemPicker(configuration: ItemPicker.Configuration)
 		case showIconPicker(navigationTitle: String)
 		case showColorPicker(navigationTitle: String)
 		case showDocument(id: UUID)

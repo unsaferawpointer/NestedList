@@ -16,12 +16,16 @@ protocol ContentLocalizationProtocol {
 	var editItemDetailsTitle: String { get }
 	var iconPickerNavigationTitle: String { get }
 	var colorPickerNavigationTitle: String { get }
+	var mirrorSourcePickerTitle: String { get }
+	var mirrorSourcePickerSubtitle: String { get }
 	var newItemToolbarItemLabel: String { get }
 	var pathDocumentTitle: String { get }
 }
 
+final class ContentLocalization { }
+
 // MARK: - ContentLocalizationProtocol
-final class ContentLocalization: ContentLocalizationProtocol {
+extension ContentLocalization: ContentLocalizationProtocol {
 
 	var newItemText: String {
 		return String(localized: "new-item-text", table: "ContentLocalizable")
@@ -53,6 +57,14 @@ final class ContentLocalization: ContentLocalizationProtocol {
 
 	var colorPickerNavigationTitle: String {
 		return String(localized: "color-picker-navigation-title", table: "ContentLocalizable")
+	}
+
+	var mirrorSourcePickerTitle: String {
+		String(localized: "mirror-source-picker-title", table: "ContentLocalizable")
+	}
+
+	var mirrorSourcePickerSubtitle: String {
+		String(localized: "mirror-source-picker-subtitle", table: "ContentLocalizable")
 	}
 
 	var newItemToolbarItemLabel: String {

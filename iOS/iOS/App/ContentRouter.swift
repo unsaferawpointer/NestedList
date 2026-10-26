@@ -19,8 +19,7 @@ protocol ContentRouterProtocol {
 		completionHandler: @escaping @MainActor (ItemDetailsView.Properties, Bool) -> Void
 	)
 	func showItemPicker(
-		title: String,
-		allowedIDs: Set<UUID>,
+		configuration: ItemPicker.Configuration,
 		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
 	)
 	func showTargetsScreen(for ids: Set<UUID>, completionHandler: @escaping (UUID?, Bool) -> Void)
@@ -72,14 +71,12 @@ extension ContentRouter: ContentRouterProtocol {
 	}
 
 	func showItemPicker(
-		title: String,
-		allowedIDs: Set<UUID>,
+		configuration: ItemPicker.Configuration,
 		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
 	) {
 		let picker = ItemPicker(
 			storage: storage,
-			title: title,
-			allowedIDs: allowedIDs
+			configuration: configuration
 		) { [weak self] itemID, isSuccess in
 			self?.root.presentedViewController?.dismiss(animated: true)
 			completionHandler(itemID, isSuccess)
@@ -87,7 +84,7 @@ extension ContentRouter: ContentRouterProtocol {
 
 		let controller = UIHostingController(rootView: picker)
 		controller.modalPresentationStyle = .formSheet
-		controller.title = title
+		controller.title = configuration.title
 		root.present(controller, animated: true)
 	}
 

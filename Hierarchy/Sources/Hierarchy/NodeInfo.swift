@@ -25,4 +25,6 @@ public struct NodeInfo<Model: Identifiable> {
 
 	/// Parent identifier
 	public var parent: Model.ID?
+
+	public var path: [Model.ID]
 }

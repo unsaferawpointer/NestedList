@@ -15,7 +15,6 @@ final class ContentRouterMock {
 
 	private(set) var invocations: [Action] = []
 	var showItemPickerCompletionHandler: (@MainActor (UUID?, Bool) -> Void)?
-	var showItemPickerAllowedIDs = Set<UUID>()
 }
 
 // MARK: - ContentRouterProtocol
@@ -30,13 +29,11 @@ extension ContentRouterMock: ContentRouterProtocol {
 	}
 
 	func showItemPicker(
-		title: String,
-		allowedIDs: Set<UUID>,
+		configuration: ItemPicker.Configuration,
 		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
 	) {
 		showItemPickerCompletionHandler = completionHandler
-		showItemPickerAllowedIDs = allowedIDs
-		invocations.append(.showItemPicker(title: title))
+		invocations.append(.showItemPicker(configuration: configuration))
 	}
 
 	func showTargetsScreen(for ids: Set<UUID>, completionHandler: @escaping (UUID?, Bool) -> Void) {
@@ -69,7 +66,7 @@ extension ContentRouterMock {
 
 		enum Action {
 		case showDetails(model: ItemDetailsView.Model, barItem: String?)
-		case showItemPicker(title: String)
+		case showItemPicker(configuration: ItemPicker.Configuration)
 		case showTargetsScreen(ids: Set<UUID>)
 		case showReorderScreen(item: UUID)
 		case showIconPicker(title: String)

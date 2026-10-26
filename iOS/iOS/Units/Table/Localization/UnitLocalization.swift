@@ -12,6 +12,8 @@ protocol UnitLocalizationProtocol {
 	var editItemNavigationTitle: String { get }
 	var colorPickerNavigationTitle: String { get }
 	var iconPickerNavigationTitle: String { get }
+	var mirrorSourcePickerTitle: String { get }
+	var mirrorSourcePickerSubtitle: String { get }
 }
 
 final class UnitLocalization { }
@@ -33,5 +35,13 @@ extension UnitLocalization: UnitLocalizationProtocol {
 
 	var iconPickerNavigationTitle: String {
 		String(localized: "icon_picker_navigation_title", table: "UnitLocalizable")
+	}
+
+	var mirrorSourcePickerTitle: String {
+		String(localized: "mirror_source_picker_title", table: "UnitLocalizable")
+	}
+
+	var mirrorSourcePickerSubtitle: String {
+		String(localized: "mirror_source_picker_subtitle", table: "UnitLocalizable")
 	}
 }

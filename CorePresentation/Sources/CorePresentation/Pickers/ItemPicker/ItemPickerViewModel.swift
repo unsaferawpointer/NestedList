@@ -90,9 +90,14 @@ private extension ItemPickerViewModel {
 			.flattened { _ in true }
 			.filter { allowedIDs.contains($0.id) }
 			.map { item in
-				ItemPickerItem(
+				let path = snapshot.path(for: item.id).map {
+					snapshot.model(with: $0).text
+				}.joined(separator: " › ")
+
+				return ItemPickerItem(
 					id: item.id,
 					title: item.text,
+					path: path,
 					icon: IconMapper.map(icon: item.iconName, filled: true),
 					level: snapshot.level(for: item.id)
 				)
@@ -112,6 +117,7 @@ struct ItemPickerItem: Identifiable {
 
 	let id: UUID
 	let title: String
+	let path: String
 	let icon: SemanticImage?
 	let level: Int
 }

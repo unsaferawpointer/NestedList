@@ -118,13 +118,14 @@ extension ContentPresenterTests {
 		sut.userDidTapMenu(with: .addMirror, selection: [expectedTarget])
 
 		// Assert
-		guard case let .showItemPicker(title) = router.invocations.first else {
+		guard case let .showItemPicker(configuration) = router.invocations.first else {
 			Issue.record("Expect show item picker invocation")
 			return
 		}
 
-		#expect(title == MenuLocalization().addMirrorItemTitle)
-		#expect(router.showItemPickerAllowedIDs == [expectedSource])
+		#expect(configuration.title == UnitLocalization().mirrorSourcePickerTitle)
+		#expect(configuration.subtitle == UnitLocalization().mirrorSourcePickerSubtitle)
+		#expect(configuration.allowedIDs == [expectedSource])
 		#expect(interactor.invocations.contains { action in
 			guard case let .mirrorSourceIDs(destination) = action else {
 				return false
@@ -382,13 +383,14 @@ extension ContentPresenterTests {
 		let invocation = await waitForAnalyticsInvocation()
 
 		// Assert
-		guard case let .showItemPicker(title) = router.invocations.first else {
+		guard case let .showItemPicker(configuration) = router.invocations.first else {
 			Issue.record("Expect show item picker invocation")
 			return
 		}
 
-		#expect(title == MenuLocalization().addMirrorItemTitle)
-		#expect(router.showItemPickerAllowedIDs == [expectedSource])
+		#expect(configuration.title == UnitLocalization().mirrorSourcePickerTitle)
+		#expect(configuration.subtitle == UnitLocalization().mirrorSourcePickerSubtitle)
+		#expect(configuration.allowedIDs == [expectedSource])
 		guard case let .track(event) = invocation else {
 			Issue.record("Expect track invocation")
 			return

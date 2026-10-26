@@ -28,7 +28,7 @@ public struct Snapshot<Model: Identifiable> {
 	public init<T: TreeNode>(_ base: [T]) where T.Value == Model {
 		self.root = base.map(\.value.id)
 		base.enumerated().forEach { (index, node) in
-			normalize(base: node, parent: nil, index: index)
+			normalize(base: node, parent: nil, index: index, path: [])
 		}
 	}
 
@@ -158,6 +158,10 @@ public extension Snapshot {
 
 	var identifiers: Set<ID> {
 		cache.identifiers
+	}
+
+	func path(for id: ID) -> [ID] {
+		storage[id]?.path ?? []
 	}
 
 	var nodeIdentifiers: Set<ID> {
@@ -364,7 +368,8 @@ public extension Snapshot {
 				level: info.level,
 				localIndex: info.localIndex,
 				globalIndex: info.globalIndex,
-				parent: info.parent
+				parent: info.parent,
+				path: info.path
 			)
 		}
 
@@ -441,7 +446,8 @@ private extension Snapshot {
 		base: T,
 		parent: ID?,
 		index: Int,
-		level: Int = 0
+		level: Int = 0,
+		path: [ID]
 	) where T.Value == Model {
 
 		hierarchy[base.id] = base.children.map(\.value.id)
@@ -459,11 +465,18 @@ private extension Snapshot {
 			level: level,
 			localIndex: index,
 			globalIndex: cache.flattened.count - 1,
-			parent: parent
+			parent: parent,
+			path: path
 		)
 
 		for (index, child) in base.children.enumerated() {
-			normalize(base: child, parent: base.id, index: index, level: level + 1)
+			normalize(
+				base: child,
+				parent: base.id,
+				index: index,
+				level: level + 1,
+				path: path + [base.id]
+			)
 		}
 	}
 }

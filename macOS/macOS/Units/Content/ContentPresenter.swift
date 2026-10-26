@@ -341,8 +341,11 @@ private extension ContentPresenter {
 		let destination = Destination(target: selection.first)
 		let allowedIDs = interactor?.mirrorSourceIDs(to: destination) ?? []
 		router.showItemPicker(
-			navigationTitle: MenuLocalization.addMirrorItemTitle,
-			allowedIDs: allowedIDs
+			configuration: .init(
+				title: localization.mirrorSourcePickerTitle,
+				subtitle: localization.mirrorSourcePickerSubtitle,
+				allowedIDs: allowedIDs
+			)
 		) { [weak self] source, isSuccess in
 			guard isSuccess, let source else {
 				return

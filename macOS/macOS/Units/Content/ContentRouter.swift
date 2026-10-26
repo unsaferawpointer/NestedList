@@ -18,8 +18,7 @@ import CorePresentation
 	)
 
 	func showItemPicker(
-		navigationTitle: String,
-		allowedIDs: Set<UUID>,
+		configuration: ItemPicker.Configuration,
 		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
 	)
 
@@ -73,22 +72,20 @@ extension ContentRouter: ContentRouterProtocol {
 	}
 
 	func showItemPicker(
-		navigationTitle: String,
-		allowedIDs: Set<UUID>,
+		configuration: ItemPicker.Configuration,
 		completionHandler: @escaping @MainActor (UUID?, Bool) -> Void
 	) {
 		let contentViewController = NSHostingController(
 			rootView:
 				ItemPicker(
 					storage: storage,
-					title: navigationTitle,
-					allowedIDs: allowedIDs
+					configuration: configuration
 				) { [weak self] itemID, isSuccess in
 					self?.closeSheet()
 					completionHandler(itemID, isSuccess)
 				}
 		)
-		contentViewController.title = navigationTitle
+		contentViewController.title = configuration.title
 		root.presentAsSheet(contentViewController)
 	}
 

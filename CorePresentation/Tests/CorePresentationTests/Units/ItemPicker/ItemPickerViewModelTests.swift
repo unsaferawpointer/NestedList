@@ -45,6 +45,92 @@ import Testing
 	}
 }
 
+// MARK: - Item Paths
+@MainActor extension ItemPickerViewModelTests {
+
+	@Test func init_rootItemHasEmptyPath() {
+		// Arrange
+		let item = Item(text: "Root")
+		let storage = makeStorage(nodes: [DocumentNode(value: item, children: [])])
+
+		// Act
+		let sut = makeSUT(storage: storage)
+
+		// Assert
+		#expect(sut.items.first?.path == "")
+	}
+
+	@Test func init_distinguishesDuplicateTitlesUsingFullAncestorPaths() {
+		// Arrange
+		let firstRoot = Item(text: "Work")
+		let secondRoot = Item(text: "Personal")
+		let parent = Item(text: "Projects")
+		let first = Item(text: "Tasks")
+		let second = Item(text: "Tasks")
+		let storage = makeStorage(nodes: [
+			DocumentNode(value: firstRoot, children: [
+				DocumentNode(value: parent, children: [
+					DocumentNode(value: first, children: [])
+				])
+			]),
+			DocumentNode(value: secondRoot, children: [
+				DocumentNode(value: second, children: [])
+			])
+		])
+
+		// Act
+		let sut = makeSUT(storage: storage, allowedIDs: [first.id, second.id])
+		sut.searchText = "tasks"
+
+		// Assert
+		#expect(sut.filteredItems.map(\.id) == [first.id, second.id])
+		#expect(sut.filteredItems.map(\.title) == ["Tasks", "Tasks"])
+		#expect(sut.filteredItems.map(\.path) == ["Work › Projects", "Personal"])
+	}
+
+	@Test func items_updatesPathWhenAncestorIsRenamed() {
+		// Arrange
+		let parent = Item(text: "Projects")
+		let item = Item(text: "Tasks")
+		let storage = makeStorage(nodes: [
+			DocumentNode(value: parent, children: [
+				DocumentNode(value: item, children: [])
+			])
+		])
+		let sut = makeSUT(storage: storage, allowedIDs: [item.id])
+
+		// Act
+		storage.modificate {
+			$0.setProperty(\.text, to: "Archived Projects", for: [parent.id])
+		}
+
+		// Assert
+		#expect(sut.items.first?.path == "Archived Projects")
+	}
+
+	@Test func items_updatesPathWhenItemIsMoved() throws {
+		// Arrange
+		let firstParent = Item(text: "Work")
+		let secondParent = Item(text: "Personal")
+		let item = Item(text: "Tasks")
+		let storage = makeStorage(nodes: [
+			DocumentNode(value: firstParent, children: [
+				DocumentNode(value: item, children: [])
+			]),
+			DocumentNode(value: secondParent, children: [])
+		])
+		let sut = makeSUT(storage: storage, allowedIDs: [item.id])
+
+		// Act
+		try storage.modificate {
+			try $0.moveItems(with: [item.id], to: .inItem(with: secondParent.id, atIndex: 0))
+		}
+
+		// Assert
+		#expect(sut.items.first?.path == "Personal")
+	}
+}
+
 // MARK: - Selection
 @MainActor extension ItemPickerViewModelTests {
 
@@ -142,7 +228,7 @@ import Testing
 	}
 }
 
-// MARK: - Analytics Mock
+// MARK: - Nested data structs
 private actor ItemPickerAnalyticsMock {
 
 	private var events: [ItemPickerAnalyticsEvent] = []

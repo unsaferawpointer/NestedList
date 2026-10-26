@@ -191,7 +191,77 @@ import Testing
 	#expect(result.globalIndex(for: "grandchild-b") == 5)
 }
 
-// MARK: - Test fixtures
+struct SnapshotPathTests { }
+
+// MARK: - Ancestor paths
+extension SnapshotPathTests {
+
+	@Test(arguments: [
+		("root-a", []),
+		("root-b", []),
+		("child-a", ["root-a"]),
+		("child-b", ["root-a"]),
+		("child-c", ["root-b"]),
+		("grandchild-a", ["root-a", "child-a"]),
+		("grandchild-b", ["root-a", "child-a"]),
+		("missing", [])
+	])
+	func path_returnsAncestorsInRootToParentOrder(id: String, expected: [String]) {
+		// Arrange
+		let snapshot = Snapshot<TestItem<String>>(TestFixtures.nodes)
+
+		// Act
+		let result = snapshot.path(for: id)
+
+		// Assert
+		#expect(result == expected)
+	}
+
+	@Test func path_emptySnapshotReturnsEmptyPath() {
+		// Arrange
+		let snapshot = Snapshot<TestItem<String>>()
+
+		// Act
+		let result = snapshot.path(for: "missing")
+
+		// Assert
+		#expect(result.isEmpty)
+	}
+}
+
+// MARK: - Paths after transformations
+extension SnapshotPathTests {
+
+	@Test func path_scopedSnapshotUsesAncestorsRelativeToNewRoot() {
+		// Arrange
+		let snapshot = Snapshot<TestItem<String>>(TestFixtures.nodes)
+			.withRoot(parent: "root-a")
+
+		// Act
+		let rootPath = snapshot.path(for: "child-a")
+		let descendantPath = snapshot.path(for: "grandchild-a")
+
+		// Assert
+		#expect(rootPath.isEmpty)
+		#expect(descendantPath == ["child-a"])
+	}
+
+	@Test func path_mappingNodeInfoPreservesAncestors() {
+		// Arrange
+		let snapshot = Snapshot<TestItem<String>>(TestFixtures.nodes)
+			.map { (info: NodeInfo<TestItem<String>>) in
+				TestItem(id: info.model.id, title: "Mapped")
+			}
+
+		// Act
+		let result = snapshot.path(for: "grandchild-b")
+
+		// Assert
+		#expect(result == ["root-a", "child-a"])
+	}
+}
+
+// MARK: - Nested data structs
 private enum TestFixtures {
 
 	static let nodes: [Node<TestItem<String>>] = [
