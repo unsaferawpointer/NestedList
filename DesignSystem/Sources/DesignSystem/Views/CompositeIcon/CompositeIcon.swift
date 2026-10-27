@@ -104,10 +104,7 @@ private extension CompositeIcon {
 
 	func layoutCompositeIcon() {
 		let isRightToLeft = effectiveUserInterfaceLayoutDirection == .rightToLeft
-		let frames = iconGeometry.frames(
-			isRightToLeft: isRightToLeft,
-			badgePosition: .top
-		)
+		let frames = iconGeometry.frames(isRightToLeft: isRightToLeft)
 
 		iconView.frame = frames.mainIcon
 		badgeIconView.frame = frames.badgeCutout.insetBy(
@@ -152,7 +149,8 @@ private extension CompositeIcon {
 
 	var iconGeometry: CompositeIconGeometry {
 		CompositeIconGeometry(
-			iconSide: semanticFont.pointSize,
+			iconWidth: semanticFont.pointSize,
+			iconHeight: semanticFont.pointSize,
 			badgeSideRatio: badgeSideRatio,
 			badgePaddingRatio: badgePaddingRatio,
 			badgeOverlapRatio: badgeOverlapRatio
@@ -212,7 +210,7 @@ public final class CompositeIcon: NSView {
 		}
 	}
 
-	private let iconBaseSide: CGFloat = 20
+	private let iconBaseSide: CGFloat = 18
 	private let badgeSideRatio: CGFloat = 7 / 20
 	private let badgePaddingRatio: CGFloat = 1 / 20
 	private let badgeOverlapRatio: CGFloat = 0.85
@@ -266,12 +264,14 @@ extension CompositeIcon {
 private extension CompositeIcon {
 
 	func addSubviews() {
-		addSubview(iconView)
-		addSubview(badgeIconView)
-		setContentHuggingPriority(.required, for: .horizontal)
-		setContentCompressionResistancePriority(.required, for: .horizontal)
-		setContentHuggingPriority(.required, for: .vertical)
-		setContentCompressionResistancePriority(.required, for: .vertical)
+		[iconView, badgeIconView].forEach { addSubview($0) }
+		[
+			NSLayoutConstraint.Orientation.horizontal,
+			NSLayoutConstraint.Orientation.vertical
+		].forEach { orientation in
+			setContentHuggingPriority(.required, for: orientation)
+			setContentCompressionResistancePriority(.required, for: orientation)
+		}
 	}
 }
 
@@ -281,10 +281,7 @@ private extension CompositeIcon {
 
 	func layoutCompositeIcon() {
 		let isRightToLeft = userInterfaceLayoutDirection == .rightToLeft
-		let frames = iconGeometry.frames(
-			isRightToLeft: isRightToLeft,
-			badgePosition: .bottom
-		)
+		let frames = iconGeometry.frames(isRightToLeft: isRightToLeft)
 
 		iconView.frame = frames.mainIcon
 		badgeIconView.frame = frames.badgeCutout.insetBy(
@@ -327,8 +324,10 @@ private extension CompositeIcon {
 	}
 
 	var iconGeometry: CompositeIconGeometry {
-		CompositeIconGeometry(
-			iconSide: iconBaseSide * semanticFont.pointSize / baseFont.pointSize,
+		let font = semanticFont
+		return CompositeIconGeometry(
+			iconWidth: iconBaseSide * font.pointSize / baseFont.pointSize,
+			iconHeight: ceil(font.ascender - font.descender + font.leading),
 			badgeSideRatio: badgeSideRatio,
 			badgePaddingRatio: badgePaddingRatio,
 			badgeOverlapRatio: badgeOverlapRatio
@@ -345,12 +344,12 @@ private extension CompositeIcon {
 
 	var mainIconBaselineOffsetFromBottom: CGFloat {
 		guard let image = iconView.image, image.size.width > 0, image.size.height > 0 else {
-			return iconGeometry.badgeProtrusion
+			return iconGeometry.mainIconOriginY - semanticFont.descender
 		}
 
-		let scale = min(iconGeometry.iconSide / image.size.width, iconGeometry.iconSide / image.size.height)
-		let imageVerticalInset = (iconGeometry.iconSide - image.size.height * scale) / 2
-		return iconGeometry.badgeProtrusion + imageVerticalInset + image.alignmentRect.minY * scale
+		let scale = min(iconGeometry.iconWidth / image.size.width, iconGeometry.iconHeight / image.size.height)
+		let imageVerticalInset = (iconGeometry.iconHeight - image.size.height * scale) / 2
+		return iconGeometry.mainIconOriginY + imageVerticalInset + image.alignmentRect.minY * scale
 	}
 
 	func makeImage(
@@ -375,78 +374,6 @@ private extension CompositeIcon {
 }
 
 #endif
-
-private struct CompositeIconGeometry {
-
-	enum BadgePosition {
-		case top
-		case bottom
-	}
-
-	struct Frames {
-		let mainIcon: CGRect
-		let badgeCutout: CGRect
-	}
-
-	let iconSide: CGFloat
-	let badgeSideRatio: CGFloat
-	let badgePaddingRatio: CGFloat
-	let badgeOverlapRatio: CGFloat
-
-	var badgeSide: CGFloat {
-		iconSide * badgeSideRatio
-	}
-
-	var badgePadding: CGFloat {
-		iconSide * badgePaddingRatio
-	}
-
-	var badgeCutoutSide: CGFloat {
-		badgeSide + 2 * badgePadding
-	}
-
-	var badgeOverlap: CGFloat {
-		badgeCutoutSide * badgeOverlapRatio
-	}
-
-	var badgeProtrusion: CGFloat {
-		badgeCutoutSide - badgeOverlap
-	}
-
-	var intrinsicContentSize: CGSize {
-		CGSize(
-			width: iconSide + badgeProtrusion,
-			height: iconSide + 2 * badgeProtrusion
-		)
-	}
-
-	func frames(
-		isRightToLeft: Bool,
-		badgePosition: BadgePosition
-	) -> Frames {
-		let badgeCutoutY: CGFloat = switch badgePosition {
-		case .top:
-			iconSide + badgeProtrusion - badgeOverlap
-		case .bottom:
-			0
-		}
-
-		return Frames(
-			mainIcon: CGRect(
-				x: isRightToLeft ? 0 : badgeProtrusion,
-				y: badgeProtrusion,
-				width: iconSide,
-				height: iconSide
-			),
-			badgeCutout: CGRect(
-				x: isRightToLeft ? iconSide - badgeOverlap : 0,
-				y: badgeCutoutY,
-				width: badgeCutoutSide,
-				height: badgeCutoutSide
-			)
-		)
-	}
-}
 
 private func makeCutoutMask(in bounds: CGRect, cuttingOut cutoutFrame: CGRect) -> CAShapeLayer {
 

@@ -190,8 +190,8 @@ private extension ItemCell {
 		[
 			container.leadingAnchor.constraint(equalTo: leadingAnchor),
 			container.trailingAnchor.constraint(equalTo: trailingAnchor),
-			container.topAnchor.constraint(equalTo: topAnchor, constant: 0),
-			container.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 0)
+			container.topAnchor.constraint(equalTo: topAnchor, constant: 3),
+			container.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -3)
 		]
 			.forEach { $0.isActive = true }
 
