@@ -134,6 +134,8 @@ extension ListAdapterProxy {
 			let view = SpacerView(height: height.rawValue)
 			view.setContentHuggingPriority(.defaultHigh, for: .vertical)
 			return view
+		case .none:
+			return nil
 		}
 	}
 
@@ -143,6 +145,8 @@ extension ListAdapterProxy {
 			return value.height ?? NSView.noIntrinsicMetric
 		case .spacer(_, let height):
 			return height.rawValue
+		case .none:
+			return NSView.noIntrinsicMetric
 		}
 	}
 }
@@ -239,8 +243,7 @@ extension ListAdapterProxy {
 			return
 		}
 
-		let model = snapshot.model(with: item.id)
-		guard !model.isDecoration else {
+		guard let model = snapshot.model(with: item.id), !model.isDecoration else {
 			menu.cancelTracking()
 			return
 		}
@@ -315,9 +318,9 @@ public extension ListAdapterProxy {
 // MARK: - Helpers
 private extension ListAdapterProxy {
 
-	func internalModel(for item: Any) -> InternalModel {
+	func internalModel(for item: Any) -> InternalModel? {
 		guard let item = item as? Item else {
-			fatalError("Invalid item type")
+			return nil
 		}
 		return snapshot.model(with: item.id)
 	}
@@ -350,8 +353,9 @@ private extension ListAdapterProxy {
 		var updateHeight = IndexSet()
 		for id in intersection {
 
-			let oldModel = old.model(with: id)
-			let newModel = new.model(with: id)
+			guard let oldModel = old.model(with: id), let newModel = new.model(with: id) else {
+				continue
+			}
 
 			let oldIndex = old.globalIndex(for: id)
 
@@ -367,8 +371,9 @@ private extension ListAdapterProxy {
 
 			let item = cache[unsafe: id]
 
-			let oldModel = old.model(with: id)
-			let newModel = new.model(with: id)
+			guard let oldModel = old.model(with: id), let newModel = new.model(with: id) else {
+				continue
+			}
 
 			guard !oldModel.contentIsEquals(to: newModel) else {
 				continue

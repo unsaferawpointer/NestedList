@@ -22,8 +22,9 @@ extension ListAnimator {
 
 		for id in intersection {
 
-			let oldModel = oldState.model(for: id)
-			let newModel = newState.model(for: id)
+			guard let oldModel = oldState.model(for: id), let newModel = newState.model(for: id) else {
+				continue
+			}
 
 			let oldConfiguration = oldState.configuration(for: id)
 			let newConfiguration = newState.configuration(for: id)

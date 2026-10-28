@@ -90,8 +90,8 @@ private extension ItemPickerViewModel {
 			.flattened { _ in true }
 			.filter { allowedIDs.contains($0.id) }
 			.map { item in
-				let path = snapshot.path(for: item.id).map {
-					snapshot.model(with: $0).text
+				let path = snapshot.path(for: item.id).compactMap {
+					snapshot.model(with: $0)?.text
 				}.joined(separator: " › ")
 
 				return ItemPickerItem(

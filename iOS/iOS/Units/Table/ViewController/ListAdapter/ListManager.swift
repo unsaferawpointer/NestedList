@@ -112,7 +112,9 @@ extension ListManager {
 
 	func cellForRow(at indexPath: IndexPath) -> UITableViewCell {
 
-		let model = storage.model(with: indexPath.row)
+		guard let model = storage.model(with: indexPath.row) else {
+			return UITableViewCell()
+		}
 		let configuration = storage.rowConfiguration(for: indexPath.row)
 
 		let cell = CellFactory.makeCell(
@@ -156,7 +158,9 @@ extension ListManager {
 			return nil
 		}
 
-		let model = storage.model(with: indexPath.row)
+		guard let model = storage.model(with: indexPath.row) else {
+			return nil
+		}
 
 		return buildContextMenu(for: model)
 	}
@@ -187,12 +191,11 @@ extension ListManager {
 			return []
 		}
 
-		let id = storage.model(with: indexPath.row).id
-		guard let provider = delegate.provider(for: id) else {
+		guard let model = storage.model(with: indexPath.row), let provider = delegate.provider(for: model.id) else {
 			return []
 		}
 		let item = UIDragItem(itemProvider: provider)
-		item.localObject = id
+		item.localObject = model.id
 		return [item]
 	}
 
@@ -295,7 +298,10 @@ extension ListManager {
 				storage.endMovement(for: id, to: destination)
 				delegate?.move([id], to: movementDestination)
 			case .insertIntoDestinationIndexPath:
-				let model = storage.model(with: target.row)
+				guard let model = storage.model(with: target.row) else {
+					storage.cancelMovement()
+					return
+				}
 				let destination: Destination<Model.ID> = .onItem(with: model.id)
 				guard delegate?.validateMovement([id], to: destination) == true else {
 					storage.cancelMovement()
@@ -354,7 +360,9 @@ extension ListManager {
 			guard let target = destinationIndexPath else {
 				fatalError()
 			}
-			let model = storage.model(with: target.row)
+			guard let model = storage.model(with: target.row) else {
+				return .toRoot
+			}
 			return .onItem(with: model.id)
 		default:
 			return .toRoot

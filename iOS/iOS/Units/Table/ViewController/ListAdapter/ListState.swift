@@ -51,12 +51,15 @@ extension ListState {
 		return flattened[row]
 	}
 
-	func model(for row: Int) -> Model {
-		let id = flattened[row]
-		return snapshot.model(with: id)
+	func model(for row: Int) -> Model? {
+		let identifiers = flattened
+		guard identifiers.indices.contains(row) else {
+			return nil
+		}
+		return snapshot.model(with: identifiers[row])
 	}
 
-	func model(for id: Model.ID) -> Model {
+	func model(for id: Model.ID) -> Model? {
 		return snapshot.model(with: id)
 	}
 

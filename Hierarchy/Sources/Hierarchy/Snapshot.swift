@@ -341,8 +341,8 @@ public extension Snapshot {
 		return info.model
 	}
 
-	func model(with id: ID) -> Model {
-		return storage[unsafe: id].model
+	func model(with id: ID) -> Model? {
+		return storage[id]?.model
 	}
 
 	func map<T: Identifiable>(_ transform: (Model) -> T) -> Snapshot<T> {

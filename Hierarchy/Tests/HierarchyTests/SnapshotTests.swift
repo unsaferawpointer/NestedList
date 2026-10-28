@@ -191,6 +191,58 @@ import Testing
 	#expect(result.globalIndex(for: "grandchild-b") == 5)
 }
 
+struct SnapshotModelTests { }
+
+// MARK: - Model lookup
+extension SnapshotModelTests {
+
+	@Test(arguments: ["root-a", "child-a", "grandchild-b"])
+	func model_returnsModelForExistingIdentifier(id: String) {
+		// Arrange
+		let snapshot = Snapshot<TestItem<String>>(TestFixtures.nodes)
+
+		// Act
+		let result = snapshot.model(with: id)
+
+		// Assert
+		#expect(result == TestItem(id: id))
+	}
+
+	@Test func model_returnsNilForUnknownIdentifier() {
+		// Arrange
+		let snapshot = Snapshot<TestItem<String>>(TestFixtures.nodes)
+
+		// Act
+		let result = snapshot.model(with: "missing")
+
+		// Assert
+		#expect(result == nil)
+	}
+
+	@Test func model_returnsNilInEmptySnapshot() {
+		// Arrange
+		let snapshot = Snapshot<TestItem<String>>()
+
+		// Act
+		let result = snapshot.model(with: "missing")
+
+		// Assert
+		#expect(result == nil)
+	}
+
+	@Test func model_returnsNilForRemovedIdentifier() {
+		// Arrange
+		let snapshot = Snapshot<TestItem<String>>(TestFixtures.nodes)
+			.removed(ids: ["child-a"])
+
+		// Act
+		let result = snapshot.model(with: "grandchild-b")
+
+		// Assert
+		#expect(result == nil)
+	}
+}
+
 struct SnapshotPathTests { }
 
 // MARK: - Ancestor paths

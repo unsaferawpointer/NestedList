@@ -72,7 +72,10 @@ extension ListStorage {
 			fatalError("Incosistent state")
 		}
 
-		let model = backupState.model(for: id)
+		guard let model = backupState.model(for: id) else {
+			cancelMovement()
+			return resultDestination
+		}
 
 		let newState = state.inserted(model: model, to: destination)
 
@@ -121,7 +124,7 @@ extension ListStorage {
 		return state.identifier(for: row)
 	}
 
-	func model(with index: Int) -> Model {
+	func model(with index: Int) -> Model? {
 		return state.model(for: index)
 	}
 
