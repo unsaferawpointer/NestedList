@@ -86,7 +86,12 @@ The macOS application SHALL present the list placeholder when a document or focu
 - **THEN** the window displays the list placeholder
 
 ### Requirement: Disclosure arrow focuses hidden subitems in the current macOS window
-In a macOS content outline, the system SHALL display a trailing disclosure arrow for an item whose subitems are hidden. Selecting that arrow SHALL focus the current content presentation on the item rather than opening a child window. The focused presentation SHALL show the item's visible descendants as root-level rows and retain the document and item-navigation behavior of the current window. Opening a child window SHALL remain available only through the explicit `Open in New Window` command.
+In a macOS content outline, the system SHALL display a trailing disclosure arrow if and only if the item's subitems are hidden and the item is not a mirror. A mirror SHALL NOT display the arrow, even when its referenced original hides its subitems. Selecting that arrow SHALL focus the current content presentation on the item rather than opening a child window. The focused presentation SHALL show the item's visible descendants as root-level rows and retain the document and item-navigation behavior of the current window. Opening a child window SHALL remain available only through the explicit `Open in New Window` command.
+
+#### Scenario: Hide the disclosure arrow for a mirror
+- **WHEN** a mirror is displayed in a macOS content outline
+- **THEN** the trailing disclosure arrow is hidden
+- **AND THEN** the arrow remains hidden even when the referenced original hides its subitems
 
 #### Scenario: Focus hidden subitems from a document window
 - **WHEN** the user selects the trailing disclosure arrow of an item with hidden subitems in a macOS document window

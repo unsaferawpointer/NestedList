@@ -47,7 +47,7 @@ public extension ItemsFactory {
 				)
 			},
 			compositeIcon: compositeIcon,
-			showsTrailingDisclosure: item.isSubitemsHidden,
+			showsTrailingDisclosure: item.isSubitemsHidden && !item.isMirror,
 			isGroup: !isLeaf
 		)
 	}

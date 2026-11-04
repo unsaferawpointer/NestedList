@@ -59,12 +59,17 @@ The cell SHALL use the filled form of the selected icon or the default point ico
 - **THEN** the cell presents the icon using its preferred appearance for the item tint or a monochrome item tint as fallback
 
 ### Requirement: Hidden-subitems state
-The cell SHALL present a trailing disclosure if and only if the item is configured to hide its subitems.
+The cell SHALL present a trailing disclosure if and only if the item is configured to hide its subitems and is not a mirror. A mirror SHALL omit the trailing disclosure regardless of the referenced original's hidden-subitems setting.
 
 #### Scenario: Present a trailing disclosure
-- **WHEN** the item hides its subitems
+- **WHEN** the item hides its subitems and is not a mirror
 - **THEN** the cell presents a trailing disclosure
 
 #### Scenario: Omit a trailing disclosure
 - **WHEN** the item does not hide its subitems
 - **THEN** the cell omits the trailing disclosure
+
+#### Scenario: Omit a trailing disclosure for a mirror
+- **WHEN** the item is a mirror
+- **THEN** the cell omits the trailing disclosure
+- **AND THEN** the disclosure remains omitted even when the referenced original hides its subitems
