@@ -101,7 +101,7 @@ final class ItemCell: NSView, ListCell {
 		let view = NSStackView(views: [compositeIcon, textfieldsContainer, disclosureButton])
 		view.orientation = .horizontal
 		view.distribution = .fill
-		view.spacing = 4
+		view.spacing = 2
 		view.alignment = .firstBaseline
 		// Shrink below the cached row height without competing with text compression resistance.
 		view.setHuggingPriority(
@@ -190,8 +190,8 @@ private extension ItemCell {
 		[
 			container.leadingAnchor.constraint(equalTo: leadingAnchor),
 			container.trailingAnchor.constraint(equalTo: trailingAnchor),
-			container.topAnchor.constraint(equalTo: topAnchor, constant: 3),
-			container.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -3)
+			container.topAnchor.constraint(equalTo: topAnchor, constant: 4),
+			container.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4)
 		]
 			.forEach { $0.isActive = true }
 

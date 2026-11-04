@@ -151,6 +151,7 @@ private extension CompositeIcon {
 		CompositeIconGeometry(
 			iconWidth: semanticFont.pointSize,
 			iconHeight: semanticFont.pointSize,
+			badgeReferenceSide: semanticFont.pointSize,
 			badgeSideRatio: badgeSideRatio,
 			badgePaddingRatio: badgePaddingRatio,
 			badgeOverlapRatio: badgeOverlapRatio
@@ -210,6 +211,8 @@ public final class CompositeIcon: NSView {
 		}
 	}
 
+	// Reserve the width of the widest symbol so changing icons keeps text aligned.
+	private let iconBaseWidth: CGFloat = 24
 	private let iconBaseSide: CGFloat = 18
 	private let badgeSideRatio: CGFloat = 7 / 20
 	private let badgePaddingRatio: CGFloat = 1 / 20
@@ -325,9 +328,12 @@ private extension CompositeIcon {
 
 	var iconGeometry: CompositeIconGeometry {
 		let font = semanticFont
+		let iconSide = iconBaseSide * font.pointSize / baseFont.pointSize
+		let imageSize = iconView.image?.size ?? .zero
 		return CompositeIconGeometry(
-			iconWidth: iconBaseSide * font.pointSize / baseFont.pointSize,
-			iconHeight: ceil(font.ascender - font.descender + font.leading),
+			iconWidth: ceil(iconBaseWidth * font.pointSize / baseFont.pointSize),
+			iconHeight: max(ceil(font.ascender - font.descender + font.leading), imageSize.height),
+			badgeReferenceSide: iconSide,
 			badgeSideRatio: badgeSideRatio,
 			badgePaddingRatio: badgePaddingRatio,
 			badgeOverlapRatio: badgeOverlapRatio
@@ -347,9 +353,8 @@ private extension CompositeIcon {
 			return iconGeometry.mainIconOriginY - semanticFont.descender
 		}
 
-		let scale = min(iconGeometry.iconWidth / image.size.width, iconGeometry.iconHeight / image.size.height)
-		let imageVerticalInset = (iconGeometry.iconHeight - image.size.height * scale) / 2
-		return iconGeometry.mainIconOriginY + imageVerticalInset + image.alignmentRect.minY * scale
+		let imageVerticalInset = (iconGeometry.iconHeight - image.size.height) / 2
+		return iconGeometry.mainIconOriginY + imageVerticalInset + image.alignmentRect.minY
 	}
 
 	func makeImage(

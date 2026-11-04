@@ -9,17 +9,18 @@ struct CompositeIconGeometry {
 
 	let iconWidth: CGFloat
 	let iconHeight: CGFloat
+	let badgeReferenceSide: CGFloat
 
 	let badgeSideRatio: CGFloat
 	let badgePaddingRatio: CGFloat
 	let badgeOverlapRatio: CGFloat
 
 	var badgeSide: CGFloat {
-		iconWidth * badgeSideRatio
+		badgeReferenceSide * badgeSideRatio
 	}
 
 	var badgePadding: CGFloat {
-		iconWidth * badgePaddingRatio
+		badgeReferenceSide * badgePaddingRatio
 	}
 
 	var badgeCutoutSide: CGFloat {
