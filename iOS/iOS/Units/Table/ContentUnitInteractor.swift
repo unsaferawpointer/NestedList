@@ -8,10 +8,13 @@
 import Foundation
 import Hierarchy
 import CoreModule
+import CorePresentation
 
 @MainActor
 protocol ContentUnitInteractorProtocol {
 	func fetchData() -> (Item?, Snapshot<Item>)
+	func focus(on id: UUID?) -> (Item?, Snapshot<Item>)
+	func pathItems() -> [Item?]
 
 	@discardableResult
 	func newItem(with properties: ItemProperties, target: UUID?) throws -> UUID
@@ -44,31 +47,31 @@ final class ContentUnitInteractor {
 
 	private let storage: DocumentStorage<DocumentContent>
 
-	var presenter: ContentPresenterProtocol?
+	weak var presenter: ContentPresenterProtocol?
 
 	var base: CommonInteractorProtocol
 
 	// MARK: - Internal State
 
-	private var root: UUID?
+	private var resolver: NavigationResolver
 
 	// MARK: - Initialization
 
 	init(root: UUID?, storage: DocumentStorage<DocumentContent>) {
 		self.storage = storage
 		self.base = CommonInteractor(storage: storage)
-		self.root = root
-		storage.addObservation(for: self) { [weak self] content in
-			guard let self else {
-				return
-			}
+		self.resolver = NavigationResolver(path: .init(root: root))
+		storage.addObservation(for: self) { [weak self] _ in
 			Task { @MainActor [weak self] in
-				let snapshot = content.snapshot()
-					.withRoot(parent: root)
-				self?.presenter?.present(snapshot: snapshot)
-				if let root, let item = content[root] {
-					self?.presenter?.presentRoot(item: item)
+				guard let self else {
+					return
 				}
+				let (item, snapshot) = fetchData()
+				presenter?.present(snapshot: snapshot)
+				if let item {
+					presenter?.presentRoot(item: item)
+				}
+				presenter?.presentPath(pathItems())
 			}
 		}
 	}
@@ -82,27 +85,46 @@ final class ContentUnitInteractor {
 extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 
 	func fetchData() -> (Item?, Snapshot<Item>) {
+		resolvePath()
 		let snapshot = storage.state
 			.snapshot()
-			.withRoot(parent: root)
-		guard let id = root, let item = storage.state[id] else {
+			.withRoot(parent: focusedRoot)
+		guard let id = resolver.path.root, let item = storage.state[id] else {
 			return (nil, snapshot)
 		}
 		return (item, snapshot)
 	}
 
+	func focus(on id: UUID?) -> (Item?, Snapshot<Item>) {
+		resolvePath()
+		guard let id else {
+			resolver = NavigationResolver(path: .init(root: resolver.path.root))
+			return fetchData()
+		}
+		guard storage.state[id]?.isMirror == false else {
+			return fetchData()
+		}
+		try? resolver.focus(on: id, in: storage.state)
+		return fetchData()
+	}
+
+	func pathItems() -> [Item?] {
+		resolvePath()
+		return resolver.items(in: storage.state)
+	}
+
 	func newItem(with properties: ItemProperties, target: UUID?) throws -> UUID {
 		let destination = Destination(target: target)
-		return try base.newItem(with: properties, target: destination.relative(to: root).id)
+		return try base.newItem(with: properties, target: destination.relative(to: focusedRoot).id)
 	}
 
 	func createMirror(reference: UUID, target: UUID?) throws -> UUID {
 		let destination = Destination(target: target)
-		return try base.createMirror(reference: reference, target: destination.relative(to: root).id)
+		return try base.createMirror(reference: reference, target: destination.relative(to: focusedRoot).id)
 	}
 
 	func mirrorSourceIDs(to destination: Destination<UUID>) -> Set<UUID> {
-		base.mirrorSourceIDs(to: destination.relative(to: root))
+		base.mirrorSourceIDs(to: destination.relative(to: focusedRoot))
 	}
 
 	func item(for id: UUID) -> Item {
@@ -149,26 +171,26 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 	}
 
 	func insertStrings(_ strings: [String], to destination: Destination<UUID>) {
-		try? base.insertStrings(strings, to: destination.relative(to: root))
+		try? base.insertStrings(strings, to: destination.relative(to: focusedRoot))
 	}
 
 	func insertNodes(_ nodes: [any TreeNode<Item>], to destination: Destination<UUID>) {
-		try? base.insertNodes(nodes, to: destination.relative(to: root))
+		try? base.insertNodes(nodes, to: destination.relative(to: focusedRoot))
 	}
 
 	func insertStrings(_ data: [Data], to destination: Hierarchy.Destination<UUID>) {
 		let strings = data.compactMap {
 			String(data: $0, encoding: .utf8)
 		}
-		try? base.insertStrings(strings, to: destination.relative(to: root))
+		try? base.insertStrings(strings, to: destination.relative(to: focusedRoot))
 	}
 
 	func insertItems(_ data: [Data], to destination: Hierarchy.Destination<UUID>) {
-		try? base.insertItems(data, to: destination.relative(to: root))
+		try? base.insertItems(data, to: destination.relative(to: focusedRoot))
 	}
 
 	func move(ids: [UUID], to destination: Destination<UUID>) {
-		try? base.move(ids, to: destination.relative(to: root))
+		try? base.move(ids, to: destination.relative(to: focusedRoot))
 	}
 
 	func move(ids: [UUID], to target: UUID?) {
@@ -177,6 +199,23 @@ extension ContentUnitInteractor: ContentUnitInteractorProtocol {
 	}
 
 	func validateMovement(_ ids: [UUID], to destination: Destination<UUID>) -> Bool {
-		base.validateMovement(ids, to: destination.relative(to: root))
+		base.validateMovement(ids, to: destination.relative(to: focusedRoot))
+	}
+}
+
+// MARK: - Private methods
+private extension ContentUnitInteractor {
+
+	var focusedRoot: UUID? {
+		resolvePath()
+		return resolver.focused
+	}
+
+	func resolvePath() {
+		do {
+			try resolver.resolve(content: storage.state)
+		} catch {
+			resolver = NavigationResolver()
+		}
 	}
 }

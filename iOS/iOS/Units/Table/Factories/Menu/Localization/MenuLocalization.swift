@@ -10,6 +10,7 @@ protocol MenuLocalizationProtocol {
 	var copyItemTitle: String { get }
 	var pasteItemTitle: String { get }
 	var editItemTitle: String { get }
+	var focusItemTitle: String { get }
 	var newItemTitle: String { get }
 	var addMirrorItemTitle: String { get }
 	var moveItemTitle: String { get }
@@ -43,6 +44,10 @@ extension MenuLocalization: MenuLocalizationProtocol {
 	
 	var editItemTitle: String {
 		String(localized: "edit_menu_item_title", table: "MenuLocalizable")
+	}
+
+	var focusItemTitle: String {
+		String(localized: "focus_menu_item_title", table: "MenuLocalizable")
 	}
 	
 	var newItemTitle: String {

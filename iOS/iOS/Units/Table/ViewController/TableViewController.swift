@@ -34,6 +34,17 @@ class TableViewController: UIViewController {
 		return NestedList()
 	}()
 
+	private lazy var pathView: PathView = {
+		let view = PathView()
+		view.didSelectItem = { [weak self] id in
+			self?.delegate?.selectPathComponent(id)
+		}
+		return view
+	}()
+
+	private let placeholderView = UIContentUnavailableView(configuration: .empty())
+	private var placeholderBottomConstraint: NSLayoutConstraint?
+
 	// MARK: - Initialization
 
 	init(id: UUID?, configure: @MainActor (TableViewController) -> Void) {
@@ -55,7 +66,13 @@ class TableViewController: UIViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		configureScrollEdgeInteraction()
 		delegate?.viewDidChange(state: .didLoad)
+	}
+
+	override func viewDidLayoutSubviews() {
+		super.viewDidLayoutSubviews()
+		updateScrollInsets()
 	}
 
 	override func viewWillAppear(_ animated: Bool) {
@@ -83,9 +100,10 @@ class TableViewController: UIViewController {
 			configuration.imageProperties.tintColor = .quaternaryLabel
 			configuration.text = String(localized: "empty-view-placeholder-text", table: "UnitLocalizable")
 			configuration.secondaryText = String(localized: "empty-view-placeholder-secondary-text", table: "UnitLocalizable")
-			self.contentUnavailableConfiguration = configuration
+			placeholderView.configuration = configuration
+			placeholderView.isHidden = false
 		} else {
-			self.contentUnavailableConfiguration = nil
+			placeholderView.isHidden = true
 		}
 	}
 }
@@ -118,6 +136,11 @@ extension TableViewController: ContentView {
 
 	func display(title: String) {
 		self.title = title
+	}
+
+	func displayPath(_ items: [PathItem]) {
+		pathView.display(items)
+		view.setNeedsLayout()
 	}
 
 	func expand(_ id: UUID) {
@@ -177,5 +200,39 @@ private extension TableViewController {
 
 	func configureLayout() {
 		nestedList.pin(edges: .all, to: view)
+		pathView.translatesAutoresizingMaskIntoConstraints = false
+		view.addSubview(pathView)
+		placeholderView.translatesAutoresizingMaskIntoConstraints = false
+		placeholderView.isHidden = true
+		nestedList.addSubview(placeholderView)
+		let placeholderBottom = placeholderView.bottomAnchor.constraint(equalTo: nestedList.safeAreaLayoutGuide.bottomAnchor)
+		placeholderBottomConstraint = placeholderBottom
+		NSLayoutConstraint.activate([
+			pathView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+			pathView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+			pathView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+			placeholderView.leadingAnchor.constraint(equalTo: nestedList.safeAreaLayoutGuide.leadingAnchor),
+			placeholderView.trailingAnchor.constraint(equalTo: nestedList.safeAreaLayoutGuide.trailingAnchor),
+			placeholderView.topAnchor.constraint(equalTo: nestedList.safeAreaLayoutGuide.topAnchor),
+			placeholderBottom
+		])
+	}
+
+	func configureScrollEdgeInteraction() {
+		if #available(iOS 26.0, *) {
+			let interaction = UIScrollEdgeElementContainerInteraction()
+			interaction.scrollView = nestedList.tableView
+			interaction.edge = .bottom
+			pathView.addInteraction(interaction)
+		} else {
+			pathView.backgroundColor = .systemBackground
+		}
+	}
+
+	func updateScrollInsets() {
+		let bottomInset = pathView.isHidden ? 0 : pathView.bounds.height
+		nestedList.tableView.contentInset.bottom = bottomInset
+		nestedList.tableView.verticalScrollIndicatorInsets.bottom = bottomInset
+		placeholderBottomConstraint?.constant = -bottomInset
 	}
 }

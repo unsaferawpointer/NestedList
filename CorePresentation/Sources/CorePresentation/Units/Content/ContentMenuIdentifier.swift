@@ -14,6 +14,7 @@ public enum ContentMenuIdentifier: String, Equatable {
 	case editItem = "edit"
 	case newItem = "new-item"
 	case addMirror = "add-mirror"
+	case focus = "focus"
 
 	case toggleStrikethrough = "completed-toggle"
 	case toggleSubitemsVisibility = "hide-subitems-toggle"
@@ -29,7 +30,6 @@ public enum ContentMenuIdentifier: String, Equatable {
 	#endif
 
 	#if os(macOS)
-	case focus = "focus"
 	case openInNewWindow = "open-in-new-window"
 	case toggleNote = "note-toggle"
 	case appearanceHeader = "appearance-header"

@@ -12,6 +12,7 @@ protocol ContentView: AnyObject {
 
 	func display(_ snapshot: Snapshot<ItemModel>)
 	func display(title: String)
+	func displayPath(_ items: [PathItem])
 	func apply(_ configuration: ContentToolbarConfiguration<UUID>)
 	func setEditing(_ editingMode: EditingMode?)
 

@@ -105,8 +105,136 @@ extension ContentPresenterTests {
 	}
 }
 
+// MARK: - ContentViewDelegate test-cases
+extension ContentPresenterTests {
+
+	@Test func test_selectPathComponent_restoresDocumentOnCurrentScreenAndTracksAnalytics() async {
+		// Arrange
+		let view = ContentViewMock()
+		sut.view = view
+
+		// Act
+		sut.selectPathComponent(nil)
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		#expect(router.invocations.isEmpty)
+		#expect(interactor.invocations.contains { action in
+			guard case .focus(nil) = action else { return false }
+			return true
+		})
+		#expect(view.path.isEmpty)
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+		#expect(event.name == .buttonClick)
+		#expect(event.parameters == [
+			"id": .string("focus-path-component"),
+			"source": .string("path-control")
+		])
+	}
+
+	@Test(arguments: [false, true])
+	func test_menuConfiguration_focusAvailability(isMirror: Bool) {
+		// Arrange
+		interactor.stubs.item.isMirror = isMirror
+
+		// Act
+		let configuration = sut.menuConfiguration(for: [interactor.stubs.item.id])
+
+		// Assert
+		#expect(configuration.canFocus == !isMirror)
+	}
+
+	@Test func test_menuConfiguration_withoutSelectionDisablesFocus() {
+		// Arrange
+		let selection: [UUID] = []
+
+		// Act
+		let configuration = sut.menuConfiguration(for: selection)
+
+		// Assert
+		#expect(!configuration.canFocus)
+	}
+}
+
+// MARK: - ContentMenuBuilder test-cases
+extension ContentPresenterTests {
+
+	@Test(arguments: [false, true])
+	func test_menuBuilder_includesFocusWithConfiguredAvailability(canFocus: Bool) {
+		// Arrange
+		let builder = ContentMenuBuilder<UUID>()
+		let configuration = ContentMenuConfiguration(canFocus: canFocus)
+
+		// Act
+		let elements = builder.build(with: [UUID()], configuration: configuration, delegate: sut)
+
+		// Assert
+		let action = elements.compactMap { $0 as? UIAction }.first { $0.identifier.rawValue == "focus" }
+		#expect(action?.title == MenuLocalization().focusItemTitle)
+		#expect(action?.attributes.contains(.disabled) == !canFocus)
+	}
+}
+
 // MARK: - ContentMenuDelegate test-cases
 extension ContentPresenterTests {
+
+	@Test func test_userDidTapMenuFocus_updatesCurrentScreenAndTracksAnalytics() async {
+		// Arrange
+		let focused = Item(text: "Focused")
+		let child = Item(text: "Child")
+		let view = ContentViewMock()
+		sut.view = view
+		interactor.stubs.path = [nil, focused]
+		interactor.stubs.snapshot = Snapshot([DocumentNode(value: child, children: [])])
+
+		// Act
+		sut.userDidTapMenu(with: .focus, selection: [focused.id, UUID()])
+		let invocation = await waitForAnalyticsInvocation()
+
+		// Assert
+		#expect(router.invocations.isEmpty)
+		#expect(interactor.invocations.contains { action in
+			guard case let .focus(id) = action else { return false }
+			return id == focused.id
+		})
+		#expect(view.snapshot.identifiers == [child.id])
+		#expect(view.path.map(\.id) == [nil, focused.id])
+		#expect(view.didExpandAll)
+		guard case let .track(event) = invocation else {
+			Issue.record("Expect track invocation")
+			return
+		}
+		#expect(event.name == .menuItemClick)
+		#expect(event.parameters == [
+			"id": .string("focus"),
+			"source": .string("context-menu")
+		])
+	}
+
+	@Test func test_userDidTapMenuFocus_withoutSelectionDoesNotNavigate() {
+		// Arrange
+		let selection: [UUID] = []
+
+		// Act
+		sut.userDidTapMenu(with: .focus, selection: selection)
+
+		// Assert
+		#expect(router.invocations.isEmpty)
+	}
+
+	@Test func test_userDidTapMenuFocus_onMirrorDoesNotNavigate() {
+		// Arrange
+		interactor.stubs.item.isMirror = true
+
+		// Act
+		sut.userDidTapMenu(with: .focus, selection: [interactor.stubs.item.id])
+
+		// Assert
+		#expect(router.invocations.isEmpty)
+	}
 
 	@Test func test_userDidTapMenuAddMirror_opensItemPicker() {
 		// Arrange

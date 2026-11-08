@@ -1,6 +1,6 @@
 //
 //  NavigationResolver.swift
-//  Nested List
+//  CorePresentation
 //
 //  Created by Anton Cherkasov on 18.10.2026.
 //
@@ -8,19 +8,19 @@
 import Foundation
 import CoreModule
 
-final class NavigationResolver {
+public final class NavigationResolver {
 
-	var path: NavigationPath
+	public var path: NavigationPath
 
 	// MARK: - Initialization
 
-	init(path: NavigationPath = .init(root: nil)) {
+	public init(path: NavigationPath = .init(root: nil)) {
 		self.path = path
 	}
 }
 
 // MARK: - Public Interface
-extension NavigationResolver {
+public extension NavigationResolver {
 
 	func items(in content: DocumentContent) -> [Item?] {
 		let items: [UUID?] = [path.root] + path.suffix
@@ -55,9 +55,6 @@ extension NavigationResolver {
 		path.focused ?? path.root
 	}
 
-	// A -> B -> C -> D
-	// A -> B
-	//
 	func resolve(content: DocumentContent) throws(NavigationError) {
 		var intersection: [UUID] = []
 		if let root = path.root, content[root] == nil {
@@ -94,7 +91,7 @@ private extension NavigationResolver {
 }
 
 // MARK: - NavigationError
-extension NavigationResolver {
+public extension NavigationResolver {
 
 	enum NavigationError: Error, Equatable {
 		case rootNotFound

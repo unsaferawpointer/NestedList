@@ -1,30 +1,29 @@
 //
 //  NavigationPath.swift
-//  macOS
+//  CorePresentation
 //
 //  Created by Anton Cherkasov on 17.10.2026.
 //
 
 import Foundation
-import CoreModule
 
-struct NavigationPath {
+public struct NavigationPath {
 
-	let root: UUID?
-	var suffix: [UUID] = []
+	public let root: UUID?
+	public var suffix: [UUID] = []
 
-	init(root: UUID?) {
+	public init(root: UUID?) {
 		self.root = root
 	}
 
-	init(root: UUID?, suffix: [UUID]) {
+	public init(root: UUID?, suffix: [UUID]) {
 		self.root = root
 		self.suffix = suffix
 	}
 }
 
 // MARK: - Public Interface
-extension NavigationPath {
+public extension NavigationPath {
 
 	var focused: UUID? {
 		suffix.last ?? root

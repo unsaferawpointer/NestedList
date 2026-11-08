@@ -14,12 +14,17 @@ protocol UnitLocalizationProtocol {
 	var iconPickerNavigationTitle: String { get }
 	var mirrorSourcePickerTitle: String { get }
 	var mirrorSourcePickerSubtitle: String { get }
+	var pathDocumentTitle: String { get }
 }
 
 final class UnitLocalization { }
 
 // MARK: - UnitLocalizationProtocol
 extension UnitLocalization: UnitLocalizationProtocol {
+
+	var pathDocumentTitle: String {
+		String(localized: "path_document_title", table: "UnitLocalizable")
+	}
 
 	var newItemNavigationTitle: String {
 		String(localized: "new_item_navigation_title", table: "UnitLocalizable")

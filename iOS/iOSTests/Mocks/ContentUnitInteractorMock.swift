@@ -25,6 +25,16 @@ extension ContentUnitInteractorMock: ContentUnitInteractorProtocol {
 		return (stubs.fetchedItem, stubs.snapshot)
 	}
 
+	func focus(on id: UUID?) -> (Item?, Snapshot<Item>) {
+		invocations.append(.focus(id))
+		return (stubs.fetchedItem, stubs.snapshot)
+	}
+
+	func pathItems() -> [Item?] {
+		invocations.append(.pathItems)
+		return stubs.path
+	}
+
 	func newItem(with properties: ItemProperties, target: UUID?) -> UUID {
 		invocations.append(.newItem(properties, target: target))
 		return stubs.newItem
@@ -119,6 +129,8 @@ extension ContentUnitInteractorMock {
 
 	enum Action {
 		case fetchData
+		case focus(UUID?)
+		case pathItems
 		case newItem(ItemProperties, target: UUID?)
 		case createMirror(reference: UUID, target: UUID?)
 		case mirrorSourceIDs(destination: Destination<UUID>)
@@ -143,6 +155,7 @@ extension ContentUnitInteractorMock {
 
 	struct Stubs {
 		var fetchedItem: Item?
+		var path: [Item?] = [nil]
 		var snapshot = Snapshot<Item>()
 		var newItem = UUID()
 		var mirrorSourceIDs = Set<UUID>()

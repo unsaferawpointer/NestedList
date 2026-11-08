@@ -2,7 +2,7 @@ import Testing
 import Foundation
 import CoreModule
 
-@testable import Nested_List
+import CorePresentation
 
 struct NavigationResolverTests {}
 
@@ -143,6 +143,11 @@ extension NavigationResolverTests {
 		#expect(sut.path.root == initialRoot)
 		#expect(sut.path.suffix == [parent.id, target.id])
 	}
+
+}
+
+// MARK: - Focus navigation
+extension NavigationResolverTests {
 
 	@Test func focus_drawsPathFromInitialRootToTarget() throws {
 		// Arrange

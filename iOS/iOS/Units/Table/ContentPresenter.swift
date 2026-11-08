@@ -18,6 +18,7 @@ import CorePresentation
 protocol ContentPresenterProtocol: AnyObject {
 	func present(snapshot: Snapshot<Item>)
 	func presentRoot(item: Item)
+	func presentPath(_ items: [Item?])
 }
 
 @MainActor
@@ -82,6 +83,7 @@ final class ContentPresenter {
 			if let item {
 				self?.presentRoot(item: item)
 			}
+			self?.presentPath(interactor.pathItems())
 		}
 	}
 }
@@ -112,6 +114,16 @@ extension ContentPresenter: ContentPresenterProtocol {
 	func presentRoot(item: Item) {
 		view?.display(title: item.text)
 	}
+
+	func presentPath(_ items: [Item?]) {
+		guard items.count > 1 else {
+			view?.displayPath([])
+			return
+		}
+		view?.displayPath(items.map { item in
+			PathItem(id: item?.id, text: item?.text ?? localization.pathDocumentTitle)
+		})
+	}
 }
 
 // MARK: - ViewDelegate
@@ -128,6 +140,7 @@ extension ContentPresenter: ViewDelegate {
 			if let item {
 				presentRoot(item: item)
 			}
+			presentPath(interactor.pathItems())
 			view?.expandAll()
 			displayToolbar()
 
@@ -150,6 +163,27 @@ extension ContentPresenter: ViewDelegate {
 
 // MARK: - Helpers
 private extension ContentPresenter {
+
+	func focus(selection: [UUID]) {
+		guard let first = selection.first, interactor?.item(for: first).isMirror == false else {
+			return
+		}
+		focus(on: first)
+	}
+
+	func focus(on id: UUID?) {
+		guard let interactor else {
+			return
+		}
+		editingMode = nil
+		let (item, snapshot) = interactor.focus(on: id)
+		present(snapshot: snapshot)
+		if let item {
+			presentRoot(item: item)
+		}
+		presentPath(interactor.pathItems())
+		view?.expandAll()
+	}
 
 	func paste(selection: [UUID]) {
 		editingMode = nil
@@ -331,6 +365,7 @@ extension ContentPresenter: ContentMenuDelegate {
 		Task { await analytics.track(event) }
 
 		switch id {
+		case .focus:						focus(selection: currentSelection)
 		case .cutItems:						cut(selection: currentSelection)
 		case .copyItems:					copy(selection: currentSelection)
 		case .paste:						paste(selection: currentSelection)
@@ -382,6 +417,12 @@ extension ContentPresenter: ContentToolbarDelegate {
 // MARK: - ContentViewDelegate
 extension ContentPresenter: ContentViewDelegate {
 
+	func selectPathComponent(_ id: UUID?) {
+		focus(on: id)
+		let event: ContentAnalyticsEvent = .buttonClick(id: "focus-path-component", source: "path-control")
+		Task { await analytics.track(event) }
+	}
+
 	func menuConfiguration(for ids: [UUID]) -> ContentMenuConfiguration {
 		var state: [String: Bool] = [:]
 		if let result = cache.validate(.isStrikethrough, other: ids) {
@@ -390,7 +431,8 @@ extension ContentPresenter: ContentViewDelegate {
 		if let result = cache.validate(.isSubitemsHidden, other: ids) {
 			state[ContentMenuIdentifier.toggleSubitemsVisibility.rawValue] = result
 		}
-		return ContentMenuConfiguration(state: state)
+		let canFocus = ids.first.map { interactor?.item(for: $0).isMirror == false } ?? false
+		return ContentMenuConfiguration(state: state, canFocus: canFocus)
 	}
 }
 
@@ -415,7 +457,7 @@ extension ContentPresenter: ListDelegate {
 			await analytics.track(event)
 		}
 
-		router.showDocument(for: id)
+		focus(on: id)
 	}
 }
 

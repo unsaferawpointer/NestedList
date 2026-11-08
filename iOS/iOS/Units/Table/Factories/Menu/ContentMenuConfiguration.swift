@@ -9,6 +9,7 @@ import Foundation
 
 struct ContentMenuConfiguration {
 	var state: [String: Bool] = [:]
+	var canFocus = false
 }
 
 extension ContentMenuConfiguration {

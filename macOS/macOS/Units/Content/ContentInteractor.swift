@@ -8,8 +8,9 @@
 import Foundation
 import Hierarchy
 import CoreModule
+import CorePresentation
 
-protocol ContentInteractorProtocol {
+@MainActor protocol ContentInteractorProtocol {
 
 	func fetchData() -> (Item?, Snapshot<Item>)
 	func focus(on id: UUID?) -> (Item?, Snapshot<Item>)

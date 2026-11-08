@@ -15,4 +15,5 @@ import DesignSystem
 												 ContentMenuDelegate,
 												 ContentToolbarDelegate {
 	func menuConfiguration(for ids: [ID]) -> ContentMenuConfiguration
+	func selectPathComponent(_ id: UUID?)
 }

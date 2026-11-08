@@ -114,6 +114,22 @@
         }
       }
     },
+		"focus_menu_item_title" : {
+			"localizations" : {
+				"en" : {
+					"stringUnit" : {
+						"state" : "translated",
+						"value" : "Focus"
+					}
+				},
+				"ru" : {
+					"stringUnit" : {
+						"state" : "translated",
+						"value" : "Фокус"
+					}
+				}
+			}
+		},
     "icon_menu_item_title" : {
       "localizations" : {
         "en" : {

@@ -1,6 +1,22 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+		"path_document_title" : {
+			"localizations" : {
+				"en" : {
+					"stringUnit" : {
+						"state" : "translated",
+						"value" : "Document"
+					}
+				},
+				"ru" : {
+					"stringUnit" : {
+						"state" : "translated",
+						"value" : "Документ"
+					}
+				}
+			}
+		},
 		"mirror_source_picker_title" : {
 			"localizations" : {
 				"en" : {

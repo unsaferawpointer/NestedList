@@ -63,6 +63,17 @@ extension ContentMenuBuilder {
 						}
 					]
 			),
+			buildAction(
+				title: localization.focusItemTitle,
+				icon: "viewfinder",
+				identifier: .focus,
+				attributes: configuration.canFocus ? [] : [.disabled]
+			) {
+				delegate?.userDidTapMenu(
+					with: .focus,
+					selection: selection
+				)
+			},
 			UIMenu(
 				identifier: .init("editor"),
 				options: [.displayInline],
