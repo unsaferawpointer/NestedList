@@ -45,7 +45,7 @@ final class ItemConfigurationView: UIView {
 		let stack = UIStackView(arrangedSubviews: [iconBadgeView, textStack])
 		stack.axis = .horizontal
 		stack.alignment = .center
-		stack.spacing = 12
+		stack.spacing = 4
 		return stack
 	}()
 
@@ -100,7 +100,7 @@ private extension ItemConfigurationView {
 
 	func configureView() {
 		backgroundColor = .clear
-		directionalLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 16)
+		directionalLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: 4, bottom: 8, trailing: 12)
 
 		[contentStack, trailingArrow].forEach {
 			$0.translatesAutoresizingMaskIntoConstraints = false
@@ -112,10 +112,13 @@ private extension ItemConfigurationView {
 		NSLayoutConstraint.activate([
 			contentStack.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
 			contentStack.trailingAnchor.constraint(equalTo: trailingArrow.leadingAnchor, constant: -4),
-			contentStack.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor, constant: 8),
-			contentStack.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor, constant: -8),
+			contentStack.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor, constant: 2),
+			contentStack.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor, constant: -2),
 
-			trailingArrow.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
+			trailingArrow.trailingAnchor.constraint(
+				equalTo: layoutMarginsGuide.trailingAnchor,
+				constant: -12
+			),
 			trailingArrow.centerYAnchor.constraint(equalTo: centerYAnchor)
 		])
 	}

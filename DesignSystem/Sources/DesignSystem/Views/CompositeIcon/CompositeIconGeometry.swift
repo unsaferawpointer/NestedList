@@ -46,7 +46,7 @@ struct CompositeIconGeometry {
 		#if os(macOS)
 		max(0, badgeProtrusion - badgePadding)
 		#else
-		badgeProtrusion
+		0
 		#endif
 	}
 
@@ -80,7 +80,7 @@ private extension CompositeIconGeometry {
 		#if os(macOS)
 		iconHeight + mainIconOriginY
 		#else
-		iconHeight + 2 * badgeProtrusion
+		iconHeight + max(0, badgeProtrusion - badgePadding)
 		#endif
 	}
 }

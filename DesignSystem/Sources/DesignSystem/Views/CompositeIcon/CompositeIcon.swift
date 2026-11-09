@@ -16,7 +16,7 @@ public final class CompositeIcon: UIView {
 
 	private lazy var iconView: UIImageView = {
 		let view = UIImageView()
-		view.contentMode = .scaleAspectFit
+		view.contentMode = .center
 		return view
 	}()
 
@@ -43,9 +43,12 @@ public final class CompositeIcon: UIView {
 
 	private var contentSizeCategoryObserver: NSObjectProtocol?
 
-	private let badgeSideRatio: CGFloat = 8 / 20
+	// Reserve the width of the widest symbol so changing icons keeps text aligned.
+	private let iconBaseWidth: CGFloat = 32
+	private let iconBaseSide: CGFloat = 24
+	private let badgeSideRatio: CGFloat = 7 / 20
 	private let badgePaddingRatio: CGFloat = 1 / 20
-	private let badgeOverlapRatio: CGFloat = 0.75
+	private let badgeOverlapRatio: CGFloat = 0.85
 
 	// MARK: - Initialization
 
@@ -148,10 +151,13 @@ private extension CompositeIcon {
 	}
 
 	var iconGeometry: CompositeIconGeometry {
-		CompositeIconGeometry(
-			iconWidth: semanticFont.pointSize,
-			iconHeight: semanticFont.pointSize,
-			badgeReferenceSide: semanticFont.pointSize,
+		let font = semanticFont
+		let iconSide = iconBaseSide * font.pointSize / baseFont.pointSize
+		let imageSize = iconView.image?.size ?? .zero
+		return CompositeIconGeometry(
+			iconWidth: ceil(iconBaseWidth * font.pointSize / baseFont.pointSize),
+			iconHeight: max(ceil(font.lineHeight), imageSize.height),
+			badgeReferenceSide: iconSide,
 			badgeSideRatio: badgeSideRatio,
 			badgePaddingRatio: badgePaddingRatio,
 			badgeOverlapRatio: badgeOverlapRatio
@@ -160,6 +166,13 @@ private extension CompositeIcon {
 
 	var semanticFont: UIFont {
 		UIFont.preferredFont(forTextStyle: textStyle.value, compatibleWith: traitCollection)
+	}
+
+	var baseFont: UIFont {
+		UIFont.preferredFont(
+			forTextStyle: .body,
+			compatibleWith: UITraitCollection(preferredContentSizeCategory: .large)
+		)
 	}
 
 	func makeImage(
@@ -171,7 +184,7 @@ private extension CompositeIcon {
 		}
 		return configuration.name?.uiImage
 			.applyingSymbolConfiguration(configuration.appearence.configuration)?
-			.applyingSymbolConfiguration(.init(textStyle: textStyle.value, scale: scale))
+			.applyingSymbolConfiguration(.init(font: semanticFont, scale: scale))
 	}
 }
 

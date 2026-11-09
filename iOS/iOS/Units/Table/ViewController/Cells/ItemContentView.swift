@@ -85,7 +85,8 @@ private extension ItemContentView {
 			addSubview($0)
 		}
 
-		let listContentLeadingConstraint = disclosureArrow.leadingAnchor.constraint(equalTo: leadingAnchor)
+		let listContentLeadingConstraint = disclosureArrow.leadingAnchor
+			.constraint(equalTo: leadingAnchor)
 		self.leadingConstraint = listContentLeadingConstraint
 
 		NSLayoutConstraint.activate([
@@ -140,7 +141,7 @@ private extension ItemContentView {
 	}
 
 	func updateLayoutConstraints() {
-		leadingConstraint?.constant = offset + 16
+		leadingConstraint?.constant = offset + 12
 	}
 }
 
@@ -155,7 +156,7 @@ private extension ItemContentView {
 		}
 
 		let isPad = UIDevice.current.userInterfaceIdiom == .pad
-		let attenuation = isPad ? 0.1 : 0.4
+		let attenuation = isPad ? 0.1 : 0.45
 		let interval = bounds.width - 240.0
 		let offset = interval - exp(-attenuation * Double(level)) * interval
 
