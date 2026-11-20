@@ -31,7 +31,7 @@ extension SceneRouter {
 		}
 	}
 
-	func showOnboarding(for version: Version, settingsProvider: any StateProviderProtocol<Settings>) {
+	@MainActor func showOnboarding(for version: Version, settingsProvider: any StateProviderProtocol<Settings>) {
 		guard let viewController = OnboardingAssembly.build(
 			settingsProvider: settingsProvider,
 			for: version

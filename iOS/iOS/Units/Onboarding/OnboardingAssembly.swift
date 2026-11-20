@@ -10,7 +10,7 @@ import SwiftUI
 import CoreModule
 import CorePresentation
 
-final class OnboardingAssembly {
+@MainActor final class OnboardingAssembly {
 
 	static func build(
 		settingsProvider: any StateProviderProtocol<Settings>,
@@ -27,11 +27,8 @@ private extension OnboardingAssembly {
 		settingsProvider: any StateProviderProtocol<Settings>,
 		version: Version
 	) -> UIViewController? {
-		let lastVersion = settingsProvider.state.lastOnboardingVersion?.version
-		guard
-			let features = try? OnboardingFactory.build(for: version, lastVersion: lastVersion, in: .main),
-			!features.isEmpty
-		else {
+		let features = OnboardingFactory.build()
+		guard !features.isEmpty else {
 			return nil
 		}
 		let view = OnboardingView(features: features) {

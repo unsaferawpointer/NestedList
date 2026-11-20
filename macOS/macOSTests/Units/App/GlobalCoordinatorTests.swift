@@ -60,12 +60,12 @@ import CorePresentation
 		#expect(router.invocations.first == .showOnboarding(version: version))
 	}
 
-	@Test func startShowsOnboardingWhenNeeded() throws {
+	@Test(arguments: ["2.0.0", "3.0.0"])
+	func startDoesNotShowOnboardingWhenSavedVersionIsEqualOrNewer(savedVersion: String) {
 		// Arrange
 		let settingsProvider = StateProviderMock<Settings>()
-		settingsProvider.stubs.state = .init(lastOnboardingVersion: .init(rawValue: "1.0.0"))
-		let version = Version(major: 2)
-		let infoProvider = InfoProviderMock(version: version)
+		settingsProvider.stubs.state = .init(lastOnboardingVersion: .init(rawValue: savedVersion))
+		let infoProvider = InfoProviderMock(version: Version(major: 2))
 		let router = GlobalRouterMock()
 		let sut = makeSUT(settingsProvider: settingsProvider, infoProvider: infoProvider, router: router)
 
@@ -73,8 +73,7 @@ import CorePresentation
 		sut.start()
 
 		// Assert
-		#expect(router.invocations.count == 1)
-		#expect(router.invocations.first == .showOnboarding(version: version))
+		#expect(router.invocations.isEmpty)
 	}
 
 	@Test func startDoesNotShowOnboardingWhenVersionIsMissing() throws {
@@ -122,7 +121,7 @@ import CorePresentation
 	}
 }
 
-// MARK: - Helpers
+// MARK: - Nested data structs
 private extension GlobalCoordinatorTests {
 
 	func makeSUT(

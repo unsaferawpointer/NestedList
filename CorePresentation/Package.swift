@@ -32,8 +32,7 @@ let package = Package(
 		),
 		.testTarget(
 			name: "CorePresentationTests",
-			dependencies: ["CorePresentation"],
-			resources: [.process("Resources")]
+			dependencies: ["CorePresentation"]
 		),
 	]
 )

@@ -57,8 +57,8 @@ extension OnboardingItemView: View {
 			RoundedRectangle(cornerRadius: 8)
 				.fill(
 					model.isSelected
-					? Color.accentColor.opacity(0.15)
-					: .clear
+						? Color.accentColor.opacity(0.15)
+						: .clear
 				)
 		}
 		.accessibilityHidden(true)
@@ -140,7 +140,7 @@ private extension OnboardingItemView {
 #Preview("Row") {
 	OnboardingItemView(
 		model: .init(
-			id: .random(),
+			id: .today,
 			title: .init(
 				value: "Today",
 				style: .headline,
@@ -158,7 +158,7 @@ private extension OnboardingItemView {
 }
 
 #Preview("List") {
-	let items = Onboarding.makeItems()
+	let items = OnboardingItemsFactory.makeItems()
 	List {
 		ForEach(items) { item in
 			OnboardingItemView(model: item)

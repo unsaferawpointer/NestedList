@@ -121,10 +121,10 @@ extension OnboardingFooter: View {
 }
 
 // MARK: - Preview Helpers
-private extension OnboardingState {
+@MainActor private extension OnboardingState {
 
 	static func preview(currentPage: Int) -> OnboardingState {
-		var state = OnboardingState(features: .newFormat)
+		var state = OnboardingState(features: OnboardingFactory.build())
 		state.currentPage = currentPage
 		return state
 	}

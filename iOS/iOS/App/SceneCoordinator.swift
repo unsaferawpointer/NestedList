@@ -35,7 +35,7 @@ final class SceneCoordinator {
 // MARK: - Public Interface
 extension SceneCoordinator {
 
-	func start(for scene: UIScene, options connectionOptions: UIScene.ConnectionOptions) {
+	@MainActor func start(for scene: UIScene, options connectionOptions: UIScene.ConnectionOptions) {
 		router.showWindow(for: scene, options: connectionOptions)
 		if shouldShowOnboarding, let version = infoProvider.version {
 			router.showOnboarding(for: version, settingsProvider: SettingsProvider.shared)

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct OnboardingView {
+@MainActor public struct OnboardingView {
 
 	@Environment(\.dismiss) private var dismiss
 
@@ -18,7 +18,7 @@ public struct OnboardingView {
 	// MARK: - Initialization
 
 	public init(
-		features: [Feature],
+		features: [Onboarding.Feature],
 		analytics: any ConcreteAnalyticsServiceProtocol<OnboardingAnalyticsEvent> = ConcreteAnalyticsService<OnboardingAnalyticsEvent>(),
 		onComplete: (@MainActor () -> Void)?
 	) {
@@ -30,6 +30,7 @@ public struct OnboardingView {
 }
 
 #if os(iOS)
+// MARK: - View
 extension OnboardingView: View {
 
 	public var body: some View {
@@ -39,23 +40,23 @@ extension OnboardingView: View {
 			TabView(selection: $viewModel.currentPage) {
 				ForEach(viewModel.pageIndices, id: \.self) { pageIndex in
 					let feature = viewModel.features[pageIndex]
-					PageView(
-						systemName: feature.icon,
+					OnboardingPage(
 						title: feature.title,
-						description: feature.description
+						subtitle: feature.subtitle,
+						scenario: feature.scenario,
+						isActive: viewModel.currentPage == pageIndex && !viewModel.isCompleted
 					)
 					.tag(pageIndex)
 				}
-				}
-				.tabViewStyle(.page(indexDisplayMode: .never))
-				OnboardingFooter(
-					state: viewModel.state,
-					secondaryAction: viewModel.skip,
-					primaryAction: viewModel.primaryAction
-				)
+			}
+			.tabViewStyle(.page(indexDisplayMode: .never))
+			OnboardingFooter(
+				state: viewModel.state,
+				secondaryAction: viewModel.skip,
+				primaryAction: viewModel.primaryAction
+			)
 			.padding()
 		}
-		.ignoresSafeArea(edges: .all)
 		.onAppear {
 			viewModel.show()
 		}
@@ -69,35 +70,36 @@ extension OnboardingView: View {
 }
 #elseif os(macOS)
 
+// MARK: - View
 extension OnboardingView: View {
 
 	public var body: some View {
 		VStack(spacing: 0) {
-			PageView(
-				systemName: viewModel.feature.icon,
+			OnboardingPage(
 				title: viewModel.feature.title,
-				description: viewModel.feature.description
+				subtitle: viewModel.feature.subtitle,
+				scenario: viewModel.feature.scenario,
+				isActive: !viewModel.isCompleted
 			)
 			.id(viewModel.id)
 			.transition(
 				.asymmetric(insertion: .opacity, removal: .opacity)
 			)
-			Spacer(minLength: 16)
-			Divider()
 
-				OnboardingFooter(
-					state: viewModel.state,
-					onBack: viewModel.back,
-					secondaryAction: viewModel.skip,
-					primaryAction: viewModel.primaryAction
+			OnboardingFooter(
+				state: viewModel.state,
+				onBack: viewModel.back,
+				secondaryAction: viewModel.skip,
+				primaryAction: viewModel.primaryAction
 			)
 		}
 		.background(.ultraThickMaterial)
 		.frame(
 			minWidth: 640,
-			idealWidth: 720,
+			idealWidth: 680,
 			maxWidth: 820,
 			minHeight: 560,
+			idealHeight: 600,
 			maxHeight: 640,
 			alignment: .bottom
 		)
@@ -126,31 +128,6 @@ private extension OnboardingView {
 }
 
 #Preview {
-	OnboardingView(features: .newFormat, onComplete: nil)
-}
-
-extension [Feature] {
-
-	static var newFormat: [Feature] {
-		[
-			.init(
-				icon: "arrow.down.document",
-				iconColor: .primary,
-				title: "Easy Conversion",
-				description: "Import legacy TXT files with one click"
-			),
-			.init(
-				icon: "arrow.up.document",
-				iconColor: .primary,
-				title: "Full Backward Compatibility",
-				description: "Export back to TXT anytime"
-			),
-			.init(
-				icon: "sparkles",
-				iconColor: .primary,
-				title: "Exclusive Features",
-				description: "Advanced functionality only available in the new format"
-			)
-		]
-	}
+	OnboardingView(features: OnboardingFactory.build(), onComplete: nil)
+		.environment(\.scenePhase, .active)
 }

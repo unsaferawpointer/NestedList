@@ -1,0 +1,108 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "onboarding-subitems-title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Organize with subitems"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Порядок с помощью подпунктов"
+          }
+        }
+      }
+    },
+    "onboarding-subitems-subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create nested lists and collapse branches to focus on what matters."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создавайте вложенные списки, сворачивайте и раскрывайте их, чтобы сосредоточиться на главном."
+          }
+        }
+      }
+    },
+    "onboarding-customization-title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make every item yours"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Настройте пункты под себя"
+          }
+        }
+      }
+    },
+    "onboarding-customization-subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose icons and colors, and cross off completed tasks."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выбирайте иконки и цвета, а выполненные задачи отмечайте зачёркиванием."
+          }
+        }
+      }
+    },
+    "onboarding-mirrors-title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep items in sync"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изменения видны во всех зеркалах"
+          }
+        }
+      }
+    },
+    "onboarding-mirrors-subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit an item in one place and see its mirrors update together."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Редактируйте пункт в одном месте — его зеркала обновятся одновременно."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

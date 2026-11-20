@@ -13,7 +13,7 @@ struct OnboardingItem {
 
 	// MARK: - Identity
 
-	var id: UUID = UUID()
+	var id: String = UUID().uuidString
 
 	// MARK: - Content
 

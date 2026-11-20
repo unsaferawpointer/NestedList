@@ -75,28 +75,46 @@ import Testing
 		#expect(event.parameters["index"] == .int(0))
 		#expect(sut.isCompleted == true)
 	}
+
+	@Test func navigation_preservesEachPreparedScenarioWhenReturningToPage() {
+		// Arrange
+		let sut = makeSUT(analytics: OnboardingAnalyticsMock())
+		let firstScenario = sut.feature.scenario
+		let secondScenario = sut.features[1].scenario
+
+		// Act
+		sut.primaryAction()
+		let selectedScenario = sut.feature.scenario
+		sut.back()
+
+		// Assert
+		#expect(selectedScenario.id == secondScenario.id)
+		#expect(sut.feature.scenario.id == firstScenario.id)
+		#expect(sut.feature.scenario.steps == firstScenario.steps)
+		#expect(!sut.isCompleted)
+	}
 }
 
-// MARK: - Private methods
+// MARK: - Nested data structs
 @MainActor private extension OnboardingViewModelTests {
 
 	func makeSUT(analytics: OnboardingAnalyticsMock) -> OnboardingViewModel {
 		return OnboardingViewModel(features: features, analytics: analytics)
 	}
 
-	var features: [Feature] {
+	var features: [Onboarding.Feature] {
 		[
 			.init(
 				id: "first",
-				icon: "1.circle",
 				title: "First",
-				description: "First page"
+				subtitle: "First page",
+				scenario: .subitems
 			),
 			.init(
 				id: "second",
-				icon: "2.circle",
 				title: "Second",
-				description: "Second page"
+				subtitle: "Second page",
+				scenario: .mirrors
 			)
 		]
 	}

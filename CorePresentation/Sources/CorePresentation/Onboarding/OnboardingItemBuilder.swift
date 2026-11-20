@@ -59,9 +59,10 @@ extension OnboardingItemBuilder {
 // MARK: - Building
 extension OnboardingItemBuilder {
 
-	func build() -> OnboardingItem {
+	/// Supply an ID for stable scene references; otherwise create an independent item.
+	func build(id: String = UUID().uuidString) -> OnboardingItem {
 		var result = item
-		result.id = UUID()
+		result.id = id
 		return result
 	}
 }

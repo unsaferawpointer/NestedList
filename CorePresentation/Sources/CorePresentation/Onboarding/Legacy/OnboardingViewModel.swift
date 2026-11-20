@@ -23,7 +23,7 @@ final class OnboardingViewModel {
 	// MARK: - Initialization
 
 	init(
-		features: [Feature],
+		features: [Onboarding.Feature],
 		analytics: any ConcreteAnalyticsServiceProtocol<OnboardingAnalyticsEvent>
 	) {
 		self.state = .init(features: features)
@@ -34,7 +34,7 @@ final class OnboardingViewModel {
 // MARK: - Public Interface
 extension OnboardingViewModel {
 
-	var features: [Feature] {
+	var features: [Onboarding.Feature] {
 		return state.features
 	}
 
@@ -47,7 +47,7 @@ extension OnboardingViewModel {
 		}
 	}
 
-	var feature: Feature {
+	var feature: Onboarding.Feature {
 		return state.feature
 	}
 
@@ -110,12 +110,12 @@ private extension OnboardingViewModel {
 
 struct OnboardingState {
 
-	let features: [Feature]
+	let features: [Onboarding.Feature]
 	var currentPage: Int
 
 	// MARK: - Initialization
 
-	init(features: [Feature]) {
+	init(features: [Onboarding.Feature]) {
 		assert(!features.isEmpty, "Features list is empty")
 		self.features = features
 		self.currentPage = 0
@@ -125,7 +125,7 @@ struct OnboardingState {
 // MARK: - Public Interface
 extension OnboardingState {
 
-	var feature: Feature {
+	var feature: Onboarding.Feature {
 		return features[currentPage]
 	}
 

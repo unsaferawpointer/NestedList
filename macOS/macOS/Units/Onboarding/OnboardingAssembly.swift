@@ -10,7 +10,7 @@ import SwiftUI
 import CoreModule
 import CorePresentation
 
-final class OnboardingAssembly {
+@MainActor final class OnboardingAssembly {
 
 	static func build(settingsProvider: SettingsProvider, for version: Version) -> NSWindow? {
 		return buildWindow(settingsProvider: settingsProvider, version: version)
@@ -25,14 +25,11 @@ private extension OnboardingAssembly {
 		let window = NSWindow()
 		window.identifier = .init("onboarding-window")
 
-		let lastVersion = settingsProvider.state.lastOnboardingVersion?.version
-		guard
-			let features = try? OnboardingFactory.build(for: version, lastVersion: lastVersion, in: .main),
-			!features.isEmpty
-		else {
+		let features = OnboardingFactory.build()
+		guard !features.isEmpty else {
 			return nil
 		}
-		let view = OnboardingView(features: features) {
+		let view = OnboardingContent(features: features) {
 			settingsProvider.state.lastOnboardingVersion = .init(rawValue: version.rawValue)
 
 			guard NSApp.modalWindow === window && NSApp.modalWindow?.isVisible ?? false else {
@@ -55,5 +52,31 @@ private extension OnboardingAssembly {
 		window.setContentSize(contentViewController.view.fittingSize)
 
 		return window
+	}
+}
+
+@MainActor private struct OnboardingContent {
+
+	@State private var isApplicationActive = NSApp.isActive
+
+	let features: [Onboarding.Feature]
+	let onComplete: @MainActor () -> Void
+}
+
+// MARK: - View
+extension OnboardingContent: View {
+
+	var body: some View {
+		OnboardingView(features: features, onComplete: onComplete)
+			.environment(\.scenePhase, isApplicationActive ? .active : .inactive)
+			.onAppear {
+				isApplicationActive = NSApp.isActive
+			}
+			.onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+				isApplicationActive = true
+			}
+			.onReceive(NotificationCenter.default.publisher(for: NSApplication.didResignActiveNotification)) { _ in
+				isApplicationActive = false
+			}
 	}
 }
